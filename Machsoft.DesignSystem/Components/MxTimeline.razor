@@ -1,0 +1,38 @@
+@using MudBlazor
+
+<MudTimeline Dense="@Dense" Reverse="@Reverse" TimelinePosition="@TimelinePosition" Class="@Class" Style="@Style">
+    @if (Items is not null)
+    {
+        @foreach (var item in Items)
+        {
+            <MudTimelineItem Color="@item.Color" Variant="@item.Variant" Elevation="@item.Elevation">
+                <ItemDot>
+                    @if (!string.IsNullOrWhiteSpace(item.Icon))
+                    {
+                        <MudIcon Icon="@item.Icon" />
+                    }
+                </ItemDot>
+                <ItemContent>
+                    <MudText Typo="Typo.subtitle2">@item.Title</MudText>
+                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@item.Description</MudText>
+                    }
+                </ItemContent>
+            </MudTimelineItem>
+        }
+    }
+    @ChildContent
+</MudTimeline>
+
+@code {
+    public sealed record TimelineEntry(string Title, string? Description = null, string? Icon = null, Color Color = Color.Primary, Variant Variant = Variant.Text, int Elevation = 0);
+
+    [Parameter] public IEnumerable<TimelineEntry>? Items { get; set; }
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public bool Reverse { get; set; }
+    [Parameter] public TimelinePosition TimelinePosition { get; set; } = TimelinePosition.Default;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
