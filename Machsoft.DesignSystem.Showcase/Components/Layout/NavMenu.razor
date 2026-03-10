@@ -1,23 +1,15 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">MachSoft DS Showcase</a>
-    </div>
-</div>
+﻿@using MudBlazor
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<MxPaper Class="showcase-nav" Elevation="0">
+    <div class="showcase-nav-title">Navegación</div>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
-            </NavLink>
-        </div>
+    <MxNavMenu Dense="true" Rounded="true" Items="NavItems" />
+</MxPaper>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="components">
-                <span class="bi bi-grid-1x2-fill-nav-menu" aria-hidden="true"></span> Componentes
-            </NavLink>
-        </div>
-    </nav>
-</div>
+@code {
+    private static readonly IReadOnlyList<MxNavMenu.NavItem> NavItems =
+    [
+        new("Inicio", "/", Icons.Material.Filled.Home, NavLinkMatch.All),
+        new("Componentes", "/components", Icons.Material.Filled.Dashboard, NavLinkMatch.Prefix)
+    ];
+}
