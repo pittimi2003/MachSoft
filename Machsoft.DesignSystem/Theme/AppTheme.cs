@@ -71,7 +71,7 @@ public static class AppTheme
 
     private static string[] FontFamily => ["Roboto", "Helvetica Neue", "Arial", "sans-serif"];
 
-    private static Default BuildDefault(string fontSize) => new()
+    private static DefaultTypography BuildDefault(string fontSize) => new()
     {
         FontFamily = FontFamily,
         FontSize = fontSize,
@@ -79,20 +79,20 @@ public static class AppTheme
         LineHeight = AppTypography.LineHeightNormal,
     };
 
-    private static H1 BuildH1(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
-    private static H2 BuildH2(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
-    private static H3 BuildH3(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
-    private static H4 BuildH4(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
-    private static H5 BuildH5(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingNormal };
-    private static H6 BuildH6(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
+    private static H1Typography BuildH1(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
+    private static H2Typography BuildH2(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
+    private static H3Typography BuildH3(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
+    private static H4Typography BuildH4(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingTight };
+    private static H5Typography BuildH5(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightTight, LetterSpacing = AppTypography.LetterSpacingNormal };
+    private static H6Typography BuildH6(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.HeadingWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
 
-    private static Body1 BuildBody1(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.BodyWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
-    private static Body2 BuildBody2(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.BodyWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
-    private static Caption BuildCaption(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.BodyWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
-    private static Subtitle1 BuildSubtitle1(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = "500", LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
-    private static Subtitle2 BuildSubtitle2(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = "500", LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
+    private static Body1Typography BuildBody1(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.BodyWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
+    private static Body2Typography BuildBody2(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.BodyWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
+    private static CaptionTypography BuildCaption(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = AppTypography.BodyWeight, LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
+    private static Subtitle1Typography BuildSubtitle1(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = "500", LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
+    private static Subtitle2Typography BuildSubtitle2(string fontSize) => new() { FontFamily = FontFamily, FontSize = fontSize, FontWeight = "500", LineHeight = AppTypography.LineHeightNormal, LetterSpacing = AppTypography.LetterSpacingNormal };
 
-    private static Button BuildButton() => new()
+    private static ButtonTypography BuildButton() => new()
     {
         FontFamily = FontFamily,
         FontSize = AppTypography.FontSizeSm,
@@ -102,7 +102,7 @@ public static class AppTheme
         TextTransform = "none"
     };
 
-    private static Overline BuildOverline() => new()
+    private static OverlineTypography BuildOverline() => new()
     {
         FontFamily = FontFamily,
         FontSize = AppTypography.FontSizeXs,

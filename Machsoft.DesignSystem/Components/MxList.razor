@@ -1,11 +1,11 @@
 @using MudBlazor
 
-<MudList Dense="@Dense" Padding="@Padding" Clickable="@Clickable" Class="@Class" Style="@Style">
+<MudList T="ListItem" Dense="@Dense" Padding="@Padding" Clickable="@Clickable" Class="@Class" Style="@Style">
     @if (Items is not null)
     {
         @foreach (var item in Items)
         {
-            <MudListItem Icon="@item.Icon" Disabled="@item.Disabled" OnClick="@(() => OnItemClickAsync(item))">
+            <MudListItem T="ListItem" Value="@item" Icon="@item.Icon" Disabled="@item.Disabled" OnClick="@(() => OnItemClickAsync(item))">
                 @item.Text
             </MudListItem>
         }

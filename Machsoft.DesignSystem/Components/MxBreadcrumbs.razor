@@ -12,13 +12,13 @@
 
     [Parameter] public IEnumerable<MxBreadcrumb>? Items { get; set; }
     [Parameter] public string Separator { get; set; } = "/";
-    [Parameter] public int MaxItems { get; set; } = 8;
+    [Parameter] public byte? MaxItems { get; set; } = 8;
     [Parameter] public string ExpanderIcon { get; set; } = Icons.Material.Filled.MoreHoriz;
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
     private List<BreadcrumbItem> MudItems =>
         (Items ?? Enumerable.Empty<MxBreadcrumb>())
-        .Select(x => new BreadcrumbItem(x.Text, x.Href, x.Disabled, x.IconAtEnd))
+        .Select(x => new BreadcrumbItem(x.Text, x.Href, x.Disabled))
         .ToList();
 }

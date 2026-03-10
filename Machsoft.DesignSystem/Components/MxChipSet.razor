@@ -22,8 +22,8 @@
 
 @code {
     [Parameter] public IEnumerable<string>? Items { get; set; }
-    [Parameter] public IEnumerable<string>? SelectedValues { get; set; }
-    [Parameter] public EventCallback<IEnumerable<string>?> SelectedValuesChanged { get; set; }
+    [Parameter] public IReadOnlyCollection<string>? SelectedValues { get; set; }
+    [Parameter] public EventCallback<IReadOnlyCollection<string>?> SelectedValuesChanged { get; set; }
     [Parameter] public bool MultiSelection { get; set; } = true;
     [Parameter] public bool Filter { get; set; } = true;
     [Parameter] public bool CheckMark { get; set; } = true;
