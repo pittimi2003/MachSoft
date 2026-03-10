@@ -1,0 +1,34 @@
+@using MudBlazor
+
+<MudList Dense="@Dense" Padding="@Padding" Clickable="@Clickable" Class="@Class" Style="@Style">
+    @if (Items is not null)
+    {
+        @foreach (var item in Items)
+        {
+            <MudListItem Icon="@item.Icon" Disabled="@item.Disabled" OnClick="@(() => OnItemClickAsync(item))">
+                @item.Text
+            </MudListItem>
+        }
+    }
+
+    @ChildContent
+</MudList>
+
+@code {
+    public sealed record ListItem(string Text, string? Icon = null, bool Disabled = false);
+
+    [Parameter] public IEnumerable<ListItem>? Items { get; set; }
+    [Parameter] public EventCallback<ListItem> ItemClick { get; set; }
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public bool Padding { get; set; } = true;
+    [Parameter] public bool Clickable { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private async Task OnItemClickAsync(ListItem item)
+    {
+        if (ItemClick.HasDelegate)
+            await ItemClick.InvokeAsync(item);
+    }
+}

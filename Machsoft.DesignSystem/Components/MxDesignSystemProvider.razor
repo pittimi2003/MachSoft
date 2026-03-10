@@ -53,4 +53,5 @@
     private string ThemeScopeClass => IsDarkMode
         ? "mx-theme-scope mx-theme-scope--dark"
         : "mx-theme-scope mx-theme-scope--light";
+    private DesignTokens Tokens => DesignTokens.ForMode(IsDarkMode);
 }
