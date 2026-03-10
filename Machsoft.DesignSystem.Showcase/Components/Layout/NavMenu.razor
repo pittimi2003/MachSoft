@@ -1,0 +1,15 @@
+﻿@using MudBlazor
+
+<MxPaper Class="showcase-nav" Elevation="0">
+    <div class="showcase-nav-title">Navegación</div>
+
+    <MxNavMenu Dense="true" Rounded="true" Items="NavItems" />
+</MxPaper>
+
+@code {
+    private static readonly IReadOnlyList<MxNavMenu.NavItem> NavItems =
+    [
+        new("Inicio", "/", Icons.Material.Filled.Home, NavLinkMatch.All),
+        new("Componentes", "/components", Icons.Material.Filled.Dashboard, NavLinkMatch.Prefix)
+    ];
+}
