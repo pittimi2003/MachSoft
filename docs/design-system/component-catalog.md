@@ -26,9 +26,11 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ButtonFAB | Planned |
 | ButtonFabMenu | Planned |
 | ButtonGroup | Planned |
+| Card | Planned |
 | Carousel | Planned |
 | Charts | Planned |
 | ChatBubble | Planned |
+| Checkbox | Planned |
 | Chip | Planned |
 | ChipSet | Planned |
 | Collapse | Planned |
@@ -37,6 +39,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | DataGrid | Planned |
 | DatePicker | Planned |
 | DateRangePicker | Planned |
+| Dialog | Planned |
 | Divider | Planned |
 | Drawer | Planned |
 | DropZone | Planned |
@@ -51,6 +54,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Hidden | Planned |
 | Highlighter | Planned |
 | Hotkey | Planned |
+| IconButton | Planned |
 | Icons | Planned |
 | Image | Planned |
 | Link | Planned |
@@ -64,21 +68,29 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Paper | Planned |
 | Popover | Planned |
 | Progress | Planned |
+| Radio | Planned |
 | Rating | Planned |
 | ScrollToTop | Planned |
+| Select | Planned |
+| SimpleTable | Planned |
 | Skeleton | Planned |
 | Slider | Planned |
+| Snackbar | Planned |
 | Spacer | Planned |
 | SplitPanel | Planned |
 | Stack | Planned |
 | Stepper | Planned |
 | SwipeArea | Planned |
+| Switch | Planned |
+| Table | Planned |
 | Tabs | Planned |
+| TextField | Planned |
 | TimePicker | Planned |
 | Timeline | Planned |
 | ToggleGroup | Planned |
 | ToggleIconButton | Planned |
 | ToolBar | Planned |
+| Tooltip | Planned |
 | TreeView | Planned |
 | Navegación y patrones complejos | Planned |
 
