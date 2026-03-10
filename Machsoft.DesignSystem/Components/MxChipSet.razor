@@ -1,0 +1,36 @@
+@using MudBlazor
+
+<MudChipSet T="string"
+            MultiSelection="@MultiSelection"
+            Filter="@Filter"
+            CheckMark="@CheckMark"
+            ReadOnly="@ReadOnly"
+            SelectedValues="@SelectedValues"
+            SelectedValuesChanged="@SelectedValuesChanged"
+            Class="@Class"
+            Style="@Style">
+    @if (Items is not null)
+    {
+        @foreach (var item in Items)
+        {
+            <MudChip T="string" Value="@item" Color="@ChipColor" Variant="@ChipVariant">@item</MudChip>
+        }
+    }
+
+    @ChildContent
+</MudChipSet>
+
+@code {
+    [Parameter] public IEnumerable<string>? Items { get; set; }
+    [Parameter] public IEnumerable<string>? SelectedValues { get; set; }
+    [Parameter] public EventCallback<IEnumerable<string>?> SelectedValuesChanged { get; set; }
+    [Parameter] public bool MultiSelection { get; set; } = true;
+    [Parameter] public bool Filter { get; set; } = true;
+    [Parameter] public bool CheckMark { get; set; } = true;
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public Color ChipColor { get; set; } = Color.Default;
+    [Parameter] public Variant ChipVariant { get; set; } = Variant.Text;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

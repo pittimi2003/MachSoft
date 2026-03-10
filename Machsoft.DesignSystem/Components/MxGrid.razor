@@ -1,0 +1,13 @@
+@using MudBlazor
+
+<MudGrid Spacing="@Spacing" Justify="@Justify" Class="@Class" Style="@Style">
+    @ChildContent
+</MudGrid>
+
+@code {
+    [Parameter] public int Spacing { get; set; } = 2;
+    [Parameter] public Justify Justify { get; set; } = Justify.FlexStart;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

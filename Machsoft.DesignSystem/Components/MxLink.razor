@@ -1,0 +1,30 @@
+@using MudBlazor
+
+<MudLink Href="@Href"
+         Target="@Target"
+         Underline="@Underline"
+         Color="@Color"
+         Disabled="@Disabled"
+         Class="@Class"
+         Style="@Style">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @Text
+    }
+</MudLink>
+
+@code {
+    [Parameter] public string? Href { get; set; }
+    [Parameter] public string? Target { get; set; }
+    [Parameter] public Underline Underline { get; set; } = Underline.Hover;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

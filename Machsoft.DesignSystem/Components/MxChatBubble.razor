@@ -1,0 +1,32 @@
+<div class="mx-chat-bubble @(IsOwnMessage ? "mx-chat-bubble--own" : "") @Class" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Author))
+    {
+        <div class="mx-chat-bubble__author">@Author</div>
+    }
+
+    <div class="mx-chat-bubble__content">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            @Message
+        }
+    </div>
+
+    @if (Timestamp is not null)
+    {
+        <div class="mx-chat-bubble__time">@Timestamp</div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Author { get; set; }
+    [Parameter] public string? Message { get; set; }
+    [Parameter] public string? Timestamp { get; set; }
+    [Parameter] public bool IsOwnMessage { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
