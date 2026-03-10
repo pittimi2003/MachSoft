@@ -34,9 +34,11 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ButtonFAB | Planned |
 | ButtonFabMenu | Planned |
 | ButtonGroup | Planned |
+| Card | Planned |
 | Carousel | Planned |
 | Charts | Planned |
 | ChatBubble | Planned |
+| Checkbox | Planned |
 | Chip | Planned |
 | ChipSet | Planned |
 | Collapse | Planned |
@@ -48,12 +50,14 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ExitPrompt | Planned |
 | ExpansionPanel | Planned |
 | Field | Planned |
+| FileUpload | Planned |
 | FocusTrap | Planned |
 | Form | Planned |
 | Grid | Planned |
 | Hidden | Planned |
 | Highlighter | Planned |
 | Hotkey | Planned |
+| IconButton | Planned |
 | Icons | Planned |
 | Image | Planned |
 | Link | Planned |
