@@ -14,12 +14,12 @@
                     <MudText Typo="Typo.body2" Color="Color.Secondary">@SubTitle</MudText>
                 }
             </CardHeaderContent>
-            @if (HeaderActions is not null)
-            {
-                <CardHeaderActions>
+            <CardHeaderActions>
+                @if (HeaderActions is not null)
+                {
                     @HeaderActions
-                </CardHeaderActions>
-            }
+                }
+            </CardHeaderActions>
         </MudCardHeader>
     }
 

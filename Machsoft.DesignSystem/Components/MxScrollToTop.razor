@@ -4,7 +4,7 @@
 <MudFab Icon="@Icon"
         Color="@Color"
         Size="@Size"
-        Class="mx-scroll-to-top @Class"
+        Class="@ScrollClass"
         Style="@Style"
         OnClick="ScrollTopAsync" />
 
@@ -14,6 +14,8 @@
     [Parameter] public Size Size { get; set; } = Size.Medium;
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
+
+    private string ScrollClass => string.IsNullOrWhiteSpace(Class) ? "mx-scroll-to-top" : $"mx-scroll-to-top {Class}";
 
     private async Task ScrollTopAsync(MouseEventArgs _)
     {

@@ -11,6 +11,13 @@
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 
-    public Task<bool> ValidateAsync() => _form?.Validate() ?? Task.FromResult(false);
+    public async Task<bool> ValidateAsync()
+    {
+        if (_form is null)
+            return false;
+
+        await _form.Validate();
+        return _form.IsValid;
+    }
     public bool IsValid => _form?.IsValid ?? false;
 }

@@ -1,6 +1,6 @@
 @using MudBlazor
 
-<MudChip Color="@Color"
+<MudChip T="string" Color="@Color"
          Variant="@Variant"
          Size="@Size"
          Selected="@Selected"
@@ -28,7 +28,7 @@
     [Parameter] public bool Selected { get; set; }
     [Parameter] public EventCallback<bool> SelectedChanged { get; set; }
     [Parameter] public bool Disabled { get; set; }
-    [Parameter] public EventCallback<MudChip> OnClose { get; set; }
+    [Parameter] public EventCallback<MudChip<string>> OnClose { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 }

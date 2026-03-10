@@ -3,11 +3,11 @@
 
 @code {
     [Parameter] public bool When { get; set; } = true;
-    [Parameter] public EventCallback<LocationChangingContext> BeforeInternalNavigation { get; set; }
+    [Parameter] public EventCallback BeforeInternalNavigation { get; set; }
 
-    private async ValueTask HandleBeforeInternalNavigationAsync(LocationChangingContext context)
+    private async Task HandleBeforeInternalNavigationAsync()
     {
         if (BeforeInternalNavigation.HasDelegate)
-            await BeforeInternalNavigation.InvokeAsync(context);
+            await BeforeInternalNavigation.InvokeAsync();
     }
 }

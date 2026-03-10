@@ -26,6 +26,6 @@
 
     private async Task OpenAsync(MouseEventArgs _)
     {
-        await DialogService.ShowMessageBox(title: Title, markupMessage: (MarkupString)Message, closeText: CloseText);
+        await DialogService.ShowMessageBox(title: Title, markupMessage: (MarkupString)Message);
     }
 }

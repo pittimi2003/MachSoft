@@ -10,14 +10,9 @@
              SelectionMode="@SelectionMode"
              SelectedValue="@SelectedValue"
              SelectedValueChanged="@SelectedValueChanged"
+             ItemTemplate="@ItemTemplate"
              Class="@Class"
              Style="@Style">
-    @if (ItemTemplate is not null)
-    {
-        <ItemTemplate>
-            @ItemTemplate(context)
-        </ItemTemplate>
-    }
 </MudTreeView>
 
 @code {

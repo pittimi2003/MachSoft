@@ -15,10 +15,10 @@
 
     @if (ShowFileList && _files.Count > 0)
     {
-        <MudList Dense="true" Class="mt-2">
+        <MudList T="IBrowserFile" Dense="true" Class="mt-2">
             @foreach (var file in _files)
             {
-                <MudListItem>@file.Name (@file.Size bytes)</MudListItem>
+                <MudListItem T="IBrowserFile" Value="@file">@file.Name (@file.Size bytes)</MudListItem>
             }
         </MudList>
     }

@@ -13,7 +13,6 @@ else
 {
     <MudProgressLinear Color="@Color"
                        Rounded="@Rounded"
-                       Buffer="@Buffer"
                        Indeterminate="@Indeterminate"
                        Value="@Value"
                        Class="@Class"
@@ -25,11 +24,10 @@ else
 
     [Parameter] public ProgressType Type { get; set; }
     [Parameter] public Color Color { get; set; } = Color.Primary;
-    [Parameter] public double Size { get; set; } = 40;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
     [Parameter] public bool Indeterminate { get; set; } = true;
     [Parameter] public double Value { get; set; }
     [Parameter] public bool Rounded { get; set; }
-    [Parameter] public double Buffer { get; set; } = 100;
-    [Parameter] public string? Class { get; set; }
+        [Parameter] public string? Class { get; set; }
     [Parameter] public string? Style { get; set; }
 }
