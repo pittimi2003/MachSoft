@@ -21,6 +21,12 @@ body {
     color: var(--mx-color-text-primary);
 }
 
+
+.mx-theme-scope {
+    background: var(--mx-color-background);
+    color: var(--mx-color-text-primary);
+}
+
 .mx-main-container {
     display: grid;
     width: 100%;
@@ -37,7 +43,7 @@ body {
 }
 
 .mx-main-container__panel--center {
-    box-shadow: inset 0 0 0 1px rgba(221, 227, 238, 0.2);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mx-color-border) 35%, transparent);
 }
 
 .mx-main-container__panel--right {
