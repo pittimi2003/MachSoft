@@ -1,0 +1,23 @@
+@using MudBlazor
+
+<MudAvatar Icon="@Icon"
+           Image="@Image"
+           Text="@Text"
+           Size="@Size"
+           Square="@Square"
+           Rounded="@Rounded"
+           Color="@Color"
+           Class="@Class"
+           Style="@Style" />
+
+@code {
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public string? Image { get; set; }
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+    [Parameter] public bool Square { get; set; }
+    [Parameter] public bool Rounded { get; set; }
+    [Parameter] public Color Color { get; set; } = Color.Default;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

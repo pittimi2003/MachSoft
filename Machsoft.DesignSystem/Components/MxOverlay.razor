@@ -1,0 +1,22 @@
+@using MudBlazor
+
+<MudOverlay Visible="@Visible"
+            DarkBackground="@DarkBackground"
+            AutoClose="@AutoClose"
+            LockScroll="@LockScroll"
+            Class="@Class"
+            Style="@Style"
+            OnClosed="@OnClosed">
+    @ChildContent
+</MudOverlay>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public bool DarkBackground { get; set; } = true;
+    [Parameter] public bool AutoClose { get; set; } = true;
+    [Parameter] public bool LockScroll { get; set; } = true;
+    [Parameter] public EventCallback OnClosed { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

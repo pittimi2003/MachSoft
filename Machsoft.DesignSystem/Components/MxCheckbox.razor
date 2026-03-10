@@ -1,0 +1,24 @@
+@using MudBlazor
+
+<MudCheckBox T="bool"
+             Label="@Label"
+             Value="@Value"
+             ValueChanged="@ValueChanged"
+             ValueExpression="@ValueExpression"
+             Disabled="@Disabled"
+             Color="@Color"
+             Dense="@Dense"
+             Class="@Class"
+             Style="@Style" />
+
+@code {
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public bool Value { get; set; }
+    [Parameter] public EventCallback<bool> ValueChanged { get; set; }
+    [Parameter] public Expression<Func<bool>>? ValueExpression { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

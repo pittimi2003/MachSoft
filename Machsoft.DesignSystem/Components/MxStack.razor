@@ -1,0 +1,22 @@
+@using MudBlazor
+
+<MudStack Row="@Row"
+          AlignItems="@AlignItems"
+          Justify="@Justify"
+          Spacing="@Spacing"
+          Wrap="@Wrap"
+          Class="@Class"
+          Style="@Style">
+    @ChildContent
+</MudStack>
+
+@code {
+    [Parameter] public bool Row { get; set; }
+    [Parameter] public AlignItems AlignItems { get; set; } = AlignItems.Stretch;
+    [Parameter] public Justify Justify { get; set; } = Justify.FlexStart;
+    [Parameter] public int Spacing { get; set; } = 2;
+    [Parameter] public Wrap Wrap { get; set; } = Wrap.NoWrap;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

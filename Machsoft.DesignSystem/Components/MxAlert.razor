@@ -1,0 +1,22 @@
+@using MudBlazor
+
+<MudAlert Severity="@Severity"
+          Variant="@Variant"
+          Dense="@Dense"
+          Elevation="@Elevation"
+          ShowCloseIcon="@ShowCloseIcon"
+          Class="@Class"
+          Style="@Style">
+    @ChildContent
+</MudAlert>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public Severity Severity { get; set; } = Severity.Info;
+    [Parameter] public Variant Variant { get; set; } = Variant.Filled;
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public int Elevation { get; set; } = 0;
+    [Parameter] public bool ShowCloseIcon { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
