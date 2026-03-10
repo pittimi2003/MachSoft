@@ -34,11 +34,9 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ButtonFAB | Planned |
 | ButtonFabMenu | Planned |
 | ButtonGroup | Planned |
-| Card | Planned |
-| Carousel | Planned |
-| Charts | Planned |
-| ChatBubble | Planned |
-| Checkbox | Planned |
+| Carousel | Implementado (`MxCarousel`) |
+| Charts | Implementado (`MxCharts`) |
+| ChatBubble | Implementado (`MxChatBubble`) |
 | Chip | Planned |
 | ChipSet | Planned |
 | Collapse | Planned |
@@ -56,8 +54,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Grid | Planned |
 | Hidden | Planned |
 | Highlighter | Planned |
-| Hotkey | Planned |
-| IconButton | Planned |
+| Hotkey | Implementado (`MxHotkey`) |
 | Icons | Planned |
 | Image | Planned |
 | Link | Planned |
@@ -74,12 +71,12 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ScrollToTop | Planned |
 | Slider | Planned |
 | Spacer | Planned |
-| SplitPanel | Planned |
+| SplitPanel | Implementado (`MxSplitPanel`) |
 | Stack | Planned |
 | Stepper | Planned |
-| SwipeArea | Planned |
+| SwipeArea | Implementado (`MxSwipeArea`) |
 | Tabs | Implementado (`MxTabs`) |
-| Timeline | Planned |
+| Timeline | Implementado (`MxTimeline`) |
 | ToggleGroup | Planned |
 | ToggleIconButton | Planned |
 | ToolBar | Planned |

@@ -1,0 +1,31 @@
+@using MudBlazor
+
+<MudCarousel Class="@Class"
+             Style="@Style"
+             AutoCycle="@AutoCycle"
+             TData="RenderFragment"
+             ShowArrows="@ShowArrows"
+             ShowBullets="@ShowBullets"
+             EnableSwipeGesture="@EnableSwipeGesture"
+             CycleTransition="@CycleTransition">
+    @if (Slides is not null)
+    {
+        @foreach (var slide in Slides)
+        {
+            <MudCarouselItem>
+                @slide
+            </MudCarouselItem>
+        }
+    }
+</MudCarousel>
+
+@code {
+    [Parameter] public IEnumerable<RenderFragment>? Slides { get; set; }
+    [Parameter] public bool AutoCycle { get; set; }
+    [Parameter] public bool ShowArrows { get; set; } = true;
+    [Parameter] public bool ShowBullets { get; set; } = true;
+    [Parameter] public bool EnableSwipeGesture { get; set; } = true;
+    [Parameter] public Transition CycleTransition { get; set; } = Transition.Slide;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
