@@ -1,0 +1,42 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<div class="mx-file-upload @Class" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <MudText Typo="Typo.body2" Class="mb-2">@Label</MudText>
+    }
+
+    <InputFile OnChange="HandleChangeAsync" multiple="@Multiple" accept="@Accept" />
+
+    @if (ShowFileList && _files.Count > 0)
+    {
+        <MudList Dense="true">
+            @foreach (var file in _files)
+            {
+                <MudListItem>@file.Name (@file.Size bytes)</MudListItem>
+            }
+        </MudList>
+    }
+</div>
+
+@code {
+    private readonly List<IBrowserFile> _files = [];
+
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public bool Multiple { get; set; }
+    [Parameter] public string? Accept { get; set; }
+    [Parameter] public bool ShowFileList { get; set; } = true;
+    [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> FilesChanged { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private async Task HandleChangeAsync(InputFileChangeEventArgs args)
+    {
+        _files.Clear();
+        _files.AddRange(args.GetMultipleFiles());
+
+        if (FilesChanged.HasDelegate)
+            await FilesChanged.InvokeAsync(_files);
+    }
+}
