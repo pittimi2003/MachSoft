@@ -1,0 +1,13 @@
+@using MudBlazor
+
+<MudCollapse Expanded="@Expanded" MaxHeight="@MaxHeight" Class="@Class" Style="@Style">
+    @ChildContent
+</MudCollapse>
+
+@code {
+    [Parameter] public bool Expanded { get; set; }
+    [Parameter] public int? MaxHeight { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

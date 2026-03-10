@@ -1,0 +1,26 @@
+@using MudBlazor
+
+<MudToggleIconButton T="bool"
+                     Toggled="@Toggled"
+                     ToggledChanged="@ToggledChanged"
+                     Icon="@Icon"
+                     ToggledIcon="@ToggledIcon"
+                     Color="@Color"
+                     ToggledColor="@ToggledColor"
+                     Size="@Size"
+                     Disabled="@Disabled"
+                     Class="@Class"
+                     Style="@Style" />
+
+@code {
+    [Parameter] public bool Toggled { get; set; }
+    [Parameter] public EventCallback<bool> ToggledChanged { get; set; }
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.FavoriteBorder;
+    [Parameter] public string ToggledIcon { get; set; } = Icons.Material.Filled.Favorite;
+    [Parameter] public Color Color { get; set; } = Color.Default;
+    [Parameter] public Color ToggledColor { get; set; } = Color.Error;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

@@ -1,0 +1,22 @@
+@using MudBlazor
+@inject IJSRuntime JS
+
+<MudFab Icon="@Icon"
+        Color="@Color"
+        Size="@Size"
+        Class="mx-scroll-to-top @Class"
+        Style="@Style"
+        OnClick="ScrollTopAsync" />
+
+@code {
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.KeyboardArrowUp;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private async Task ScrollTopAsync(MouseEventArgs _)
+    {
+        await JS.InvokeVoidAsync("window.scrollTo", new { top = 0, left = 0, behavior = "smooth" });
+    }
+}

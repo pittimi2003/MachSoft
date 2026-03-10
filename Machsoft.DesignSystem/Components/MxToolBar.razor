@@ -1,0 +1,20 @@
+@using MudBlazor
+
+<MudToolBar Dense="@Dense" Gutters="@Gutters" Class="@Class" Style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <MudText Typo="Typo.h6">@Title</MudText>
+        <MudSpacer />
+    }
+
+    @ChildContent
+</MudToolBar>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public bool Gutters { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

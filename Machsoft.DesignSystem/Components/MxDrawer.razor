@@ -1,0 +1,26 @@
+@using MudBlazor
+
+<MudDrawer Open="@Open"
+           OpenChanged="@OpenChanged"
+           Variant="@Variant"
+           Breakpoint="@Breakpoint"
+           Anchor="@Anchor"
+           Elevation="@Elevation"
+           ClipMode="@ClipMode"
+           Class="@Class"
+           Style="@Style">
+    @ChildContent
+</MudDrawer>
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+    [Parameter] public DrawerVariant Variant { get; set; } = DrawerVariant.Responsive;
+    [Parameter] public Breakpoint Breakpoint { get; set; } = Breakpoint.Md;
+    [Parameter] public Anchor Anchor { get; set; } = Anchor.Start;
+    [Parameter] public int Elevation { get; set; } = 1;
+    [Parameter] public DrawerClipMode ClipMode { get; set; } = DrawerClipMode.Never;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

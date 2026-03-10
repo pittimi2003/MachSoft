@@ -1,0 +1,24 @@
+@using MudBlazor
+
+<MudBadge Content="@Content"
+          Color="@Color"
+          Dot="@Dot"
+          Bordered="@Bordered"
+          Overlap="@Overlap"
+          Origin="@Origin"
+          Class="@Class"
+          Style="@Style">
+    @ChildContent
+</MudBadge>
+
+@code {
+    [Parameter] public object? Content { get; set; }
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public bool Dot { get; set; }
+    [Parameter] public bool Bordered { get; set; }
+    [Parameter] public bool Overlap { get; set; }
+    [Parameter] public Origin Origin { get; set; } = Origin.TopRight;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

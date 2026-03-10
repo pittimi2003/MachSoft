@@ -1,0 +1,13 @@
+@using MudBlazor
+
+<MudHidden Breakpoint="@Breakpoint" Invert="@Invert" Class="@Class" Style="@Style">
+    @ChildContent
+</MudHidden>
+
+@code {
+    [Parameter] public Breakpoint Breakpoint { get; set; } = Breakpoint.MdAndDown;
+    [Parameter] public bool Invert { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

@@ -1,0 +1,13 @@
+<NavigationLock ConfirmExternalNavigation="@When"
+                OnBeforeInternalNavigation="@HandleBeforeInternalNavigationAsync" />
+
+@code {
+    [Parameter] public bool When { get; set; } = true;
+    [Parameter] public EventCallback<LocationChangingContext> BeforeInternalNavigation { get; set; }
+
+    private async ValueTask HandleBeforeInternalNavigationAsync(LocationChangingContext context)
+    {
+        if (BeforeInternalNavigation.HasDelegate)
+            await BeforeInternalNavigation.InvokeAsync(context);
+    }
+}

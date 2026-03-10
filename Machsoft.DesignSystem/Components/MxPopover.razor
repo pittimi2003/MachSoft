@@ -1,0 +1,34 @@
+@using MudBlazor
+
+<div class="mx-popover-anchor @Class" style="@Style">
+    <span @onmouseenter="() => Toggle(true)" @onmouseleave="() => Toggle(false)">
+        @AnchorContent
+    </span>
+
+    <MudPopover Open="@_open"
+                AnchorOrigin="@AnchorOrigin"
+                TransformOrigin="@TransformOrigin"
+                RelativeWidth="@RelativeWidth"
+                OverflowBehavior="@OverflowBehavior"
+                Paper="@Paper"
+                Elevation="@Elevation">
+        @ChildContent
+    </MudPopover>
+</div>
+
+@code {
+    private bool _open;
+
+    [Parameter, EditorRequired] public RenderFragment? AnchorContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public Origin AnchorOrigin { get; set; } = Origin.BottomCenter;
+    [Parameter] public Origin TransformOrigin { get; set; } = Origin.TopCenter;
+    [Parameter] public DropdownWidth RelativeWidth { get; set; } = DropdownWidth.Ignore;
+    [Parameter] public OverflowBehavior OverflowBehavior { get; set; } = OverflowBehavior.FlipOnOpen;
+    [Parameter] public bool Paper { get; set; } = true;
+    [Parameter] public int Elevation { get; set; } = 8;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private void Toggle(bool value) => _open = value;
+}

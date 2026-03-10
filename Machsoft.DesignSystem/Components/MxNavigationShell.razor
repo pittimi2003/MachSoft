@@ -1,0 +1,39 @@
+@using MudBlazor
+
+<div class="mx-navigation-shell @Class" style="@Style">
+    @if (AppBarContent is not null)
+    {
+        <header class="mx-navigation-shell__appbar">
+            @AppBarContent
+        </header>
+    }
+
+    <div class="mx-navigation-shell__body">
+        @if (DrawerContent is not null)
+        {
+            <aside class="mx-navigation-shell__drawer">
+                @DrawerContent
+            </aside>
+        }
+
+        <main class="mx-navigation-shell__main">
+            @MainContent
+        </main>
+
+        @if (SecondaryContent is not null)
+        {
+            <aside class="mx-navigation-shell__secondary">
+                @SecondaryContent
+            </aside>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public RenderFragment? AppBarContent { get; set; }
+    [Parameter] public RenderFragment? DrawerContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? MainContent { get; set; }
+    [Parameter] public RenderFragment? SecondaryContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

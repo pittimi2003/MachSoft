@@ -1,0 +1,35 @@
+@typeparam TItem
+@using MudBlazor
+
+<MudTreeView T="TItem"
+             Items="@Items"
+             Hover="@Hover"
+             Dense="@Dense"
+             TriState="@TriState"
+             ReadOnly="@ReadOnly"
+             SelectionMode="@SelectionMode"
+             SelectedValue="@SelectedValue"
+             SelectedValueChanged="@SelectedValueChanged"
+             Class="@Class"
+             Style="@Style">
+    @if (ItemTemplate is not null)
+    {
+        <ItemTemplate>
+            @ItemTemplate(context)
+        </ItemTemplate>
+    }
+</MudTreeView>
+
+@code {
+    [Parameter] public IReadOnlyCollection<TreeItemData<TItem>>? Items { get; set; }
+    [Parameter] public bool Hover { get; set; } = true;
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public bool TriState { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public SelectionMode SelectionMode { get; set; } = SelectionMode.SingleSelection;
+    [Parameter] public TItem? SelectedValue { get; set; }
+    [Parameter] public EventCallback<TItem?> SelectedValueChanged { get; set; }
+    [Parameter] public RenderFragment<TreeItemData<TItem>>? ItemTemplate { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

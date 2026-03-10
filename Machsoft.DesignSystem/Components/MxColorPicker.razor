@@ -1,0 +1,23 @@
+@using MudBlazor
+
+<MudColorPicker Value="@Value"
+                ValueChanged="@ValueChanged"
+                Label="@Label"
+                PickerVariant="@PickerVariant"
+                Disabled="@Disabled"
+                DisableAlpha="@DisableAlpha"
+                ColorPickerMode="@ColorPickerMode"
+                Class="@Class"
+                Style="@Style" />
+
+@code {
+    [Parameter] public MudColor Value { get; set; } = new("#2F6FEB");
+    [Parameter] public EventCallback<MudColor> ValueChanged { get; set; }
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public PickerVariant PickerVariant { get; set; } = PickerVariant.Inline;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool DisableAlpha { get; set; }
+    [Parameter] public ColorPickerMode ColorPickerMode { get; set; } = ColorPickerMode.Palette;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
