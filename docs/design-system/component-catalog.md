@@ -41,34 +41,34 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ChipSet | Planned |
 | Collapse | Planned |
 | ColorPicker | Planned |
-| Container | Planned |
+| Container | Implementado (`MxContainer`) |
 | Divider | Implementado (`MxDivider`) |
 | Drawer | Implementado (`MxDrawer`) |
 | Element | Planned |
 | ExitPrompt | Planned |
-| ExpansionPanel | Planned |
+| ExpansionPanel | Implementado (`MxExpansionPanel`) |
 | Field | Planned |
 | FocusTrap | Planned |
-| Form | Planned |
+| Form | Implementado (`MxForm`) |
 | Grid | Planned |
 | Hidden | Planned |
 | Highlighter | Planned |
 | Hotkey | Implementado (`MxHotkey`) |
 | Icons | Planned |
-| Image | Planned |
-| Link | Planned |
+| Image | Implementado (`MxImage`) |
+| Link | Implementado (`MxLink`) |
 | List | Implementado (`MxList`) |
 | Menu | Implementado (`MxMenu`) |
 | MessageBox | Planned |
 | NavMenu | Implementado (`MxNavMenu`) |
-| NumericField | Planned |
+| NumericField | Implementado (`MxNumericField`) |
 | Overlay | Implementado (`MxOverlay`) |
 | Paper | Implementado (`MxPaper`) |
 | Popover | Planned |
 | Progress | Implementado (`MxProgress`) |
-| Rating | Planned |
+| Rating | Implementado (`MxRating`) |
 | ScrollToTop | Planned |
-| Slider | Planned |
+| Slider | Implementado (`MxSlider`) |
 | Spacer | Implementado (`MxSpacer`) |
 | SplitPanel | Implementado (`MxSplitPanel`) |
 | Stack | Implementado (`MxStack`) |

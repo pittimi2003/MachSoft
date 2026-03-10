@@ -1,0 +1,25 @@
+@using MudBlazor
+
+<MudExpansionPanels MultiExpansion="@MultiExpansion" Class="@Class" Style="@Style">
+    @if (Items is not null)
+    {
+        @foreach (var item in Items)
+        {
+            <MudExpansionPanel Text="@item.Title" Expanded="@item.Expanded" Disabled="@item.Disabled">
+                @item.Content
+            </MudExpansionPanel>
+        }
+    }
+
+    @ChildContent
+</MudExpansionPanels>
+
+@code {
+    public sealed record ExpansionItem(string Title, RenderFragment? Content = null, bool Expanded = false, bool Disabled = false);
+
+    [Parameter] public IEnumerable<ExpansionItem>? Items { get; set; }
+    [Parameter] public bool MultiExpansion { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
