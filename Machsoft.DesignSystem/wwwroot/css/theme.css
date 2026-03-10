@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
 
 :root {
     --mx-color-primary: #2f6feb;
@@ -10,8 +10,17 @@
     --mx-color-text-primary: #1f2937;
     --mx-color-text-secondary: #6b7280;
     --mx-color-overlay: rgba(15, 23, 42, 0.24);
+    --mx-color-success: #16a34a;
+    --mx-color-warning: #d97706;
+    --mx-color-error: #dc2626;
+    --mx-color-info: #0284c7;
+    --mx-color-focus-ring: #2563eb;
+    --mx-color-hover-overlay: rgba(15, 23, 42, 0.06);
+    --mx-color-active-overlay: rgba(15, 23, 42, 0.12);
+
     --mx-radius-md: 12px;
-    --mx-shadow-md: 0 10px 30px rgba(15, 23, 42, 0.12);
+    --mx-elevation-md: 0 10px 30px rgba(15, 23, 42, 0.12);
+    --mx-motion-normal: 200ms;
 }
 
 html,
@@ -19,6 +28,15 @@ body {
     font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     background: var(--mx-color-background);
     color: var(--mx-color-text-primary);
+}
+
+*:focus-visible {
+    outline: 2px solid var(--mx-color-focus-ring);
+    outline-offset: 2px;
+}
+
+.mx-app-bar {
+    border-bottom: 1px solid var(--mx-color-border);
 }
 
 .mx-main-container {
@@ -68,7 +86,7 @@ body {
 }
 
 .mx-main-container--edit-mode .mx-main-container__panel--center {
-    box-shadow: var(--mx-shadow-md);
+    box-shadow: var(--mx-elevation-md);
 }
 
 .mx-main-container--left-hidden {
