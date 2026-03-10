@@ -7,6 +7,17 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Alert | Implementado (`MxAlert`) |
 | AppBar | Implementado (`MxAppBar`) |
 | Button | Implementado (`MxButton`) |
+| IconButton | Implementado (`MxIconButton`) |
+| TextField | Implementado (`MxTextField`) |
+| Select | Implementado (`MxSelect`) |
+| Checkbox | Implementado (`MxCheckbox`) |
+| Radio | Implementado (`MxRadioGroup`) |
+| Switch | Implementado (`MxSwitch`) |
+| Tooltip | Implementado (`MxTooltip`) |
+| Card | Implementado (`MxCard`) |
+| SimpleTable / Table base | Implementado (`MxSimpleTable`) |
+| Snackbar | Implementado (`MxSnackbarButton`) |
+| Dialog | Implementado (`MxConfirmDialogButton`) |
 | Autocomplete | Planned |
 | Avatar | Planned |
 | Badge | Planned |
