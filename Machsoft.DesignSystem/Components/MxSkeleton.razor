@@ -1,0 +1,17 @@
+@using MudBlazor
+
+<MudSkeleton SkeletonType="@SkeletonType"
+             Width="@Width"
+             Height="@Height"
+             Animation="@Animation"
+             Class="@Class"
+             Style="@Style" />
+
+@code {
+    [Parameter] public SkeletonType SkeletonType { get; set; } = SkeletonType.Text;
+    [Parameter] public string Width { get; set; } = "100%";
+    [Parameter] public string Height { get; set; } = "1rem";
+    [Parameter] public Animation Animation { get; set; } = Animation.Wave;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

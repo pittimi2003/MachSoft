@@ -118,3 +118,22 @@ body {
         box-shadow: -10px 0 30px rgba(15, 23, 42, 0.2);
     }
 }
+
+
+.mx-file-upload {
+    display: grid;
+    gap: var(--mx-spacing-sm, 8px);
+}
+
+.mx-dropzone {
+    border: 2px dashed var(--mx-color-border);
+    border-radius: var(--mx-radius-md);
+    padding: var(--mx-spacing-md, 16px);
+    background: var(--mx-color-surface);
+    transition: border-color var(--mx-motion-normal, 200ms), background var(--mx-motion-normal, 200ms);
+}
+
+.mx-dropzone--dragging {
+    border-color: var(--mx-color-primary);
+    background: color-mix(in srgb, var(--mx-color-primary) 8%, var(--mx-color-surface));
+}

@@ -18,6 +18,14 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | SimpleTable / Table base | Implementado (`MxSimpleTable`) |
 | Snackbar | Implementado (`MxSnackbarButton`) |
 | Dialog | Implementado (`MxConfirmDialogButton`) |
+| DataGrid | Implementado (`MxDataGrid`) |
+| DatePicker | Implementado (`MxDatePicker`) |
+| DateRangePicker | Implementado (`MxDateRangePicker`) |
+| TimePicker | Implementado (`MxTimePicker`) |
+| Pagination | Implementado (`MxPagination`) |
+| Skeleton | Implementado (`MxSkeleton`) |
+| FileUpload | Implementado (`MxFileUpload`) |
+| DropZone | Implementado (`MxDropZone`) |
 | Autocomplete | Planned |
 | Avatar | Planned |
 | Badge | Planned |

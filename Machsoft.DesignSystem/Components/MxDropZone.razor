@@ -1,0 +1,63 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<div class="mx-dropzone @(_isDragging ? "mx-dropzone--dragging" : null) @Class"
+     style="@Style"
+     @ondragenter="OnDragEnter"
+     @ondragleave="OnDragLeave"
+     @ondragover:preventDefault
+     @ondrop="OnDropAsync">
+
+    <MudText Typo="Typo.body1">@Title</MudText>
+    <MudText Typo="Typo.caption" Color="Color.Secondary">@Subtitle</MudText>
+
+    <InputFile OnChange="HandleInputChangeAsync" multiple="@Multiple" class="mt-2" />
+
+    @if (ShowFileList && _files.Count > 0)
+    {
+        <MudList Dense="true" Class="mt-2">
+            @foreach (var file in _files)
+            {
+                <MudListItem>@file.Name (@file.Size bytes)</MudListItem>
+            }
+        </MudList>
+    }
+</div>
+
+@code {
+    private readonly List<IBrowserFile> _files = [];
+    private bool _isDragging;
+
+    [Parameter] public string Title { get; set; } = "Arrastra archivos aquí";
+    [Parameter] public string Subtitle { get; set; } = "o selecciona desde tu equipo";
+    [Parameter] public bool Multiple { get; set; } = true;
+    [Parameter] public bool ShowFileList { get; set; } = true;
+    [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> FilesChanged { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private void OnDragEnter()
+    {
+        _isDragging = true;
+    }
+
+    private void OnDragLeave()
+    {
+        _isDragging = false;
+    }
+
+    private async Task OnDropAsync(DragEventArgs _)
+    {
+        _isDragging = false;
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleInputChangeAsync(InputFileChangeEventArgs args)
+    {
+        _files.Clear();
+        _files.AddRange(args.GetMultipleFiles());
+
+        if (FilesChanged.HasDelegate)
+            await FilesChanged.InvokeAsync(_files);
+    }
+}

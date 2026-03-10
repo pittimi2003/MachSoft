@@ -8,16 +8,33 @@ Este playbook convierte el design system en una plataforma de producto (no sólo
 - `MxDesignSystemProvider`
 - `MxMainContainer`
 - `MxButton`
+- `MxIconButton`
 - `MxAlert`
 - `MxAppBar`
+- `MxTextField`
+- `MxSelect`
+- `MxCheckbox`
+- `MxSwitch`
+- `MxRadioGroup`
+- `MxTooltip`
+- `MxCard`
+- `MxSimpleTable`
+- `MxSnackbarButton`
+- `MxConfirmDialogButton`
+- `MxDataGrid`
+- `MxDatePicker`
+- `MxDateRangePicker`
+- `MxTimePicker`
+- `MxPagination`
+- `MxSkeleton`
+- `MxFileUpload`
+- `MxDropZone`
 
-### Backlog de cobertura
-Se creó un inventario inicial para priorizar los componentes faltantes en olas de entrega:
-
-- OLA 1 (Core UI): Button, IconButton, TextField, Select, Checkbox, Radio, Switch, Snackbar, Dialog, Tooltip, Card, Table.
-- OLA 2 (Data UX): DataGrid, DatePicker, DateRangePicker, TimePicker, Pagination, Skeleton, FileUpload, DropZone.
-- OLA 3 (Navigation): AppBar, Drawer, NavMenu, Tabs, Breadcrumbs, Menu, TreeView.
-- OLA 4 (Advanced): Carousel, Charts, Timeline, ChatBubble, Hotkey, SwipeArea, SplitPanel.
+### Olas de entrega
+- ✅ OLA 1 completada (Core UI): Button, IconButton, TextField, Select, Checkbox, Radio, Switch, Snackbar, Dialog, Tooltip, Card, Table.
+- ✅ OLA 2 iniciada (Data UX): DataGrid, DatePicker, DateRangePicker, TimePicker, Pagination, Skeleton, FileUpload, DropZone.
+- ⏭️ OLA 3 (Navigation): AppBar, Drawer, NavMenu, Tabs, Breadcrumbs, Menu, TreeView.
+- ⏭️ OLA 4 (Advanced): Carousel, Charts, Timeline, ChatBubble, Hotkey, SwipeArea, SplitPanel.
 
 > Nota: La lista completa solicitada se debe mapear contra MudBlazor y crear wrappers `Mx*` consistentes por API, estilos y accesibilidad.
 
