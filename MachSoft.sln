@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.Components", "Mach
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machsoft.DesignSystem", "Machsoft.DesignSystem\Machsoft.DesignSystem.csproj", "{14BAF7D7-4E2B-409B-B680-17CEC43517CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Machsoft.DesignSystem.Showcase", "Machsoft.DesignSystem.Showcase\Machsoft.DesignSystem.Showcase.csproj", "{FFC6C60A-3610-44D5-B303-9C81DCC560C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{14BAF7D7-4E2B-409B-B680-17CEC43517CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14BAF7D7-4E2B-409B-B680-17CEC43517CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14BAF7D7-4E2B-409B-B680-17CEC43517CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFC6C60A-3610-44D5-B303-9C81DCC560C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFC6C60A-3610-44D5-B303-9C81DCC560C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFC6C60A-3610-44D5-B303-9C81DCC560C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFC6C60A-3610-44D5-B303-9C81DCC560C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
