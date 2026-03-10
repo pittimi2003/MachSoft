@@ -26,9 +26,9 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Skeleton | Implementado (`MxSkeleton`) |
 | FileUpload | Implementado (`MxFileUpload`) |
 | DropZone | Implementado (`MxDropZone`) |
-| Autocomplete | Planned |
-| Avatar | Planned |
-| Badge | Planned |
+| Autocomplete | Implementado (`MxAutocomplete`) |
+| Avatar | Implementado (`MxAvatar`) |
+| Badge | Implementado (`MxBadge`) |
 | Breadcrumbs | Implementado (`MxBreadcrumbs`) |
 | BreakpointProvider | Planned |
 | ButtonFAB | Planned |
@@ -37,18 +37,17 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Carousel | Implementado (`MxCarousel`) |
 | Charts | Implementado (`MxCharts`) |
 | ChatBubble | Implementado (`MxChatBubble`) |
-| Chip | Planned |
+| Chip | Implementado (`MxChip`) |
 | ChipSet | Planned |
 | Collapse | Planned |
 | ColorPicker | Planned |
 | Container | Planned |
-| Divider | Planned |
+| Divider | Implementado (`MxDivider`) |
 | Drawer | Implementado (`MxDrawer`) |
 | Element | Planned |
 | ExitPrompt | Planned |
 | ExpansionPanel | Planned |
 | Field | Planned |
-| FileUpload | Planned |
 | FocusTrap | Planned |
 | Form | Planned |
 | Grid | Planned |
@@ -58,21 +57,21 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Icons | Planned |
 | Image | Planned |
 | Link | Planned |
-| List | Planned |
+| List | Implementado (`MxList`) |
 | Menu | Implementado (`MxMenu`) |
 | MessageBox | Planned |
 | NavMenu | Implementado (`MxNavMenu`) |
 | NumericField | Planned |
-| Overlay | Planned |
-| Paper | Planned |
+| Overlay | Implementado (`MxOverlay`) |
+| Paper | Implementado (`MxPaper`) |
 | Popover | Planned |
-| Progress | Planned |
+| Progress | Implementado (`MxProgress`) |
 | Rating | Planned |
 | ScrollToTop | Planned |
 | Slider | Planned |
-| Spacer | Planned |
+| Spacer | Implementado (`MxSpacer`) |
 | SplitPanel | Implementado (`MxSplitPanel`) |
-| Stack | Planned |
+| Stack | Implementado (`MxStack`) |
 | Stepper | Planned |
 | SwipeArea | Implementado (`MxSwipeArea`) |
 | Tabs | Implementado (`MxTabs`) |

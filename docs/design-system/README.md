@@ -42,12 +42,24 @@ Este playbook convierte el design system en una plataforma de producto (no sólo
 - `MxTimeline`
 - `MxCharts`
 - `MxCarousel`
+- `MxAutocomplete`
+- `MxAvatar`
+- `MxBadge`
+- `MxChip`
+- `MxList`
+- `MxProgress`
+- `MxPaper`
+- `MxStack`
+- `MxSpacer`
+- `MxDivider`
+- `MxOverlay`
 
 ### Olas de entrega
 - ✅ OLA 1 completada (Core UI): Button, IconButton, TextField, Select, Checkbox, Radio, Switch, Snackbar, Dialog, Tooltip, Card, Table.
 - ✅ OLA 2 completada (Data UX): DataGrid, DatePicker, DateRangePicker, TimePicker, Pagination, Skeleton, FileUpload, DropZone.
 - ✅ OLA 3 completada (Navigation): AppBar, Drawer, NavMenu, Tabs, Breadcrumbs, Menu, TreeView.
-- ✅ OLA 4 iniciada (Advanced): Carousel, Charts, Timeline, ChatBubble, Hotkey, SwipeArea, SplitPanel.
+- ✅ OLA 4 completada (Advanced): Carousel, Charts, Timeline, ChatBubble, Hotkey, SwipeArea, SplitPanel.
+- ✅ OLA 5 iniciada (Utility & Feedback): Autocomplete, Avatar, Badge, Chip, List, Progress, Paper, Stack, Spacer, Divider, Overlay.
 
 > Nota: La lista completa solicitada se debe mapear contra MudBlazor y crear wrappers `Mx*` consistentes por API, estilos y accesibilidad.
 
