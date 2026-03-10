@@ -48,6 +48,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ExitPrompt | Planned |
 | ExpansionPanel | Planned |
 | Field | Planned |
+| FileUpload | Planned |
 | FocusTrap | Planned |
 | Form | Planned |
 | Grid | Planned |
