@@ -1,0 +1,149 @@
+@using MudBlazor
+
+<div class="@ContainerClass" style="@ContainerStyle">
+
+    @if (ShowLeftPanel)
+    {
+        <section class="mx-main-container__panel mx-main-container__panel--left">
+            @LeftContent
+
+            @if (ShowLeftOverlay)
+            {
+                <div class="mx-main-container__overlay"></div>
+            }
+        </section>
+    }
+
+    <section class="mx-main-container__panel mx-main-container__panel--center">
+        @MainContent
+
+        @if (ShowCenterOverlay)
+        {
+            <div class="mx-main-container__overlay"></div>
+        }
+    </section>
+
+    @if (ShowRightPanel)
+    {
+        <section class="mx-main-container__panel mx-main-container__panel--right">
+
+            @if (ShowMobileDetails && ShowMobileCloseButton)
+            {
+                <div class="mx-main-container__mobile-actions">
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                   Size="Size.Small"
+                                   Class="mx-main-container__mobile-close-btn"
+                                   OnClick="CloseRightPanelAsync" />
+                </div>
+            }
+
+            @RightContent
+
+            @if (ShowRightOverlay)
+            {
+                <div class="mx-main-container__overlay"></div>
+            }
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter] public RenderFragment? LeftContent { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? MainContent { get; set; }
+    [Parameter] public RenderFragment? RightContent { get; set; }
+
+    [Parameter] public bool ShowLeftPanel { get; set; } = true;
+    [Parameter] public bool ShowRightPanel { get; set; }
+    [Parameter] public EventCallback<bool> ShowRightPanelChanged { get; set; }
+
+    [Parameter] public bool ShowLeftOverlay { get; set; }
+    [Parameter] public bool ShowCenterOverlay { get; set; }
+    [Parameter] public bool ShowRightOverlay { get; set; }
+
+    [Parameter] public bool IsEditMode { get; set; }
+    [Parameter] public bool ShowMobileDetails { get; set; }
+    [Parameter] public bool ShowMobileCloseButton { get; set; } = true;
+
+    [Parameter] public string LeftPanelWidth { get; set; } = "68px";
+    [Parameter] public string RightPanelWidth { get; set; } = "35%";
+    [Parameter] public string CenterWidthWhenBothVisible { get; set; } = "calc(65% - 68px)";
+    [Parameter] public string CenterWidthWhenOnlyLeftVisible { get; set; } = "calc(100% - 68px)";
+    [Parameter] public string CenterWidthWhenOnlyRightVisible { get; set; } = "65%";
+
+    [Parameter] public EventCallback OnCloseRightPanel { get; set; }
+
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ContainerClass
+    {
+        get
+        {
+            var classes = new List<string> { "mx-main-container" };
+
+            if (IsEditMode)
+                classes.Add("mx-main-container--edit-mode");
+
+            if (!ShowLeftPanel)
+                classes.Add("mx-main-container--new-mode");
+
+            if (ShowMobileDetails)
+                classes.Add("mx-main-container--show-mobile-details");
+
+            if (!ShowLeftPanel)
+                classes.Add("mx-main-container--left-hidden");
+
+            if (!ShowRightPanel)
+                classes.Add("mx-main-container--right-hidden");
+
+            if (!string.IsNullOrWhiteSpace(Class))
+                classes.Add(Class);
+
+            return string.Join(" ", classes);
+        }
+    }
+
+    private string ContainerStyle
+    {
+        get
+        {
+            var parts = new List<string>
+            {
+                $"--mx-main-container-left-width:{LeftPanelWidth}",
+                $"--mx-main-container-right-width:{RightPanelWidth}",
+                $"--mx-main-container-center-both:{CenterWidthWhenBothVisible}",
+                $"--mx-main-container-center-left-only:{CenterWidthWhenOnlyLeftVisible}",
+                $"--mx-main-container-center-right-only:{CenterWidthWhenOnlyRightVisible}",
+                $"grid-template-columns:{BuildGridTemplateColumns()}"
+            };
+
+            if (!string.IsNullOrWhiteSpace(Style))
+                parts.Add(Style);
+
+            return string.Join(";", parts) + ";";
+        }
+    }
+
+    private string BuildGridTemplateColumns()
+    {
+        if (ShowLeftPanel && ShowRightPanel)
+            return "var(--mx-main-container-left-width) var(--mx-main-container-center-both) var(--mx-main-container-right-width)";
+
+        if (ShowLeftPanel && !ShowRightPanel)
+            return "var(--mx-main-container-left-width) var(--mx-main-container-center-left-only)";
+
+        if (!ShowLeftPanel && ShowRightPanel)
+            return "var(--mx-main-container-center-right-only) var(--mx-main-container-right-width)";
+
+        return "1fr";
+    }
+
+    private async Task CloseRightPanelAsync()
+    {
+        if (ShowRightPanelChanged.HasDelegate)
+            await ShowRightPanelChanged.InvokeAsync(false);
+
+        if (OnCloseRightPanel.HasDelegate)
+            await OnCloseRightPanel.InvokeAsync();
+    }
+}
