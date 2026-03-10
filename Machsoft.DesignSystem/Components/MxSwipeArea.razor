@@ -1,0 +1,33 @@
+<div class="mx-swipe-area @Class"
+     style="@Style"
+     @ontouchstart="OnTouchStart"
+     @ontouchend="OnTouchEnd">
+    @ChildContent
+</div>
+
+@code {
+    private double _startX;
+
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public double Threshold { get; set; } = 40;
+    [Parameter] public EventCallback OnSwipeLeft { get; set; }
+    [Parameter] public EventCallback OnSwipeRight { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private void OnTouchStart(TouchEventArgs args)
+    {
+        _startX = args.Touches.Length > 0 ? args.Touches[0].ClientX : 0;
+    }
+
+    private async Task OnTouchEnd(TouchEventArgs args)
+    {
+        var endX = args.ChangedTouches.Length > 0 ? args.ChangedTouches[0].ClientX : _startX;
+        var delta = endX - _startX;
+
+        if (delta <= -Threshold && OnSwipeLeft.HasDelegate)
+            await OnSwipeLeft.InvokeAsync();
+        else if (delta >= Threshold && OnSwipeRight.HasDelegate)
+            await OnSwipeRight.InvokeAsync();
+    }
+}

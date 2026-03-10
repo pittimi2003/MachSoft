@@ -1,0 +1,18 @@
+@using MudBlazor
+
+<MudContainer MaxWidth="@MaxWidth"
+              Fixed="@Fixed"
+              Gutter="@Gutter"
+              Class="@Class"
+              Style="@Style">
+    @ChildContent
+</MudContainer>
+
+@code {
+    [Parameter] public MaxWidth MaxWidth { get; set; } = MaxWidth.Large;
+    [Parameter] public bool Fixed { get; set; }
+    [Parameter] public bool Gutter { get; set; } = true;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

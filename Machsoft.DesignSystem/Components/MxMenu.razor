@@ -1,0 +1,44 @@
+@using MudBlazor
+
+<MudMenu Label="@Label"
+         Icon="@Icon"
+         Color="@Color"
+         Variant="@Variant"
+         Dense="@Dense"
+         Disabled="@Disabled"
+         Class="@Class"
+         Style="@Style">
+    @if (Items is not null)
+    {
+        @foreach (var item in Items)
+        {
+            <MudMenuItem Disabled="@item.Disabled" Href="@item.Href" OnClick="@(() => OnItemSelectedAsync(item))">
+                @item.Text
+            </MudMenuItem>
+        }
+    }
+
+    @ChildContent
+</MudMenu>
+
+@code {
+    public sealed record MenuItem(string Text, string? Href = null, bool Disabled = false);
+
+    [Parameter] public string Label { get; set; } = "Menu";
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public IEnumerable<MenuItem>? Items { get; set; }
+    [Parameter] public EventCallback<MenuItem> ItemSelected { get; set; }
+    [Parameter] public Color Color { get; set; } = Color.Default;
+    [Parameter] public Variant Variant { get; set; } = Variant.Text;
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private async Task OnItemSelectedAsync(MenuItem item)
+    {
+        if (ItemSelected.HasDelegate)
+            await ItemSelected.InvokeAsync(item);
+    }
+}
