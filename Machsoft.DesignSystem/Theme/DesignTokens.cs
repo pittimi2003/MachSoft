@@ -11,7 +11,6 @@ public sealed record DesignTokens(
     string ColorBorder,
     string ColorBorderSubtle,
     string ColorOverlay,
-    string ColorOverlay,
     string ColorSuccess,
     string ColorWarning,
     string ColorError,
@@ -111,6 +110,7 @@ public sealed record DesignTokens(
         ColorTextPrimary: AppColors.Dark.TextPrimary,
         ColorTextSecondary: AppColors.Dark.TextSecondary,
         ColorBorder: AppColors.Dark.Border,
+        ColorBorderSubtle: AppColors.Dark.BorderSubtle,
         ColorOverlay: AppColors.Dark.Overlay,
         ColorSuccess: AppColors.Dark.Success,
         ColorWarning: AppColors.Dark.Warning,
@@ -150,55 +150,6 @@ public sealed record DesignTokens(
         FontWeightHeading: AppTypography.HeadingWeight,
         LineHeightNormal: AppTypography.LineHeightNormal,
         LetterSpacingNormal: AppTypography.LetterSpacingNormal);
-
-    public static DesignTokens ForMode(bool isDarkMode) => isDarkMode ? Dark : Light;
-
-    public static DesignTokens Dark => new(
-        ColorPrimary: AppColors.Dark.Primary,
-        ColorPrimaryDark: AppColors.Dark.PrimaryDark,
-        ColorSecondary: AppColors.Dark.Secondary,
-        ColorBackground: AppColors.Dark.Background,
-        ColorSurface: AppColors.Dark.Surface,
-        ColorTextPrimary: AppColors.Dark.TextPrimary,
-        ColorTextSecondary: AppColors.Dark.TextSecondary,
-        ColorBorder: AppColors.Dark.Border,
-        ColorOverlay: AppColors.Dark.Overlay,
-        RadiusSm: AppLayout.RadiusSm,
-        RadiusMd: AppLayout.RadiusMd,
-        RadiusLg: AppLayout.RadiusLg,
-        SpacingXs: AppLayout.SpacingXs,
-        SpacingSm: AppLayout.SpacingSm,
-        SpacingMd: AppLayout.SpacingMd,
-        SpacingLg: AppLayout.SpacingLg,
-        FontSizeSm: AppTypography.FontSizeSm,
-        FontSizeMd: AppTypography.FontSizeMd,
-        FontSizeLg: AppTypography.FontSizeLg,
-        FontWeightBody: AppTypography.BodyWeight.ToString(),
-        FontWeightHeading: AppTypography.HeadingWeight.ToString());
-
-    public static DesignTokens Dark => new(
-        ColorPrimary: AppColors.Dark.Primary,
-        ColorPrimaryDark: AppColors.Dark.PrimaryDark,
-        ColorSecondary: AppColors.Dark.Secondary,
-        ColorBackground: AppColors.Dark.Background,
-        ColorSurface: AppColors.Dark.Surface,
-        ColorTextPrimary: AppColors.Dark.TextPrimary,
-        ColorTextSecondary: AppColors.Dark.TextSecondary,
-        ColorBorder: AppColors.Dark.Border,
-        ColorBorderSubtle: AppColors.Dark.BorderSubtle,
-        ColorOverlay: AppColors.Dark.Overlay,
-        RadiusSm: AppLayout.RadiusSm,
-        RadiusMd: AppLayout.RadiusMd,
-        RadiusLg: AppLayout.RadiusLg,
-        SpacingXs: AppLayout.SpacingXs,
-        SpacingSm: AppLayout.SpacingSm,
-        SpacingMd: AppLayout.SpacingMd,
-        SpacingLg: AppLayout.SpacingLg,
-        FontSizeSm: AppTypography.FontSizeSm,
-        FontSizeMd: AppTypography.FontSizeMd,
-        FontSizeLg: AppTypography.FontSizeLg,
-        FontWeightBody: AppTypography.BodyWeight.ToString(),
-        FontWeightHeading: AppTypography.HeadingWeight.ToString());
 
     public static DesignTokens ForMode(bool isDarkMode) => isDarkMode ? Dark : Light;
 

@@ -61,6 +61,15 @@ Este playbook convierte el design system en una plataforma de producto (no sólo
 - `MxExpansionPanel`
 - `MxLink`
 - `MxImage`
+- `MxChipSet`
+- `MxCollapse`
+- `MxGrid`
+- `MxHidden`
+- `MxPopover`
+- `MxToggleGroup`
+- `MxToggleIconButton`
+- `MxToolBar`
+- `MxStepper`
 
 ### Olas de entrega
 - ✅ OLA 1 completada (Core UI): Button, IconButton, TextField, Select, Checkbox, Radio, Switch, Snackbar, Dialog, Tooltip, Card, Table.
@@ -68,7 +77,8 @@ Este playbook convierte el design system en una plataforma de producto (no sólo
 - ✅ OLA 3 completada (Navigation): AppBar, Drawer, NavMenu, Tabs, Breadcrumbs, Menu, TreeView.
 - ✅ OLA 4 completada (Advanced): Carousel, Charts, Timeline, ChatBubble, Hotkey, SwipeArea, SplitPanel.
 - ✅ OLA 5 completada (Utility & Feedback): Autocomplete, Avatar, Badge, Chip, List, Progress, Paper, Stack, Spacer, Divider, Overlay.
-- ✅ OLA 6 iniciada (Forms & Content): NumericField, Slider, Rating, Container, Form, ExpansionPanel, Link, Image.
+- ✅ OLA 6 completada (Forms & Content): NumericField, Slider, Rating, Container, Form, ExpansionPanel, Link, Image.
+- ✅ OLA 7 iniciada (Interaction & Structure): ChipSet, Collapse, Grid, Hidden, Popover, ToggleGroup, ToggleIconButton, ToolBar, Stepper.
 
 > Nota: La lista completa solicitada se debe mapear contra MudBlazor y crear wrappers `Mx*` consistentes por API, estilos y accesibilidad.
 

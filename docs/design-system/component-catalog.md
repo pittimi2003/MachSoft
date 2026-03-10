@@ -38,8 +38,8 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Charts | Implementado (`MxCharts`) |
 | ChatBubble | Implementado (`MxChatBubble`) |
 | Chip | Implementado (`MxChip`) |
-| ChipSet | Planned |
-| Collapse | Planned |
+| ChipSet | Implementado (`MxChipSet`) |
+| Collapse | Implementado (`MxCollapse`) |
 | ColorPicker | Planned |
 | Container | Implementado (`MxContainer`) |
 | Divider | Implementado (`MxDivider`) |
@@ -50,8 +50,8 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Field | Planned |
 | FocusTrap | Planned |
 | Form | Implementado (`MxForm`) |
-| Grid | Planned |
-| Hidden | Planned |
+| Grid | Implementado (`MxGrid`) |
+| Hidden | Implementado (`MxHidden`) |
 | Highlighter | Planned |
 | Hotkey | Implementado (`MxHotkey`) |
 | Icons | Planned |
@@ -64,7 +64,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | NumericField | Implementado (`MxNumericField`) |
 | Overlay | Implementado (`MxOverlay`) |
 | Paper | Implementado (`MxPaper`) |
-| Popover | Planned |
+| Popover | Implementado (`MxPopover`) |
 | Progress | Implementado (`MxProgress`) |
 | Rating | Implementado (`MxRating`) |
 | ScrollToTop | Planned |
@@ -72,13 +72,13 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Spacer | Implementado (`MxSpacer`) |
 | SplitPanel | Implementado (`MxSplitPanel`) |
 | Stack | Implementado (`MxStack`) |
-| Stepper | Planned |
+| Stepper | Implementado (`MxStepper`) |
 | SwipeArea | Implementado (`MxSwipeArea`) |
 | Tabs | Implementado (`MxTabs`) |
 | Timeline | Implementado (`MxTimeline`) |
-| ToggleGroup | Planned |
-| ToggleIconButton | Planned |
-| ToolBar | Planned |
+| ToggleGroup | Implementado (`MxToggleGroup`) |
+| ToggleIconButton | Implementado (`MxToggleIconButton`) |
+| ToolBar | Implementado (`MxToolBar`) |
 | TreeView | Implementado (`MxTreeView`) |
 | Navegación y patrones complejos | Planned |
 

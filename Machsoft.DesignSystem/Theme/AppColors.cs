@@ -39,9 +39,6 @@ public static class AppColors
         public const string TextPrimary = "#E5E7EB";
         public const string TextSecondary = "#94A3B8";
         public const string Overlay = "rgba(2, 6, 23, 0.56)";
-        public const string TextPrimary = "#E5E7EB";
-        public const string TextSecondary = "#94A3B8";
-        public const string Overlay = "rgba(2, 6, 23, 0.56)";
 
         public const string Success = "#22C55E";
         public const string Warning = "#F59E0B";

@@ -31,13 +31,6 @@ body {
     color: var(--mx-color-text-primary);
 }
 
-.mx-theme-scope {
-    background: var(--mx-color-background);
-    color: var(--mx-color-text-primary);
-
-.mx-theme-scope {
-    background: var(--mx-color-background);
-    color: var(--mx-color-text-primary);
 *:focus-visible {
     outline: 2px solid var(--mx-color-focus-ring);
     outline-offset: 2px;
