@@ -149,6 +149,31 @@ public sealed record DesignTokens(
 
     public static DesignTokens ForMode(bool isDarkMode) => isDarkMode ? Dark : Light;
 
+    public static DesignTokens Dark => new(
+        ColorPrimary: AppColors.Dark.Primary,
+        ColorPrimaryDark: AppColors.Dark.PrimaryDark,
+        ColorSecondary: AppColors.Dark.Secondary,
+        ColorBackground: AppColors.Dark.Background,
+        ColorSurface: AppColors.Dark.Surface,
+        ColorTextPrimary: AppColors.Dark.TextPrimary,
+        ColorTextSecondary: AppColors.Dark.TextSecondary,
+        ColorBorder: AppColors.Dark.Border,
+        ColorOverlay: AppColors.Dark.Overlay,
+        RadiusSm: AppLayout.RadiusSm,
+        RadiusMd: AppLayout.RadiusMd,
+        RadiusLg: AppLayout.RadiusLg,
+        SpacingXs: AppLayout.SpacingXs,
+        SpacingSm: AppLayout.SpacingSm,
+        SpacingMd: AppLayout.SpacingMd,
+        SpacingLg: AppLayout.SpacingLg,
+        FontSizeSm: AppTypography.FontSizeSm,
+        FontSizeMd: AppTypography.FontSizeMd,
+        FontSizeLg: AppTypography.FontSizeLg,
+        FontWeightBody: AppTypography.BodyWeight.ToString(),
+        FontWeightHeading: AppTypography.HeadingWeight.ToString());
+
+    public static DesignTokens ForMode(bool isDarkMode) => isDarkMode ? Dark : Light;
+
     public string ToCssVariables() => string.Join("\n", new[]
     {
         $"--mx-color-primary: {ColorPrimary};",

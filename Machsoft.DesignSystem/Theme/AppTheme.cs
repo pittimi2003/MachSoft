@@ -46,6 +46,22 @@ public static class AppTheme
             Error = AppColors.Dark.Error,
             Info = AppColors.Dark.Info
         },
+        PaletteDark = new PaletteDark
+        {
+            Primary = AppColors.Dark.Primary,
+            Secondary = AppColors.Dark.Secondary,
+            Background = AppColors.Dark.Background,
+            Surface = AppColors.Dark.Surface,
+            AppbarBackground = AppColors.Dark.Surface,
+            AppbarText = AppColors.Dark.TextPrimary,
+            DrawerBackground = AppColors.Dark.Surface,
+            DrawerText = AppColors.Dark.TextPrimary,
+            DrawerIcon = AppColors.Dark.Primary,
+            TextPrimary = AppColors.Dark.TextPrimary,
+            TextSecondary = AppColors.Dark.TextSecondary,
+            LinesDefault = AppColors.Dark.Border,
+            OverlayDark = AppColors.Dark.Overlay
+        },
         LayoutProperties = new LayoutProperties
         {
             DefaultBorderRadius = AppLayout.RadiusMd
