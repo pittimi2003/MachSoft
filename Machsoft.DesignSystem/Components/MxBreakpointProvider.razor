@@ -1,0 +1,7 @@
+@using MudBlazor
+
+<MudBreakpointProvider OnBreakpointChanged="@OnBreakpointChanged" />
+
+@code {
+    [Parameter] public EventCallback<Breakpoint> OnBreakpointChanged { get; set; }
+}

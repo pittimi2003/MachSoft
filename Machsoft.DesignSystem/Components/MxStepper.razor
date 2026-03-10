@@ -1,0 +1,31 @@
+@using MudBlazor
+
+<MudStepper Linear="@Linear"
+            ActiveIndex="@ActiveIndex"
+            ActiveIndexChanged="@ActiveIndexChanged"
+            Class="@Class"
+            Style="@Style">
+    @if (Steps is not null)
+    {
+        @foreach (var step in Steps)
+        {
+            <MudStep Title="@step.Title" Optional="@step.Optional" Disabled="@step.Disabled">
+                @step.Content
+            </MudStep>
+        }
+    }
+
+    @ChildContent
+</MudStepper>
+
+@code {
+    public sealed record StepItem(string Title, RenderFragment? Content = null, bool Optional = false, bool Disabled = false);
+
+    [Parameter] public IEnumerable<StepItem>? Steps { get; set; }
+    [Parameter] public bool Linear { get; set; } = true;
+    [Parameter] public int ActiveIndex { get; set; }
+    [Parameter] public EventCallback<int> ActiveIndexChanged { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

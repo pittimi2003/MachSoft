@@ -1,0 +1,10 @@
+@using MudBlazor
+
+<MudDivider Vertical="@Vertical" Light="@Light" Class="@Class" Style="@Style" />
+
+@code {
+    [Parameter] public bool Vertical { get; set; }
+    [Parameter] public bool Light { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

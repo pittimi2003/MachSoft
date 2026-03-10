@@ -1,0 +1,15 @@
+@using MudBlazor
+
+<MudTooltip Text="@Text" Placement="@Placement" Arrow="@Arrow" Duration="@Duration" Class="@Class" Style="@Style">
+    @ChildContent
+</MudTooltip>
+
+@code {
+    [Parameter, EditorRequired] public string? Text { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public Placement Placement { get; set; } = Placement.Bottom;
+    [Parameter] public bool Arrow { get; set; } = true;
+    [Parameter] public int Duration { get; set; } = 251;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

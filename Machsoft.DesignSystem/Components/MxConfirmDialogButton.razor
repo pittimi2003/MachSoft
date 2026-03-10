@@ -1,0 +1,41 @@
+@using MudBlazor
+@inject IDialogService DialogService
+
+<MxButton Variant="@Variant" Color="@Color" Disabled="@Disabled" OnClick="OpenDialogAsync" Class="@Class" Style="@Style">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        @ButtonText
+    }
+</MxButton>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Confirmación";
+    [Parameter] public string Content { get; set; } = "¿Deseas continuar?";
+    [Parameter] public string YesText { get; set; } = "Confirmar";
+    [Parameter] public string CancelText { get; set; } = "Cancelar";
+    [Parameter] public EventCallback OnConfirmed { get; set; }
+    [Parameter] public Variant Variant { get; set; } = Variant.Outlined;
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Abrir diálogo";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private async Task OpenDialogAsync(MouseEventArgs _)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            title: Title,
+            markupMessage: (MarkupString)Content,
+            yesText: YesText,
+            cancelText: CancelText,
+            options: new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall });
+
+        if (confirmed == true && OnConfirmed.HasDelegate)
+            await OnConfirmed.InvokeAsync();
+    }
+}

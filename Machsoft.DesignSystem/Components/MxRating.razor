@@ -1,0 +1,21 @@
+@using MudBlazor
+
+<MudRating SelectedValue="@SelectedValue"
+           SelectedValueChanged="@SelectedValueChanged"
+           MaxValue="@MaxValue"
+           Color="@Color"
+           Size="@Size"
+           Disabled="@Disabled"
+           Class="@Class"
+           Style="@Style" />
+
+@code {
+    [Parameter] public int SelectedValue { get; set; }
+    [Parameter] public EventCallback<int> SelectedValueChanged { get; set; }
+    [Parameter] public int MaxValue { get; set; } = 5;
+    [Parameter] public Color Color { get; set; } = Color.Warning;
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

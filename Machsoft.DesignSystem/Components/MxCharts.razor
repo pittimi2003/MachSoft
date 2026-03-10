@@ -1,0 +1,25 @@
+@using MudBlazor
+
+<div class="mx-charts @Class" style="@Style">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <MudText Typo="Typo.h6">@Title</MudText>
+    }
+
+    <MudChart ChartType="@ChartType"
+              InputData="@InputData"
+              InputLabels="@InputLabels"
+              Width="@Width"
+              Height="@Height" />
+</div>
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public ChartType ChartType { get; set; } = ChartType.Line;
+    [Parameter] public double[]? InputData { get; set; }
+    [Parameter] public string[]? InputLabels { get; set; }
+    [Parameter] public string Width { get; set; } = "100%";
+    [Parameter] public string Height { get; set; } = "320px";
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

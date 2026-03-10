@@ -1,0 +1,22 @@
+@using MudBlazor
+
+<MudPaper Elevation="@Elevation"
+          Outlined="@Outlined"
+          Square="@Square"
+          Width="@Width"
+          Height="@Height"
+          Class="@Class"
+          Style="@Style">
+    @ChildContent
+</MudPaper>
+
+@code {
+    [Parameter] public int Elevation { get; set; } = 1;
+    [Parameter] public bool Outlined { get; set; }
+    [Parameter] public bool Square { get; set; }
+    [Parameter] public string? Width { get; set; }
+    [Parameter] public string? Height { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

@@ -1,0 +1,29 @@
+@using MudBlazor
+
+<MudNavMenu Class="@Class" Style="@Style" Dense="@Dense" Rounded="@Rounded" Bordered="@Bordered" Margin="@Margin" Color="@Color">
+    @if (Items is not null)
+    {
+        @foreach (var item in Items)
+        {
+            <MudNavLink Href="@item.Href" Icon="@item.Icon" Match="@item.Match" Disabled="@item.Disabled">
+                @item.Text
+            </MudNavLink>
+        }
+    }
+
+    @ChildContent
+</MudNavMenu>
+
+@code {
+    public sealed record NavItem(string Text, string Href, string? Icon = null, NavLinkMatch Match = NavLinkMatch.Prefix, bool Disabled = false);
+
+    [Parameter] public IEnumerable<NavItem>? Items { get; set; }
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public bool Rounded { get; set; } = true;
+    [Parameter] public bool Bordered { get; set; }
+    [Parameter] public Margin Margin { get; set; } = Margin.Dense;
+    [Parameter] public Color Color { get; set; } = Color.Default;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
