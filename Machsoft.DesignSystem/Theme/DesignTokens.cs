@@ -9,6 +9,8 @@ public sealed record DesignTokens(
     string ColorTextPrimary,
     string ColorTextSecondary,
     string ColorBorder,
+    string ColorBorderSubtle,
+    string ColorOverlay,
     string ColorOverlay,
     string ColorSuccess,
     string ColorWarning,
@@ -58,6 +60,8 @@ public sealed record DesignTokens(
         ColorTextPrimary: AppColors.TextPrimary,
         ColorTextSecondary: AppColors.TextSecondary,
         ColorBorder: AppColors.Border,
+        ColorBorderSubtle: AppColors.BorderSubtle,
+        ColorOverlay: AppColors.Overlay,
         ColorOverlay: AppColors.Overlay,
         ColorSuccess: AppColors.Success,
         ColorWarning: AppColors.Warning,
@@ -172,6 +176,30 @@ public sealed record DesignTokens(
         FontWeightBody: AppTypography.BodyWeight.ToString(),
         FontWeightHeading: AppTypography.HeadingWeight.ToString());
 
+    public static DesignTokens Dark => new(
+        ColorPrimary: AppColors.Dark.Primary,
+        ColorPrimaryDark: AppColors.Dark.PrimaryDark,
+        ColorSecondary: AppColors.Dark.Secondary,
+        ColorBackground: AppColors.Dark.Background,
+        ColorSurface: AppColors.Dark.Surface,
+        ColorTextPrimary: AppColors.Dark.TextPrimary,
+        ColorTextSecondary: AppColors.Dark.TextSecondary,
+        ColorBorder: AppColors.Dark.Border,
+        ColorBorderSubtle: AppColors.Dark.BorderSubtle,
+        ColorOverlay: AppColors.Dark.Overlay,
+        RadiusSm: AppLayout.RadiusSm,
+        RadiusMd: AppLayout.RadiusMd,
+        RadiusLg: AppLayout.RadiusLg,
+        SpacingXs: AppLayout.SpacingXs,
+        SpacingSm: AppLayout.SpacingSm,
+        SpacingMd: AppLayout.SpacingMd,
+        SpacingLg: AppLayout.SpacingLg,
+        FontSizeSm: AppTypography.FontSizeSm,
+        FontSizeMd: AppTypography.FontSizeMd,
+        FontSizeLg: AppTypography.FontSizeLg,
+        FontWeightBody: AppTypography.BodyWeight.ToString(),
+        FontWeightHeading: AppTypography.HeadingWeight.ToString());
+
     public static DesignTokens ForMode(bool isDarkMode) => isDarkMode ? Dark : Light;
 
     public string ToCssVariables() => string.Join("\n", new[]
@@ -184,6 +212,8 @@ public sealed record DesignTokens(
         $"--mx-color-text-primary: {ColorTextPrimary};",
         $"--mx-color-text-secondary: {ColorTextSecondary};",
         $"--mx-color-border: {ColorBorder};",
+        $"--mx-color-border-subtle: {ColorBorderSubtle};",
+        $"--mx-color-overlay: {ColorOverlay};",
         $"--mx-color-overlay: {ColorOverlay};",
         $"--mx-color-success: {ColorSuccess};",
         $"--mx-color-warning: {ColorWarning};",
