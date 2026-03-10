@@ -1,0 +1,16 @@
+@using MudBlazor
+
+<MudElement HtmlTag="@HtmlTag"
+            Class="@Class"
+            Style="@Style"
+            UserAttributes="@UserAttributes">
+    @ChildContent
+</MudElement>
+
+@code {
+    [Parameter] public string HtmlTag { get; set; } = "div";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? UserAttributes { get; set; }
+}

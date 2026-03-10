@@ -164,7 +164,6 @@ public sealed record DesignTokens(
         $"--mx-color-border: {ColorBorder};",
         $"--mx-color-border-subtle: {ColorBorderSubtle};",
         $"--mx-color-overlay: {ColorOverlay};",
-        $"--mx-color-overlay: {ColorOverlay};",
         $"--mx-color-success: {ColorSuccess};",
         $"--mx-color-warning: {ColorWarning};",
         $"--mx-color-error: {ColorError};",

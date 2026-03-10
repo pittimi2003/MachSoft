@@ -44,8 +44,8 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Container | Implementado (`MxContainer`) |
 | Divider | Implementado (`MxDivider`) |
 | Drawer | Implementado (`MxDrawer`) |
-| Element | Planned |
-| ExitPrompt | Planned |
+| Element | Implementado (`MxElement`) |
+| ExitPrompt | Implementado (`MxExitPrompt`) |
 | ExpansionPanel | Implementado (`MxExpansionPanel`) |
 | Field | Implementado (`MxField`) |
 | FocusTrap | Implementado (`MxFocusTrap`) |
@@ -54,7 +54,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Hidden | Implementado (`MxHidden`) |
 | Highlighter | Implementado (`MxHighlighter`) |
 | Hotkey | Implementado (`MxHotkey`) |
-| Icons | Planned |
+| Icons | Implementado (`MxIcon`) |
 | Image | Implementado (`MxImage`) |
 | Link | Implementado (`MxLink`) |
 | List | Implementado (`MxList`) |
@@ -80,5 +80,5 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | ToggleIconButton | Implementado (`MxToggleIconButton`) |
 | ToolBar | Implementado (`MxToolBar`) |
 | TreeView | Implementado (`MxTreeView`) |
-| Navegación y patrones complejos | Planned |
+| Navegación y patrones complejos | Implementado (`MxNavigationShell`) |
 
