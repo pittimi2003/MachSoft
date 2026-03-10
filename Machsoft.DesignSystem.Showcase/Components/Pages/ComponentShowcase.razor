@@ -1,0 +1,55 @@
+@page "/components"
+@page "/components/{ComponentKey}"
+@inject Machsoft.DesignSystem.Showcase.Services.ComponentShowcaseRegistry Registry
+
+<PageTitle>Component Showcase</PageTitle>
+
+<div class="showcase-layout">
+    <aside class="showcase-sidebar">
+        <h3>Componentes Mx*</h3>
+        @foreach (var item in Registry.Items)
+        {
+            <a class="showcase-link @(Selected?.Key == item.Key ? "active" : null)" href="@($"/components/{item.Key}")">@item.Name</a>
+        }
+    </aside>
+
+    <section class="showcase-content">
+        @if (Selected is null)
+        {
+            <h1>Design System Showcase</h1>
+            <p>Selecciona un componente para ver cómo se visualiza actualmente y el código base del ejemplo.</p>
+        }
+        else
+        {
+            <h1>@Selected.Name</h1>
+            <p>Vista actual del wrapper y snippet mínimo de implementación.</p>
+
+            <MxDesignSystemProvider>
+                <div class="preview-host">
+                    <ErrorBoundary>
+                        <ChildContent>
+                            <DynamicComponent Type="Selected.Type" Parameters="Selected.Parameters" />
+                        </ChildContent>
+                        <ErrorContent>
+                            <div class="alert alert-warning">Este componente requiere parámetros adicionales para mostrarse correctamente.</div>
+                        </ErrorContent>
+                    </ErrorBoundary>
+                </div>
+            </MxDesignSystemProvider>
+
+            <h4>Código de ejemplo</h4>
+            <pre><code>@Selected.SampleCode</code></pre>
+        }
+    </section>
+</div>
+
+@code {
+    [Parameter] public string? ComponentKey { get; set; }
+
+    private Machsoft.DesignSystem.Showcase.Services.ComponentShowcaseItem? Selected;
+
+    protected override void OnParametersSet()
+    {
+        Selected = Registry.Find(ComponentKey);
+    }
+}
