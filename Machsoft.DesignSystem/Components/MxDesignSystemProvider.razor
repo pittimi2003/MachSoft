@@ -7,17 +7,27 @@
 <MudSnackbarProvider MaxDisplayedSnackbars="@MaxSnackbars" PreventDuplicates="true" />
 
 <CascadingValue Value="ResolvedTheme" Name="MxTheme">
-    <CascadingValue Value="Tokens" Name="MxTokens">
+    <CascadingValue Value="CurrentTokens" Name="MxTokens">
         @if (ApplyCssVariables)
         {
             <style>
                 :root {
-                    @Tokens.ToCssVariables()
+                    @LightTokens.ToCssVariables()
+                }
+
+                .mx-theme-scope.mx-theme-scope--light {
+                    @LightTokens.ToCssVariables()
+                }
+
+                .mx-theme-scope.mx-theme-scope--dark {
+                    @DarkTokens.ToCssVariables()
                 }
             </style>
         }
 
-        @ChildContent
+        <div class="@ThemeScopeClass">
+            @ChildContent
+        </div>
     </CascadingValue>
 </CascadingValue>
 
@@ -34,5 +44,14 @@
 
     private MudTheme ResolvedTheme => Theme ?? AppTheme.Create();
 
+    private DesignTokens CurrentTokens => DesignTokens.ForMode(IsDarkMode);
+
+    private DesignTokens LightTokens => DesignTokens.Light;
+
+    private DesignTokens DarkTokens => DesignTokens.Dark;
+
+    private string ThemeScopeClass => IsDarkMode
+        ? "mx-theme-scope mx-theme-scope--dark"
+        : "mx-theme-scope mx-theme-scope--light";
     private DesignTokens Tokens => DesignTokens.ForMode(IsDarkMode);
 }
