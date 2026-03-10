@@ -29,7 +29,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Autocomplete | Planned |
 | Avatar | Planned |
 | Badge | Planned |
-| Breadcrumbs | Planned |
+| Breadcrumbs | Implementado (`MxBreadcrumbs`) |
 | BreakpointProvider | Planned |
 | ButtonFAB | Planned |
 | ButtonFabMenu | Planned |
@@ -44,13 +44,8 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Collapse | Planned |
 | ColorPicker | Planned |
 | Container | Planned |
-| DataGrid | Planned |
-| DatePicker | Planned |
-| DateRangePicker | Planned |
-| Dialog | Planned |
 | Divider | Planned |
-| Drawer | Planned |
-| DropZone | Planned |
+| Drawer | Implementado (`MxDrawer`) |
 | Element | Planned |
 | ExitPrompt | Planned |
 | ExpansionPanel | Planned |
@@ -67,38 +62,27 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Image | Planned |
 | Link | Planned |
 | List | Planned |
-| Menu | Planned |
+| Menu | Implementado (`MxMenu`) |
 | MessageBox | Planned |
-| NavMenu | Planned |
+| NavMenu | Implementado (`MxNavMenu`) |
 | NumericField | Planned |
 | Overlay | Planned |
-| Pagination | Planned |
 | Paper | Planned |
 | Popover | Planned |
 | Progress | Planned |
-| Radio | Planned |
 | Rating | Planned |
 | ScrollToTop | Planned |
-| Select | Planned |
-| SimpleTable | Planned |
-| Skeleton | Planned |
 | Slider | Planned |
-| Snackbar | Planned |
 | Spacer | Planned |
 | SplitPanel | Planned |
 | Stack | Planned |
 | Stepper | Planned |
 | SwipeArea | Planned |
-| Switch | Planned |
-| Table | Planned |
-| Tabs | Planned |
-| TextField | Planned |
-| TimePicker | Planned |
+| Tabs | Implementado (`MxTabs`) |
 | Timeline | Planned |
 | ToggleGroup | Planned |
 | ToggleIconButton | Planned |
 | ToolBar | Planned |
-| Tooltip | Planned |
-| TreeView | Planned |
+| TreeView | Implementado (`MxTreeView`) |
 | Navegación y patrones complejos | Planned |
 
