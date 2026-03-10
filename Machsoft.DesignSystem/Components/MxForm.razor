@@ -1,0 +1,16 @@
+@using MudBlazor
+
+<MudForm @ref="_form" Class="@Class" Style="@Style">
+    @ChildContent
+</MudForm>
+
+@code {
+    private MudForm? _form;
+
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    public Task<bool> ValidateAsync() => _form?.Validate() ?? Task.FromResult(false);
+    public bool IsValid => _form?.IsValid ?? false;
+}

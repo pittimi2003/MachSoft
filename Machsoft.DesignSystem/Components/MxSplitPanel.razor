@@ -1,0 +1,20 @@
+<div class="mx-split-panel @Class" style="@ComputedStyle">
+    <section class="mx-split-panel__left">
+        @Left
+    </section>
+    <section class="mx-split-panel__right">
+        @Right
+    </section>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment? Left { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? Right { get; set; }
+    [Parameter] public string LeftWidth { get; set; } = "40%";
+    [Parameter] public string RightWidth { get; set; } = "60%";
+    [Parameter] public string Gap { get; set; } = "16px";
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string ComputedStyle => $"--mx-split-left:{LeftWidth};--mx-split-right:{RightWidth};--mx-split-gap:{Gap};{Style}";
+}
