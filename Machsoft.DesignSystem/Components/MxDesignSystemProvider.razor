@@ -34,5 +34,5 @@
 
     private MudTheme ResolvedTheme => Theme ?? AppTheme.Create();
 
-    private DesignTokens Tokens { get; } = DesignTokens.Default;
+    private DesignTokens Tokens => DesignTokens.ForMode(IsDarkMode);
 }

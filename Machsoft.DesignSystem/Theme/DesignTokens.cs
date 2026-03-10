@@ -2,12 +2,14 @@ namespace Machsoft.DesignSystem.Theme;
 
 public sealed record DesignTokens(
     string ColorPrimary,
+    string ColorPrimaryDark,
     string ColorSecondary,
     string ColorBackground,
     string ColorSurface,
     string ColorTextPrimary,
     string ColorTextSecondary,
     string ColorBorder,
+    string ColorOverlay,
     string RadiusSm,
     string RadiusMd,
     string RadiusLg,
@@ -21,14 +23,16 @@ public sealed record DesignTokens(
     string FontWeightBody,
     string FontWeightHeading)
 {
-    public static DesignTokens Default => new(
+    public static DesignTokens Light => new(
         ColorPrimary: AppColors.Primary,
+        ColorPrimaryDark: AppColors.PrimaryDark,
         ColorSecondary: AppColors.Secondary,
         ColorBackground: AppColors.Background,
         ColorSurface: AppColors.Surface,
         ColorTextPrimary: AppColors.TextPrimary,
         ColorTextSecondary: AppColors.TextSecondary,
         ColorBorder: AppColors.Border,
+        ColorOverlay: AppColors.Overlay,
         RadiusSm: AppLayout.RadiusSm,
         RadiusMd: AppLayout.RadiusMd,
         RadiusLg: AppLayout.RadiusLg,
@@ -42,15 +46,42 @@ public sealed record DesignTokens(
         FontWeightBody: AppTypography.BodyWeight.ToString(),
         FontWeightHeading: AppTypography.HeadingWeight.ToString());
 
+    public static DesignTokens Dark => new(
+        ColorPrimary: AppColors.Dark.Primary,
+        ColorPrimaryDark: AppColors.Dark.PrimaryDark,
+        ColorSecondary: AppColors.Dark.Secondary,
+        ColorBackground: AppColors.Dark.Background,
+        ColorSurface: AppColors.Dark.Surface,
+        ColorTextPrimary: AppColors.Dark.TextPrimary,
+        ColorTextSecondary: AppColors.Dark.TextSecondary,
+        ColorBorder: AppColors.Dark.Border,
+        ColorOverlay: AppColors.Dark.Overlay,
+        RadiusSm: AppLayout.RadiusSm,
+        RadiusMd: AppLayout.RadiusMd,
+        RadiusLg: AppLayout.RadiusLg,
+        SpacingXs: AppLayout.SpacingXs,
+        SpacingSm: AppLayout.SpacingSm,
+        SpacingMd: AppLayout.SpacingMd,
+        SpacingLg: AppLayout.SpacingLg,
+        FontSizeSm: AppTypography.FontSizeSm,
+        FontSizeMd: AppTypography.FontSizeMd,
+        FontSizeLg: AppTypography.FontSizeLg,
+        FontWeightBody: AppTypography.BodyWeight.ToString(),
+        FontWeightHeading: AppTypography.HeadingWeight.ToString());
+
+    public static DesignTokens ForMode(bool isDarkMode) => isDarkMode ? Dark : Light;
+
     public string ToCssVariables() => string.Join("\n", new[]
     {
         $"--mx-color-primary: {ColorPrimary};",
+        $"--mx-color-primary-dark: {ColorPrimaryDark};",
         $"--mx-color-secondary: {ColorSecondary};",
         $"--mx-color-background: {ColorBackground};",
         $"--mx-color-surface: {ColorSurface};",
         $"--mx-color-text-primary: {ColorTextPrimary};",
         $"--mx-color-text-secondary: {ColorTextSecondary};",
         $"--mx-color-border: {ColorBorder};",
+        $"--mx-color-overlay: {ColorOverlay};",
         $"--mx-radius-sm: {RadiusSm};",
         $"--mx-radius-md: {RadiusMd};",
         $"--mx-radius-lg: {RadiusLg};",
