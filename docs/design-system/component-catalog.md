@@ -30,36 +30,36 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Avatar | Implementado (`MxAvatar`) |
 | Badge | Implementado (`MxBadge`) |
 | Breadcrumbs | Implementado (`MxBreadcrumbs`) |
-| BreakpointProvider | Planned |
-| ButtonFAB | Planned |
-| ButtonFabMenu | Planned |
-| ButtonGroup | Planned |
+| BreakpointProvider | Implementado (`MxBreakpointProvider`) |
+| ButtonFAB | Implementado (`MxButtonFAB`) |
+| ButtonFabMenu | Implementado (`MxButtonFabMenu`) |
+| ButtonGroup | Implementado (`MxButtonGroup`) |
 | Carousel | Implementado (`MxCarousel`) |
 | Charts | Implementado (`MxCharts`) |
 | ChatBubble | Implementado (`MxChatBubble`) |
 | Chip | Implementado (`MxChip`) |
 | ChipSet | Implementado (`MxChipSet`) |
 | Collapse | Implementado (`MxCollapse`) |
-| ColorPicker | Planned |
+| ColorPicker | Implementado (`MxColorPicker`) |
 | Container | Implementado (`MxContainer`) |
 | Divider | Implementado (`MxDivider`) |
 | Drawer | Implementado (`MxDrawer`) |
 | Element | Planned |
 | ExitPrompt | Planned |
 | ExpansionPanel | Implementado (`MxExpansionPanel`) |
-| Field | Planned |
-| FocusTrap | Planned |
+| Field | Implementado (`MxField`) |
+| FocusTrap | Implementado (`MxFocusTrap`) |
 | Form | Implementado (`MxForm`) |
 | Grid | Implementado (`MxGrid`) |
 | Hidden | Implementado (`MxHidden`) |
-| Highlighter | Planned |
+| Highlighter | Implementado (`MxHighlighter`) |
 | Hotkey | Implementado (`MxHotkey`) |
 | Icons | Planned |
 | Image | Implementado (`MxImage`) |
 | Link | Implementado (`MxLink`) |
 | List | Implementado (`MxList`) |
 | Menu | Implementado (`MxMenu`) |
-| MessageBox | Planned |
+| MessageBox | Implementado (`MxMessageBoxButton`) |
 | NavMenu | Implementado (`MxNavMenu`) |
 | NumericField | Implementado (`MxNumericField`) |
 | Overlay | Implementado (`MxOverlay`) |
@@ -67,7 +67,7 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | Popover | Implementado (`MxPopover`) |
 | Progress | Implementado (`MxProgress`) |
 | Rating | Implementado (`MxRating`) |
-| ScrollToTop | Planned |
+| ScrollToTop | Implementado (`MxScrollToTop`) |
 | Slider | Implementado (`MxSlider`) |
 | Spacer | Implementado (`MxSpacer`) |
 | SplitPanel | Implementado (`MxSplitPanel`) |

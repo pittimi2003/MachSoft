@@ -61,7 +61,6 @@ public sealed record DesignTokens(
         ColorBorder: AppColors.Border,
         ColorBorderSubtle: AppColors.BorderSubtle,
         ColorOverlay: AppColors.Overlay,
-        ColorOverlay: AppColors.Overlay,
         ColorSuccess: AppColors.Success,
         ColorWarning: AppColors.Warning,
         ColorError: AppColors.Error,

@@ -197,3 +197,11 @@ body {
     outline: 2px solid var(--mx-color-focus-ring);
     outline-offset: 2px;
 }
+
+
+.mx-scroll-to-top {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: var(--mx-z-fixed, 1030);
+}
