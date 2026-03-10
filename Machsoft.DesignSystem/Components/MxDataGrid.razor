@@ -1,0 +1,28 @@
+@typeparam TItem
+@using MudBlazor
+
+<MudDataGrid T="TItem"
+             Items="@Items"
+             Dense="@Dense"
+             Hover="@Hover"
+             ReadOnly="@ReadOnly"
+             Filterable="@Filterable"
+             SortMode="@SortMode"
+             Groupable="@Groupable"
+             Class="@Class"
+             Style="@Style">
+    @Columns
+</MudDataGrid>
+
+@code {
+    [Parameter] public IEnumerable<TItem>? Items { get; set; }
+    [Parameter, EditorRequired] public RenderFragment? Columns { get; set; }
+    [Parameter] public bool Dense { get; set; } = true;
+    [Parameter] public bool Hover { get; set; } = true;
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public bool Filterable { get; set; }
+    [Parameter] public DataGridSortMode SortMode { get; set; } = DataGridSortMode.Multiple;
+    [Parameter] public bool Groupable { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}

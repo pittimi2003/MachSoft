@@ -1,0 +1,30 @@
+<div class="mx-hotkey @Class"
+     style="@Style"
+     tabindex="0"
+     @onkeydown="HandleKeyDownAsync">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter, EditorRequired] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string Key { get; set; } = "Enter";
+    [Parameter] public bool Ctrl { get; set; }
+    [Parameter] public bool Alt { get; set; }
+    [Parameter] public bool Shift { get; set; }
+    [Parameter] public EventCallback OnTriggered { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private async Task HandleKeyDownAsync(KeyboardEventArgs args)
+    {
+        if (!string.Equals(args.Key, Key, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (Ctrl && !args.CtrlKey) return;
+        if (Alt && !args.AltKey) return;
+        if (Shift && !args.ShiftKey) return;
+
+        if (OnTriggered.HasDelegate)
+            await OnTriggered.InvokeAsync();
+    }
+}

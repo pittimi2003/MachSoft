@@ -1,0 +1,28 @@
+@using MudBlazor
+
+<MudTabs ActivePanelIndex="@ActivePanelIndex"
+         ActivePanelIndexChanged="@ActivePanelIndexChanged"
+         Rounded="@Rounded"
+         Centered="@Centered"
+         Elevation="@Elevation"
+         Border="@Border"
+         Color="@Color"
+         SliderColor="@SliderColor"
+         Class="@Class"
+         Style="@Style">
+    @ChildContent
+</MudTabs>
+
+@code {
+    [Parameter] public int ActivePanelIndex { get; set; }
+    [Parameter] public EventCallback<int> ActivePanelIndexChanged { get; set; }
+    [Parameter] public bool Rounded { get; set; }
+    [Parameter] public bool Centered { get; set; }
+    [Parameter] public int Elevation { get; set; }
+    [Parameter] public bool Border { get; set; }
+    [Parameter] public Color Color { get; set; } = Color.Primary;
+    [Parameter] public Color SliderColor { get; set; } = Color.Primary;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+}
