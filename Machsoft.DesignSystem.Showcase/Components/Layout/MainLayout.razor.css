@@ -43,6 +43,19 @@
     border-right: 0;
 }
 
+.showcase-shell .mx-navigation-shell__drawer {
+    width: 372px;
+    min-width: 372px;
+    transition: width 180ms ease, min-width 180ms ease;
+    overflow: hidden;
+}
+
+.showcase-shell:not(.showcase-shell--drawer-open) .mx-navigation-shell__drawer {
+    width: 0;
+    min-width: 0;
+    border-right: 0;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
