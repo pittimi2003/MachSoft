@@ -2,13 +2,14 @@
 
 <MxPaper Class="showcase-nav" Elevation="0">
     <div class="showcase-nav-header">
-        <div class="showcase-nav-title">TESTWH</div>
+        <div class="showcase-nav-title">Navegación</div>
         @if (ShowCloseButton)
         {
             <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" Size="Size.Medium" OnClick="HandleClose" />
         }
     </div>
 
+    <div class="showcase-nav-section">Showcase</div>
     <MxNavMenu Dense="true" Rounded="true" Items="NavItems" />
 </MxPaper>
 
@@ -18,14 +19,10 @@
 
     private static readonly IReadOnlyList<MxNavMenu.NavItem> NavItems =
     [
-        new("Working planning", "/", Icons.Material.Filled.CalendarMonth, NavLinkMatch.All),
-        new("Workers operations", "/components", Icons.Material.Filled.Groups, NavLinkMatch.Prefix),
-        new("Equipment operations", "/weather", Icons.Material.Filled.LocalShipping, NavLinkMatch.Prefix),
-        new("Scenarios planner", "/counter", Icons.Material.Filled.Search, NavLinkMatch.Prefix),
-        new("Project designer", "/components", Icons.Material.Filled.Brush, NavLinkMatch.Prefix),
-        new("Organization", "/", Icons.Material.Filled.AccountBalance, NavLinkMatch.Prefix),
-        new("Warehouses", "/", Icons.Material.Filled.Warehouse, NavLinkMatch.Prefix),
-        new("Users", "/", Icons.Material.Filled.People, NavLinkMatch.Prefix)
+        new("Inicio", "/", Icons.Material.Filled.Home, NavLinkMatch.All),
+        new("Componentes", "/components", Icons.Material.Filled.Dashboard, NavLinkMatch.Prefix),
+        new("Counter", "/counter", Icons.Material.Filled.ExposurePlus1, NavLinkMatch.Prefix),
+        new("Weather", "/weather", Icons.Material.Filled.Cloud, NavLinkMatch.Prefix)
     ];
 
     private Task HandleClose(MouseEventArgs _)

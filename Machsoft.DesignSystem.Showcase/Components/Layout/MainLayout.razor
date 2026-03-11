@@ -4,8 +4,8 @@
 <MxDesignSystemProvider IsDarkMode="@IsDarkMode" @key="IsDarkMode">
     <MxNavigationShell Class="@ShellClass">
         <AppBarContent>
-            <MxAppBar LogoText="SCENARIO SIMULATION AND DESIGN" Color="Color.Primary" Elevation="1" Class="showcase-appbar"
-                     LeadingContent="@AppBarLeading" ActionsContent="@AppBarActions" />
+            <MxAppBar LogoText="MachSoft Design System" Color="Color.Primary" Elevation="1" Class="showcase-appbar"
+                      LeadingContent="@AppBarLeading" ActionsContent="@AppBarActions" />
         </AppBarContent>
 
         <DrawerContent>
@@ -31,8 +31,6 @@
     private bool IsMenuOpen = true;
 
     private string ShellClass => IsMenuOpen ? "showcase-shell showcase-shell--drawer-open" : "showcase-shell";
-
-    private string ThemeLabel => IsDarkMode ? "Modo claro" : "Modo oscuro";
     private string ThemeIcon => IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode;
 
     private RenderFragment AppBarLeading =>
@@ -42,9 +40,8 @@
 
     private RenderFragment AppBarActions =>
         @<div class="showcase-appbar__actions-row">
-            <MxLink Href="/components" Text="Project designer" Color="Color.Inherit" Class="showcase-appbar__project-link" />
             <MxButton Variant="Variant.Text" Color="Color.Inherit" OnClick="ToggleTheme" StartIcon="@ThemeIcon" Class="showcase-appbar__theme-button">
-                @ThemeLabel
+                Tema
             </MxButton>
             <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Size="Size.Medium" />
             <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Size="Size.Medium" />
