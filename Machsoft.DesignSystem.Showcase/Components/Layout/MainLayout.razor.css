@@ -30,19 +30,6 @@
     color: var(--mx-color-text-primary, #1f2937);
 }
 
-.showcase-shell ::deep .mx-navigation-shell__drawer {
-    width: 360px;
-    min-width: 360px;
-    transition: width 180ms ease, min-width 180ms ease;
-    overflow: hidden;
-}
-
-.showcase-shell:not(.showcase-shell--drawer-open) ::deep .mx-navigation-shell__drawer {
-    width: 0;
-    min-width: 0;
-    border-right: 0;
-}
-
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;

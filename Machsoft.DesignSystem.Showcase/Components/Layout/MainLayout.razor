@@ -9,7 +9,10 @@
         </AppBarContent>
 
         <DrawerContent>
-            <NavMenu ShowCloseButton="true" OnClose="CloseMenu" />
+            @if (IsMenuOpen)
+            {
+                <NavMenu ShowCloseButton="true" OnClose="CloseMenu" />
+            }
         </DrawerContent>
 
         <MainContent>
@@ -30,7 +33,6 @@
     private bool IsDarkMode;
     private bool IsMenuOpen = true;
 
-    private string ShellClass => IsMenuOpen ? "showcase-shell showcase-shell--drawer-open" : "showcase-shell";
     private string ThemeIcon => IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode;
 
     private RenderFragment AppBarLeading =>

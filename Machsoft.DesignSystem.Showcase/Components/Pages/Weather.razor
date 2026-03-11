@@ -1,47 +1,42 @@
 ﻿@page "/weather"
 @attribute [StreamRendering]
+@using MudBlazor
 
 <PageTitle>Weather</PageTitle>
 
-<h1>Weather</h1>
+<MxPaper Class="showcase-page" Outlined="true">
+    <h1>Weather</h1>
 
-<p>This component demonstrates showing data.</p>
+    <p>Pronóstico usando componentes Mx.</p>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
+    @if (forecasts == null)
+    {
+        <MxProgress Type="MxProgress.ProgressType.Linear" Color="Color.Primary" Indeterminate="true" />
+    }
+    else
+    {
+        <MxSimpleTable TItem="WeatherForecast" Items="forecasts" Dense="true" Hover="true">
+            <HeaderContent>
                 <th>Date</th>
                 <th>Temp. (C)</th>
                 <th>Temp. (F)</th>
                 <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+            </HeaderContent>
+            <RowTemplate Context="forecast">
+                <td>@forecast.Date.ToShortDateString()</td>
+                <td>@forecast.TemperatureC</td>
+                <td>@forecast.TemperatureF</td>
+                <td>@forecast.Summary</td>
+            </RowTemplate>
+        </MxSimpleTable>
+    }
+</MxPaper>
 
 @code {
     private WeatherForecast[]? forecasts;
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
 
         var startDate = DateOnly.FromDateTime(DateTime.Now);
