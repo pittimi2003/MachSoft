@@ -40,6 +40,16 @@ body {
     border-bottom: 1px solid var(--mx-color-border);
 }
 
+.mx-app-bar__leading,
+.mx-app-bar__actions {
+    display: inline-flex;
+    align-items: center;
+}
+
+.mx-app-bar__actions {
+    gap: 0.25rem;
+}
+
 .mx-main-container {
     display: grid;
     width: 100%;
