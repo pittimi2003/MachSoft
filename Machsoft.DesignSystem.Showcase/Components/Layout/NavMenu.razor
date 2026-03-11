@@ -1,15 +1,40 @@
 ﻿@using MudBlazor
 
 <MxPaper Class="showcase-nav" Elevation="0">
-    <div class="showcase-nav-title">Navegación</div>
+    <div class="showcase-nav-header">
+        <div class="showcase-nav-title">TESTWH</div>
+        @if (ShowCloseButton)
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" Size="Size.Medium" OnClick="HandleClose" />
+        }
+    </div>
 
     <MxNavMenu Dense="true" Rounded="true" Items="NavItems" />
 </MxPaper>
 
 @code {
+    [Parameter] public bool ShowCloseButton { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
     private static readonly IReadOnlyList<MxNavMenu.NavItem> NavItems =
     [
-        new("Inicio", "/", Icons.Material.Filled.Home, NavLinkMatch.All),
-        new("Componentes", "/components", Icons.Material.Filled.Dashboard, NavLinkMatch.Prefix)
+        new("Working planning", "/", Icons.Material.Filled.CalendarMonth, NavLinkMatch.All),
+        new("Workers operations", "/components", Icons.Material.Filled.Groups, NavLinkMatch.Prefix),
+        new("Equipment operations", "/weather", Icons.Material.Filled.LocalShipping, NavLinkMatch.Prefix),
+        new("Scenarios planner", "/counter", Icons.Material.Filled.Search, NavLinkMatch.Prefix),
+        new("Project designer", "/components", Icons.Material.Filled.Brush, NavLinkMatch.Prefix),
+        new("Organization", "/", Icons.Material.Filled.AccountBalance, NavLinkMatch.Prefix),
+        new("Warehouses", "/", Icons.Material.Filled.Warehouse, NavLinkMatch.Prefix),
+        new("Users", "/", Icons.Material.Filled.People, NavLinkMatch.Prefix)
     ];
+
+    private Task HandleClose(MouseEventArgs _)
+    {
+        if (!OnClose.HasDelegate)
+        {
+            return Task.CompletedTask;
+        }
+
+        return OnClose.InvokeAsync();
+    }
 }

@@ -2,9 +2,50 @@
     min-height: 100vh;
 }
 
+.showcase-appbar {
+    min-height: 64px;
+    padding-inline: 0.75rem 1rem;
+}
+
+.showcase-appbar__menu-button {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin-right: 0.5rem;
+}
+
+.showcase-appbar__actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.showcase-appbar__project-link {
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.showcase-appbar__theme-button {
+    margin-right: 0.375rem;
+}
+
 .showcase-main-container {
     padding-top: 1rem;
     padding-bottom: 1rem;
+}
+
+.showcase-shell .mx-navigation-shell__drawer {
+    width: 372px;
+    min-width: 372px;
+    transition: width 180ms ease, min-width 180ms ease;
+    overflow: hidden;
+}
+
+.showcase-shell:not(.showcase-shell--drawer-open) .mx-navigation-shell__drawer {
+    width: 0;
+    min-width: 0;
+    border-right: 0;
 }
 
 #blazor-error-ui {
@@ -24,4 +65,11 @@
     position: absolute;
     right: 0.75rem;
     top: 0.5rem;
+}
+
+@media (max-width: 960px) {
+    .showcase-appbar__project-link,
+    .showcase-appbar__theme-button {
+        display: none;
+    }
 }
