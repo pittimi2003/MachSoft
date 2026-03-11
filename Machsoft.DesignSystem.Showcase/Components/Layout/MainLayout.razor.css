@@ -2,9 +2,32 @@
     min-height: 100vh;
 }
 
-.showcase-main-container {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+::deep .showcase-appbar {
+    min-height: 56px;
+    padding-inline: 0.75rem 0.9rem;
+}
+
+::deep .showcase-appbar__menu-button {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin-right: 0.35rem;
+}
+
+::deep .showcase-appbar__actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+::deep .showcase-appbar__theme-button {
+    margin-right: 0.25rem;
+}
+
+::deep .showcase-main-container {
+    padding: 1rem 1.125rem;
+    color: var(--mx-color-text-primary, #1f2937);
 }
 
 #blazor-error-ui {
@@ -24,4 +47,10 @@
     position: absolute;
     right: 0.75rem;
     top: 0.5rem;
+}
+
+@media (max-width: 960px) {
+    ::deep .showcase-appbar__theme-button {
+        display: none;
+    }
 }
