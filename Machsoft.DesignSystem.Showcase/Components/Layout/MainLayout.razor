@@ -1,10 +1,14 @@
 ﻿@inherits LayoutComponentBase
+@using MudBlazor
 
-<MxDesignSystemProvider>
+<MxDesignSystemProvider IsDarkMode="@IsDarkMode">
     <MxNavigationShell Class="showcase-shell">
         <AppBarContent>
-            <MxAppBar LogoText="MachSoft Design System" Color="MudBlazor.Color.Primary" Elevation="1">
-                <MxLink Href="/components" Text="Catálogo" Color="MudBlazor.Color.Inherit" />
+            <MxAppBar LogoText="MachSoft Design System" Color="Color.Primary" Elevation="1">
+                <MxButton Variant="Variant.Text" Color="Color.Inherit" OnClick="ToggleTheme" StartIcon="@ThemeIcon">
+                    @ThemeLabel
+                </MxButton>
+                <MxLink Href="/components" Text="Catálogo" Color="Color.Inherit" />
             </MxAppBar>
         </AppBarContent>
 
@@ -13,7 +17,7 @@
         </DrawerContent>
 
         <MainContent>
-            <MxContainer MaxWidth="MudBlazor.MaxWidth.False" Class="showcase-main-container">
+            <MxContainer MaxWidth="MaxWidth.False" Class="showcase-main-container">
                 @Body
             </MxContainer>
         </MainContent>
@@ -25,3 +29,16 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private bool IsDarkMode;
+
+    private string ThemeLabel => IsDarkMode ? "Modo oscuro" : "Modo claro";
+
+    private string ThemeIcon => IsDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode;
+
+    private void ToggleTheme(MouseEventArgs _)
+    {
+        IsDarkMode = !IsDarkMode;
+    }
+}

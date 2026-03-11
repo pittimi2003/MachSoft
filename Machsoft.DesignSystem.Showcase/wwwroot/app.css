@@ -96,3 +96,15 @@ pre {
     padding: 1rem;
     border-radius: 8px;
 }
+
+
+.demo-block {
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.demo-note {
+    margin-top: 0.75rem;
+    color: var(--mx-color-text-secondary, #6b7280);
+    font-size: 0.9rem;
+}
