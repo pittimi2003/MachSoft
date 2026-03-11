@@ -1,0 +1,59 @@
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<MxStack Row="false" Spacing="2">
+    <MxPaper Class="demo-block" Outlined="true">
+        <MxTextField Label="Contexto" Value="Carga de documentación de cliente" Disabled="true" />
+        <MxFileUpload Label="Carga principal" Accept=".pdf,.doc,.docx" FilesChanged="HandleSingleChanged" />
+        <MudText Typo="Typo.caption" Class="demo-note">Ideal para un flujo directo de un solo archivo.</MudText>
+    </MxPaper>
+
+    <MxPaper Class="demo-block" Outlined="true">
+        <MxFileUpload Label="Carga múltiple / Drag and drop" Multiple="true" Accept="image/*,.pdf" FilesChanged="HandleMultipleChanged" />
+        <MudList T="UploadFileSummary" Dense="true" Class="mt-2">
+            @foreach (var file in _multipleFiles)
+            {
+                <MudListItem T="UploadFileSummary" Value="file">@file.Name (@file.SizeLabel)</MudListItem>
+            }
+        </MudList>
+        <MudText Typo="Typo.caption" Class="demo-note">Soporta lotes de evidencias y previsualización de nombres.</MudText>
+    </MxPaper>
+</MxStack>
+
+@code {
+    private readonly List<UploadFileSummary> _multipleFiles = [];
+
+    private Task HandleSingleChanged(IReadOnlyList<IBrowserFile> files)
+    {
+        _multipleFiles.Clear();
+        _multipleFiles.AddRange(files.Select(ToSummary));
+        return Task.CompletedTask;
+    }
+
+    private Task HandleMultipleChanged(IReadOnlyList<IBrowserFile> files)
+    {
+        _multipleFiles.Clear();
+        _multipleFiles.AddRange(files.Select(ToSummary));
+        return Task.CompletedTask;
+    }
+
+    private static UploadFileSummary ToSummary(IBrowserFile file)
+        => new(file.Name, FormatBytes(file.Size));
+
+    private static string FormatBytes(long size)
+    {
+        string[] units = ["B", "KB", "MB", "GB"];
+        double current = size;
+        var index = 0;
+
+        while (current >= 1024 && index < units.Length - 1)
+        {
+            current /= 1024;
+            index++;
+        }
+
+        return $"{current:0.#} {units[index]}";
+    }
+
+    private sealed record UploadFileSummary(string Name, string SizeLabel);
+}

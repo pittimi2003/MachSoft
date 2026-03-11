@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using MudBlazor
 
-<MxDesignSystemProvider IsDarkMode="@IsDarkMode">
+<MxDesignSystemProvider IsDarkMode="@IsDarkMode" @key="IsDarkMode">
     <MxNavigationShell Class="showcase-shell">
         <AppBarContent>
             <MxAppBar LogoText="MachSoft Design System" Color="Color.Primary" Elevation="1">
@@ -33,12 +33,13 @@
 @code {
     private bool IsDarkMode;
 
-    private string ThemeLabel => IsDarkMode ? "Modo oscuro" : "Modo claro";
+    private string ThemeLabel => IsDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro";
 
-    private string ThemeIcon => IsDarkMode ? Icons.Material.Filled.DarkMode : Icons.Material.Filled.LightMode;
+    private string ThemeIcon => IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode;
 
     private void ToggleTheme(MouseEventArgs _)
     {
         IsDarkMode = !IsDarkMode;
+        StateHasChanged();
     }
 }

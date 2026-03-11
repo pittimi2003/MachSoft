@@ -55,6 +55,7 @@ public sealed class ComponentShowcaseRegistry
         new("datagrid", "MxDataGrid", typeof(Components.Examples.MxDataGridShowcaseExample), BuildMarkup("MxDataGrid"), BuildParameters("MxDataGrid"), CertificationChecks),
         new("simpletable", "MxSimpleTable", typeof(Components.Examples.MxSimpleTableShowcaseExample), BuildMarkup("MxSimpleTable"), BuildParameters("MxSimpleTable"), CertificationChecks),
         new("treeview", "MxTreeView", typeof(Components.Examples.MxTreeViewShowcaseExample), BuildMarkup("MxTreeView"), BuildParameters("MxTreeView"), CertificationChecks),
+        new("fileupload", "MxFileUpload", typeof(Components.Examples.MxFileUploadShowcaseExample), BuildMarkup("MxFileUpload"), BuildParameters("MxFileUpload"), CertificationChecks),
     ];
 
     public IReadOnlyList<ComponentShowcaseItem> Items { get; }
@@ -70,7 +71,12 @@ public sealed class ComponentShowcaseRegistry
                         !t.ContainsGenericParameters)
             .Select(CreateItem);
 
-        Items = standardItems.Concat(GenericItems).OrderBy(t => t.Name).ToArray();
+        Items = standardItems
+            .Concat(GenericItems)
+            .GroupBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(group => group.Last())
+            .OrderBy(item => item.Name)
+            .ToArray();
     }
 
     public ComponentShowcaseItem? Find(string? key)
