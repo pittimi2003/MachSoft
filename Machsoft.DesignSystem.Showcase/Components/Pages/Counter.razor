@@ -1,18 +1,23 @@
 ﻿@page "/counter"
 @rendermode InteractiveServer
+@using MudBlazor
 
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<MxPaper Class="showcase-page" Outlined="true">
+    <h1>Counter</h1>
 
-<p role="status">Current count: @currentCount</p>
+    <p class="showcase-page__status" role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+    <MxButton Color="Color.Primary" Variant="Variant.Filled" OnClick="IncrementCount" StartIcon="@Icons.Material.Filled.Add">
+        Incrementar
+    </MxButton>
+</MxPaper>
 
 @code {
-    private int currentCount = 0;
+    private int currentCount;
 
-    private void IncrementCount()
+    private void IncrementCount(MouseEventArgs _)
     {
         currentCount++;
     }
