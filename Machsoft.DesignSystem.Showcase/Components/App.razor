@@ -10,11 +10,12 @@
     <link rel="stylesheet" href="_content/Machsoft.DesignSystem/css/theme.css" />
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="Machsoft.DesignSystem.Showcase.styles.css" />
-    <HeadOutlet />
+    <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 
 <body>
-    <Routes />
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
     <script src="_framework/blazor.web.js"></script>
 </body>
 

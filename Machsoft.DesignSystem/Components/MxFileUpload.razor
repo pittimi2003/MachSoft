@@ -4,24 +4,78 @@
 <div class="mx-file-upload @Class" style="@Style">
     @if (!string.IsNullOrWhiteSpace(Label))
     {
-        <MudText Typo="Typo.body2" Class="mb-2">@Label</MudText>
+        <MudText Typo="Typo.subtitle2" Class="mb-2">@Label</MudText>
     }
 
-    <InputFile OnChange="HandleChangeAsync" multiple="@Multiple" accept="@Accept" />
+    <MudPaper Outlined="true" Class="@DropzoneClass">
+        <InputFile class="mx-file-upload__input"
+                   OnChange="HandleChangeAsync"
+                   multiple="@Multiple"
+                   accept="@Accept"
+                   @ondragenter="HandleDragEnter"
+                   @ondragleave="HandleDragLeave"
+                   @ondrop="HandleDrop" />
+
+        <div class="mx-file-upload__content">
+            <MudIcon Icon="@Icons.Material.Filled.UploadFile" Size="Size.Large" Color="Color.Primary" />
+            <MudText Typo="Typo.body1">Arrastra archivos aquí o haz clic para seleccionar.</MudText>
+            <MudText Typo="Typo.caption" Class="mx-file-upload__caption">@(Multiple ? "Puedes cargar varios archivos" : "Carga un solo archivo")</MudText>
+        </div>
+    </MudPaper>
 
     @if (ShowFileList && _files.Count > 0)
     {
-        <MudList T="IBrowserFile" Dense="true">
+        <MudText Typo="Typo.subtitle2" Class="mt-3 mb-2">Archivos seleccionados (@_files.Count)</MudText>
+        <MudChipSet T="string">
             @foreach (var file in _files)
             {
-                <MudListItem T="IBrowserFile" Value="@file">@file.Name (@file.Size bytes)</MudListItem>
+                <MudChip T="string" Variant="Variant.Outlined" Color="Color.Default">@file.Name (@FormatBytes(file.Size))</MudChip>
             }
-        </MudList>
+        </MudChipSet>
     }
 </div>
 
+<style>
+    .mx-file-upload__dropzone {
+        position: relative;
+        overflow: hidden;
+        border-style: dashed;
+        padding: 1.25rem;
+        background: var(--mx-color-surface, var(--mud-palette-surface));
+        transition: border-color 150ms ease, background-color 150ms ease;
+    }
+
+    .mx-file-upload__dropzone--dragover {
+        border-color: var(--mx-color-primary, var(--mud-palette-primary));
+        background: color-mix(in srgb, var(--mx-color-primary, var(--mud-palette-primary)) 8%, var(--mx-color-surface, var(--mud-palette-surface)));
+    }
+
+    .mx-file-upload__input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    .mx-file-upload__content {
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        text-align: center;
+    }
+
+    .mx-file-upload__caption {
+        color: var(--mx-color-text-secondary, var(--mud-palette-text-secondary));
+    }
+</style>
+
 @code {
     private readonly List<IBrowserFile> _files = [];
+    private bool _isDragOver;
 
     [Parameter] public string? Label { get; set; }
     [Parameter] public bool Multiple { get; set; }
@@ -35,8 +89,37 @@
     {
         _files.Clear();
         _files.AddRange(args.GetMultipleFiles());
+        _isDragOver = false;
 
         if (FilesChanged.HasDelegate)
             await FilesChanged.InvokeAsync(_files);
+    }
+
+    private void HandleDragEnter(DragEventArgs _)
+        => _isDragOver = true;
+
+    private void HandleDragLeave(DragEventArgs _)
+        => _isDragOver = false;
+
+    private void HandleDrop(DragEventArgs _)
+        => _isDragOver = false;
+
+    private string DropzoneClass => _isDragOver
+        ? "mx-file-upload__dropzone mx-file-upload__dropzone--dragover"
+        : "mx-file-upload__dropzone";
+
+    private static string FormatBytes(long size)
+    {
+        string[] units = ["B", "KB", "MB", "GB"];
+        double current = size;
+        var index = 0;
+
+        while (current >= 1024 && index < units.Length - 1)
+        {
+            current /= 1024;
+            index++;
+        }
+
+        return $"{current:0.#} {units[index]}";
     }
 }
