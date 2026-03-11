@@ -108,3 +108,32 @@ pre {
     color: var(--mx-color-text-secondary, #6b7280);
     font-size: 0.9rem;
 }
+
+
+.showcase-layout {
+    background: var(--mx-color-background, var(--mud-palette-background));
+    color: var(--mx-color-text-primary, var(--mud-palette-text-primary));
+}
+
+.showcase-sidebar {
+    border-right: 1px solid var(--mx-color-border-subtle, var(--mud-palette-lines-default));
+}
+
+.showcase-link {
+    color: var(--mx-color-text-primary, var(--mud-palette-text-primary));
+}
+
+.showcase-link:hover,
+.showcase-link.active {
+    background: color-mix(in srgb, var(--mx-color-primary, var(--mud-palette-primary)) 10%, transparent);
+}
+
+.preview-host {
+    border: 1px dashed var(--mx-color-border-subtle, var(--mud-palette-lines-default));
+    background: var(--mx-color-surface, var(--mud-palette-surface));
+}
+
+pre {
+    background: color-mix(in srgb, var(--mx-color-background, #111827) 75%, #000);
+    color: var(--mx-color-text-inverse, #f9fafb);
+}
