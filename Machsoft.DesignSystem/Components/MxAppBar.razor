@@ -1,19 +1,30 @@
 @using MudBlazor
 
 <MudAppBar Elevation="@Elevation" Color="@Color" Dense="@Dense" Class="@AppBarClass" Style="@Style">
+    @if (LeadingContent is not null)
+    {
+        <div class="mx-app-bar__leading">
+            @LeadingContent
+        </div>
+    }
+
     @if (!string.IsNullOrWhiteSpace(LogoText))
     {
         <MudText Typo="Typo.h6">@LogoText</MudText>
     }
 
-    @if (ChildContent is not null)
+    @if (ActionsContent is not null || ChildContent is not null)
     {
         <MudSpacer />
-        @ChildContent
+        <div class="mx-app-bar__actions">
+            @(ActionsContent ?? ChildContent)
+        </div>
     }
 </MudAppBar>
 
 @code {
+    [Parameter] public RenderFragment? LeadingContent { get; set; }
+    [Parameter] public RenderFragment? ActionsContent { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public string? LogoText { get; set; }
     [Parameter] public int Elevation { get; set; } = 0;
