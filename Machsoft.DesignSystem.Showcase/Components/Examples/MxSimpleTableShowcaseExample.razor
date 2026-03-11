@@ -1,0 +1,21 @@
+<MxSimpleTable TItem="PersonRow" Items="_rows" Dense="true" Hover="true">
+    <HeaderContent>
+        <th>Nombre</th>
+        <th>Equipo</th>
+    </HeaderContent>
+    <RowTemplate Context="person">
+        <td>@person.Name</td>
+        <td>@person.Team</td>
+    </RowTemplate>
+</MxSimpleTable>
+
+@code {
+    private readonly List<PersonRow> _rows =
+    [
+        new("Lucía", "Core UI"),
+        new("Diego", "Platform"),
+        new("María", "QA")
+    ];
+
+    private sealed record PersonRow(string Name, string Team);
+}

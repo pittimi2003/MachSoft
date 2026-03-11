@@ -1,0 +1,11 @@
+@using MudBlazor
+
+<MxTreeView TItem="string" Items="_nodes" Dense="true" Hover="true" />
+
+@code {
+    private readonly IReadOnlyCollection<TreeItemData<string>> _nodes =
+    [
+        new TreeItemData<string> { Value = "Frontend", Text = "Frontend", Children = [new TreeItemData<string> { Value = "Botones", Text = "Botones" }] },
+        new TreeItemData<string> { Value = "Backend", Text = "Backend", Children = [new TreeItemData<string> { Value = "API", Text = "API" }] }
+    ];
+}
