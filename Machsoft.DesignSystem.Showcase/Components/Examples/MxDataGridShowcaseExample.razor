@@ -1,0 +1,20 @@
+@using MudBlazor
+
+<MxDataGrid TItem="MissionRow" Items="_rows" Filterable="true" Dense="true">
+    <Columns>
+        <PropertyColumn T="MissionRow" TProperty="string" Property="x => x.Name" Title="Misión" />
+        <PropertyColumn T="MissionRow" TProperty="string" Property="x => x.Status" Title="Estado" />
+        <PropertyColumn T="MissionRow" TProperty="int" Property="x => x.Crew" Title="Tripulación" />
+    </Columns>
+</MxDataGrid>
+
+@code {
+    private readonly List<MissionRow> _rows =
+    [
+        new("Apollo 11", "Completada", 3),
+        new("Artemis II", "Planificada", 4),
+        new("Crew-9", "En curso", 4)
+    ];
+
+    private sealed record MissionRow(string Name, string Status, int Crew);
+}

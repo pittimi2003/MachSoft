@@ -82,3 +82,9 @@ Estado inicial para llevar cada componente a wrapper `Mx*` y documentación.
 | TreeView | Implementado (`MxTreeView`) |
 | Navegación y patrones complejos | Implementado (`MxNavigationShell`) |
 
+
+## Certificación operativa
+
+- Inventario actual: `82` componentes `Mx*` detectados en `Machsoft.DesignSystem/Components`.
+- Matriz de certificación completa: `docs/design-system/certification-matrix.md`.
+- Fuente de ejemplos funcionales en Showcase: `ComponentShowcaseRegistry` + `Components/Examples/*`.

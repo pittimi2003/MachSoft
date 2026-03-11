@@ -1,7 +1,6 @@
 @page "/components"
 @page "/components/{ComponentKey}"
 @inject Machsoft.DesignSystem.Showcase.Services.ComponentShowcaseRegistry Registry
-@using MudBlazor
 
 <PageTitle>Component Showcase</PageTitle>
 
@@ -18,12 +17,11 @@
         @if (Selected is null)
         {
             <h1>Design System Showcase</h1>
-            <p>Selecciona un componente para ver cómo se visualiza actualmente y el código base del ejemplo.</p>
+            <p>Selecciona un componente para ver ejemplo funcional, render actual y casos básicos certificados.</p>
         }
         else
         {
             <h1>@Selected.Name</h1>
-            <p>Vista actual del wrapper y snippet mínimo de implementación.</p>
 
             <div class="preview-host">
                 <ErrorBoundary>
@@ -36,38 +34,13 @@
                 </ErrorBoundary>
             </div>
 
-            @if (string.Equals(Selected.Name, nameof(MxButton), StringComparison.Ordinal))
-            {
-                <h4>Ejemplo interactivo</h4>
-                <MxPaper Class="demo-block" Outlined="true">
-                    <MxButton OnClick="OnDemoButtonClick" StartIcon="@Icons.Material.Filled.TouchApp">Guardar configuración</MxButton>
-                    <div class="demo-note">Clicks ejecutados: @_buttonClicks</div>
-                </MxPaper>
-            }
-
-            @if (string.Equals(Selected.Name, nameof(MxSelect), StringComparison.Ordinal))
-            {
-                <h4>Ejemplo interactivo</h4>
-                <MxPaper Class="demo-block" Outlined="true">
-                    <MxSelect Label="País" Items="_countries" Value="_selectedCountry" ValueChanged="OnCountryChanged" />
-                    <div class="demo-note">Selección actual: @(_selectedCountry ?? "(ninguna)")</div>
-                </MxPaper>
-            }
-
-            @if (string.Equals(Selected.Name, "MxDataGrid", StringComparison.Ordinal))
-            {
-                <h4>Ejemplo interactivo</h4>
-                <MxPaper Class="demo-block" Outlined="true">
-                    <MxDataGrid TItem="MissionRow" Items="_missions" Filterable="true">
-                        <Columns>
-                            <PropertyColumn T="MissionRow" TProperty="string" Property="x => x.Name" Title="Misión" />
-                            <PropertyColumn T="MissionRow" TProperty="string" Property="x => x.Status" Title="Estado" />
-                            <PropertyColumn T="MissionRow" TProperty="int" Property="x => x.Crew" Title="Tripulación" />
-                        </Columns>
-                    </MxDataGrid>
-                    <div class="demo-note">Registros demo cargados: @_missions.Count</div>
-                </MxPaper>
-            }
+            <h4>Casos básicos validados</h4>
+            <ul>
+                @foreach (var check in Selected.CertificationChecks)
+                {
+                    <li>@check</li>
+                }
+            </ul>
 
             <h4>Código de ejemplo</h4>
             <pre><code>@Selected.SampleCode</code></pre>
@@ -80,31 +53,8 @@
 
     private Machsoft.DesignSystem.Showcase.Services.ComponentShowcaseItem? Selected;
 
-    private int _buttonClicks;
-    private readonly List<string> _countries = ["Argentina", "México", "Chile", "Perú", "Colombia"];
-    private string? _selectedCountry;
-    private readonly List<MissionRow> _missions =
-    [
-        new("Apollo 11", "Completada", 3),
-        new("Artemis I", "Completada", 0),
-        new("Artemis II", "Planificada", 4)
-    ];
-
     protected override void OnParametersSet()
     {
         Selected = Registry.Find(ComponentKey);
     }
-
-    private void OnDemoButtonClick(MouseEventArgs _)
-    {
-        _buttonClicks++;
-    }
-
-    private Task OnCountryChanged(string? country)
-    {
-        _selectedCountry = country;
-        return Task.CompletedTask;
-    }
-
-    private sealed record MissionRow(string Name, string Status, int Crew);
 }
