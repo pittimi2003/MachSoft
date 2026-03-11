@@ -2,18 +2,14 @@
 @using MudBlazor
 
 <MxDesignSystemProvider IsDarkMode="@IsDarkMode" @key="IsDarkMode">
-    <MxNavigationShell Class="showcase-shell">
+    <MxNavigationShell Class="@ShellClass">
         <AppBarContent>
-            <MxAppBar LogoText="MachSoft Design System" Color="Color.Primary" Elevation="1">
-                <MxButton Variant="Variant.Text" Color="Color.Inherit" OnClick="ToggleTheme" StartIcon="@ThemeIcon">
-                    @ThemeLabel
-                </MxButton>
-                <MxLink Href="/components" Text="Catálogo" Color="Color.Inherit" />
-            </MxAppBar>
+            <MxAppBar LogoText="SCENARIO SIMULATION AND DESIGN" Color="Color.Primary" Elevation="1" Class="showcase-appbar"
+                     LeadingContent="@AppBarLeading" ActionsContent="@AppBarActions" />
         </AppBarContent>
 
         <DrawerContent>
-            <NavMenu />
+            <NavMenu ShowCloseButton="true" OnClose="CloseMenu" />
         </DrawerContent>
 
         <MainContent>
@@ -32,14 +28,42 @@
 
 @code {
     private bool IsDarkMode;
+    private bool IsMenuOpen = true;
 
-    private string ThemeLabel => IsDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro";
+    private string ShellClass => IsMenuOpen ? "showcase-shell showcase-shell--drawer-open" : "showcase-shell";
 
+    private string ThemeLabel => IsDarkMode ? "Modo claro" : "Modo oscuro";
     private string ThemeIcon => IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode;
+
+    private RenderFragment AppBarLeading =>
+        @<MxButton Variant="Variant.Text" Color="Color.Inherit" Class="showcase-appbar__menu-button" OnClick="ToggleMenu">
+            <MxIcon Icon="@Icons.Material.Filled.Menu" />
+        </MxButton>;
+
+    private RenderFragment AppBarActions =>
+        @<div class="showcase-appbar__actions-row">
+            <MxLink Href="/components" Text="Project designer" Color="Color.Inherit" Class="showcase-appbar__project-link" />
+            <MxButton Variant="Variant.Text" Color="Color.Inherit" OnClick="ToggleTheme" StartIcon="@ThemeIcon" Class="showcase-appbar__theme-button">
+                @ThemeLabel
+            </MxButton>
+            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Size="Size.Medium" />
+            <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" Size="Size.Medium" />
+            <MudIconButton Icon="@Icons.Material.Filled.Fullscreen" Color="Color.Inherit" Size="Size.Medium" />
+        </div>;
 
     private void ToggleTheme(MouseEventArgs _)
     {
         IsDarkMode = !IsDarkMode;
         StateHasChanged();
+    }
+
+    private void ToggleMenu(MouseEventArgs _)
+    {
+        IsMenuOpen = !IsMenuOpen;
+    }
+
+    private void CloseMenu()
+    {
+        IsMenuOpen = false;
     }
 }
