@@ -1,6 +1,18 @@
 @page "/states/feedback"
-<MxPageContainer Title="States / Empty, Loading, Error">
-  <MxSectionCard Title="Empty"><MudAlert Severity="Severity.Info">No hay datos.</MudAlert></MxSectionCard>
-  <MxSectionCard Title="Loading"><MudProgressCircular Indeterminate="true" /></MxSectionCard>
-  <MxSectionCard Title="Error"><MudAlert Severity="Severity.Error">Error cargando datos.</MudAlert></MxSectionCard>
+
+<MxPageContainer Title="States" Subtitle="Estados operativos consistentes para vacíos, carga y errores.">
+  <MxSectionCard Title="Empty">
+    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">No hay datos para el filtro aplicado.</MudAlert>
+  </MxSectionCard>
+
+  <MxSectionCard Title="Loading">
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+      <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
+      <MudText Typo="Typo.body2">Sincronizando registros...</MudText>
+    </MudStack>
+  </MxSectionCard>
+
+  <MxSectionCard Title="Error">
+    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">Error de conexión con el servicio de clientes.</MudAlert>
+  </MxSectionCard>
 </MxPageContainer>

@@ -1,10 +1,34 @@
 @page "/foundations/colors"
-<MxPageContainer Title="Foundations / Colors">
-  <MxSectionCard Title="Brand y Semánticos">
-    <MudChip T="string" Color="Color.Primary">Primary</MudChip>
-    <MudChip T="string" Color="Color.Secondary">Secondary</MudChip>
-    <MudChip T="string" Color="Color.Success">Success</MudChip>
-    <MudChip T="string" Color="Color.Warning">Warning</MudChip>
-    <MudChip T="string" Color="Color.Error">Error</MudChip>
+
+<MxPageContainer Title="Foundations / Colors" Subtitle="Paleta oficial MachSoft con primary institucional y acento técnico controlado.">
+  <MxSectionCard Title="Brand tokens">
+    <div class="mx-token-grid">
+      @foreach (var token in _brand)
+      {
+        <div class="mx-token-swatch">
+          <div class="mx-token-color" style="background:@token.Value"></div>
+          <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
+        </div>
+      }
+    </div>
+  </MxSectionCard>
+
+  <MxSectionCard Title="Semantic tokens">
+    <MudStack Row="true" Spacing="2">
+      <MudChip T="string" Color="Color.Info">Info</MudChip>
+      <MudChip T="string" Color="Color.Success">Success</MudChip>
+      <MudChip T="string" Color="Color.Warning">Warning</MudChip>
+      <MudChip T="string" Color="Color.Error">Error</MudChip>
+    </MudStack>
   </MxSectionCard>
 </MxPageContainer>
+
+@code {
+  private readonly (string Name, string Value)[] _brand =
+  [
+      ("Primary", "#005098"),
+      ("Primary Hover", "#00457F"),
+      ("Primary Active", "#003A6A"),
+      ("Technical Accent", "#00AFCF")
+  ];
+}

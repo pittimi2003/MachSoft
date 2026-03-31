@@ -1,4 +1,10 @@
-<MudSelect T="string" Label="@Label" Value="@Value" ValueChanged="@ValueChanged" Variant="MudBlazor.Variant.Outlined">
+<MudSelect T="string"
+           Class="mx-select"
+           Label="@Label"
+           Value="@Value"
+           ValueChanged="@ValueChanged"
+           Margin="Margin.Dense"
+           Variant="MudBlazor.Variant.Outlined">
     @foreach (var option in Options)
     {
         <MudSelectItem Value="@option">@option</MudSelectItem>

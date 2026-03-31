@@ -7,41 +7,82 @@ public static class MxThemeFactory
 {
     public static MudTheme Create(bool darkMode)
     {
-        var t = darkMode ? ThemeCatalog.Dark : ThemeCatalog.Light;
+        var light = ThemeCatalog.Light;
+        var dark = ThemeCatalog.Dark;
+
         return new MudTheme
         {
             PaletteLight = new PaletteLight
             {
-                Primary = ThemeCatalog.Light.Primary,
-                Secondary = ThemeCatalog.Light.Secondary,
-                Background = ThemeCatalog.Light.Background,
-                Surface = ThemeCatalog.Light.Surface,
-                Success = ThemeCatalog.Light.Success,
-                Warning = ThemeCatalog.Light.Warning,
-                Error = ThemeCatalog.Light.Error,
-                TextPrimary = ThemeCatalog.Light.TextPrimary,
-                TextSecondary = ThemeCatalog.Light.TextSecondary
+                Primary = light.Primary,
+                PrimaryDarken = light.PrimaryHover,
+                PrimaryLighten = light.Primary,
+                Secondary = light.TechnicalAccent,
+                Tertiary = light.TechnicalAccent,
+                Info = light.Info,
+                Success = light.Success,
+                Warning = light.Warning,
+                Error = light.Error,
+                Background = light.Background,
+                Surface = light.Surface,
+                AppbarBackground = light.Primary,
+                DrawerBackground = light.Surface,
+                DrawerText = light.TextPrimary,
+                DrawerIcon = light.TextSecondary,
+                TextPrimary = light.TextPrimary,
+                TextSecondary = light.TextSecondary,
+                ActionDefault = light.TextSecondary,
+                ActionDisabled = light.TextMuted,
+                ActionDisabledBackground = light.SurfaceAlt,
+                Divider = light.Border,
+                LinesDefault = light.Border,
+                TableLines = light.Border,
+                AppbarText = "#FFFFFF"
             },
             PaletteDark = new PaletteDark
             {
-                Primary = ThemeCatalog.Dark.Primary,
-                Secondary = ThemeCatalog.Dark.Secondary,
-                Background = ThemeCatalog.Dark.Background,
-                Surface = ThemeCatalog.Dark.Surface,
-                Success = ThemeCatalog.Dark.Success,
-                Warning = ThemeCatalog.Dark.Warning,
-                Error = ThemeCatalog.Dark.Error,
-                TextPrimary = ThemeCatalog.Dark.TextPrimary,
-                TextSecondary = ThemeCatalog.Dark.TextSecondary
+                Primary = dark.Primary,
+                PrimaryDarken = dark.PrimaryHover,
+                PrimaryLighten = dark.Primary,
+                Secondary = dark.TechnicalAccent,
+                Tertiary = dark.TechnicalAccent,
+                Info = dark.Info,
+                Success = dark.Success,
+                Warning = dark.Warning,
+                Error = dark.Error,
+                Background = dark.Background,
+                Surface = dark.Surface,
+                AppbarBackground = dark.Surface,
+                DrawerBackground = dark.Surface,
+                DrawerText = dark.TextPrimary,
+                DrawerIcon = dark.TextSecondary,
+                TextPrimary = dark.TextPrimary,
+                TextSecondary = dark.TextSecondary,
+                ActionDefault = dark.TextSecondary,
+                ActionDisabled = dark.TextMuted,
+                ActionDisabledBackground = dark.SurfaceAlt,
+                Divider = dark.Border,
+                LinesDefault = dark.Border,
+                TableLines = dark.Border,
+                AppbarText = dark.TextPrimary
             },
+            LayoutProperties = new LayoutProperties { DefaultBorderRadius = "4px" },
             Typography = new Typography
             {
-                Default = new Default { FontFamily = ["Inter", "Segoe UI", "sans-serif"], FontSize = "0.95rem" },
-                H1 = new H1 { FontSize = "2rem", FontWeight = 700 },
-                H2 = new H2 { FontSize = "1.5rem", FontWeight = 700 },
-                H3 = new H3 { FontSize = "1.25rem", FontWeight = 600 }
+                Default = new Default { FontFamily = ["Inter", "Segoe UI", "sans-serif"], FontSize = "0.875rem", LineHeight = 1.5 },
+                H1 = new H1 { FontSize = "2.25rem", FontWeight = 700, LineHeight = 1.2, LetterSpacing = "-0.01em" },
+                H2 = new H2 { FontSize = "1.875rem", FontWeight = 700, LineHeight = 1.25 },
+                H3 = new H3 { FontSize = "1.5rem", FontWeight = 600, LineHeight = 1.3 },
+                H4 = new H4 { FontSize = "1.25rem", FontWeight = 600, LineHeight = 1.35 },
+                H5 = new H5 { FontSize = "1.125rem", FontWeight = 600 },
+                H6 = new H6 { FontSize = "1rem", FontWeight = 600 },
+                Subtitle1 = new Subtitle1 { FontSize = "0.95rem", FontWeight = 600 },
+                Subtitle2 = new Subtitle2 { FontSize = "0.875rem", FontWeight = 600 },
+                Body1 = new Body1 { FontSize = "0.95rem", LineHeight = 1.55 },
+                Body2 = new Body2 { FontSize = "0.875rem", LineHeight = 1.5 },
+                Button = new Button { FontSize = "0.8125rem", FontWeight = 600, TextTransform = "none", LetterSpacing = "0.01em" }
             },
-            ZIndex = new ZIndex { Dialog = t.ZIndexDialog }
+            ZIndex = new ZIndex { Dialog = darkMode ? dark.ZIndexDialog : light.ZIndexDialog }
         };
     }
 }

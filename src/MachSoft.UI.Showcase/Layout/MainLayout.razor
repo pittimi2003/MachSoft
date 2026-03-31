@@ -1,10 +1,10 @@
 @inherits LayoutComponentBase
 
-<MudLayout>
-    <MudAppBar Elevation="1">MachSoft UI Showcase</MudAppBar>
-    <MudDrawer Open="true" Elevation="1" ClipMode="DrawerClipMode.Always">
+<MudLayout Class="mx-showcase-shell">
+    <MudAppBar Elevation="0">MachSoft UI Showcase</MudAppBar>
+    <MudDrawer Open="true" Elevation="0" ClipMode="DrawerClipMode.Always" Width="290px">
         <MudNavMenu>
-            <MudNavLink Href="/">Home</MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Href="/">Home</MudNavLink>
             <MudNavLink Href="/foundations/colors">Foundations / Colors</MudNavLink>
             <MudNavLink Href="/foundations/typography">Foundations / Typography</MudNavLink>
             <MudNavLink Href="/foundations/spacing">Foundations / Spacing</MudNavLink>
@@ -13,7 +13,7 @@
             <MudNavLink Href="/components/forms">Components / Forms</MudNavLink>
             <MudNavLink Href="/components/dialogs">Components / Dialogs</MudNavLink>
             <MudNavLink Href="/patterns/crud">Patterns / CRUD</MudNavLink>
-            <MudNavLink Href="/states/feedback">States / Empty, Loading, Error</MudNavLink>
+            <MudNavLink Href="/states/feedback">States</MudNavLink>
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent>

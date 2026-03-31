@@ -1,10 +1,12 @@
 @page "/components/dialogs"
-<MxPageContainer Title="Components / Dialogs">
-  <MxSectionCard>
+
+<MxPageContainer Title="Components / Dialogs" Subtitle="Mensajes de decisión con jerarquía clara y acciones contenidas.">
+  <MxSectionCard Title="Confirmación">
     <MxButton Label="Abrir diálogo" OnClick="_ => Open = true" />
-    <MxDialog Open="@Open" Title="Eliminar registro" Message="¿Seguro que deseas eliminarlo?" OnConfirm="OnClose" OnCancel="OnClose" />
+    <MxDialog Open="@Open" Title="Eliminar registro" Message="Esta operación es irreversible. ¿Deseas continuar?" OnConfirm="OnClose" OnCancel="OnClose" />
   </MxSectionCard>
 </MxPageContainer>
+
 @code {
   private bool Open;
   private Task OnClose() { Open = false; return Task.CompletedTask; }
