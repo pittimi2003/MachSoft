@@ -14,6 +14,10 @@
    - `pack`
 6. Documentar cambios en ADR si altera contratos.
 
+## Precondición operativa para Playwright en Linux
+- `build/install-playwright.sh` intenta `playwright.sh` y luego `playwright.ps1`.
+- Si solo existe `playwright.ps1`, el entorno debe tener `pwsh`; de lo contrario la instalación de browsers queda bloqueada.
+
 ## Criterio de cierre en validación real
 Si un paso queda bloqueado (por ejemplo `NU1301` por conectividad a feed NuGet), dejar diagnóstico explícito con:
 - causa exacta,

@@ -10,4 +10,4 @@ Para validar template + showcase end-to-end:
 - levantar `MachSoft.UI.Showcase` (`./build/run-showcase.sh`),
 - levantar plantilla server (`./build/run-template-server.sh`),
 - levantar plantilla wasm (`./build/run-template-wasm.sh`),
-- ejecutar smoke tests Playwright (requiere browsers instalados).
+- ejecutar smoke tests Playwright (requiere browsers instalados y que el test no esté marcado con `Skip`).
