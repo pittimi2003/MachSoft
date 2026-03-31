@@ -2,8 +2,10 @@
 {
     <MudPaper Class="mx-dialog" Elevation="0">
         <MudStack Spacing="3">
-            <MudText Typo="Typo.h6">@Title</MudText>
-            <MudText Typo="Typo.body2">@Message</MudText>
+            <div>
+                <MudText Typo="Typo.h6" Class="mx-section-title">@Title</MudText>
+                <MudText Typo="Typo.body2" Class="mt-1">@Message</MudText>
+            </div>
             <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
                 <MxButton Label="@CancelText" Variant="MxVariant.Text" Tone="MxTone.Neutral" OnClick="Cancel" />
                 <MxButton Label="@ConfirmText" Tone="MxTone.Primary" OnClick="Confirm" />

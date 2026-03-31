@@ -1,99 +1,106 @@
-# MachSoft Design System (Normativo Oficial)
+# MachSoft Design System (Autoridad Oficial)
 
-## 1) Propósito
-Definir y gobernar la identidad visual oficial de MachSoft para todos los productos UI basados en esta plataforma.
-
-Este documento es **contractual**: si existe conflicto entre una implementación y este documento, prevalece este documento.
+## 1) Propósito del sistema
+Definir una identidad única de producto para MachSoft: plataforma enterprise técnica, sobria y robusta. Este documento es contractual y prevalece sobre implementaciones puntuales.
 
 ## 2) Principios visuales oficiales
-- Enterprise técnico.
-- Limpio, preciso, sobrio y robusto.
-- Jerarquía por color institucional, tipografía, borde, superficie y spacing.
-- Sin decoración gratuita.
+1. Base estructural en neutros graphite (no azul corporativo dominante).
+2. Identidad y energía por accent cian controlado.
+3. Azul profundo solo como apoyo institucional secundario.
+4. Alto contraste frío, jerarquía clara y legibilidad sostenida.
+5. Estética técnica madura: limpia, precisa, sin ornamento.
 
-## 3) Color principal oficial
-- **Primary oficial:** `#005098`.
-- Uso obligatorio: marca, acción primaria, navegación activa, foco principal, links y headers institucionales.
+## 3) Base cromática oficial
+- **Graphite estructural:** `#F3F6F8` → `#1A2530`.
+- **Brand accent (principal):** `#00B5D8`.
+- **Azul profundo secundario:** `#123E73`.
 
-## 4) Acento técnico
-- **Technical accent:** `#00AFCF`.
-- Uso permitido: highlight controlado, soporte de interacción y acento opcional en visualización de datos.
-- Uso prohibido: color dominante o reemplazo del primary institucional.
+## 4) Brand accent principal
+- Token base: `Accent = #00B5D8`.
+- Variantes: `AccentHover = #0099BA`, `AccentActive = #007F99`, `AccentSoft = #D9F5FB`.
+- Uso obligatorio: acción primaria, selección/activo, links, foco visual principal, highlights técnicos de interacción.
 
-## 5) Contraste oficial
-- Alto, frío y controlado.
-- Priorizar legibilidad en tablas, formularios y workflows.
+## 5) Neutral family (gris espacial/grafito)
+- Familia oficial: `Graphite050/100/200/300/400/500/600/700/800/900`.
+- Uso estructural: fondos, shells, navegación, headers, superficies, bordes, separadores, tablas y layout.
 
-## 6) Neutral palette oficial
-- Light neutrals: `#F4F7FB`, `#E9EEF5`, `#D8E0EA`, `#C0CBD9`, `#96A5B8`, `#73849A`, `#55667B`, `#3D4B5D`, `#243142`, `#121B28`.
-- Dark neutrals: `#0D1522`, `#131F31`, `#1A2940`, `#2C3D56`.
+## 6) Azul profundo secundario
+- Token: `DeepBlue = #123E73` (+ variantes).
+- Uso permitido: soporte institucional, variantes sobrias y señalización secundaria.
+- Uso prohibido: desplazar al graphite como base o al cian como identidad.
 
-## 7) Semantic colors
-- Info: `#0068C9`
-- Success: `#1B7A48`
-- Warning: `#B06A00`
-- Error: `#B4232D`
+## 7) Contraste
+- Contraste alto, frío, controlado y orientado a productividad de larga sesión.
+- Jerarquía visual por color + tipografía + spacing + superficie + borde + estado.
 
-## 8) Typography scale
+## 8) Semantic colors
+- Info `#1870D5`
+- Success `#1F8A54`
+- Warning `#B97810`
+- Error `#C23844`
+
+## 9) Typography scale
 - Familia: `Inter`, fallback `Segoe UI`, `sans-serif`.
-- Escala operativa: 12, 14, 16, 18, 20, 24, 30, 36 px.
-- Line-height: 1.2–1.55 según nivel.
-- Botones y labels con peso 600; body orientado a lectura continua.
+- Escala oficial: `12, 14, 16, 18, 20, 24, 30, 36 px`.
+- Button/labels: peso 600.
+- Body: line-height de lectura operativa (`1.5–1.55`).
 
-## 9) Spacing scale
-- Sistema 4px-based: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64 px.
-- Densidad objetivo: compacta/operativa (enterprise), nunca hacinada.
+## 10) Spacing scale
+- Escala 4px-based: `4, 8, 12, 16, 20, 24, 32, 40, 48, 64 px`.
+- Densidad objetivo: compacta y respirable para enterprise real.
 
-## 10) Radius policy
-- Base: **4px** y **8px**.
-- Excepción destacada: **16px** (cards o contenedores específicos).
-- Prohibido: lenguaje predominantemente redondeado/blando.
+## 11) Radius policy
+- Operativo: `4px` y `8px`.
+- Extensión controlada: `12px` y `16px` solo en contenedores puntuales.
+- Prohibido: interfaz blanda o excesivamente redondeada.
 
-## 11) Stroke policy
-- Base: **1px** y **2px**.
-- Énfasis excepcional: **4px**.
-- Bordes/divisores deben verse técnicos, limpios y estables.
+## 12) Stroke policy
+- Base: `1px` y `2px`.
+- Énfasis excepcional: `3px` y `4px`.
+- Bordes/divisores: técnicos, limpios y consistentes.
 
-## 12) Elevation policy
-- Prioridad en borde + superficie.
-- Sombras contenidas y cortas.
-- Niveles operativos: `none`, `elevation-1`, `elevation-2`; `elevation-3` solo casos de destaque.
+## 13) Elevation policy
+- Prioridad: superficie + borde antes que sombra.
+- Niveles: `none`, `elevation-1`, `elevation-2`, `elevation-3` solo para énfasis concreto.
+- Sin sombras pesadas ni blur ornamental.
 
-## 13) Surface model
+## 14) Surface model
 - Superficies planas o plano-elevadas.
-- Modo base claro, frío y sobrio.
-- Sin glassmorphism, sin blur ornamental, sin sombras excesivas.
+- Con borde visible cuando aporte jerarquía.
+- Sin glassmorphism.
 
-## 14) Iconography direction
-- Lineal, geométrica, técnica y de bajo ruido.
-- Preferencia outline o peso controlado.
-- Evitar iconografía cartoon/rounded-friendly/cargada.
+## 15) Iconography direction
+- Lineal, geométrica, técnica, de trazo limpio y ruido bajo.
+- Preferencia outline/peso controlado.
 
-## 15) Interaction states
-- Hover: variación controlada del tono principal (`PrimaryHover`).
-- Active: tono más profundo (`PrimaryActive`).
-- Disabled: contraste reducido sobre neutral surface.
-- Error/Warning/Success/Info semánticos con contraste AA mínimo.
+## 16) Interaction states
+- Hover/Active del primario por escala de accent.
+- Disabled con contraste reducido sobre neutros.
+- Estados semánticos legibles en light y dark.
 
-## 16) Focus ring policy
-- Focus visible obligatorio en componentes interactivos.
-- Anillo principal: derivado de `#005098`.
-- En dark mode puede usar contraste complementario con acento técnico.
+## 17) Focus ring policy
+- Focus visible obligatorio en todo control interactivo.
+- Ring base: accent (`#00B5D8`) con opacidad controlada.
+- En dark: contraste incrementado (`FocusRingContrast`).
 
-## 17) Dark mode policy
-- Debe conservar jerarquía institucional (primary sigue siendo eje).
-- Contraste legible y consistente en navegación, formularios y tablas.
-- No invertir decisiones de forma/radius/spacing entre modos.
+## 18) Light theme policy
+- Claro, limpio, institucional y preciso.
+- Graphite claro como estructura (`Background/Shell`), accent cian como señal principal.
 
-## 18) Lo que NO pertenece al lenguaje MachSoft
-- Estética Material genérica como identidad final.
-- UI consumer/juguetona o con exceso de redondeo.
-- Hardcode de color fuera de tokens (salvo excepción justificada y documentada).
-- Adornos visuales no funcionales.
-- Exposición de MudBlazor como marca visual del producto.
+## 19) Dark theme policy
+- Premium técnico (control room), robusto, sin neones agresivos.
+- Misma identidad de marca: misma tipografía, spacing, radios, estados y semántica.
 
-## 19) Implementación obligatoria
-- Tokens en `MachSoft.DesignSystem`.
-- Theme bridge en `MachSoft.UI`.
-- API pública solo `Mx*`.
-- Showcase como referencia viva del sistema.
+## 20) Lo que NO forma parte del lenguaje MachSoft
+- Material genérico como resultado visual final.
+- Estética consumer/juguetona/decorativa.
+- Cian saturado como “baño visual”.
+- Azul profundo dominando toda la interfaz.
+- Hardcode de color fuera de tokens (excepto casos mínimos justificados).
+- Apps consumiendo `Mud*` directo como contrato público.
+
+## Reglas de uso obligatorias
+1. Apps de negocio consumen **solo `Mx*`**.
+2. Autoridad visual: `MachSoft.DesignSystem` + `MachSoft.UI`.
+3. Todo nuevo componente respeta tokens/theme/contrato oficial.
+4. No introducir atajos visuales fuera de tokens/theme/librería.
