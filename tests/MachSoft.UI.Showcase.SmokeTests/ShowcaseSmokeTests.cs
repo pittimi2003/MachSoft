@@ -25,11 +25,17 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
 
         var showcaseChecks = new[]
         {
-            new RouteCheck("showcase", "/", "MachSoft UI Platform", "showcase-home.png"),
-            new RouteCheck("showcase", "/foundations/colors", "Brand tokens", "showcase-foundations-colors.png"),
-            new RouteCheck("showcase", "/components/buttons", "Components / Buttons", "showcase-components-buttons.png"),
-            new RouteCheck("showcase", "/components/forms", "Nombre", "showcase-components-forms.png"),
-            new RouteCheck("showcase", "/patterns/crud", "Clientes", "showcase-patterns-crud.png")
+            new RouteCheck("showcase", "/", "MachSoft UI Platform", "showcase-home-light.png", false),
+            new RouteCheck("showcase", "/", "MachSoft UI Platform", "showcase-home-dark.png", true),
+            new RouteCheck("showcase", "/foundations/colors", "Brand tokens", "showcase-foundations-colors-light.png", false),
+            new RouteCheck("showcase", "/foundations/colors", "Brand tokens", "showcase-foundations-colors-dark.png", true),
+            new RouteCheck("showcase", "/foundations/typography", "Scale preview", "showcase-foundations-typography-light.png", false),
+            new RouteCheck("showcase", "/foundations/typography", "Scale preview", "showcase-foundations-typography-dark.png", true),
+            new RouteCheck("showcase", "/components/buttons", "Button variants", "showcase-components-buttons-light.png", false),
+            new RouteCheck("showcase", "/components/buttons", "Button variants", "showcase-components-buttons-dark.png", true),
+            new RouteCheck("showcase", "/components/forms", "Formulario operativo", "showcase-components-forms-light.png", false),
+            new RouteCheck("showcase", "/components/forms", "Formulario operativo", "showcase-components-forms-dark.png", true),
+            new RouteCheck("showcase", "/patterns/crud", "Clientes", "showcase-patterns-crud-light.png", false)
         };
 
         var templateChecks = new[]
@@ -42,6 +48,20 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
         {
             var baseUrl = _hosts.BaseUrls[check.HostKey];
             var targetUrl = $"{baseUrl}{check.Route}";
+            var theme = check.DarkMode ? "dark" : "light";
+
+            if (check.HostKey == "showcase")
+            {
+                await page.GotoAsync(baseUrl, new PageGotoOptions
+                {
+                    WaitUntil = WaitUntilState.NetworkIdle,
+                    Timeout = 60_000
+                });
+
+                await page.EvaluateAsync(
+                    "([key, value]) => localStorage.setItem(key, value)",
+                    new object[] { "mx-showcase-theme", theme });
+            }
 
             var response = await page.GotoAsync(targetUrl, new PageGotoOptions
             {
@@ -58,6 +78,13 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
                 State = WaitForSelectorState.Visible,
                 Timeout = 20_000
             });
+
+            if (check.HostKey == "showcase")
+            {
+                await page.WaitForFunctionAsync(
+                    "theme => (localStorage.getItem('mx-showcase-theme') || 'light') === theme",
+                    theme);
+            }
 
             await page.ScreenshotAsync(new PageScreenshotOptions
             {
@@ -125,7 +152,7 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
         var bodyDarkClassAfterSecondClick = await page.EvaluateAsync<bool>("() => document.body.classList.contains('mud-theme-dark')");
         bodyDarkClassAfterSecondClick.Should().Be(themeAfterSecondClick == "dark");
     }
-    private sealed record RouteCheck(string HostKey, string Route, string ExpectedSignal, string ScreenshotFileName);
+    private sealed record RouteCheck(string HostKey, string Route, string ExpectedSignal, string ScreenshotFileName, bool DarkMode = false);
 }
 
 public sealed class SmokeTestHostsFixture : IAsyncLifetime
