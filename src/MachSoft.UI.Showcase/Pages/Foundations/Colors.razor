@@ -1,6 +1,13 @@
 @page "/foundations/colors"
 
 <MxPageContainer Title="Foundations / Colors" Subtitle="Paleta oficial MachSoft: graphite estructural + accent cian de identidad + azul profundo secundario.">
+  <MxSectionCard Title="Color system intent">
+    <p class="mx-foundation-intro">
+      El sistema equilibra contraste técnico y legibilidad prolongada. Graphite gobierna estructura,
+      el cian define acciones críticas y el azul profundo entrega soporte institucional en shell y navegación.
+    </p>
+  </MxSectionCard>
+
   <MxSectionCard Title="Brand tokens">
     <div class="mx-token-grid">
       @foreach (var token in _brand)
@@ -25,7 +32,7 @@
     </div>
   </MxSectionCard>
 
-  <MxSectionCard Title="Semantic tokens">
+  <MxSectionCard Title="Semantic signaling">
     <MudStack Row="true" Spacing="2">
       <MudChip T="string" Color="Color.Info">Info</MudChip>
       <MudChip T="string" Color="Color.Success">Success</MudChip>
