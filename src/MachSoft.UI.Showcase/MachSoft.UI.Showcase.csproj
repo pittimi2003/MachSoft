@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../MachSoft.UI/MachSoft.UI.csproj" />
@@ -9,4 +11,43 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
   </ItemGroup>
+
+  <UsingTask TaskName="ValidateGeneratedRazorTypeCheckTask"
+             TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <GeneratedDirectory ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        if (!Directory.Exists(GeneratedDirectory))
+        {
+          return true;
+        }
+
+        var invalidTypeCheck = new Regex(@"RuntimeHelpers\.TypeCheck<[^>]+>\(\)", RegexOptions.Compiled);
+        var generatedFiles = Directory.GetFiles(GeneratedDirectory, "*.g.cs", SearchOption.AllDirectories);
+        foreach (var file in generatedFiles)
+        {
+          var source = File.ReadAllText(file);
+          if (!invalidTypeCheck.IsMatch(source))
+          {
+            continue;
+          }
+
+          Log.LogError($"Razor generated invalid RuntimeHelpers.TypeCheck<T>(T) call in '{file}'. Corregir el .razor origen; no editar código generado.");
+          return false;
+        }
+
+        return true;
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="ValidateGeneratedRazorTypeCheck" AfterTargets="RazorCoreCompile">
+    <ValidateGeneratedRazorTypeCheckTask GeneratedDirectory="$(CompilerGeneratedFilesOutputPath)/Microsoft.NET.Sdk.Razor.SourceGenerators" />
+  </Target>
 </Project>
