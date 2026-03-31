@@ -155,10 +155,7 @@ a { color: var(--mx-accent); }
 }
 
 .mx-btn:focus-visible,
-.mx-icon-btn:focus-visible,
-.mud-input-control:focus-within,
-.mud-select:focus-within,
-.mud-checkbox:focus-within {
+.mx-icon-btn:focus-visible {
   outline: none;
   box-shadow: var(--mx-focus-ring);
 }
@@ -186,14 +183,16 @@ a { color: var(--mx-accent); }
 
 .mx-input,
 .mx-select {
-  padding: var(--mx-space-1);
-  border-radius: var(--mx-radius-md);
-  background: color-mix(in srgb, var(--mx-surface-alt) 30%, transparent);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .mx-input .mud-input-control,
 .mx-select .mud-input-control {
   margin-top: 2px;
+  border-radius: var(--mx-radius-sm);
+  transition: box-shadow .15s ease;
 }
 
 .mx-input .mud-input-label,
@@ -222,7 +221,18 @@ a { color: var(--mx-accent); }
 .mx-input .mud-input-slot:focus-within,
 .mx-select .mud-input-slot:focus-within {
   border-color: var(--mx-accent) !important;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mx-accent) 40%, transparent);
+}
+
+.mx-input .mud-input-control:focus-within,
+.mx-select .mud-input-control:focus-within,
+.mx-input.mx-demo-force-focus .mud-input-control,
+.mx-select.mx-demo-force-focus .mud-input-control {
+  box-shadow: var(--mx-focus-ring);
+}
+
+.mx-input input:focus,
+.mx-select input:focus {
+  outline: none;
 }
 
 .mx-input input::placeholder,
@@ -247,7 +257,13 @@ a { color: var(--mx-accent); }
 .mx-select.mud-input-error .mud-input-slot {
   border-color: #cf4e66 !important;
   background: color-mix(in srgb, #cf4e66 6%, var(--mx-surface));
-  box-shadow: 0 0 0 1px color-mix(in srgb, #cf4e66 40%, transparent);
+}
+
+.mx-input.mud-input-error .mud-input-control:focus-within,
+.mx-select.mud-input-error .mud-input-control:focus-within,
+.mx-input.mud-input-error.mx-demo-force-focus .mud-input-control,
+.mx-select.mud-input-error.mx-demo-force-focus .mud-input-control {
+  box-shadow: 0 0 0 2px color-mix(in srgb, #cf4e66 24%, transparent);
 }
 
 .mx-input.mud-input-error .mud-input-label,
@@ -267,6 +283,18 @@ a { color: var(--mx-accent); }
   right: 10px;
 }
 
+.mx-input .mud-input-root.mud-disabled .mud-input-slot,
+.mx-select .mud-input-root.mud-disabled .mud-input-slot {
+  border-color: color-mix(in srgb, var(--mx-border) 85%, var(--mx-surface)) !important;
+  background: color-mix(in srgb, var(--mx-surface) 90%, var(--mx-bg)) !important;
+}
+
+.mx-input .mud-input-root.mud-disabled input,
+.mx-select .mud-input-root.mud-disabled input,
+.mx-select .mud-input-root.mud-disabled .mud-select-input {
+  color: var(--mx-text-muted) !important;
+}
+
 .mx-checkbox {
   margin-top: var(--mx-space-1);
   padding: var(--mx-space-2) var(--mx-space-2) var(--mx-space-2) 0;
@@ -277,6 +305,14 @@ a { color: var(--mx-accent); }
   border-radius: 3px;
   margin-right: 10px;
   padding: 4px;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.mx-checkbox .mud-checkbox-button:focus-visible,
+.mx-checkbox.mx-demo-force-focus .mud-checkbox-button {
+  outline: none;
+  border-color: var(--mx-accent);
+  box-shadow: var(--mx-focus-ring);
 }
 
 .mx-checkbox .mud-icon-root {
@@ -286,6 +322,10 @@ a { color: var(--mx-accent); }
 .mx-checkbox .mud-checkbox-button.mud-checkbox-checked {
   border-color: var(--mx-accent);
   background: color-mix(in srgb, var(--mx-accent) 15%, transparent);
+}
+
+.mx-checkbox.mud-input-error .mud-checkbox-button {
+  border-color: #cf4e66;
 }
 
 .mx-checkbox .mud-typography {

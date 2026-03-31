@@ -34,6 +34,43 @@
         <MxCheckbox Label="Acepta política de operación segura" @bind-Value="PolicyAccepted" />
       </MudStack>
     </MxSectionCard>
+
+    <MxSectionCard Title="Matriz visual de estados">
+      <MudStack Spacing="2">
+        <MxTextField Label="Text field / normal"
+                     Value="Operación estándar"
+                     HelperText="Helper text sin ruido adicional." />
+        <MxTextField Label="Text field / focus"
+                     Value="Focus activo"
+                     Class="mx-demo-force-focus" />
+        <MxTextField Label="Text field / invalid"
+                     Value="usuario@"
+                     Error="true"
+                     ErrorText="El formato es inválido." />
+        <MxTextField Label="Text field / invalid + focus"
+                     Value="usuario@"
+                     Error="true"
+                     ErrorText="Error con foco activo."
+                     Class="mx-demo-force-focus" />
+
+        <MxSelect Label="Select / normal"
+                  Value="Operaciones"
+                  Options="_businessUnits" />
+        <MxSelect Label="Select / focus"
+                  Value="Finanzas"
+                  Options="_businessUnits"
+                  Class="mx-demo-force-focus" />
+        <MxSelect Label="Select / invalid"
+                  Value=""
+                  Error="true"
+                  ErrorText="Selecciona una opción válida."
+                  Options="_businessUnits" />
+
+        <MxCheckbox Label="Checkbox / normal" Value="false" />
+        <MxCheckbox Label="Checkbox / focus" Value="false" Class="mx-demo-force-focus" />
+        <MxCheckbox Label="Checkbox / checked" Value="true" />
+      </MudStack>
+    </MxSectionCard>
   </section>
 </MxPageContainer>
 
