@@ -1,7 +1,15 @@
 @inherits LayoutComponentBase
+@using MachSoft.UI.Showcase.Theme
 
 <MudLayout Class="mx-showcase-shell">
-    <MudAppBar Elevation="0">MachSoft UI Showcase</MudAppBar>
+    <MudAppBar Elevation="0">
+        <div class="mx-showcase-topbar">
+            <span class="mx-showcase-brand">MachSoft UI Showcase</span>
+            <MxTooltip Text="Cambiar tema oficial MachSoft (light/dark)">
+                <MxIconButton Icon="@ThemeIcon" AriaLabel="Cambiar tema" Tone="MxTone.Neutral" OnClick="_ => ToggleTheme()" />
+            </MxTooltip>
+        </div>
+    </MudAppBar>
     <MudDrawer Open="true" Elevation="0" ClipMode="DrawerClipMode.Always" Width="290px">
         <MudNavMenu>
             <MudNavLink Match="NavLinkMatch.All" Href="/">Home</MudNavLink>
@@ -20,3 +28,15 @@
         @Body
     </MudMainContent>
 </MudLayout>
+
+@code {
+    [CascadingParameter] public ShowcaseThemeState ThemeState { get; set; } = default!;
+
+    private string ThemeIcon => ThemeState.DarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode;
+
+    private void ToggleTheme()
+    {
+        ThemeState.Toggle();
+        StateHasChanged();
+    }
+}

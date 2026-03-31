@@ -2,30 +2,39 @@
 
 ## Capas
 1. **MachSoft.DesignSystem**
-   - Fuente única de tokens (color, escala, shape, elevación, tipografía).
-   - Contrato de tema (`ThemeContract`) y catálogo light/dark (`ThemeCatalog`).
+   - Fuente única de tokens (color, contenido, superficies, bordes, foco, spacing, radius, stroke, elevación, tipografía).
+   - Contrato de tema (`ThemeContract`) y catálogo oficial (`ThemeCatalog.Light`, `ThemeCatalog.Dark`).
 
 2. **MachSoft.UI**
-   - Wrappers públicos `Mx*`.
-   - Integración de MudBlazor encapsulada (`MxThemeFactory`, estilos CSS de sistema).
-   - Nunca expone MudBlazor como contrato de negocio.
+   - API pública de componentes `Mx*`.
+   - Bridge de implementación (MudBlazor) encapsulado por `MxThemeFactory`, `MxThemeProvider` y CSS de sistema.
+   - Prohibido usar defaults Material como identidad final.
 
-3. **Host apps** (`MachSoft.UI.Showcase`, templates)
+3. **Hosts** (`MachSoft.UI.Showcase`, templates)
    - Consumen `Mx*` exclusivamente.
-   - Demuestran uso y consistencia del sistema.
+   - No definen identidad visual propia fuera del contrato.
+   - Implementan switch light/dark reutilizando el mismo tema oficial.
 
 4. **Tests**
-   - bUnit para wrappers y smoke tests para Showcase.
+   - bUnit para wrappers `Mx*`.
+   - smoke tests para render base del Showcase.
 
-## Dirección visual obligatoria
-- Primary institucional: `#005098`.
-- Acento técnico: cian de soporte, no dominante.
-- Estética enterprise técnica, sobria, robusta.
+## Dirección visual oficial implementada
+- Base estructural: familia Graphite.
+- Brand accent principal: cian controlado (`#00B5D8`).
+- Azul profundo secundario: soporte institucional (`#123E73`).
+- Personalidad: enterprise técnica, sobria, precisa.
+
+## Flujo de gobernanza
+1. Cambios de identidad visual primero en `MachSoft.DesignSystem`.
+2. Luego mapeo técnico en `MachSoft.UI`.
+3. Luego adopción en Showcase/Templates.
+4. Verificación con tests y actualización documental contractual.
 
 ## Dependencias
-`DesignSystem <- UI <- Hosts <- Tests`
+`MachSoft.DesignSystem <- MachSoft.UI <- Hosts <- Tests`
 
-## Reglas de gobernanza técnica
-- Cambios visuales reutilizables se introducen primero en `MachSoft.DesignSystem`.
-- `MachSoft.UI` aplica los tokens al runtime (Mud theme + CSS system).
-- Hosts no definen identidad visual propia por fuera de tokens.
+## Reglas técnicas obligatorias
+- No exponer `Mud*` en API pública de negocio sin ADR.
+- No hardcodear identidad en apps host.
+- Todo cambio visual reusable debe entrar por tokens/theme/componentes `Mx*`.

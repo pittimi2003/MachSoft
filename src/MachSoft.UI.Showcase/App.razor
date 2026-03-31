@@ -1,15 +1,23 @@
-<MxThemeProvider>
-    <MudPopoverProvider />
-    <MudDialogProvider />
-    <MudSnackbarProvider />
-    <Router AppAssembly="typeof(App).Assembly">
-        <Found Context="routeData">
-            <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        </Found>
-        <NotFound>
-            <LayoutView Layout="typeof(Layout.MainLayout)">
-                <p>Página no encontrada.</p>
-            </LayoutView>
-        </NotFound>
-    </Router>
-</MxThemeProvider>
+@using MachSoft.UI.Showcase.Theme
+
+<CascadingValue Value="_themeState">
+    <MxThemeProvider DarkMode="@_themeState.DarkMode">
+        <MudPopoverProvider />
+        <MudDialogProvider />
+        <MudSnackbarProvider />
+        <Router AppAssembly="typeof(App).Assembly">
+            <Found Context="routeData">
+                <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+            </Found>
+            <NotFound>
+                <LayoutView Layout="typeof(Layout.MainLayout)">
+                    <p>Página no encontrada.</p>
+                </LayoutView>
+            </NotFound>
+        </Router>
+    </MxThemeProvider>
+</CascadingValue>
+
+@code {
+    private readonly ShowcaseThemeState _themeState = new();
+}

@@ -1,9 +1,21 @@
 @page "/foundations/colors"
 
-<MxPageContainer Title="Foundations / Colors" Subtitle="Paleta oficial MachSoft con primary institucional y acento técnico controlado.">
+<MxPageContainer Title="Foundations / Colors" Subtitle="Paleta oficial MachSoft: graphite estructural + accent cian de identidad + azul profundo secundario.">
   <MxSectionCard Title="Brand tokens">
     <div class="mx-token-grid">
       @foreach (var token in _brand)
+      {
+        <div class="mx-token-swatch">
+          <div class="mx-token-color" style="background:@token.Value"></div>
+          <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
+        </div>
+      }
+    </div>
+  </MxSectionCard>
+
+  <MxSectionCard Title="Neutral graphite core">
+    <div class="mx-token-grid">
+      @foreach (var token in _neutrals)
       {
         <div class="mx-token-swatch">
           <div class="mx-token-color" style="background:@token.Value"></div>
@@ -26,9 +38,17 @@
 @code {
   private readonly (string Name, string Value)[] _brand =
   [
-      ("Primary", "#005098"),
-      ("Primary Hover", "#00457F"),
-      ("Primary Active", "#003A6A"),
-      ("Technical Accent", "#00AFCF")
+      ("Accent", "#00B5D8"),
+      ("Accent Hover", "#0099BA"),
+      ("Accent Active", "#007F99"),
+      ("Deep Blue", "#123E73")
+  ];
+
+  private readonly (string Name, string Value)[] _neutrals =
+  [
+      ("Graphite 050", "#F3F6F8"),
+      ("Graphite 200", "#D4DEE6"),
+      ("Graphite 600", "#556779"),
+      ("Graphite 900", "#1A2530")
   ];
 }
