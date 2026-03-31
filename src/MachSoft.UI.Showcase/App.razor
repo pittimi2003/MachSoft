@@ -1,4 +1,5 @@
 @using MachSoft.UI.Showcase.Theme
+@implements IDisposable
 
 <CascadingValue Value="_themeState">
     <MxThemeProvider DarkMode="@_themeState.DarkMode">
@@ -20,4 +21,19 @@
 
 @code {
     private readonly ShowcaseThemeState _themeState = new();
+
+    protected override void OnInitialized()
+    {
+        _themeState.OnChange += HandleThemeChanged;
+    }
+
+    private void HandleThemeChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _themeState.OnChange -= HandleThemeChanged;
+    }
 }

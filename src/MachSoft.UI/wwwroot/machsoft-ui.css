@@ -79,21 +79,44 @@ a { color: var(--mx-accent); }
   display: grid;
   gap: var(--mx-space-2);
   border-bottom: var(--mx-stroke-1) solid var(--mx-border);
-  padding-bottom: var(--mx-space-4);
+  padding: 0 0 var(--mx-space-4) var(--mx-space-2);
+  position: relative;
 }
 
-.mx-page-title { margin: 0; color: var(--mx-text-primary); }
+.mx-page-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  bottom: var(--mx-space-4);
+  width: 3px;
+  border-radius: 999px;
+  background: var(--mx-accent);
+}
+
+.mx-page-title {
+  margin: 0;
+  color: var(--mx-text-primary);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
 .mx-page-subtitle { margin: 0; color: var(--mx-text-secondary); font-size: 0.9rem; }
 
 .mx-section-card {
-  border-radius: var(--mx-radius-md);
+  border-radius: var(--mx-radius-lg);
   padding: var(--mx-space-5);
-  background: var(--mx-surface);
+  background: linear-gradient(180deg, var(--mx-surface-raised) 0%, var(--mx-surface) 100%);
   border: var(--mx-stroke-1) solid var(--mx-border);
   box-shadow: var(--mx-elevation-1);
 }
 
-.mx-section-title { margin: 0; font-size: 1rem; letter-spacing: 0.01em; color: var(--mx-text-primary); }
+.mx-section-title {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  color: var(--mx-text-primary);
+  font-weight: 700;
+}
 .mx-section-content { margin-top: var(--mx-space-3); }
 
 .mx-btn {
@@ -134,6 +157,8 @@ a { color: var(--mx-accent); }
 .mx-icon-btn {
   border: var(--mx-stroke-1) solid var(--mx-border);
   border-radius: var(--mx-radius-sm);
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .mx-icon-btn:hover {
@@ -171,28 +196,55 @@ a { color: var(--mx-accent); }
 .mx-showcase-shell .mud-appbar {
   border-bottom: var(--mx-stroke-1) solid var(--mx-border);
   box-shadow: none;
-  background: var(--mx-shell) !important;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--mx-shell) 88%, #0f1720 12%) 0%, var(--mx-shell) 70%, var(--mx-shell) 100%) !important;
   color: var(--mx-text-primary) !important;
 }
 
 .mx-showcase-shell .mud-drawer {
   border-right: var(--mx-stroke-1) solid var(--mx-border);
-  background: var(--mx-shell) !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--mx-shell) 92%, #101820 8%) 0%, var(--mx-shell) 100%) !important;
+}
+
+.mx-showcase-shell .mud-main-content {
+  background: var(--mx-bg);
+}
+
+.mx-showcase-shell .mud-navmenu {
+  padding: var(--mx-space-3) var(--mx-space-2);
 }
 
 .mx-showcase-shell .mud-nav-link {
-  border-radius: var(--mx-radius-sm);
-  margin: 2px var(--mx-space-2);
+  border-radius: var(--mx-radius-md);
+  margin: 4px var(--mx-space-1);
+  border: 1px solid transparent;
+  color: var(--mx-text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .mx-showcase-shell .mud-nav-link.active {
-  background: color-mix(in srgb, var(--mx-accent) 16%, transparent);
+  background: color-mix(in srgb, var(--mx-accent) 18%, transparent);
   color: var(--mx-accent);
-  font-weight: 600;
+  border-color: color-mix(in srgb, var(--mx-accent) 44%, var(--mx-border));
+  box-shadow: inset 3px 0 0 var(--mx-accent);
 }
 
-.mx-showcase-topbar { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-.mx-showcase-brand { font-weight: 700; letter-spacing: 0.01em; }
+.mx-showcase-topbar { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 56px; }
+.mx-showcase-brand-wrap { display: inline-flex; align-items: center; gap: var(--mx-space-3); }
+.mx-showcase-brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, #00b5d8, #007f99);
+}
+.mx-showcase-brand { font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; font-size: 0.82rem; color: var(--mx-text-primary); }
+.mx-theme-toggle { border-color: color-mix(in srgb, var(--mx-accent) 25%, var(--mx-border)); background: color-mix(in srgb, var(--mx-accent-soft) 45%, transparent); }
 
 .mx-token-grid { display: grid; gap: var(--mx-space-3); grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 .mx-token-swatch { border: var(--mx-stroke-1) solid var(--mx-border); border-radius: var(--mx-radius-sm); overflow: hidden; background: var(--mx-surface); }
