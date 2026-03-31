@@ -1,7 +1,16 @@
-<MudCheckBox T="bool" Class="mx-checkbox" Label="@Label" Value="@Value" ValueChanged="@ValueChanged" Color="Color.Primary" Dense="true" />
+<MudCheckBox T="bool"
+             Class="@BuildClass()"
+             Label="@Label"
+             Value="@Value"
+             ValueChanged="@ValueChanged"
+             Color="Color.Primary"
+             Dense="true" />
 
 @code {
     [Parameter] public string Label { get; set; } = string.Empty;
     [Parameter] public bool Value { get; set; }
     [Parameter] public EventCallback<bool> ValueChanged { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-checkbox" : $"mx-checkbox {Class}";
 }

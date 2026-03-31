@@ -1,9 +1,12 @@
 <MudTextField T="string"
-              Class="mx-input"
+              Class="@BuildClass()"
               Label="@Label"
               Value="@Value"
               ValueChanged="@ValueChanged"
               Placeholder="@Placeholder"
+              HelperText="@HelperText"
+              Error="@Error"
+              ErrorText="@ErrorText"
               Variant="MudBlazor.Variant.Outlined"
               Margin="Margin.Dense"
               Immediate="true"
@@ -15,5 +18,11 @@
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public string Placeholder { get; set; } = string.Empty;
+    [Parameter] public string HelperText { get; set; } = string.Empty;
+    [Parameter] public string ErrorText { get; set; } = string.Empty;
     [Parameter] public bool Required { get; set; }
+    [Parameter] public bool Error { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-input" : $"mx-input {Class}";
 }

@@ -12,10 +12,27 @@
   <div id="app">Loading...</div>
   <script src="_content/MudBlazor/MudBlazor.min.js"></script>
   <script>
-    window.machsoftTheme = {
-      get: () => window.localStorage.getItem("mx-showcase-theme"),
-      set: (value) => window.localStorage.setItem("mx-showcase-theme", value)
-    };
+    (function () {
+      const fallbackKey = "mx-showcase-theme";
+      const read = (key) => window.localStorage.getItem(key || fallbackKey);
+      const write = (key, value) => window.localStorage.setItem(key || fallbackKey, value);
+      const normalize = (value) => value === "dark" ? "dark" : "light";
+
+      const savedTheme = normalize(read(fallbackKey));
+      write(fallbackKey, savedTheme);
+      if (savedTheme === "dark") {
+        document.body.classList.add("mud-theme-dark");
+      }
+
+      window.machsoftTheme = {
+        get: (key) => normalize(read(key)),
+        set: (key, value) => {
+          const nextTheme = normalize(value);
+          write(key, nextTheme);
+          document.body.classList.toggle("mud-theme-dark", nextTheme === "dark");
+        }
+      };
+    })();
   </script>
   <script src="_framework/blazor.webassembly.js"></script>
 </body>

@@ -1,8 +1,11 @@
 <MudSelect T="string"
-           Class="mx-select"
+           Class="@BuildClass()"
            Label="@Label"
            Value="@Value"
            ValueChanged="@ValueChanged"
+           HelperText="@HelperText"
+           Error="@Error"
+           ErrorText="@ErrorText"
            Margin="Margin.Dense"
            FullWidth="true"
            Variant="MudBlazor.Variant.Outlined">
@@ -17,4 +20,10 @@
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public IReadOnlyList<string> Options { get; set; } = [];
+    [Parameter] public string HelperText { get; set; } = string.Empty;
+    [Parameter] public string ErrorText { get; set; } = string.Empty;
+    [Parameter] public bool Error { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-select" : $"mx-select {Class}";
 }
