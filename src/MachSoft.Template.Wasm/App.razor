@@ -1,5 +1,15 @@
 <MxThemeProvider>
+  <MudPopoverProvider />
+  <MudDialogProvider />
+  <MudSnackbarProvider />
   <Router AppAssembly="typeof(App).Assembly">
-    <Found Context="routeData"><RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" /></Found>
+    <Found Context="routeData">
+      <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+    </Found>
+    <NotFound>
+      <LayoutView Layout="typeof(Layout.MainLayout)">
+        <p>Página no encontrada.</p>
+      </LayoutView>
+    </NotFound>
   </Router>
 </MxThemeProvider>
