@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <Description>UI Foundation pública basada en wrappers Mx*.</Description>
+    <PackageId>MachSoft.UI</PackageId>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../MachSoft.DesignSystem/MachSoft.DesignSystem.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,26 @@
+@if (Open)
+{
+    <MudPaper Class="mx-dialog">
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.h6">@Title</MudText>
+            <MudText Typo="Typo.body2">@Message</MudText>
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
+                <MxButton Label="@CancelText" Variant="MxVariant.Text" Tone="MxTone.Neutral" OnClick="Cancel" />
+                <MxButton Label="@ConfirmText" Tone="MxTone.Primary" OnClick="Confirm" />
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+}
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public string Title { get; set; } = "Confirmación";
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string ConfirmText { get; set; } = "Aceptar";
+    [Parameter] public string CancelText { get; set; } = "Cancelar";
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private Task Confirm() => OnConfirm.InvokeAsync();
+    private Task Cancel() => OnCancel.InvokeAsync();
+}

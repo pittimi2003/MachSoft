@@ -1,0 +1,8 @@
+<MudTooltip Text="@Text" Placement="Placement.Bottom">
+    @ChildContent
+</MudTooltip>
+
+@code {
+    [Parameter] public string Text { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

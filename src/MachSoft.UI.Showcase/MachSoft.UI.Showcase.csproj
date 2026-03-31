@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../MachSoft.UI/MachSoft.UI.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,33 @@
+<MudButton Variant="@MapVariant()" Color="@MapColor()" Size="@MapSize()" Disabled="@Disabled" OnClick="OnClick">
+    @Label
+</MudButton>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public MxTone Tone { get; set; } = MxTone.Primary;
+    [Parameter] public MxVariant Variant { get; set; } = MxVariant.Filled;
+    [Parameter] public MxSize Size { get; set; } = MxSize.Medium;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    private Color MapColor() => Tone switch
+    {
+        MxTone.Secondary => Color.Secondary,
+        MxTone.Success => Color.Success,
+        MxTone.Warning => Color.Warning,
+        MxTone.Danger => Color.Error,
+        _ => Color.Primary
+    };
+    private Variant MapVariant() => Variant switch
+    {
+        MxVariant.Outlined => MudBlazor.Variant.Outlined,
+        MxVariant.Text => MudBlazor.Variant.Text,
+        _ => MudBlazor.Variant.Filled
+    };
+    private Size MapSize() => Size switch
+    {
+        MxSize.Small => MudBlazor.Size.Small,
+        MxSize.Large => MudBlazor.Size.Large,
+        _ => MudBlazor.Size.Medium
+    };
+}

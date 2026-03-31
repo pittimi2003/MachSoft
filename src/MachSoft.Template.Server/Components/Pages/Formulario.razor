@@ -1,0 +1,15 @@
+@page "/formulario"
+<MxPageContainer Title="Formulario">
+  <MxSectionCard>
+    <MxTextField Label="Nombre" @bind-Value="Name" />
+    <MxCheckbox Label="Acepta términos" @bind-Value="Accepted" />
+    <MxButton Label="Guardar" OnClick="_ => Open = true" />
+    <MxDialog Open="@Open" Message="Guardado correctamente" OnConfirm="Close" OnCancel="Close" />
+  </MxSectionCard>
+</MxPageContainer>
+@code {
+  private string? Name;
+  private bool Accepted;
+  private bool Open;
+  private Task Close(){ Open=false; return Task.CompletedTask; }
+}

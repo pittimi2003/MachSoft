@@ -1,0 +1,11 @@
+<MudThemeProvider Theme="_theme" IsDarkMode="@DarkMode">
+    @ChildContent
+</MudThemeProvider>
+
+@code {
+    [Parameter] public bool DarkMode { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    private MudTheme _theme = MxThemeFactory.Create(false);
+
+    protected override void OnParametersSet() => _theme = MxThemeFactory.Create(DarkMode);
+}

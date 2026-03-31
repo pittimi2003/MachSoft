@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Design tokens y contratos visuales de MachSoft.</Description>
+    <PackageId>MachSoft.DesignSystem</PackageId>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+</Project>
