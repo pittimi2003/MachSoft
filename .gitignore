@@ -1,0 +1,14 @@
+# Build outputs (.NET)
+**/bin/
+**/obj/
+
+# IDE
+.vs/
+
+# Artifacts and test outputs
+artifacts/
+TestResults/
+test-results/
+coverage/
+playwright-report/
+artifacts/screenshots/

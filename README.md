@@ -16,3 +16,6 @@ Plataforma base frontend Blazor (.NET 8) para estandarizar experiencia y acelera
 - `tests/*`: pruebas unitarias/componentes y smoke visual.
 - `build/*`: scripts operativos.
 - `docs/*`: documentación normativa y operativa.
+
+## Higiene de artefactos
+- Los artefactos generados por build/test/smoke (`bin/`, `obj/`, `.vs/`, `artifacts/`, `TestResults/`, `test-results/`, `coverage/`, `playwright-report/`) deben permanecer fuera de Git y se regeneran localmente.
