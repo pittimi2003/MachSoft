@@ -1,16 +1,42 @@
 @page "/"
 
-<MxPageContainer Title="MachSoft UI Platform" Subtitle="Sistema visual oficial enterprise técnico de MachSoft basado en grafito estructural y acento cian controlado.">
-  <MxSectionCard Title="Dirección oficial activa">
-    <MudText Typo="Typo.body2">Base estructural: <strong>familia Graphite</strong>. Accent oficial: <strong>#00B5D8</strong>. Azul profundo secundario: <strong>#123E73</strong> para soporte institucional.</MudText>
-  </MxSectionCard>
+<MxPageContainer Title="MachSoft UI Platform" Subtitle="Sistema visual oficial enterprise para productos críticos, consistente en light/dark y con lenguaje institucional propio.">
+  <section class="mx-home-hero" aria-labelledby="mx-home-hero-title">
+    <div class="mx-home-hero-content">
+      <p class="mx-home-kicker">MachSoft Design Authority</p>
+      <h2 id="mx-home-hero-title">Interfaz técnica robusta para operación, monitoreo y control.</h2>
+      <p>
+        Esta plataforma consolida navegación estructural, superficies de alta legibilidad y formularios endurecidos
+        para uso prolongado. Identidad visual: grafito estructural + cian operativo.
+      </p>
+      <div class="mx-home-hero-tags">
+        <span>Enterprise Shell</span>
+        <span>Theme Governance</span>
+        <span>Componentes Mx*</span>
+      </div>
+    </div>
+    <div class="mx-home-hero-metrics" role="list" aria-label="Indicadores de plataforma">
+      <article role="listitem">
+        <strong>100%</strong>
+        <span>Consumo encapsulado vía Mx*</span>
+      </article>
+      <article role="listitem">
+        <strong>Light / Dark</strong>
+        <span>Sincronizado con persistencia estable</span>
+      </article>
+      <article role="listitem">
+        <strong>Graphite + Cyan</strong>
+        <span>Lenguaje institucional y técnico</span>
+      </article>
+    </div>
+  </section>
 
-  <MxSectionCard Title="Reglas de consumo">
-    <ul>
-      <li>Las apps consumen <strong>solo Mx*</strong>, no Mud* directo.</li>
-      <li>Tokens y Theme viven en <strong>MachSoft.DesignSystem</strong>.</li>
-      <li>MudBlazor es implementación interna, no identidad visual.</li>
-      <li>El selector light/dark del showcase usa el theme oficial compartido.</li>
+  <MxSectionCard Title="Reglas activas de consumo">
+    <ul class="mx-home-rules">
+      <li>Las aplicaciones de negocio usan exclusivamente <strong>Mx*</strong>.</li>
+      <li>Tokens visuales y contratos de tema viven en <strong>MachSoft.DesignSystem</strong>.</li>
+      <li>MudBlazor permanece encapsulado como infraestructura de implementación.</li>
+      <li>El showcase valida el comportamiento funcional real del toggle de tema.</li>
     </ul>
   </MxSectionCard>
 </MxPageContainer>

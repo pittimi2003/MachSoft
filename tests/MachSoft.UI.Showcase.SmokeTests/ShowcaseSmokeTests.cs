@@ -26,7 +26,7 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
         var showcaseChecks = new[]
         {
             new RouteCheck("showcase", "/", "MachSoft UI Platform", "showcase-home.png"),
-            new RouteCheck("showcase", "/foundations/colors", "Brand y Semánticos", "showcase-foundations-colors.png"),
+            new RouteCheck("showcase", "/foundations/colors", "Brand tokens", "showcase-foundations-colors.png"),
             new RouteCheck("showcase", "/components/buttons", "Components / Buttons", "showcase-components-buttons.png"),
             new RouteCheck("showcase", "/components/forms", "Nombre", "showcase-components-forms.png"),
             new RouteCheck("showcase", "/patterns/crud", "Clientes", "showcase-patterns-crud.png")
@@ -67,6 +67,64 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
         }
     }
 
+
+    [Fact]
+    public async Task ThemeToggle_ShouldSyncThemeIconAndPersistence()
+    {
+        using var playwright = await Playwright.CreateAsync();
+        await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+        var page = await browser.NewPageAsync();
+
+        var showcaseUrl = _hosts.BaseUrls["showcase"];
+        await page.GotoAsync(showcaseUrl, new PageGotoOptions
+        {
+            WaitUntil = WaitUntilState.NetworkIdle,
+            Timeout = 60_000
+        });
+
+        var toggle = page.Locator("button.mx-theme-toggle");
+        await toggle.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 20_000 });
+
+        static string NextTheme(string theme) => theme == "dark" ? "light" : "dark";
+
+        var initialTheme = await page.EvaluateAsync<string>("() => localStorage.getItem('mx-showcase-theme') || 'light'");
+        var expectedAfterFirstClick = NextTheme(initialTheme);
+
+        await toggle.ClickAsync();
+        await page.WaitForFunctionAsync($"theme => localStorage.getItem('mx-showcase-theme') === theme", expectedAfterFirstClick);
+
+        var themeAfterClick = await page.EvaluateAsync<string>("() => localStorage.getItem('mx-showcase-theme') || 'light'");
+        themeAfterClick.Should().Be(expectedAfterFirstClick);
+
+        var bodyDarkClassAfterClick = await page.EvaluateAsync<bool>("() => document.body.classList.contains('mud-theme-dark')");
+        bodyDarkClassAfterClick.Should().Be(themeAfterClick == "dark");
+
+        var expectedTitleAfterClick = themeAfterClick == "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
+        (await toggle.GetAttributeAsync("title")).Should().Be(expectedTitleAfterClick);
+        (await toggle.GetAttributeAsync("aria-label")).Should().Contain(themeAfterClick == "dark" ? "claro" : "oscuro");
+
+        await page.ReloadAsync(new PageReloadOptions { WaitUntil = WaitUntilState.NetworkIdle, Timeout = 60_000 });
+        await toggle.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 20_000 });
+
+        var themeAfterReload = await page.EvaluateAsync<string>("() => localStorage.getItem('mx-showcase-theme') || 'light'");
+        themeAfterReload.Should().Be(themeAfterClick);
+
+        var bodyDarkClassAfterReload = await page.EvaluateAsync<bool>("() => document.body.classList.contains('mud-theme-dark')");
+        bodyDarkClassAfterReload.Should().Be(themeAfterReload == "dark");
+
+        var expectedTitleAfterReload = themeAfterReload == "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
+        (await toggle.GetAttributeAsync("title")).Should().Be(expectedTitleAfterReload);
+
+        var expectedAfterSecondClick = NextTheme(themeAfterReload);
+        await toggle.ClickAsync();
+        await page.WaitForFunctionAsync($"theme => localStorage.getItem('mx-showcase-theme') === theme", expectedAfterSecondClick);
+
+        var themeAfterSecondClick = await page.EvaluateAsync<string>("() => localStorage.getItem('mx-showcase-theme') || 'light'");
+        themeAfterSecondClick.Should().Be(expectedAfterSecondClick);
+
+        var bodyDarkClassAfterSecondClick = await page.EvaluateAsync<bool>("() => document.body.classList.contains('mud-theme-dark')");
+        bodyDarkClassAfterSecondClick.Should().Be(themeAfterSecondClick == "dark");
+    }
     private sealed record RouteCheck(string HostKey, string Route, string ExpectedSignal, string ScreenshotFileName);
 }
 

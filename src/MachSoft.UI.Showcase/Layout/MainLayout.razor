@@ -7,8 +7,11 @@
     <MudAppBar Elevation="0" Dense="true">
         <div class="mx-showcase-topbar">
             <div class="mx-showcase-brand-wrap">
-                <span class="mx-showcase-brand-mark">MS</span>
-                <span class="mx-showcase-brand">MachSoft UI Showcase</span>
+                <span class="mx-showcase-brand-mark" aria-hidden="true">MS</span>
+                <div class="mx-showcase-brand-block">
+                    <span class="mx-showcase-brand">MachSoft UI Showcase</span>
+                    <span class="mx-showcase-brand-subtitle">Plataforma visual enterprise</span>
+                </div>
             </div>
             <MxTooltip Text="@ThemeTooltip">
                 <MxIconButton
@@ -21,7 +24,7 @@
             </MxTooltip>
         </div>
     </MudAppBar>
-    <MudDrawer Open="true" Elevation="0" ClipMode="DrawerClipMode.Always" Width="290px">
+    <MudDrawer Open="true" Elevation="0" ClipMode="DrawerClipMode.Always" Width="306px">
         <MudNavMenu>
             <MudNavLink Match="NavLinkMatch.All" Href="/">Home</MudNavLink>
             <MudNavLink Href="/foundations/colors">Foundations / Colors</MudNavLink>
@@ -41,31 +44,21 @@
 </MudLayout>
 
 @code {
-    private const string ThemeStorageKey = "mx-showcase-theme";
-    private bool _restoredTheme;
-
     [CascadingParameter] public ShowcaseThemeState ThemeState { get; set; } = default!;
 
     private string ThemeIcon => ThemeState.DarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode;
-    private string ThemeTooltip => ThemeState.DarkMode ? "Activar tema claro" : "Activar tema oscuro";
-    private string ThemeAriaLabel => ThemeState.DarkMode ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
+    private string ThemeTooltip => ThemeState.DarkMode ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
+    private string ThemeAriaLabel => ThemeState.DarkMode ? "Activar tema claro" : "Activar tema oscuro";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender || _restoredTheme)
+        if (!firstRender)
         {
             return;
         }
 
-        _restoredTheme = true;
-        var storedTheme = await JS.InvokeAsync<string?>("machsoftTheme.get");
-        ThemeState.SetDarkMode(string.Equals(storedTheme, "dark", StringComparison.Ordinal));
+        await ThemeState.InitializeAsync(JS);
     }
 
-    private async Task ToggleThemeAsync()
-    {
-        ThemeState.Toggle();
-        var themeValue = ThemeState.DarkMode ? "dark" : "light";
-        await JS.InvokeVoidAsync("machsoftTheme.set", themeValue);
-    }
+    private Task ToggleThemeAsync() => ThemeState.ToggleAsync(JS);
 }
