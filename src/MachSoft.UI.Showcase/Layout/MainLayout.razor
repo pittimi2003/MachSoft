@@ -1,0 +1,20 @@
+<MudLayout>
+    <MudAppBar Elevation="1">MachSoft UI Showcase</MudAppBar>
+    <MudDrawer Open="true" Elevation="1" ClipMode="DrawerClipMode.Always">
+        <MudNavMenu>
+            <MudNavLink Href="/">Home</MudNavLink>
+            <MudNavLink Href="/foundations/colors">Foundations / Colors</MudNavLink>
+            <MudNavLink Href="/foundations/typography">Foundations / Typography</MudNavLink>
+            <MudNavLink Href="/foundations/spacing">Foundations / Spacing</MudNavLink>
+            <MudNavLink Href="/foundations/radius-elevation">Foundations / Radius & Elevation</MudNavLink>
+            <MudNavLink Href="/components/buttons">Components / Buttons</MudNavLink>
+            <MudNavLink Href="/components/forms">Components / Forms</MudNavLink>
+            <MudNavLink Href="/components/dialogs">Components / Dialogs</MudNavLink>
+            <MudNavLink Href="/patterns/crud">Patterns / CRUD</MudNavLink>
+            <MudNavLink Href="/states/feedback">States / Empty, Loading, Error</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>

@@ -1,0 +1,9 @@
+<MudTextField T="string" Label="@Label" Value="@Value" ValueChanged="@ValueChanged" Placeholder="@Placeholder" Variant="MudBlazor.Variant.Outlined" Immediate="true" Required="@Required" />
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = string.Empty;
+    [Parameter] public bool Required { get; set; }
+}

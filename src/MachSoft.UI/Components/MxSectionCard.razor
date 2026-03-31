@@ -1,0 +1,12 @@
+<MudPaper Class="mx-section-card" Elevation="1">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <MudText Typo="Typo.h6">@Title</MudText>
+    }
+    <div class="mx-section-content">@ChildContent</div>
+</MudPaper>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

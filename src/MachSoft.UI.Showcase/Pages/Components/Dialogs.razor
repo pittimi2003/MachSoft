@@ -1,0 +1,11 @@
+@page "/components/dialogs"
+<MxPageContainer Title="Components / Dialogs">
+  <MxSectionCard>
+    <MxButton Label="Abrir diálogo" OnClick="_ => Open = true" />
+    <MxDialog Open="@Open" Title="Eliminar registro" Message="¿Seguro que deseas eliminarlo?" OnConfirm="OnClose" OnCancel="OnClose" />
+  </MxSectionCard>
+</MxPageContainer>
+@code {
+  private bool Open;
+  private Task OnClose() { Open = false; return Task.CompletedTask; }
+}

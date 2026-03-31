@@ -1,0 +1,16 @@
+@page "/components/forms"
+<MxPageContainer Title="Components / Forms">
+  <MxSectionCard>
+    <MudStack Spacing="2">
+      <MxTextField Label="Nombre" @bind-Value="Name" />
+      <MxSelect Label="Rol" @bind-Value="Role" Options="_roles" />
+      <MxCheckbox Label="Activo" @bind-Value="Active" />
+    </MudStack>
+  </MxSectionCard>
+</MxPageContainer>
+@code {
+  private string? Name;
+  private string? Role;
+  private bool Active;
+  private readonly List<string> _roles = ["Admin", "Editor", "Viewer"];
+}

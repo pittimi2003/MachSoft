@@ -1,0 +1,10 @@
+@page "/patterns/crud"
+<MxPageContainer Title="Patterns / CRUD">
+  <MxSectionCard Title="Clientes">
+    <MudTable Items="_items">
+      <HeaderContent><MudTh>Nombre</MudTh><MudTh>Estado</MudTh></HeaderContent>
+      <RowTemplate><MudTd>@context</MudTd><MudTd>Activo</MudTd></RowTemplate>
+    </MudTable>
+  </MxSectionCard>
+</MxPageContainer>
+@code { private List<string> _items = ["Acme", "Globex", "Initech"]; }

@@ -1,0 +1,13 @@
+<MudSelect T="string" Label="@Label" Value="@Value" ValueChanged="@ValueChanged" Variant="MudBlazor.Variant.Outlined">
+    @foreach (var option in Options)
+    {
+        <MudSelectItem Value="@option">@option</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public IReadOnlyList<string> Options { get; set; } = [];
+}

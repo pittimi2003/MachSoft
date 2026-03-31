@@ -1,0 +1,12 @@
+@inherits LayoutComponentBase
+<MudLayout>
+  <MudAppBar Elevation="1">Template Wasm</MudAppBar>
+  <MudDrawer Open="true" ClipMode="DrawerClipMode.Always">
+    <MudNavMenu>
+      <MudNavLink Href="/">Dashboard</MudNavLink>
+      <MudNavLink Href="/form">Formulario</MudNavLink>
+      <MudNavLink Href="/list">Lista</MudNavLink>
+    </MudNavMenu>
+  </MudDrawer>
+  <MudMainContent>@Body</MudMainContent>
+</MudLayout>
