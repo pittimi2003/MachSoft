@@ -1,8 +1,19 @@
-<MudIconButton Class="mx-icon-btn" Icon="@Icon" Color="@MapColor()" Size="@MapSize()" OnClick="OnClick" AriaLabel="@AriaLabel" />
+<MudIconButton
+    Class="@BuildClass()"
+    Icon="@Icon"
+    Color="@MapColor()"
+    Size="@MapSize()"
+    OnClick="OnClick"
+    aria-label="@AriaLabel"
+    title="@Title"
+    @attributes="AdditionalAttributes" />
 
 @code {
+    [Parameter(CaptureUnmatchedValues = true)] public IDictionary<string, object>? AdditionalAttributes { get; set; }
     [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Settings;
     [Parameter] public string AriaLabel { get; set; } = "action";
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Class { get; set; } = string.Empty;
     [Parameter] public MxTone Tone { get; set; } = MxTone.Primary;
     [Parameter] public MxSize Size { get; set; } = MxSize.Medium;
     [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
@@ -23,4 +34,6 @@
         MxSize.Large => MudBlazor.Size.Large,
         _ => MudBlazor.Size.Medium
     };
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-icon-btn" : $"mx-icon-btn {Class}";
 }
