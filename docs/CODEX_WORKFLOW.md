@@ -8,17 +8,23 @@
    - `restore`
    - `build`
    - `test`
-   - instalación Playwright
-   - smoke tests
-   - arranque de showcase y templates
+   - instalación Playwright (`./build/install-playwright.sh`)
+   - smoke tests reales (`./build/smoke-tests.sh`)
    - `pack`
 6. Documentar cambios en ADR si altera contratos.
 
-## Precondición operativa para Playwright en Linux
-- `build/install-playwright.sh` intenta `playwright.sh` y luego `playwright.ps1`.
-- Si solo existe `playwright.ps1`, el entorno debe tener `pwsh`; de lo contrario la instalación de browsers queda bloqueada.
+## Precondición operativa para Playwright
+- `build/install-playwright.sh` intenta primero `playwright.sh`.
+- Si solo existe `playwright.ps1`, usa `pwsh` cuando está disponible.
+- Si no hay `pwsh`, usa fallback operativo con Node embebido (`.playwright/node/.../node`) ejecutando `cli.js install --with-deps`.
 
 ## Criterio de cierre en validación real
+El smoke test real (`MachSoft.UI.Showcase.SmokeTests`) queda cerrado solo si:
+- no usa `Skip`,
+- levanta hosts reales,
+- valida rutas mínimas de showcase y templates,
+- genera screenshots en `artifacts/screenshots`.
+
 Si un paso queda bloqueado (por ejemplo `NU1301` por conectividad a feed NuGet), dejar diagnóstico explícito con:
 - causa exacta,
 - archivos afectados,
