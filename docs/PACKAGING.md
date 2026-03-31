@@ -16,3 +16,6 @@ El script ejecuta:
 
 ## Salida
 - `artifacts/nuget`
+- Validar presencia de:
+  - `artifacts/nuget/MachSoft.DesignSystem.<version>.nupkg`
+  - `artifacts/nuget/MachSoft.UI.<version>.nupkg`

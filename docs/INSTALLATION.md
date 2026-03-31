@@ -4,6 +4,7 @@
 - .NET 8 SDK (`8.0.100+`, ver `global.json`).
 - Acceso a un feed NuGet alcanzable para restaurar paquetes (por defecto `https://api.nuget.org/v3/index.json`).
 - Node no requerido para smoke tests; Playwright se instala desde el paquete .NET.
+- Si el instalador genera `playwright.ps1` (sin `playwright.sh`), se requiere `pwsh` en Linux para completar instalación de browsers.
 
 ## Inicio rápido (orden operativo)
 1. `./build/install.sh`

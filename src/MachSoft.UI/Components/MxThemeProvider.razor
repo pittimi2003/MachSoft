@@ -1,6 +1,5 @@
-<MudThemeProvider Theme="_theme" IsDarkMode="@DarkMode">
-    @ChildContent
-</MudThemeProvider>
+<MudThemeProvider Theme="_theme" IsDarkMode="@DarkMode" />
+@ChildContent
 
 @code {
     [Parameter] public bool DarkMode { get; set; }

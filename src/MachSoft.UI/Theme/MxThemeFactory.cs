@@ -36,10 +36,10 @@ public static class MxThemeFactory
             },
             Typography = new Typography
             {
-                Default = new DefaultTypography { FontFamily = ["Inter", "Segoe UI", "sans-serif"], FontSize = "0.95rem" },
-                H1 = new H1Typography { FontSize = "2rem", FontWeight = "700" },
-                H2 = new H2Typography { FontSize = "1.5rem", FontWeight = "700" },
-                H3 = new H3Typography { FontSize = "1.25rem", FontWeight = "600" }
+                Default = new Default { FontFamily = ["Inter", "Segoe UI", "sans-serif"], FontSize = "0.95rem" },
+                H1 = new H1 { FontSize = "2rem", FontWeight = 700 },
+                H2 = new H2 { FontSize = "1.5rem", FontWeight = 700 },
+                H3 = new H3 { FontSize = "1.25rem", FontWeight = 600 }
             },
             ZIndex = new ZIndex { Dialog = t.ZIndexDialog }
         };

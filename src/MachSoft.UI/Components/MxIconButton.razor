@@ -8,5 +8,5 @@
     [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
 
     private Color MapColor() => Tone == MxTone.Secondary ? Color.Secondary : Color.Primary;
-    private Size MapSize() => Size == MxSize.Small ? Size.Small : Size.Medium;
+    private MudBlazor.Size MapSize() => Size == MxSize.Small ? MudBlazor.Size.Small : MudBlazor.Size.Medium;
 }
