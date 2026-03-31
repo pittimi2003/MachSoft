@@ -1,7 +1,19 @@
 @page "/foundations/radius-elevation"
-<MxPageContainer Title="Foundations / Radius & Elevation">
-  <MxSectionCard>
-    <MudPaper Elevation="0" Class="pa-4">Elevation 0</MudPaper>
-    <MudPaper Elevation="2" Class="pa-4 mt-2">Elevation 2</MudPaper>
+
+<MxPageContainer Title="Foundations / Radius & Elevation" Subtitle="Lenguaje geométrico con radios contenidos y elevación sobria.">
+  <MxSectionCard Title="Radius policy">
+    <MudStack Row="true" Spacing="2">
+      <MudPaper Elevation="0" Style="width:100px;height:60px;border:1px solid #d8e0ea;border-radius:4px;display:flex;align-items:center;justify-content:center;">4px</MudPaper>
+      <MudPaper Elevation="0" Style="width:100px;height:60px;border:1px solid #d8e0ea;border-radius:8px;display:flex;align-items:center;justify-content:center;">8px</MudPaper>
+      <MudPaper Elevation="0" Style="width:100px;height:60px;border:1px solid #d8e0ea;border-radius:16px;display:flex;align-items:center;justify-content:center;">16px</MudPaper>
+    </MudStack>
+  </MxSectionCard>
+
+  <MxSectionCard Title="Elevation policy">
+    <MudStack Spacing="2">
+      <MudPaper Elevation="0" Class="pa-3" Style="border:1px solid #d8e0ea;">Flat + Border</MudPaper>
+      <MudPaper Elevation="1" Class="pa-3" Style="border:1px solid #d8e0ea;">Elevation 1 (operativo)</MudPaper>
+      <MudPaper Elevation="2" Class="pa-3" Style="border:1px solid #d8e0ea;">Elevation 2 (destacado)</MudPaper>
+    </MudStack>
   </MxSectionCard>
 </MxPageContainer>

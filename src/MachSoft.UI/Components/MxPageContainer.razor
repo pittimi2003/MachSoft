@@ -1,12 +1,22 @@
 <div class="mx-page-container">
-    @if (!string.IsNullOrWhiteSpace(Title))
+    @if (!string.IsNullOrWhiteSpace(Title) || !string.IsNullOrWhiteSpace(Subtitle))
     {
-        <MudText Typo="Typo.h4">@Title</MudText>
+        <header class="mx-page-header">
+            @if (!string.IsNullOrWhiteSpace(Title))
+            {
+                <MudText Typo="Typo.h4" Class="mx-page-title">@Title</MudText>
+            }
+            @if (!string.IsNullOrWhiteSpace(Subtitle))
+            {
+                <p class="mx-page-subtitle">@Subtitle</p>
+            }
+        </header>
     }
     @ChildContent
 </div>
 
 @code {
     [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
     [Parameter] public RenderFragment? ChildContent { get; set; }
 }

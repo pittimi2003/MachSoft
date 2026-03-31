@@ -1,7 +1,7 @@
-<MudPaper Class="mx-section-card" Elevation="1">
+<MudPaper Class="mx-section-card" Elevation="0">
     @if (!string.IsNullOrWhiteSpace(Title))
     {
-        <MudText Typo="Typo.h6">@Title</MudText>
+        <MudText Typo="Typo.h6" Class="mx-section-title">@Title</MudText>
     }
     <div class="mx-section-content">@ChildContent</div>
 </MudPaper>

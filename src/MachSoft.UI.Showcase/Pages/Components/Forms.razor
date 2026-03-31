@@ -1,16 +1,18 @@
 @page "/components/forms"
-<MxPageContainer Title="Components / Forms">
-  <MxSectionCard>
+
+<MxPageContainer Title="Components / Forms" Subtitle="Inputs densos, legibles y técnicos para operaciones de negocio.">
+  <MxSectionCard Title="Formulario base">
     <MudStack Spacing="2">
-      <MxTextField Label="Nombre" @bind-Value="Name" />
+      <MxTextField Label="Nombre del cliente" @bind-Value="Name" Placeholder="Ej: MachSoft Industries" Required="true" />
       <MxSelect Label="Rol" @bind-Value="Role" Options="_roles" />
-      <MxCheckbox Label="Activo" @bind-Value="Active" />
+      <MxCheckbox Label="Cuenta habilitada" @bind-Value="Active" />
     </MudStack>
   </MxSectionCard>
 </MxPageContainer>
+
 @code {
   private string? Name;
   private string? Role;
-  private bool Active;
-  private readonly List<string> _roles = ["Admin", "Editor", "Viewer"];
+  private bool Active = true;
+  private readonly List<string> _roles = ["Administrador", "Operador", "Auditor"];
 }

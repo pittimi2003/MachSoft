@@ -1,10 +1,35 @@
 @page "/patterns/crud"
-<MxPageContainer Title="Patterns / CRUD">
+
+<MxPageContainer Title="Patterns / CRUD" Subtitle="Patrón operativo con superficies limpias, bordes visibles y tabla legible.">
   <MxSectionCard Title="Clientes">
-    <MudTable Items="_items">
-      <HeaderContent><MudTh>Nombre</MudTh><MudTh>Estado</MudTh></HeaderContent>
-      <RowTemplate><MudTd>@context</MudTd><MudTd>Activo</MudTd></RowTemplate>
+    <MudTable Items="_items" Dense="true" Hover="true" Bordered="true" Striped="false">
+      <HeaderContent>
+        <MudTh>Nombre</MudTh>
+        <MudTh>Estado</MudTh>
+        <MudTh class="text-right">Acciones</MudTh>
+      </HeaderContent>
+      <RowTemplate>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>
+          <MudChip T="string" Color="@(context.Active ? Color.Success : Color.Warning)" Variant="Variant.Outlined" Size="Size.Small">
+            @(context.Active ? "Activo" : "Pendiente")
+          </MudChip>
+        </MudTd>
+        <MudTd Class="text-right">
+          <MxIconButton Icon="@Icons.Material.Outlined.Edit" AriaLabel="Editar" Tone="MxTone.Neutral" />
+        </MudTd>
+      </RowTemplate>
     </MudTable>
   </MxSectionCard>
 </MxPageContainer>
-@code { private List<string> _items = ["Acme", "Globex", "Initech"]; }
+
+@code {
+  private readonly List<CustomerRow> _items =
+  [
+    new("Acme Systems", true),
+    new("Globex Tech", true),
+    new("Initech", false)
+  ];
+
+  private sealed record CustomerRow(string Name, bool Active);
+}

@@ -1,4 +1,4 @@
-<MudButton Variant="@MapVariant()" Color="@MapColor()" Size="@MapSize()" Disabled="@Disabled" OnClick="OnClick">
+<MudButton Class="mx-btn" Variant="@MapVariant()" Color="@MapColor()" Size="@MapSize()" Disabled="@Disabled" OnClick="OnClick">
     @Label
 </MudButton>
 
@@ -16,14 +16,17 @@
         MxTone.Success => Color.Success,
         MxTone.Warning => Color.Warning,
         MxTone.Danger => Color.Error,
+        MxTone.Neutral => Color.Default,
         _ => Color.Primary
     };
+
     private Variant MapVariant() => Variant switch
     {
         MxVariant.Outlined => MudBlazor.Variant.Outlined,
         MxVariant.Text => MudBlazor.Variant.Text,
         _ => MudBlazor.Variant.Filled
     };
+
     private Size MapSize() => Size switch
     {
         MxSize.Small => MudBlazor.Size.Small,

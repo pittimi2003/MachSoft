@@ -1,4 +1,13 @@
-<MudTextField T="string" Label="@Label" Value="@Value" ValueChanged="@ValueChanged" Placeholder="@Placeholder" Variant="MudBlazor.Variant.Outlined" Immediate="true" Required="@Required" />
+<MudTextField T="string"
+              Class="mx-input"
+              Label="@Label"
+              Value="@Value"
+              ValueChanged="@ValueChanged"
+              Placeholder="@Placeholder"
+              Variant="MudBlazor.Variant.Outlined"
+              Margin="Margin.Dense"
+              Immediate="true"
+              Required="@Required" />
 
 @code {
     [Parameter] public string Label { get; set; } = string.Empty;

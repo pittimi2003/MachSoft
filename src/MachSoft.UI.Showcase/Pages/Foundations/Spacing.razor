@@ -1,6 +1,29 @@
 @page "/foundations/spacing"
-<MxPageContainer Title="Foundations / Spacing">
-  <MxSectionCard>
-    <MudStack Spacing="1"><MudPaper Class="pa-2">4px</MudPaper><MudPaper Class="pa-4">16px</MudPaper></MudStack>
+
+<MxPageContainer Title="Foundations / Spacing" Subtitle="Escala 4px-based densa pero respirable para producto enterprise.">
+  <MxSectionCard Title="Spacing scale">
+    <MudStack Spacing="2">
+      @foreach (var item in _scale)
+      {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+          <MudText Typo="Typo.body2" Style="min-width: 80px">@item.Label</MudText>
+          <div style="height: 12px; width:@item.Value; background:#005098; border-radius:4px;"></div>
+          <MudText Typo="Typo.caption">@item.Value</MudText>
+        </MudStack>
+      }
+    </MudStack>
   </MxSectionCard>
 </MxPageContainer>
+
+@code {
+  private readonly (string Label, string Value)[] _scale =
+  [
+    ("space-1", "4px"),
+    ("space-2", "8px"),
+    ("space-3", "12px"),
+    ("space-4", "16px"),
+    ("space-5", "20px"),
+    ("space-6", "24px"),
+    ("space-7", "32px")
+  ];
+}
