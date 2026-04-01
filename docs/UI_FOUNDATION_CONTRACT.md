@@ -26,7 +26,7 @@ Capacidades obligatorias:
 Capacidades obligatorias:
 - `MxFileUpload` soporta drag-and-drop real sobre superficie, selección múltiple, lista/remoción y validación visual de tipo/tamaño;
 - estados de `MxFileUpload`: idle, drag-over, selected/success, invalid/error, uploading/progress y disabled;
-- `MxAutocomplete`/`MxMultiSelect` con patrones de selección de catálogo enterprise.
+- `MxAutocomplete`/`MxMultiSelect` con patrones de selección de catálogo enterprise; `MxMultiSelect` permite mantener selección previa, agregar múltiples opciones en una misma sesión y deselección individual por chip.
 
 ### 4) Navigation
 `MxAppShell`, `MxAppBar`, `MxDrawer`, `MxNavMenu`, `MxNavGroup`, `MxBreadcrumb`, `MxTabs`, `MxAccordion`, `MxMenu`, `MxPopover`, `MxTooltip`, `MxDivider`, `MxSpacer`.
@@ -66,11 +66,11 @@ Regla visual:
 4. Excepción: acciones críticas (`Danger`) pueden elevar contraste de icono, manteniendo legibilidad del texto.
 
 ## Controles elevados en esta fase
-- `MxDataGrid`: toolbar, quick/advanced filters, sorting, selección por página, paginación integrada y estados auditables sobre implementación interna basada en `MudDataGrid`.
+- `MxDataGrid`: implementación anterior removida y reimplementación completa sobre `MudDataGrid` interno, manteniendo API pública `MxDataGrid` para consumidores.
 - `MxMultiSelect`: selección múltiple real (agregar sin cerrar flujo, conservar seleccionados, remover por chip) con helper/error/disabled.
 - `MxFileUpload`: superficie de drop reforzada, drag-over distinguible, estado con archivos, remove, validación y progreso.
 - `MxButton`/`MxIconButton`/`MxMenu`/`MxTabs`: normalización de integración iconográfica por estado.
-- Showcase: matriz de botones exhaustiva y página de auditoría contractual del catálogo.
+- Showcase: matriz de botones exhaustiva, escenarios de formularios/listings/cards/dialogs/patrones CRUD y página de auditoría contractual del catálogo.
 
 ## Decisiones de API
 1. Contrato público obligatorio: sólo `Mx*`.

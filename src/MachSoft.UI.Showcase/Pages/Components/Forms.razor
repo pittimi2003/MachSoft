@@ -59,6 +59,16 @@
                        Options="_channels"
                        Placeholder="Selecciona uno o más canales"
                        HelperText="Los canales seleccionados reciben notificaciones automáticas." />
+        <MxMultiSelect Label="Canales hover preview"
+                       Class="mx-force-hover"
+                       SelectedValues="@SelectedChannels"
+                       SelectedValuesChanged="OnChannelsChanged"
+                       Options="_channels" />
+        <MxMultiSelect Label="Canales focus preview"
+                       Class="mx-force-focus"
+                       SelectedValues="@SelectedChannels"
+                       SelectedValuesChanged="OnChannelsChanged"
+                       Options="_channels" />
         <MudText Typo="Typo.caption">Seleccionados: @string.Join(", ", SelectedChannels)</MudText>
         <MxMultiSelect Label="Canales invalid"
                        SelectedValues="_invalidChannels"

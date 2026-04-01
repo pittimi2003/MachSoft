@@ -1,8 +1,8 @@
 @page "/components/data-listing"
 
-<MxPageContainer Title="Data Listing / MxDataGrid" Subtitle="Grid empresarial auditado: toolbar, búsqueda, filtros rápidos/avanzados, ordenamiento, selección, estados y composición CRUD.">
+<MxPageContainer Title="Data Listing / MxDataGrid" Subtitle="Grid empresarial auditado: toolbar, búsqueda, filtros rápidos/avanzados, ordenamiento, selección, estados y composición CRUD en card y dialog.">
   <MudStack Spacing="3">
-    <MxSectionCard Title="Escenario operativo real (listing CRUD)">
+    <MxSectionCard Title="Escenario operativo real (listing CRUD en card)">
       <MudStack Spacing="2">
         <MxDataGrid TItem="CustomerRow"
                     Title="Backoffice de clientes"
@@ -36,6 +36,7 @@
             <MxButton Label="Nuevo cliente" StartIcon="@Icons.Material.Outlined.Add" />
             <MxButton Label="Exportar" Variant="MxVariant.Outlined" StartIcon="@Icons.Material.Outlined.Download" />
             <MxButton Label="Refrescar" Variant="MxVariant.Text" EndIcon="@Icons.Material.Outlined.Refresh" OnClick="Refresh" />
+            <MxButton Label="Abrir en dialog" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" OnClick="_ => _dialogOpen = true" />
           </ToolbarContent>
         </MxDataGrid>
       </MudStack>
@@ -47,6 +48,8 @@
         <MxButton Label="Loading" Variant="@StateVariant(GridState.Loading)" OnClick="_ => _gridState = GridState.Loading" />
         <MxButton Label="Error" Variant="@StateVariant(GridState.Error)" OnClick="_ => _gridState = GridState.Error" />
         <MxButton Label="Empty" Variant="@StateVariant(GridState.Empty)" OnClick="_ => _gridState = GridState.Empty" />
+        <MxButton Label="Hover preview" Variant="MxVariant.Outlined" Class="mx-force-hover" />
+        <MxButton Label="Focus preview" Variant="MxVariant.Outlined" Class="mx-force-focus" />
       </MudStack>
       <MxDataGrid TItem="CustomerRow"
                   Class="mx-grid-state-demo"
@@ -59,6 +62,35 @@
                   SearchEnabled="false"
                   EmptyTitle="Sin resultados para el estado seleccionado" />
     </MxSectionCard>
+
+    <MxSectionCard Title="Posición real en dialog (auditoría de integración)">
+      <MudStack Spacing="2">
+        <MudText Typo="Typo.body2">Valida uso de MxDataGrid dentro de dialog para selección contextual en flujo CRUD.</MudText>
+        <MxDialog Open="@_dialogOpen"
+                  Title="Seleccionar clientes para campaña"
+                  Message="Elige uno o más clientes desde el grid embebido y confirma la operación."
+                  OnConfirm="CloseDialog"
+                  OnCancel="CloseDialog">
+          <ChildContent>
+            <MxDataGrid TItem="CustomerRow"
+                        Class="mx-grid-state-demo"
+                        Items="@_items.Take(5).ToArray()"
+                        Columns="_columns"
+                        SelectedItems="_selected"
+                        SelectedItemsChanged="OnSelectedChanged"
+                        SearchEnabled="true"
+                        QuickFilters="_quickFilters"
+                        QuickFilterPredicate="OnQuickFilter"
+                        UsePagination="true"
+                        TotalItems="5"
+                        CurrentPage="1"
+                        PageSize="3"
+                        Title="Selector embebido"
+                        Subtitle="Vista condensada para dialog" />
+          </ChildContent>
+        </MxDialog>
+      </MudStack>
+    </MxSectionCard>
   </MudStack>
 </MxPageContainer>
 
@@ -67,6 +99,7 @@
   private bool _loading;
   private bool _error;
   private bool _onlyExpired;
+  private bool _dialogOpen;
   private int CurrentPage = 1;
   private string? _region = "Todas";
   private string? _sla = "Todos";
@@ -128,6 +161,12 @@
     _loading = true;
     await Task.Delay(700);
     _loading = false;
+  }
+
+  private Task CloseDialog()
+  {
+    _dialogOpen = false;
+    return Task.CompletedTask;
   }
 
   private MxVariant StateVariant(GridState state) => _gridState == state ? MxVariant.Filled : MxVariant.Outlined;

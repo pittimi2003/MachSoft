@@ -6,6 +6,12 @@
                 <MudText Typo="Typo.h6" Class="mx-section-title">@Title</MudText>
                 <MudText Typo="Typo.body2" Class="mt-1">@Message</MudText>
             </div>
+            @if (ChildContent is not null)
+            {
+                <div class="mx-dialog-content">
+                    @ChildContent
+                </div>
+            }
             <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2">
                 <MxButton Label="@CancelText" Variant="MxVariant.Text" Tone="MxTone.Neutral" OnClick="Cancel" />
                 <MxButton Label="@ConfirmText" Tone="MxTone.Primary" OnClick="Confirm" />
@@ -20,6 +26,7 @@
     [Parameter] public string Message { get; set; } = string.Empty;
     [Parameter] public string ConfirmText { get; set; } = "Aceptar";
     [Parameter] public string CancelText { get; set; } = "Cancelar";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 
