@@ -598,3 +598,114 @@ a { color: var(--mx-accent); }
     grid-template-columns: 1fr;
   }
 }
+
+.mx-textarea .mud-input-slot textarea {
+  min-height: 108px;
+  line-height: 1.45;
+}
+
+
+.mx-textarea .mud-input-control {
+  margin-top: 3px;
+  border-radius: var(--mx-radius-sm);
+}
+
+.mx-textarea .mud-input-slot {
+  border-radius: var(--mx-radius-sm) !important;
+  border-width: var(--mx-stroke-1) !important;
+  border-color: var(--mx-border-strong) !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--mx-surface) 92%, #fff 8%), var(--mx-surface)) !important;
+}
+
+.mx-textarea .mud-input-slot:hover { border-color: color-mix(in srgb, var(--mx-accent) 58%, var(--mx-border-strong)) !important; }
+.mx-textarea .mud-input-slot:focus-within { border-color: var(--mx-accent) !important; }
+.mx-textarea .mud-input-control:focus-within,
+.mx-textarea.mx-demo-force-focus .mud-input-control { box-shadow: var(--mx-focus-ring); }
+.mx-textarea .mud-input-helper-text { color: var(--mx-text-muted); font-size: 0.78rem; }
+
+.mx-radio-group {
+  display: grid;
+  gap: var(--mx-space-2);
+}
+
+.mx-radio {
+  margin: 0;
+  padding: 2px 0;
+}
+
+.mx-radio .mud-button-root {
+  border: 1px solid var(--mx-border-strong);
+  border-radius: 999px;
+  padding: 2px;
+}
+
+.mx-radio .mud-button-root:hover { border-color: color-mix(in srgb, var(--mx-accent) 54%, var(--mx-border-strong)); }
+.mx-radio .mud-radio-icons { color: var(--mx-accent); }
+.mx-radio .mud-typography { color: var(--mx-text-primary); font-weight: 560; }
+
+.mx-switch { margin-top: var(--mx-space-1); }
+.mx-switch .mud-switch-base { color: var(--mx-accent); }
+.mx-switch .mud-switch-track {
+  border: 1px solid color-mix(in srgb, var(--mx-border-strong) 88%, var(--mx-border));
+  background: color-mix(in srgb, var(--mx-surface-alt) 88%, transparent);
+}
+.mx-switch .mud-switch-base.mud-checked + .mud-switch-track {
+  background: color-mix(in srgb, var(--mx-accent) 36%, var(--mx-accent-soft));
+  border-color: color-mix(in srgb, var(--mx-accent) 72%, var(--mx-border-strong));
+}
+.mx-switch .mud-typography { color: var(--mx-text-primary); font-weight: 560; }
+
+.mx-alert {
+  border-radius: var(--mx-radius-sm);
+  border-width: var(--mx-stroke-1);
+  font-weight: 560;
+}
+.mx-alert.mx-alert-info { background: color-mix(in srgb, var(--mx-accent-soft) 44%, var(--mx-surface)); }
+.mx-alert.mx-alert-success { background: color-mix(in srgb, #2fa36b 15%, var(--mx-surface)); }
+.mx-alert.mx-alert-warning { background: color-mix(in srgb, #c28722 14%, var(--mx-surface)); }
+.mx-alert.mx-alert-error { background: color-mix(in srgb, #c84a5f 11%, var(--mx-surface)); }
+
+.mx-progress-linear .mud-progress-linear {
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mx-border) 55%, var(--mx-surface-alt));
+}
+.mx-progress-circular .mud-progress-circular circle { stroke-linecap: round; }
+
+.mx-skeleton {
+  border-radius: var(--mx-radius-sm);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--mx-surface-alt) 92%, transparent), color-mix(in srgb, var(--mx-accent-soft) 30%, transparent));
+}
+
+.mx-menu .mud-button-root {
+  border-radius: var(--mx-radius-sm);
+  border-color: var(--mx-border-strong);
+  color: var(--mx-text-primary);
+}
+.mx-menu .mud-button-root:hover {
+  border-color: color-mix(in srgb, var(--mx-accent) 54%, var(--mx-border-strong));
+  background: color-mix(in srgb, var(--mx-accent-soft) 60%, var(--mx-surface));
+}
+.mx-menu-item-icon { margin-right: var(--mx-space-2); font-size: 1rem; }
+
+.mx-tabs .mud-tabs-tabbar {
+  border-bottom: 1px solid color-mix(in srgb, var(--mx-border-strong) 65%, var(--mx-border));
+}
+.mx-tabs .mud-tab {
+  color: var(--mx-text-secondary);
+  font-weight: 650;
+  border-radius: var(--mx-radius-sm) var(--mx-radius-sm) 0 0;
+}
+.mx-tabs .mud-tab.mud-tab-active {
+  color: var(--mx-text-primary);
+  background: color-mix(in srgb, var(--mx-accent-soft) 45%, var(--mx-surface));
+}
+.mx-tabs .mud-tab:focus-visible { box-shadow: var(--mx-focus-ring); }
+.mx-tabs-panel { padding: var(--mx-space-4) 0 var(--mx-space-2); }
+
+.mx-feedback-grid,
+.mx-navigation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--mx-space-5);
+}

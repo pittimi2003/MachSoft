@@ -1,0 +1,21 @@
+<MudSkeleton Class="@BuildClass()"
+             SkeletonType="@MapType()"
+             Width="@Width"
+             Height="@Height"
+             Animation="Animation.Wave" />
+
+@code {
+    [Parameter] public MxSkeletonShape Shape { get; set; } = MxSkeletonShape.Text;
+    [Parameter] public string Width { get; set; } = "100%";
+    [Parameter] public string Height { get; set; } = "1rem";
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private SkeletonType MapType() => Shape switch
+    {
+        MxSkeletonShape.Circle => SkeletonType.Circle,
+        MxSkeletonShape.Rectangle => SkeletonType.Rectangle,
+        _ => SkeletonType.Text
+    };
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-skeleton" : $"mx-skeleton {Class}";
+}

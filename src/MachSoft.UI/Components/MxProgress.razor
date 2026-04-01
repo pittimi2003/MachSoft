@@ -1,0 +1,47 @@
+<div class="@BuildClass()">
+    @if (Kind == MxProgressKind.Circular)
+    {
+        <MudProgressCircular Value="@Value"
+                             Indeterminate="@Indeterminate"
+                             Size="@MapCircularSize()"
+                             Color="@MapTone()" />
+    }
+    else
+    {
+        <MudProgressLinear Value="@Value"
+                           Indeterminate="@Indeterminate"
+                           Color="@MapTone()" />
+    }
+</div>
+
+@code {
+    [Parameter] public MxProgressKind Kind { get; set; } = MxProgressKind.Linear;
+    [Parameter] public MxTone Tone { get; set; } = MxTone.Primary;
+    [Parameter] public MxSize Size { get; set; } = MxSize.Medium;
+    [Parameter] public double Value { get; set; }
+    [Parameter] public bool Indeterminate { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private Color MapTone() => Tone switch
+    {
+        MxTone.Secondary => Color.Secondary,
+        MxTone.Success => Color.Success,
+        MxTone.Warning => Color.Warning,
+        MxTone.Danger => Color.Error,
+        MxTone.Neutral => Color.Default,
+        _ => Color.Primary
+    };
+
+    private Size MapCircularSize() => Size switch
+    {
+        MxSize.Small => MudBlazor.Size.Small,
+        MxSize.Large => MudBlazor.Size.Large,
+        _ => MudBlazor.Size.Medium
+    };
+
+    private string BuildClass()
+    {
+        var kindClass = Kind == MxProgressKind.Circular ? "mx-progress-circular" : "mx-progress-linear";
+        return string.IsNullOrWhiteSpace(Class) ? $"mx-progress {kindClass}" : $"mx-progress {kindClass} {Class}";
+    }
+}

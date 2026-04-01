@@ -1,0 +1,24 @@
+<MudTabs Class="@BuildClass()"
+         ActivePanelIndex="@ActiveIndex"
+         ActivePanelIndexChanged="@ActiveIndexChanged"
+         Rounded="true"
+         ApplyEffectsToContainer="true"
+         Elevation="0">
+    @foreach (var item in Items)
+    {
+        <MudTabPanel Text="@item.Label" Icon="@item.Icon" Disabled="@item.Disabled">
+            <div class="mx-tabs-panel" data-key="@item.Key">
+                @item.Content
+            </div>
+        </MudTabPanel>
+    }
+</MudTabs>
+
+@code {
+    [Parameter] public int ActiveIndex { get; set; }
+    [Parameter] public EventCallback<int> ActiveIndexChanged { get; set; }
+    [Parameter] public IReadOnlyList<MxTabItem> Items { get; set; } = [];
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-tabs" : $"mx-tabs {Class}";
+}

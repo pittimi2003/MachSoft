@@ -10,6 +10,15 @@
 - `MxTooltip`
 - `MxPageContainer`
 - `MxSectionCard`
+- `MxTextArea`
+- `MxRadio`
+- `MxRadioGroup`
+- `MxSwitch`
+- `MxAlert`
+- `MxProgress`
+- `MxSkeleton`
+- `MxMenu`
+- `MxTabs`
 
 ## Reglas de API pública
 1. Las apps de negocio consumen **solo `Mx*`**.

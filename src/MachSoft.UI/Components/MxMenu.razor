@@ -1,0 +1,38 @@
+<MudMenu Class="@BuildClass()"
+         Dense="true"
+         Label="@Label"
+         Variant="MudBlazor.Variant.Outlined"
+         Color="@MapTone()"
+         StartIcon="@Icon">
+    @foreach (var item in Items)
+    {
+        <MudMenuItem Disabled="@item.Disabled" OnClick="() => OnItemSelected.InvokeAsync(item.Key)">
+            @if (!string.IsNullOrWhiteSpace(item.Icon))
+            {
+                <MudIcon Icon="@item.Icon" Class="mx-menu-item-icon" />
+            }
+            <span>@item.Label</span>
+        </MudMenuItem>
+    }
+</MudMenu>
+
+@code {
+    [Parameter] public string Label { get; set; } = "Acciones";
+    [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.MoreVert;
+    [Parameter] public MxTone Tone { get; set; } = MxTone.Neutral;
+    [Parameter] public IReadOnlyList<MxMenuItem> Items { get; set; } = [];
+    [Parameter] public EventCallback<string> OnItemSelected { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private Color MapTone() => Tone switch
+    {
+        MxTone.Secondary => Color.Secondary,
+        MxTone.Success => Color.Success,
+        MxTone.Warning => Color.Warning,
+        MxTone.Danger => Color.Error,
+        MxTone.Neutral => Color.Default,
+        _ => Color.Primary
+    };
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-menu" : $"mx-menu {Class}";
+}
