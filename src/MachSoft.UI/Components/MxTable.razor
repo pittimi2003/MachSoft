@@ -1,0 +1,61 @@
+@typeparam TItem
+
+<div class="@BuildClass()">
+    <table>
+        <thead>
+            <tr>
+                @foreach (var column in Columns)
+                {
+                    <th style="@BuildHeaderStyle(column)">@column.Header</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (Items.Count == 0)
+            {
+                <tr>
+                    <td class="mx-table-empty" colspan="@Math.Max(Columns.Count, 1)">@EmptyText</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Items)
+                {
+                    <tr class="@BuildRowClass(item)" @onclick="() => OnRowClick.InvokeAsync(item)">
+                        @foreach (var column in Columns)
+                        {
+                            <td class="@(column.IsPrimary ? "mx-table-primary" : string.Empty)">@column.ValueSelector(item)</td>
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<TItem> Items { get; set; } = [];
+    [Parameter] public IReadOnlyList<MxTableColumn<TItem>> Columns { get; set; } = [];
+    [Parameter] public string EmptyText { get; set; } = "No hay datos para mostrar.";
+    [Parameter] public TItem? SelectedItem { get; set; }
+    [Parameter] public EventCallback<TItem> OnRowClick { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-table" : $"mx-table {Class}";
+
+    private string BuildHeaderStyle(MxTableColumn<TItem> column)
+    {
+        var align = string.IsNullOrWhiteSpace(column.Align) ? "left" : column.Align;
+        return $"text-align:{align};width:{column.Width ?? "auto"};";
+    }
+
+    private string BuildRowClass(TItem item)
+    {
+        if (SelectedItem is null || EqualityComparer<TItem>.Default.Equals(SelectedItem, item) is false)
+        {
+            return string.Empty;
+        }
+
+        return "mx-table-row-selected";
+    }
+}

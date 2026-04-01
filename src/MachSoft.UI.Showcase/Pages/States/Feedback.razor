@@ -1,42 +1,72 @@
 @page "/states/feedback"
 
-<MxPageContainer Title="States / Feedback Controls" Subtitle="Mensajes y carga con semántica clara para operación continua en light/dark.">
+<MxPageContainer Title="States / Feedback & Confirmation" Subtitle="Bloque 2: notificaciones y confirmaciones operativas sin exponer Mud* en la capa consumidora.">
   <section class="mx-feedback-grid">
-    <MxSectionCard Title="MxAlert">
+    <MxSectionCard Title="MxSnackbar">
       <MudStack Spacing="2">
-        <MxAlert Tone="MxAlertTone.Info">Información: se cargaron 128 registros nuevos.</MxAlert>
-        <MxAlert Tone="MxAlertTone.Success">Éxito: la conciliación terminó sin diferencias.</MxAlert>
-        <MxAlert Tone="MxAlertTone.Warning">Advertencia: hay 3 elementos pendientes de validación manual.</MxAlert>
-        <MxAlert Tone="MxAlertTone.Error">Error: no se pudo completar la sincronización con el servicio externo.</MxAlert>
-      </MudStack>
-    </MxSectionCard>
-
-    <MxSectionCard Title="MxProgress">
-      <MudStack Spacing="2">
-        <MudText Typo="Typo.body2">Lineal / determinate 62%</MudText>
-        <MxProgress Kind="MxProgressKind.Linear" Value="62" Tone="MxTone.Primary" />
-        <MudText Typo="Typo.body2">Lineal / indeterminate</MudText>
-        <MxProgress Kind="MxProgressKind.Linear" Indeterminate="true" Tone="MxTone.Warning" />
-        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-          <MxProgress Kind="MxProgressKind.Circular" Value="75" Tone="MxTone.Success" Size="MxSize.Small" />
-          <MxProgress Kind="MxProgressKind.Circular" Indeterminate="true" Tone="MxTone.Secondary" Size="MxSize.Medium" />
+        <MudText Typo="Typo.body2">Dispara feedback contextual con tonos operativos.</MudText>
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+          <MxButton Label="Info" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" OnClick="_ => ShowSnackbar(MxSnackbarTone.Info)" />
+          <MxButton Label="Success" Variant="MxVariant.Outlined" Tone="MxTone.Success" OnClick="_ => ShowSnackbar(MxSnackbarTone.Success)" />
+          <MxButton Label="Warning" Variant="MxVariant.Outlined" Tone="MxTone.Warning" OnClick="_ => ShowSnackbar(MxSnackbarTone.Warning)" />
+          <MxButton Label="Error" Variant="MxVariant.Outlined" Tone="MxTone.Danger" OnClick="_ => ShowSnackbar(MxSnackbarTone.Error)" />
         </MudStack>
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="MxSkeleton">
+    <MxSectionCard Title="MxConfirmDialog">
       <MudStack Spacing="2">
-        <MxSkeleton Shape="MxSkeletonShape.Text" Width="80%" />
-        <MxSkeleton Shape="MxSkeletonShape.Text" Width="65%" />
-        <MxSkeleton Shape="MxSkeletonShape.Rectangle" Height="84px" />
-        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
-          <MxSkeleton Shape="MxSkeletonShape.Circle" Width="42px" Height="42px" />
-          <MudStack Spacing="1" Style="width:100%">
-            <MxSkeleton Shape="MxSkeletonShape.Text" Width="70%" />
-            <MxSkeleton Shape="MxSkeletonShape.Text" Width="45%" />
-          </MudStack>
-        </MudStack>
+        <MudText Typo="Typo.body2">Confirma acciones críticas manteniendo jerarquía visual.</MudText>
+        <MxButton Label="Abrir confirmación" Tone="MxTone.Primary" OnClick="OpenDialog" />
       </MudStack>
+
+      <MxConfirmDialog Open="@ConfirmOpen"
+                       Title="Eliminar cliente"
+                       Message="Esta acción deshabilita el cliente en todos los flujos activos. ¿Deseas continuar?"
+                       ConfirmText="Sí, eliminar"
+                       CancelText="No, cancelar"
+                       OnConfirm="ConfirmDelete"
+                       OnCancel="CancelDelete" />
     </MxSectionCard>
   </section>
+
+  <MxSnackbar @ref="Snackbar" />
 </MxPageContainer>
+
+@code {
+  private MxSnackbar? Snackbar;
+  private bool ConfirmOpen;
+
+  private Task OpenDialog(MouseEventArgs _)
+  {
+    ConfirmOpen = true;
+    return Task.CompletedTask;
+  }
+
+  private Task ShowSnackbar(MxSnackbarTone tone)
+  {
+    Snackbar?.Show(tone switch
+    {
+      MxSnackbarTone.Success => "Operación completada correctamente.",
+      MxSnackbarTone.Warning => "Hay elementos pendientes de validación.",
+      MxSnackbarTone.Error => "No fue posible completar la solicitud.",
+      _ => "Información actualizada para el usuario operativo."
+    }, tone);
+
+    return Task.CompletedTask;
+  }
+
+  private Task ConfirmDelete()
+  {
+    ConfirmOpen = false;
+    Snackbar?.Show("El cliente fue marcado para baja.", MxSnackbarTone.Success);
+    return Task.CompletedTask;
+  }
+
+  private Task CancelDelete()
+  {
+    ConfirmOpen = false;
+    Snackbar?.Show("Acción cancelada por el usuario.", MxSnackbarTone.Info);
+    return Task.CompletedTask;
+  }
+}

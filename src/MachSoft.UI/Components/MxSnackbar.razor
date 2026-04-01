@@ -1,0 +1,8 @@
+@inject MachSoft.UI.Services.IMxSnackbarService SnackbarService
+
+@code {
+    public void Show(string message, MxSnackbarTone tone = MxSnackbarTone.Info, int? visibleStateDurationMs = null)
+    {
+        SnackbarService.Show(message, tone, visibleStateDurationMs);
+    }
+}

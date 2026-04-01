@@ -1,0 +1,19 @@
+<div class="@BuildClass()">
+    <MxButton Label="Anterior" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Disabled="@(CurrentPage <= 1)" OnClick="PreviousPage" />
+    <span class="mx-paginator-status">Página @CurrentPage de @TotalPages</span>
+    <MxButton Label="Siguiente" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Disabled="@(CurrentPage >= TotalPages)" OnClick="NextPage" />
+</div>
+
+@code {
+    [Parameter] public int CurrentPage { get; set; } = 1;
+    [Parameter] public int TotalItems { get; set; }
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalItems / (double)Math.Max(PageSize, 1)));
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-paginator" : $"mx-paginator {Class}";
+
+    private Task PreviousPage(MouseEventArgs _) => CurrentPageChanged.InvokeAsync(Math.Max(1, CurrentPage - 1));
+    private Task NextPage(MouseEventArgs _) => CurrentPageChanged.InvokeAsync(Math.Min(TotalPages, CurrentPage + 1));
+}
