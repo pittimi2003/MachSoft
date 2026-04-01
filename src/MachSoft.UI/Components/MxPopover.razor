@@ -1,0 +1,7 @@
+<MudPopover Open="@Open" Class="mx-popover" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
+    @ChildContent
+</MudPopover>
+@code {
+ [Parameter] public bool Open { get; set; }
+ [Parameter] public RenderFragment? ChildContent { get; set; }
+}

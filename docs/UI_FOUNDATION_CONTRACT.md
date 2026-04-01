@@ -1,74 +1,50 @@
 # UI Foundation Contract (MachSoft `Mx*`)
 
-## Componentes base obligatorios
-### Catálogo aceptado Etapa 1 + Bloque 1
-- `MxButton`
-- `MxIconButton`
-- `MxTextField`
-- `MxSelect`
-- `MxCheckbox`
-- `MxDialog`
-- `MxTooltip`
-- `MxPageContainer`
-- `MxSectionCard`
-- `MxTextArea`
-- `MxRadio`
-- `MxRadioGroup`
-- `MxSwitch`
-- `MxAlert`
-- `MxProgress`
-- `MxSkeleton`
-- `MxMenu`
-- `MxTabs`
+## Catálogo oficial gobernado
 
-### Bloque 2 (inputs avanzados, feedback y data)
-- `MxAutocomplete`: selección única con filtrado básico de opciones.
-- `MxMultiSelect`: selección múltiple con estado seleccionado y deselección.
-- `MxDatePicker`: captura de fecha única con formato visible.
-- `MxDateRangePicker`: captura de rango inicio/fin.
-- `MxFileUpload`: carga de archivo único con estados idle, seleccionado, disabled y error.
-- `MxSnackbar`: notificación toast con tonos info/success/warning/error.
-- `MxConfirmDialog`: diálogo de confirmación con acciones confirm/cancel.
-- `MxTable`: tabla base para CRUD con columnas, filas, estado vacío y fila seleccionable.
-- `MxPaginator`: paginación base con página actual y navegación previous/next.
+### 1) Foundation / Layout / Navigation
+`MxThemeProvider`, `MxPageContainer`, `MxSectionCard`, `MxAppShell`, `MxAppBar`, `MxDrawer`, `MxNavMenu`, `MxNavGroup`, `MxBreadcrumb`, `MxTabs`, `MxAccordion`, `MxDivider`, `MxSpacer`, `MxMenu`, `MxPopover`, `MxTooltip`.
 
-## Alcance funcional mínimo Bloque 2
-1. Soporte light/dark usando tokens del sistema actual (sin reabrir identidad base).
-2. API pública sólo `Mx*` para apps de negocio.
-3. Showcase con casos de uso operativos (inputs avanzados, feedback y listing).
-4. Validación mínima obligatoria: clean/build/tests + smoke básico de showcase.
+### 2) Inputs / Forms
+`MxButton`, `MxIconButton`, `MxTextField`, `MxTextArea`, `MxSelect`, `MxAutocomplete`, `MxMultiSelect`, `MxCheckbox`, `MxRadio`, `MxRadioGroup`, `MxSwitch`, `MxDatePicker`, `MxDateRangePicker`, `MxTimePicker`, `MxNumberField`, `MxFileUpload`, `MxForm`, `MxFormSection`, `MxValidationSummary`.
 
-## Fuera de alcance por ahora
-- Mega-grid con sorting, agrupación, virtualización y edición inline compleja.
-- Upload multiarchivo con chunking/retry.
-- Motor de validaciones cruzadas complejo o máscaras regionales avanzadas.
-- Notificaciones persistentes con historial.
+### 3) Data / Listing / Collections
+`MxDataGrid`, `MxPaginator`, `MxList`, `MxListItem`, `MxCard`, `MxChip`, `MxBadge`, `MxAvatar`, `MxTag`, `MxEmptyState`, `MxLoadingState`, `MxErrorState`.
 
-## Reglas de API pública
-1. Las apps de negocio consumen **solo `Mx*`**.
-2. No exponer tipos `Mud*` en API pública salvo ADR aprobada.
-3. Wrappers `Mx*` deben mapearse a tokens/theme MachSoft, no a defaults Material.
-4. Nuevo componente `Mx*` exige:
-   - test bUnit,
-   - showcase actualizado,
-   - documentación contractual actualizada.
+### 4) Feedback / Overlay / Utility
+`MxDialog`, `MxConfirmDialog`, `MxAlert`, `MxSnackbar`, `MxToast`, `MxProgress`, `MxSkeleton`, `MxBusyOverlay`.
 
-## Contrato visual obligatorio
-- Accent principal: `#00B5D8` (hover `#0099BA`, active `#007F99`).
-- Base neutral: familia Graphite.
-- Azul profundo secundario: `#123E73` (uso de apoyo).
-- Radios operativos: `4px` y `8px`.
-- Stroke base: `1px` y `2px`.
-- Spacing: 4px-based.
-- Focus visible obligatorio.
-- Superficies técnicas planas/plano-elevadas con bordes claros.
+### 5) Productivity / Patterns
+`MxCrudToolbar`, `MxFilterBar`, `MxEntityHeader`, `MxSearchBox` y patrones de referencia:
+- `MxDataGrid + MxPaginator + filtros + acciones`
+- formulario operativo (`MxForm` + `MxFormSection` + validación)
+- confirmación (`MxConfirmDialog`)
+- estados (`MxEmptyState`, `MxLoadingState`, `MxErrorState`)
 
-## Integración de tema
-- `MxThemeProvider` es el entrypoint para light/dark.
-- `MxThemeFactory` traduce `ThemeCatalog` a `MudTheme` sin exponer identidad MudBlazor.
-- Bloque 2 reutiliza tokens vigentes y sólo extiende estilos de componentes nuevos.
+## Decisiones de API
+1. Contrato público obligatorio: sólo `Mx*`.
+2. `Mud*` queda como implementación interna encapsulada.
+3. APIs de selección, validación y estados siguen naming consistente (`Value/ValueChanged`, `Error/ErrorText`, `Disabled`).
+4. `MxDataGrid` es el control oficial de listing enterprise; `MxTable` queda sólo legado.
+5. `MxToast` se unifica sobre infraestructura de `MxSnackbar` para evitar doble canal de notificaciones.
 
-## Anti-reglas
-- Prohibido atajo visual en host apps fuera de tokens/theme/librería.
-- Prohibido look Material genérico como resultado final.
-- Prohibido usar MudBlazor como autoridad visual.
+## Alcance soportado actual
+- Light/dark coherentes con tokens MachSoft.
+- Estados de interacción (normal/hover/focus/error/disabled) en controles de entrada.
+- Flujos reales en showcase para navegación, formularios, listing, feedback y patterns.
+- Integración de templates Server/Wasm con consumo `Mx*`.
+
+## Límites actuales (deuda real)
+- `MxDataGrid` aún no incorpora sorting server-side, agrupación y virtualización.
+- `MxFileUpload` soporta drag-and-drop visual/interacción y selección; no incorpora chunk upload/retry.
+- `MxAutocomplete` soporta búsqueda local; motor remoto queda a integración de aplicación.
+
+## Reglas de consistencia
+1. No exponer tipos `Mud*` en APIs de negocio.
+2. No hardcodear identidad visual fuera de tokens/UI package.
+3. Nuevo/ajuste de control exige: test bUnit + showcase + actualización contractual.
+4. `MachSoft.DesignSystem` es la autoridad de tokens.
+
+## Relación con Showcase y Templates
+- Showcase es el entorno de evaluación contractual de estados y escenarios.
+- Templates Server/Wasm validan uso real fuera del showcase sin divergencia de contrato.

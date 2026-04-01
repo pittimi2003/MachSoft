@@ -1,0 +1,6 @@
+<MxSnackbar Message="@Message" Tone="@Tone" Dense="@Dense" />
+@code {
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public MxSnackbarTone Tone { get; set; } = MxSnackbarTone.Info;
+    [Parameter] public bool Dense { get; set; }
+}

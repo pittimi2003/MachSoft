@@ -1,0 +1,7 @@
+<MudDrawer Class="mx-drawer" Open="@Open" OpenChanged="OpenChanged" Width="@Width">@ChildContent</MudDrawer>
+@code {
+ [Parameter] public bool Open { get; set; } = true;
+ [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+ [Parameter] public string Width { get; set; } = "300px";
+ [Parameter] public RenderFragment ChildContent { get; set; } = default!;
+}

@@ -4,11 +4,25 @@
         <label class="mx-file-upload-label">@Label</label>
     }
 
-    <label class="@BuildDropzoneClass()">
-        <InputFile OnChange="OnFileChange" disabled="@Disabled" />
+    <label class="@BuildDropzoneClass()"
+           @ondragenter="OnDragEnter"
+           @ondragleave="OnDragLeave"
+           @ondragover:preventDefault
+           @ondrop="OnDrop">
+        <InputFile @ref="_inputFile" OnChange="OnFileChange" multiple="@Multiple" disabled="@Disabled" />
         <span class="mx-file-upload-title">@DisplayTitle</span>
         <span class="mx-file-upload-subtitle">@DisplaySubtitle</span>
     </label>
+
+    @if (SelectedFiles.Count > 0)
+    {
+        <ul class="mx-file-upload-list">
+            @foreach (var file in SelectedFiles)
+            {
+                <li>@file.Name <span>@((file.Size / 1024d).ToString("0.0")) KB</span></li>
+            }
+        </ul>
+    }
 
     @if (!string.IsNullOrWhiteSpace(HelperText) && !Error)
     {
@@ -28,28 +42,52 @@
     [Parameter] public string ErrorText { get; set; } = string.Empty;
     [Parameter] public bool Error { get; set; }
     [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool Multiple { get; set; }
     [Parameter] public string Class { get; set; } = string.Empty;
     [Parameter] public EventCallback<IBrowserFile?> FileChanged { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> FilesChanged { get; set; }
 
-    private IBrowserFile? SelectedFile { get; set; }
+    private InputFile? _inputFile;
+    private bool _isDragOver;
+    private List<IBrowserFile> SelectedFiles { get; set; } = [];
 
-    private string DisplayTitle => SelectedFile is null ? Placeholder : SelectedFile.Name;
-    private string DisplaySubtitle => SelectedFile is null ? "Formatos sugeridos: .csv, .xlsx, .pdf" : $"{SelectedFile.Size / 1024d:0.0} KB";
+    private string DisplayTitle => SelectedFiles.Count == 0 ? Placeholder : $"{SelectedFiles.Count} archivo(s) seleccionados";
+    private string DisplaySubtitle => SelectedFiles.Count == 0 ? "Arrastra y suelta o haz click para seleccionar." : string.Join(" · ", SelectedFiles.Select(x => x.Name));
 
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-file-upload" : $"mx-file-upload {Class}";
 
     private string BuildDropzoneClass()
     {
         var classes = "mx-file-upload-dropzone";
-        if (SelectedFile is not null) classes += " mx-file-upload-has-file";
+        if (SelectedFiles.Count > 0) classes += " mx-file-upload-has-file";
         if (Disabled) classes += " mx-file-upload-disabled";
         if (Error) classes += " mx-file-upload-invalid";
+        if (_isDragOver) classes += " mx-file-upload-dragover";
         return classes;
+    }
+
+    private Task OnDragEnter(DragEventArgs _)
+    {
+        if (!Disabled) _isDragOver = true;
+        return Task.CompletedTask;
+    }
+
+    private Task OnDragLeave(DragEventArgs _)
+    {
+        _isDragOver = false;
+        return Task.CompletedTask;
+    }
+
+    private async Task OnDrop(DragEventArgs _)
+    {
+        _isDragOver = false;
+        await Task.CompletedTask;
     }
 
     private async Task OnFileChange(InputFileChangeEventArgs args)
     {
-        SelectedFile = args.File;
-        await FileChanged.InvokeAsync(SelectedFile);
+        SelectedFiles = Multiple ? args.GetMultipleFiles().ToList() : [args.File];
+        await FileChanged.InvokeAsync(SelectedFiles.FirstOrDefault());
+        await FilesChanged.InvokeAsync(SelectedFiles);
     }
 }

@@ -1,0 +1,10 @@
+<MudNumericField T="decimal?" Class="mx-input" Label="@Label" Value="@Value" ValueChanged="ValueChanged" HelperText="@HelperText" Error="@Error" ErrorText="@ErrorText" Disabled="@Disabled" Margin="Margin.Dense" Variant="MudBlazor.Variant.Outlined" FullWidth="true" />
+@code {
+ [Parameter] public string Label { get; set; } = string.Empty;
+ [Parameter] public decimal? Value { get; set; }
+ [Parameter] public EventCallback<decimal?> ValueChanged { get; set; }
+ [Parameter] public string HelperText { get; set; } = string.Empty;
+ [Parameter] public string ErrorText { get; set; } = string.Empty;
+ [Parameter] public bool Error { get; set; }
+ [Parameter] public bool Disabled { get; set; }
+}

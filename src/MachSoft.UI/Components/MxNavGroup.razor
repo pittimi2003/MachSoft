@@ -1,0 +1,6 @@
+<MudNavGroup Class="mx-nav-group" Title="@Title" Icon="@Icon">@ChildContent</MudNavGroup>
+@code {
+ [Parameter] public string Title { get; set; } = string.Empty;
+ [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.ChevronRight;
+ [Parameter] public RenderFragment ChildContent { get; set; } = default!;
+}

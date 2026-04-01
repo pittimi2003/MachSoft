@@ -1,0 +1,7 @@
+<span class="@BuildClass()">@Text</span>
+@code {
+    [Parameter] public string Text { get; set; } = string.Empty;
+    [Parameter] public MxTone Tone { get; set; } = MxTone.Neutral;
+    [Parameter] public string Class { get; set; } = string.Empty;
+    private string BuildClass() => $"mx-tag mx-tone-{Tone.ToString().ToLowerInvariant()} {Class}";
+}

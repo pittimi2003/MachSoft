@@ -1,0 +1,28 @@
+@page "/components/feedback"
+
+<MxPageContainer Title="Feedback" Subtitle="Alertas, snackbar/toast, overlay y estados de carga/error.">
+  <section class="mx-forms-grid">
+    <MxSectionCard Title="Alertas y Toast">
+      <MudStack Spacing="2">
+        <MxAlert Tone="MxAlertTone.Info" Message="Hay cambios pendientes de aprobar." />
+        <MxToast Message="Cliente actualizado correctamente" Tone="MxSnackbarTone.Success" />
+      </MudStack>
+    </MxSectionCard>
+
+    <MxSectionCard Title="Busy Overlay + estados">
+      <div style="position:relative; min-height:220px;">
+        <MxBusyOverlay Busy="@_busy" />
+        <MudStack Spacing="2">
+          <MxLoadingState Title="Sincronizando" Description="Procesando lotes de actualización." />
+          <MxErrorState Title="Error de conexión" Description="No fue posible guardar los cambios." />
+        </MudStack>
+      </div>
+      <MxButton Variant="MxVariant.Outlined" OnClick="ToggleBusy">Alternar Busy</MxButton>
+    </MxSectionCard>
+  </section>
+</MxPageContainer>
+
+@code {
+  private bool _busy;
+  private Task ToggleBusy(MouseEventArgs _) { _busy = !_busy; return Task.CompletedTask; }
+}
