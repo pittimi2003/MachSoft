@@ -968,6 +968,32 @@ a { color: var(--mx-accent); }
 .mx-datagrid-advanced-grid { display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .mx-grid-state-demo { margin-top: 12px; }
 
+.mx-multiselect-chip-btn:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.mx-datagrid-table .mud-table-container {
+  border-top: 1px solid var(--mx-border);
+}
+
+.mx-datagrid-table .mud-table-head th {
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--mx-text-secondary);
+  background: var(--mx-surface-alt);
+}
+
+.mx-datagrid-table .mud-table-row:hover {
+  background: color-mix(in srgb, var(--mx-accent-soft) 26%, var(--mx-surface));
+}
+
+.mx-datagrid-table .mud-table-row.selected,
+.mx-datagrid-table .mud-table-row.mud-selected-item {
+  background: color-mix(in srgb, var(--mx-accent-soft) 38%, var(--mx-surface));
+}
+
 /* Catalog hardening 2026-04-01 */
 .mx-btn .mud-button-label .mud-icon-root,
 .mx-menu .mud-menu-button .mud-icon-root,

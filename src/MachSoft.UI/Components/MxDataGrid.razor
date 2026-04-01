@@ -61,57 +61,44 @@
     }
     else
     {
-        <table>
-            <thead>
-                <tr>
-                    @if (Selectable)
-                    {
-                        <th class="mx-datagrid-check">
-                            <MxCheckbox Value="@AllSelectedInPage" ValueChanged="OnToggleAll" />
-                        </th>
-                    }
-                    @foreach (var c in Columns)
-                    {
-                        <th style="@BuildHeaderStyle(c)">
-                            <button type="button" class="mx-datagrid-header-btn" @onclick="() => ToggleSort(c)">
-                                <span>@c.Header</span>
-                                @if (Sortable)
-                                {
-                                    <MudIcon Icon="@SortIcon(c)" Size="Size.Small" />
-                                }
-                            </button>
-                        </th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in PagedItems)
+        <MudDataGrid T="TItem"
+                     Items="@PagedItems"
+                     Dense="true"
+                     Hover="true"
+                     Bordered="false"
+                     ReadOnly="true"
+                     Striped="false"
+                     MultiSelection="@Selectable"
+                     SelectOnRowClick="@SelectOnRowClick"
+                     SortMode="SortMode.Multiple"
+                     SelectedItems="@_selectedSet"
+                     SelectedItemsChanged="OnMudSelectedChanged"
+                     Class="mx-datagrid-table"
+                     Loading="@Loading">
+            <Columns>
+                @if (Selectable)
                 {
-                    var selected = IsSelected(item);
-                    <tr class="@(selected ? "mx-datagrid-row-selected" : string.Empty)" @onclick="() => OnRowClick(item)">
-                        @if (Selectable)
-                        {
-                            <td class="mx-datagrid-check">
-                                <MxCheckbox Value="selected" ValueChanged="v => OnToggle(item, v)" />
-                            </td>
-                        }
-                        @foreach (var c in Columns)
-                        {
-                            <td class="@(c.IsPrimary ? "mx-datagrid-primary" : string.Empty)">
-                                @if (c.CellTemplate is not null)
+                    <SelectColumn T="TItem" />
+                }
+                @foreach (var column in Columns)
+                {
+                    <TemplateColumn T="TItem" Title="@column.Header" SortBy="@(item => column.ValueSelector(item))" Sortable="@Sortable" HeaderStyle="@BuildHeaderStyle(column)">
+                        <CellTemplate>
+                            <span class="@(column.IsPrimary ? "mx-datagrid-primary" : string.Empty)">
+                                @if (column.CellTemplate is not null)
                                 {
-                                    @c.CellTemplate(item)
+                                    @column.CellTemplate(context.Item)
                                 }
                                 else
                                 {
-                                    @c.ValueSelector(item)
+                                    @column.ValueSelector(context.Item)
                                 }
-                            </td>
-                        }
-                    </tr>
+                            </span>
+                        </CellTemplate>
+                    </TemplateColumn>
                 }
-            </tbody>
-        </table>
+            </Columns>
+        </MudDataGrid>
     }
 
     @if (UsePagination)
@@ -152,12 +139,14 @@
     private bool _advancedOpen;
     private string? _search;
     private string? _activeQuickFilter;
-    private string? _sortKey;
-    private bool _sortDesc;
+    private HashSet<TItem> _selectedSet = [];
+
+    protected override void OnParametersSet()
+    {
+        _selectedSet = SelectedItems.ToHashSet();
+    }
 
     private int ResolvedTotalItems => TotalItems ?? FilteredItems.Count;
-    private bool IsSelected(TItem item) => SelectedItems.Contains(item);
-    private bool AllSelectedInPage => PagedItems.Count > 0 && PagedItems.All(IsSelected);
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-datagrid" : $"mx-datagrid {Class}";
 
     private IReadOnlyList<TItem> FilteredItems
@@ -173,17 +162,6 @@
             if (!string.IsNullOrWhiteSpace(_activeQuickFilter) && QuickFilterPredicate is not null)
             {
                 query = query.Where(item => QuickFilterPredicate(item, _activeQuickFilter));
-            }
-
-            if (Sortable && !string.IsNullOrWhiteSpace(_sortKey))
-            {
-                var sortColumn = Columns.FirstOrDefault(c => c.Key == _sortKey);
-                if (sortColumn is not null)
-                {
-                    query = _sortDesc
-                        ? query.OrderByDescending(item => sortColumn.ValueSelector(item)?.ToString())
-                        : query.OrderBy(item => sortColumn.ValueSelector(item)?.ToString());
-                }
             }
 
             return query.ToArray();
@@ -203,32 +181,10 @@
     private string BuildHeaderStyle(MxDataGridColumn<TItem> c)
         => $"text-align:{c.Align};width:{c.Width ?? "auto"};";
 
-    private Task OnToggleAll(bool value)
+    private Task OnMudSelectedChanged(HashSet<TItem> selected)
     {
-        var set = new HashSet<TItem>(SelectedItems);
-        foreach (var row in PagedItems)
-        {
-            if (value) set.Add(row); else set.Remove(row);
-        }
-
-        return SelectedItemsChanged.InvokeAsync(set.ToArray());
-    }
-
-    private Task OnToggle(TItem item, bool value)
-    {
-        var set = new HashSet<TItem>(SelectedItems);
-        if (value) set.Add(item); else set.Remove(item);
-        return SelectedItemsChanged.InvokeAsync(set.ToArray());
-    }
-
-    private async Task OnRowClick(TItem item)
-    {
-        if (!Selectable || !SelectOnRowClick)
-        {
-            return;
-        }
-
-        await OnToggle(item, !IsSelected(item));
+        _selectedSet = selected;
+        return SelectedItemsChanged.InvokeAsync(_selectedSet.ToArray());
     }
 
     private Task OnSearchChanged(string? value)
@@ -241,35 +197,5 @@
     {
         _activeQuickFilter = string.Equals(_activeQuickFilter, filter, StringComparison.OrdinalIgnoreCase) ? null : filter;
         return CurrentPageChanged.InvokeAsync(1);
-    }
-
-    private async Task ToggleSort(MxDataGridColumn<TItem> column)
-    {
-        if (!Sortable)
-        {
-            return;
-        }
-
-        if (_sortKey == column.Key)
-        {
-            _sortDesc = !_sortDesc;
-        }
-        else
-        {
-            _sortKey = column.Key;
-            _sortDesc = false;
-        }
-
-        await CurrentPageChanged.InvokeAsync(1);
-    }
-
-    private string SortIcon(MxDataGridColumn<TItem> column)
-    {
-        if (!Sortable || _sortKey != column.Key)
-        {
-            return Icons.Material.Outlined.UnfoldMore;
-        }
-
-        return _sortDesc ? Icons.Material.Outlined.ArrowDownward : Icons.Material.Outlined.ArrowUpward;
     }
 }

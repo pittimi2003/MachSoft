@@ -2,8 +2,8 @@
            Class="@BuildClass()"
            Label="@Label"
            MultiSelection="true"
-           SelectedValues="@SelectedValues"
-           SelectedValuesChanged="@OnSelectedChanged"
+           SelectedValues="@_selectedValues"
+           SelectedValuesChanged="OnSelectedChanged"
            Placeholder="@Placeholder"
            HelperText="@HelperText"
            Error="@Error"
@@ -18,12 +18,15 @@
         <MudSelectItem T="string" Value="@option">@option</MudSelectItem>
     }
 </MudSelect>
-@if (SelectedValues.Any())
+
+@if (_selectedValues.Count > 0)
 {
-    <div class="mx-multiselect-chips">
-        @foreach (var value in SelectedValues)
+    <div class="mx-multiselect-chips" aria-live="polite">
+        @foreach (var value in _selectedValues)
         {
-            <button type="button" class="mx-multiselect-chip-btn" @onclick="() => Remove(value)"><MxChip Text="@value" /></button>
+            <button type="button" class="mx-multiselect-chip-btn" @onclick="() => Remove(value)" disabled="@Disabled" aria-label="Quitar @value">
+                <MxChip Text="@value" />
+            </button>
         }
     </div>
 }
@@ -40,9 +43,24 @@
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public string Class { get; set; } = string.Empty;
 
+    private HashSet<string> _selectedValues = [];
+
+    protected override void OnParametersSet()
+    {
+        _selectedValues = SelectedValues.ToHashSet(StringComparer.OrdinalIgnoreCase);
+    }
+
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-multiselect mx-select" : $"mx-multiselect mx-select {Class}";
-    private Task OnSelectedChanged(IEnumerable<string> values) => SelectedValuesChanged.InvokeAsync(values.ToArray());
+
+    private Task OnSelectedChanged(IEnumerable<string> values)
+    {
+        _selectedValues = values.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return SelectedValuesChanged.InvokeAsync(_selectedValues.ToArray());
+    }
 
     private Task Remove(string value)
-        => SelectedValuesChanged.InvokeAsync(SelectedValues.Where(v => v != value).ToArray());
+    {
+        _selectedValues.Remove(value);
+        return SelectedValuesChanged.InvokeAsync(_selectedValues.ToArray());
+    }
 }

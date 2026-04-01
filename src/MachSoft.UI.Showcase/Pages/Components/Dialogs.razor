@@ -1,13 +1,31 @@
 @page "/components/dialogs"
 
-<MxPageContainer Title="Components / Dialogs" Subtitle="Diálogos sobrios, de alto contraste y acción primaria cian controlada.">
-  <MxSectionCard Title="Confirmación">
-    <MxButton Label="Abrir diálogo" OnClick="_ => Open = true" />
-    <MxDialog Open="@Open" Title="Eliminar registro" Message="Esta operación es irreversible. ¿Deseas continuar?" OnConfirm="OnClose" OnCancel="OnClose" />
-  </MxSectionCard>
+<MxPageContainer Title="Components / Dialogs" Subtitle="Diálogos auditables en escenarios reales: confirmación, warning y flujo de formulario.">
+  <MudStack Spacing="3">
+    <MxSectionCard Title="Confirmación">
+      <MudStack Row="true" Spacing="2">
+        <MxButton Label="Abrir diálogo info" OnClick="_ => OpenInfo = true" />
+        <MxButton Label="Abrir diálogo danger" Tone="MxTone.Danger" Variant="MxVariant.Outlined" OnClick="_ => OpenDanger = true" />
+      </MudStack>
+      <MxDialog Open="@OpenInfo" Title="Eliminar registro" Message="Esta operación es irreversible. ¿Deseas continuar?" OnConfirm="CloseInfo" OnCancel="CloseInfo" />
+      <MxDialog Open="@OpenDanger" Title="Revocar acceso" Message="Se removerán permisos de todas las unidades asociadas." OnConfirm="CloseDanger" OnCancel="CloseDanger" />
+    </MxSectionCard>
+
+    <MxSectionCard Title="Escenario real: dialog desde toolbar CRUD">
+      <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
+        <MxButton Label="Crear" StartIcon="@Icons.Material.Outlined.Add" />
+        <MxButton Label="Editar" Variant="MxVariant.Outlined" StartIcon="@Icons.Material.Outlined.Edit" />
+        <MxButton Label="Eliminar" Tone="MxTone.Danger" Variant="MxVariant.Outlined" StartIcon="@Icons.Material.Outlined.Delete" OnClick="_ => OpenDanger = true" />
+        <MxButton Label="Sincronizando" Loading="true" Variant="MxVariant.Text" />
+      </MudStack>
+    </MxSectionCard>
+  </MudStack>
 </MxPageContainer>
 
 @code {
-  private bool Open;
-  private Task OnClose() { Open = false; return Task.CompletedTask; }
+  private bool OpenInfo;
+  private bool OpenDanger;
+
+  private Task CloseInfo() { OpenInfo = false; return Task.CompletedTask; }
+  private Task CloseDanger() { OpenDanger = false; return Task.CompletedTask; }
 }

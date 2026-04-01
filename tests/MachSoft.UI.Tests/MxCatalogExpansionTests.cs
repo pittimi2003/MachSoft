@@ -3,6 +3,7 @@ using Bunit.JSInterop;
 using FluentAssertions;
 using MachSoft.UI.Components;
 using MachSoft.UI.Models;
+using Microsoft.AspNetCore.Components;
 using MudBlazor.Services;
 using Xunit;
 
@@ -13,7 +14,7 @@ public class MxCatalogExpansionTests : TestContext
     public MxCatalogExpansionTests()
     {
         JSInterop.Mode = JSRuntimeMode.Loose;
-        Services.AddMudServices();
+        Services.AddMudServices(options => options.PopoverOptions.CheckForPopoverProvider = false);
     }
 
     [Fact]
@@ -44,6 +45,32 @@ public class MxCatalogExpansionTests : TestContext
             .Add(x => x.PageSize, 5));
 
         cut.Markup.Should().Contain("Página 1 de 3");
+    }
+
+    [Fact]
+    public void MxDataGrid_ShouldUseInternalMudDataGrid()
+    {
+        var columns = new[] { new MxDataGridColumn<Row>("name", "Nombre", x => x.Name) };
+        var rows = new[] { new Row("Acme") };
+
+        var cut = RenderComponent<MxDataGrid<Row>>(p => p
+            .Add(x => x.Columns, columns)
+            .Add(x => x.Items, rows));
+
+        cut.FindAll(".mud-table").Count.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void MxMultiSelect_ShouldRenderAndPreserveSelectedChips()
+    {
+        IEnumerable<string> selected = ["Portal", "Correo"];
+        var cut = RenderComponent<MxMultiSelect>(p => p
+            .Add(x => x.Options, new[] { "Portal", "Correo", "SMS" })
+            .Add(x => x.SelectedValues, selected)
+            .Add(x => x.SelectedValuesChanged, EventCallback.Factory.Create<IEnumerable<string>>(this, values => selected = values.ToArray())));
+
+        cut.Markup.Should().Contain("Portal").And.Contain("Correo");
+        cut.FindAll(".mx-multiselect-chip-btn").Count.Should().Be(2);
     }
 
     [Fact]
