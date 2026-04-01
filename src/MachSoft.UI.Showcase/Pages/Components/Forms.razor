@@ -1,10 +1,12 @@
 @page "/components/forms"
 
-<MxPageContainer Title="Components / Forms + Advanced Inputs" Subtitle="Catálogo auditable de controles de formulario: estados, variantes, tamaños y casos operativos.">
+<MxPageContainer Title="Components / Forms + Advanced Inputs" Subtitle="Catálogo auditable de controles de formulario: estados, variantes, tamaños y casos operativos en cards, toolbar y dialog.">
   <section class="mx-forms-grid">
-    <MxSectionCard Title="Text controls (normal / invalid / disabled)">
+    <MxSectionCard Title="Text controls (normal / invalid / disabled / focus)">
       <MudStack Spacing="2">
         <MxTextField Label="Nombre del cliente" Value="@_customerName" ValueChanged="v => _customerName = v" Placeholder="Ingresa razón social" HelperText="Se usará como identificador principal del expediente." />
+        <MxTextField Label="Text hover preview" Class="mx-force-hover" Value="Acme Systems" />
+        <MxTextField Label="Text focus preview" Class="mx-force-focus" Value="Focus operativo" />
         <MxTextField Label="Nombre invalid" Value="" Error="true" ErrorText="El nombre del cliente es obligatorio." />
         <MxTextArea Label="Observaciones" Value="@_notes" ValueChanged="v => _notes = v" Lines="3" HelperText="Describe hallazgos relevantes del comité." />
         <MxTextArea Label="Observaciones disabled" Value="Bloqueado por estado cerrado" Disabled="true" />
@@ -49,7 +51,7 @@
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="MxMultiSelect">
+    <MxSectionCard Title="MxMultiSelect (selección múltiple real)">
       <MudStack Spacing="2">
         <MxMultiSelect Label="Canales habilitados"
                        SelectedValues="@SelectedChannels"
@@ -57,11 +59,36 @@
                        Options="_channels"
                        Placeholder="Selecciona uno o más canales"
                        HelperText="Los canales seleccionados reciben notificaciones automáticas." />
+        <MudText Typo="Typo.caption">Seleccionados: @string.Join(", ", SelectedChannels)</MudText>
         <MxMultiSelect Label="Canales invalid"
                        SelectedValues="_invalidChannels"
                        Options="_channels"
                        Error="true"
                        ErrorText="Debes mantener al menos un canal activo." />
+        <MxMultiSelect Label="Canales disabled"
+                       SelectedValues="@_disabledChannels"
+                       Options="_channels"
+                       Disabled="true"
+                       HelperText="Configuración bloqueada por política." />
+      </MudStack>
+    </MxSectionCard>
+
+    <MxSectionCard Title="Escenario real: formulario operativo en Card + Dialog">
+      <MudStack Spacing="2">
+        <MxCard>
+          <MxForm>
+            <MxFormSection Title="Alta de ticket">
+              <MxTextField Label="Asunto" Value="@_ticketSubject" ValueChanged="v => _ticketSubject = v" />
+              <MxMultiSelect Label="Canales de atención" SelectedValues="@SelectedChannels" SelectedValuesChanged="OnChannelsChanged" Options="_channels" />
+              <MxDatePicker Label="Fecha compromiso" @bind-Value="ExecutionDate" />
+            </MxFormSection>
+          </MxForm>
+        </MxCard>
+        <MudStack Row="true" Spacing="2">
+          <MxButton Label="Abrir formulario en dialog" OnClick="_ => _dialogOpen = true" />
+          <MxButton Label="Guardar" Loading="@_saving" OnClick="SaveForm" />
+        </MudStack>
+        <MxDialog Open="@_dialogOpen" Title="Edición rápida" Message="Confirma si deseas persistir los cambios del formulario actual." OnConfirm="ConfirmDialog" OnCancel="CloseDialog" />
       </MudStack>
     </MxSectionCard>
 
@@ -114,12 +141,16 @@
   private bool _alerts = true;
   private bool _autoReview;
   private string _priority = "Media";
+  private string? _ticketSubject;
+  private bool _dialogOpen;
+  private bool _saving;
 
   private string? SelectedCustomer;
   private const string InvalidCustomer = "Cliente inexistente";
   private readonly List<string> _customers = ["Acme Systems", "Globex Tech", "Initech", "Umbrella North", "Stark Logistics"];
 
   private IEnumerable<string> SelectedChannels = ["Portal", "Correo"];
+  private readonly IEnumerable<string> _disabledChannels = ["Portal", "Webhook"];
   private readonly List<string> _channels = ["Portal", "Correo", "SMS", "Webhook", "Teams"];
   private readonly IEnumerable<string> _invalidChannels = Array.Empty<string>();
 
@@ -148,6 +179,25 @@
   private Task OnFilesChanged(IReadOnlyList<IBrowserFile> files)
   {
     _selectedFileName = files.Count == 0 ? null : string.Join(", ", files.Select(x => x.Name));
+    return Task.CompletedTask;
+  }
+
+  private async Task SaveForm(MouseEventArgs _)
+  {
+    _saving = true;
+    await Task.Delay(400);
+    _saving = false;
+  }
+
+  private Task ConfirmDialog()
+  {
+    _dialogOpen = false;
+    return Task.CompletedTask;
+  }
+
+  private Task CloseDialog()
+  {
+    _dialogOpen = false;
     return Task.CompletedTask;
   }
 

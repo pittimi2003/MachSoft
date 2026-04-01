@@ -1,20 +1,26 @@
 @page "/components/navigation"
 
-<MxPageContainer Title="Components / Navigation & Organization" Subtitle="Navegación contextual con menú de acciones y pestañas para agrupar contenido operativo.">
+<MxPageContainer Title="Components / Navigation & Organization" Subtitle="Navegación contextual auditada: menú, tabs y escenario real dentro de toolbar y cards.">
   <section class="mx-navigation-grid">
-    <MxSectionCard Title="MxMenu">
+    <MxSectionCard Title="MxMenu (normal / hover / disabled)">
       <MudStack Spacing="2">
         <MudText Typo="Typo.body2">Acciones por registro</MudText>
         <MxMenu Label="Acciones del cliente"
                 Tone="MxTone.Neutral"
                 Items="_menuItems"
                 OnItemSelected="OnMenuItemSelected" />
+        <MxMenu Class="mx-force-hover" Label="Preview hover" Tone="MxTone.Primary" Items="_menuItems" OnItemSelected="OnMenuItemSelected" />
         <MudText Typo="Typo.caption">Última acción: @_lastAction</MudText>
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="MxTabs">
-      <MxTabs Items="_tabs" @bind-ActiveIndex="ActiveTab" />
+    <MxSectionCard Title="MxTabs (estados y tamaños de contenido)">
+      <MudStack Spacing="2">
+        <MxTabs Items="_tabs" @bind-ActiveIndex="ActiveTab" />
+        <MxCard>
+          <MudText Typo="Typo.caption">Escenario real: tabs dentro de card de detalle con acciones de navegación contextual.</MudText>
+        </MxCard>
+      </MudStack>
     </MxSectionCard>
   </section>
 </MxPageContainer>

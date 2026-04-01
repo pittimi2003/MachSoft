@@ -66,7 +66,8 @@ Regla visual:
 4. Excepción: acciones críticas (`Danger`) pueden elevar contraste de icono, manteniendo legibilidad del texto.
 
 ## Controles elevados en esta fase
-- `MxDataGrid`: toolbar, quick/advanced filters, sorting, selección por página, paginación integrada y estados auditables.
+- `MxDataGrid`: toolbar, quick/advanced filters, sorting, selección por página, paginación integrada y estados auditables sobre implementación interna basada en `MudDataGrid`.
+- `MxMultiSelect`: selección múltiple real (agregar sin cerrar flujo, conservar seleccionados, remover por chip) con helper/error/disabled.
 - `MxFileUpload`: superficie de drop reforzada, drag-over distinguible, estado con archivos, remove, validación y progreso.
 - `MxButton`/`MxIconButton`/`MxMenu`/`MxTabs`: normalización de integración iconográfica por estado.
 - Showcase: matriz de botones exhaustiva y página de auditoría contractual del catálogo.
@@ -77,13 +78,14 @@ Regla visual:
 3. Naming consistente: `Value/ValueChanged`, `SelectedItems/SelectedItemsChanged`, `Error/ErrorText`, `Disabled`, `Loading`.
 4. `MxDataGrid` concentra capacidades de listing enterprise (filtros/ordenamiento/estados) y reemplaza una tabla básica.
 5. `MxFileUpload` deja de ser wrapper superficial y queda como control documental con drag-and-drop operativo.
+6. `MxDataGrid` puede apoyarse internamente en `MudDataGrid`, manteniendo API pública 100% `MxDataGrid` para apps consumidoras.
 
 ## Showcase contractual
 La Showcase oficial se considera cerrada cuando permite revisión visual control por control y variante por variante:
 - familias completas: Buttons, Forms, Advanced Inputs, Navigation, Dialogs, Feedback, DataGrid/Listing, States, Patterns;
 - estados relevantes: normal/hover/focus/selected/error/disabled/loading;
 - tamaños y variantes donde aplique;
-- escenarios de uso reales y auditables en light/dark;
+- escenarios de uso reales y auditables en light/dark, incluyendo controles embebidos en formularios, toolbar/grid, cards y dialogs;
 - matriz de auditoría visible con cobertura por familia/control/estado.
 
 ## Límites actuales (deuda real abierta)
