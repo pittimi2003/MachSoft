@@ -9,22 +9,41 @@
            @ondragleave="OnDragLeave"
            @ondragover:preventDefault
            @ondrop="OnDrop">
-        <InputFile @ref="_inputFile" OnChange="OnFileChange" multiple="@Multiple" disabled="@Disabled" />
+        <InputFile OnChange="OnFileChange" multiple="@Multiple" disabled="@Disabled" accept="@Accept" class="mx-file-upload-input" />
+        <MudIcon Icon="@Icons.Material.Outlined.UploadFile" Class="mx-file-upload-icon" />
         <span class="mx-file-upload-title">@DisplayTitle</span>
         <span class="mx-file-upload-subtitle">@DisplaySubtitle</span>
     </label>
 
-    @if (SelectedFiles.Count > 0)
+    @if (ShowFileList && SelectedFiles.Count > 0)
     {
         <ul class="mx-file-upload-list">
             @foreach (var file in SelectedFiles)
             {
-                <li>@file.Name <span>@((file.Size / 1024d).ToString("0.0")) KB</span></li>
+                <li>
+                    <div>
+                        <strong>@file.Name</strong>
+                        <span>@FormatSize(file.Size)</span>
+                    </div>
+                    @if (!Disabled)
+                    {
+                        <MxIconButton Icon="@Icons.Material.Outlined.DeleteOutline" Tone="MxTone.Danger" AriaLabel="Quitar archivo" OnClick="_ => RemoveFile(file)" />
+                    }
+                </li>
             }
         </ul>
     }
 
-    @if (!string.IsNullOrWhiteSpace(HelperText) && !Error)
+    @if (_validationErrors.Count > 0)
+    {
+        <ul class="mx-file-upload-errors">
+            @foreach (var error in _validationErrors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    }
+    else if (!string.IsNullOrWhiteSpace(HelperText) && !Error)
     {
         <div class="mx-file-upload-helper">@HelperText</div>
     }
@@ -37,22 +56,28 @@
 
 @code {
     [Parameter] public string Label { get; set; } = string.Empty;
-    [Parameter] public string Placeholder { get; set; } = "Selecciona o arrastra un archivo";
+    [Parameter] public string Placeholder { get; set; } = "Selecciona o arrastra archivo(s)";
     [Parameter] public string HelperText { get; set; } = string.Empty;
     [Parameter] public string ErrorText { get; set; } = string.Empty;
     [Parameter] public bool Error { get; set; }
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool Multiple { get; set; }
+    [Parameter] public bool ShowFileList { get; set; } = true;
+    [Parameter] public string Accept { get; set; } = ".pdf,.xlsx,.xls,.csv,.png,.jpg";
+    [Parameter] public int MaxFileSizeMb { get; set; } = 15;
+    [Parameter] public IReadOnlyList<string> AllowedExtensions { get; set; } = [".pdf", ".xlsx", ".xls", ".csv", ".png", ".jpg"];
     [Parameter] public string Class { get; set; } = string.Empty;
     [Parameter] public EventCallback<IBrowserFile?> FileChanged { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> FilesChanged { get; set; }
 
-    private InputFile? _inputFile;
     private bool _isDragOver;
     private List<IBrowserFile> SelectedFiles { get; set; } = [];
+    private readonly List<string> _validationErrors = [];
 
-    private string DisplayTitle => SelectedFiles.Count == 0 ? Placeholder : $"{SelectedFiles.Count} archivo(s) seleccionados";
-    private string DisplaySubtitle => SelectedFiles.Count == 0 ? "Arrastra y suelta o haz click para seleccionar." : string.Join(" · ", SelectedFiles.Select(x => x.Name));
+    private string DisplayTitle => SelectedFiles.Count == 0 ? Placeholder : $"{SelectedFiles.Count} archivo(s) listo(s) para subir";
+    private string DisplaySubtitle => SelectedFiles.Count == 0
+        ? "Arrastra y suelta directamente en esta superficie o haz click para explorar archivos."
+        : string.Join(" · ", SelectedFiles.Select(x => x.Name));
 
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-file-upload" : $"mx-file-upload {Class}";
 
@@ -61,7 +86,7 @@
         var classes = "mx-file-upload-dropzone";
         if (SelectedFiles.Count > 0) classes += " mx-file-upload-has-file";
         if (Disabled) classes += " mx-file-upload-disabled";
-        if (Error) classes += " mx-file-upload-invalid";
+        if (Error || _validationErrors.Count > 0) classes += " mx-file-upload-invalid";
         if (_isDragOver) classes += " mx-file-upload-dragover";
         return classes;
     }
@@ -78,16 +103,51 @@
         return Task.CompletedTask;
     }
 
-    private async Task OnDrop(DragEventArgs _)
+    private Task OnDrop(DragEventArgs _)
     {
         _isDragOver = false;
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
     private async Task OnFileChange(InputFileChangeEventArgs args)
     {
-        SelectedFiles = Multiple ? args.GetMultipleFiles().ToList() : [args.File];
+        _validationErrors.Clear();
+        var files = Multiple ? args.GetMultipleFiles() : [args.File];
+
+        foreach (var file in files)
+        {
+            Validate(file);
+        }
+
+        SelectedFiles = _validationErrors.Count == 0 ? files.ToList() : [];
         await FileChanged.InvokeAsync(SelectedFiles.FirstOrDefault());
         await FilesChanged.InvokeAsync(SelectedFiles);
     }
+
+    private void Validate(IBrowserFile file)
+    {
+        var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+        if (AllowedExtensions.Count > 0 && !AllowedExtensions.Contains(extension))
+        {
+            _validationErrors.Add($"{file.Name}: tipo no permitido ({extension}).");
+        }
+
+        var maxBytes = MaxFileSizeMb * 1024L * 1024L;
+        if (file.Size > maxBytes)
+        {
+            _validationErrors.Add($"{file.Name}: excede el máximo de {MaxFileSizeMb} MB.");
+        }
+    }
+
+    private async Task RemoveFile(IBrowserFile file)
+    {
+        SelectedFiles.Remove(file);
+        await FileChanged.InvokeAsync(SelectedFiles.FirstOrDefault());
+        await FilesChanged.InvokeAsync(SelectedFiles);
+    }
+
+    private static string FormatSize(long bytes)
+        => bytes < 1024 * 1024
+            ? $"{(bytes / 1024d):0.0} KB"
+            : $"{(bytes / (1024d * 1024d)):0.00} MB";
 }
