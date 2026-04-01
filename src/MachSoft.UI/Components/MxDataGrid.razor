@@ -1,7 +1,7 @@
 @typeparam TItem
 
 <div class="@BuildClass()">
-    @if (!string.IsNullOrWhiteSpace(Title) || ToolbarContent is not null)
+    @if (!string.IsNullOrWhiteSpace(Title) || ToolbarContent is not null || SearchEnabled)
     {
         <div class="mx-datagrid-toolbar">
             <div>
@@ -14,18 +14,44 @@
                     <p>@Subtitle</p>
                 }
             </div>
-            @if (ToolbarContent is not null)
-            {
-                <div class="mx-datagrid-toolbar-actions">@ToolbarContent</div>
-            }
+            <div class="mx-datagrid-toolbar-actions">
+                @if (SearchEnabled)
+                {
+                    <MxSearchBox Label="Buscar" Value="@_search" ValueChanged="OnSearchChanged" Placeholder="@SearchPlaceholder" Dense="true" />
+                }
+                @if (QuickFilters.Count > 0)
+                {
+                    <div class="mx-datagrid-quick-filters">
+                        @foreach (var filter in QuickFilters)
+                        {
+                            var active = string.Equals(_activeQuickFilter, filter, StringComparison.OrdinalIgnoreCase);
+                            <MxButton Label="@filter" Variant="@(active ? MxVariant.Filled : MxVariant.Outlined)" Size="MxSize.Small" Tone="@(active ? MxTone.Primary : MxTone.Neutral)" OnClick="_ => OnQuickFilterChange(filter)" />
+                        }
+                    </div>
+                }
+                @if (AdvancedFilters is not null)
+                {
+                    <MxButton Label="@(_advancedOpen ? "Ocultar filtros" : "Filtros avanzados")" Variant="MxVariant.Text" Tone="MxTone.Neutral" EndIcon="@(_advancedOpen ? Icons.Material.Outlined.ExpandLess : Icons.Material.Outlined.ExpandMore)" OnClick="_ => _advancedOpen = !_advancedOpen" />
+                }
+                @ToolbarContent
+            </div>
         </div>
     }
 
-    @if (Loading)
+    @if (_advancedOpen && AdvancedFilters is not null)
+    {
+        <div class="mx-datagrid-advanced-filters">@AdvancedFilters</div>
+    }
+
+    @if (Error)
+    {
+        <MxErrorState Title="@ErrorTitle" Description="@ErrorDescription" Compact="true" />
+    }
+    else if (Loading)
     {
         <MxLoadingState Title="Cargando registros" Description="Consultando datos..." Compact="true" />
     }
-    else if (Items.Count == 0)
+    else if (VisibleItems.Count == 0)
     {
         <MxEmptyState Title="@EmptyTitle" Description="@EmptyDescription" Compact="true" />
     }
@@ -42,15 +68,23 @@
                     }
                     @foreach (var c in Columns)
                     {
-                        <th style="@BuildHeaderStyle(c)">@c.Header</th>
+                        <th style="@BuildHeaderStyle(c)">
+                            <button type="button" class="mx-datagrid-header-btn" @onclick="() => ToggleSort(c)">
+                                <span>@c.Header</span>
+                                @if (Sortable)
+                                {
+                                    <MudIcon Icon="@SortIcon(c)" Size="Size.Small" />
+                                }
+                            </button>
+                        </th>
                     }
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Items)
+                @foreach (var item in VisibleItems)
                 {
                     var selected = IsSelected(item);
-                    <tr class="@(selected ? "mx-datagrid-row-selected" : string.Empty)">
+                    <tr class="@(selected ? "mx-datagrid-row-selected" : string.Empty)" @onclick="() => OnRowClick(item)">
                         @if (Selectable)
                         {
                             <td class="mx-datagrid-check">
@@ -78,7 +112,7 @@
 
     @if (UsePagination)
     {
-        <MxPaginator CurrentPage="CurrentPage" CurrentPageChanged="CurrentPageChanged" TotalItems="TotalItems" PageSize="PageSize" />
+        <MxPaginator CurrentPage="CurrentPage" CurrentPageChanged="CurrentPageChanged" TotalItems="VisibleItems.Count" PageSize="PageSize" />
     }
 </div>
 
@@ -88,7 +122,17 @@
     [Parameter] public IReadOnlyList<TItem> Items { get; set; } = [];
     [Parameter] public IReadOnlyList<MxDataGridColumn<TItem>> Columns { get; set; } = [];
     [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Error { get; set; }
+    [Parameter] public string ErrorTitle { get; set; } = "No se pudo cargar el listado";
+    [Parameter] public string ErrorDescription { get; set; } = "Verifica conectividad e intenta nuevamente.";
+    [Parameter] public bool SearchEnabled { get; set; }
+    [Parameter] public string SearchPlaceholder { get; set; } = "Buscar por cualquier columna";
+    [Parameter] public bool Sortable { get; set; } = true;
+    [Parameter] public IReadOnlyList<string> QuickFilters { get; set; } = [];
+    [Parameter] public Func<TItem, string, bool>? QuickFilterPredicate { get; set; }
+    [Parameter] public RenderFragment? AdvancedFilters { get; set; }
     [Parameter] public bool Selectable { get; set; } = true;
+    [Parameter] public bool SelectOnRowClick { get; set; } = true;
     [Parameter] public IReadOnlyCollection<TItem> SelectedItems { get; set; } = Array.Empty<TItem>();
     [Parameter] public EventCallback<IReadOnlyCollection<TItem>> SelectedItemsChanged { get; set; }
     [Parameter] public bool UsePagination { get; set; }
@@ -101,16 +145,55 @@
     [Parameter] public RenderFragment? ToolbarContent { get; set; }
     [Parameter] public string Class { get; set; } = string.Empty;
 
-    private bool AllSelected => Items.Count > 0 && Items.All(IsSelected);
+    private bool _advancedOpen;
+    private string? _search;
+    private string? _activeQuickFilter;
+    private string? _sortKey;
+    private bool _sortDesc;
+
+    private bool AllSelected => VisibleItems.Count > 0 && VisibleItems.All(IsSelected);
     private bool IsSelected(TItem item) => SelectedItems.Contains(item);
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-datagrid" : $"mx-datagrid {Class}";
+
+    private IReadOnlyList<TItem> VisibleItems
+    {
+        get
+        {
+            IEnumerable<TItem> query = Items;
+            if (!string.IsNullOrWhiteSpace(_search))
+            {
+                query = query.Where(MatchSearch);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_activeQuickFilter) && QuickFilterPredicate is not null)
+            {
+                query = query.Where(item => QuickFilterPredicate(item, _activeQuickFilter));
+            }
+
+            if (Sortable && !string.IsNullOrWhiteSpace(_sortKey))
+            {
+                var sortColumn = Columns.FirstOrDefault(c => c.Key == _sortKey);
+                if (sortColumn is not null)
+                {
+                    query = _sortDesc
+                        ? query.OrderByDescending(item => sortColumn.ValueSelector(item)?.ToString())
+                        : query.OrderBy(item => sortColumn.ValueSelector(item)?.ToString());
+                }
+            }
+
+            return query.ToArray();
+        }
+    }
+
+    private bool MatchSearch(TItem item)
+        => Columns.Any(c => c.ValueSelector(item)?.ToString()?.Contains(_search!, StringComparison.OrdinalIgnoreCase) == true);
 
     private string BuildHeaderStyle(MxDataGridColumn<TItem> c)
         => $"text-align:{c.Align};width:{c.Width ?? "auto"};";
 
     private Task OnToggleAll(bool value)
     {
-        IReadOnlyCollection<TItem> next = value ? Items.ToArray() : Array.Empty<TItem>();
+        IReadOnlyCollection<TItem> next = value ? VisibleItems.ToArray() : Array.Empty<TItem>();
         return SelectedItemsChanged.InvokeAsync(next);
     }
 
@@ -119,5 +202,54 @@
         var set = new HashSet<TItem>(SelectedItems);
         if (value) set.Add(item); else set.Remove(item);
         return SelectedItemsChanged.InvokeAsync(set.ToArray());
+    }
+
+    private async Task OnRowClick(TItem item)
+    {
+        if (!Selectable || !SelectOnRowClick)
+        {
+            return;
+        }
+
+        await OnToggle(item, !IsSelected(item));
+    }
+
+    private Task OnSearchChanged(string? value)
+    {
+        _search = value;
+        return CurrentPageChanged.InvokeAsync(1);
+    }
+
+    private Task OnQuickFilterChange(string filter)
+    {
+        _activeQuickFilter = string.Equals(_activeQuickFilter, filter, StringComparison.OrdinalIgnoreCase) ? null : filter;
+        return CurrentPageChanged.InvokeAsync(1);
+    }
+
+    private void ToggleSort(MxDataGridColumn<TItem> column)
+    {
+        if (!Sortable)
+        {
+            return;
+        }
+
+        if (_sortKey == column.Key)
+        {
+            _sortDesc = !_sortDesc;
+            return;
+        }
+
+        _sortKey = column.Key;
+        _sortDesc = false;
+    }
+
+    private string SortIcon(MxDataGridColumn<TItem> column)
+    {
+        if (!Sortable || _sortKey != column.Key)
+        {
+            return Icons.Material.Outlined.UnfoldMore;
+        }
+
+        return _sortDesc ? Icons.Material.Outlined.ArrowDownward : Icons.Material.Outlined.ArrowUpward;
     }
 }

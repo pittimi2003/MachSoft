@@ -55,15 +55,20 @@
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="MxFileUpload">
+    <MxSectionCard Title="MxFileUpload (idle, drag, success, error, disabled)">
       <MudStack Spacing="2">
         <MxFileUpload Label="Evidencia documental"
-                      HelperText="Adjunta evidencia en formato PDF o Excel para auditoría."
-                      FileChanged="OnFileChanged" />
+                      HelperText="Adjunta PDF, Excel o CSV. Límite 15 MB por archivo."
+                      Multiple="true"
+                      FilesChanged="OnFilesChanged" />
         <MxFileUpload Label="Carga invalid"
                       Error="true"
-                      ErrorText="El archivo supera el límite permitido de 15 MB." />
-        <MudText Typo="Typo.caption">Archivo seleccionado: @(_selectedFileName ?? "Sin archivo")</MudText>
+                      ErrorText="Debes adjuntar un contrato vigente firmado."
+                      AllowedExtensions="@_pdfOnly" />
+        <MxFileUpload Label="Upload disabled"
+                      Disabled="true"
+                      Placeholder="Carga bloqueada por estado de aprobación" />
+        <MudText Typo="Typo.caption">Archivo(s) seleccionados: @(_selectedFileName ?? "Sin archivo")</MudText>
       </MudStack>
     </MxSectionCard>
 
@@ -110,9 +115,11 @@
     return Task.CompletedTask;
   }
 
-  private Task OnFileChanged(IBrowserFile? file)
+  private readonly IReadOnlyList<string> _pdfOnly = [".pdf"];
+
+  private Task OnFilesChanged(IReadOnlyList<IBrowserFile> files)
   {
-    _selectedFileName = file?.Name;
+    _selectedFileName = files.Count == 0 ? null : string.Join(", ", files.Select(x => x.Name));
     return Task.CompletedTask;
   }
 }
