@@ -1,0 +1,29 @@
+<MudAlert Class="@BuildClass()"
+          Severity="@MapSeverity()"
+          Variant="MudBlazor.Variant.Outlined"
+          Dense="@Dense"
+          Icon="@Icon">
+    @ChildContent
+</MudAlert>
+
+@code {
+    [Parameter] public MxAlertTone Tone { get; set; } = MxAlertTone.Info;
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private Severity MapSeverity() => Tone switch
+    {
+        MxAlertTone.Success => Severity.Success,
+        MxAlertTone.Warning => Severity.Warning,
+        MxAlertTone.Error => Severity.Error,
+        _ => Severity.Info
+    };
+
+    private string BuildClass()
+    {
+        var toneClass = Tone.ToString().ToLowerInvariant();
+        return string.IsNullOrWhiteSpace(Class) ? $"mx-alert mx-alert-{toneClass}" : $"mx-alert mx-alert-{toneClass} {Class}";
+    }
+}

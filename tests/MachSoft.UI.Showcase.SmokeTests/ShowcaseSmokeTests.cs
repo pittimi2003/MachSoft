@@ -33,8 +33,12 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
             new RouteCheck("showcase", "/foundations/typography", "Scale preview", "showcase-foundations-typography-dark.png", true),
             new RouteCheck("showcase", "/components/buttons", "Button variants", "showcase-components-buttons-light.png", false),
             new RouteCheck("showcase", "/components/buttons", "Button variants", "showcase-components-buttons-dark.png", true),
-            new RouteCheck("showcase", "/components/forms", "Formulario operativo", "showcase-components-forms-light.png", false),
-            new RouteCheck("showcase", "/components/forms", "Formulario operativo", "showcase-components-forms-dark.png", true),
+            new RouteCheck("showcase", "/components/forms", "MxTextArea", "showcase-components-forms-light.png", false),
+            new RouteCheck("showcase", "/components/forms", "MxTextArea", "showcase-components-forms-dark.png", true),
+            new RouteCheck("showcase", "/components/navigation", "MxMenu", "showcase-components-navigation-light.png", false),
+            new RouteCheck("showcase", "/components/navigation", "MxMenu", "showcase-components-navigation-dark.png", true),
+            new RouteCheck("showcase", "/states/feedback", "MxAlert", "showcase-states-feedback-light.png", false),
+            new RouteCheck("showcase", "/states/feedback", "MxAlert", "showcase-states-feedback-dark.png", true),
             new RouteCheck("showcase", "/patterns/crud", "Clientes", "showcase-patterns-crud-light.png", false)
         };
 

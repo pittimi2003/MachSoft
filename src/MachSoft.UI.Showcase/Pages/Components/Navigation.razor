@@ -1,0 +1,56 @@
+@page "/components/navigation"
+
+<MxPageContainer Title="Components / Navigation & Organization" Subtitle="Navegación contextual con menú de acciones y pestañas para agrupar contenido operativo.">
+  <section class="mx-navigation-grid">
+    <MxSectionCard Title="MxMenu">
+      <MudStack Spacing="2">
+        <MudText Typo="Typo.body2">Acciones por registro</MudText>
+        <MxMenu Label="Acciones del cliente"
+                Tone="MxTone.Neutral"
+                Items="_menuItems"
+                OnItemSelected="OnMenuItemSelected" />
+        <MudText Typo="Typo.caption">Última acción: @_lastAction</MudText>
+      </MudStack>
+    </MxSectionCard>
+
+    <MxSectionCard Title="MxTabs">
+      <MxTabs Items="_tabs" @bind-ActiveIndex="ActiveTab" />
+    </MxSectionCard>
+  </section>
+</MxPageContainer>
+
+@code {
+  private int ActiveTab;
+  private string _lastAction = "Sin acciones ejecutadas";
+
+  private readonly List<MxMenuItem> _menuItems =
+  [
+    new("view", "Ver detalle", Icons.Material.Outlined.Visibility),
+    new("edit", "Editar", Icons.Material.Outlined.Edit),
+    new("archive", "Archivar", Icons.Material.Outlined.Archive),
+    new("delete", "Eliminar (disabled)", Icons.Material.Outlined.Delete, true)
+  ];
+
+  private readonly List<MxTabItem> _tabs;
+
+  public Navigation()
+  {
+    _tabs =
+    [
+      new("summary", "Resumen", @<MudText Typo="Typo.body2">Vista consolidada de KPIs y estado general del cliente.</MudText>, Icons.Material.Outlined.Dashboard),
+      new("history", "Historial", @<MudText Typo="Typo.body2">Registro cronológico de eventos críticos, cambios y aprobaciones.</MudText>, Icons.Material.Outlined.History),
+      new("settings", "Configuración", @<MudText Typo="Typo.body2">Parámetros de notificación, seguridad y reglas por unidad.</MudText>, Icons.Material.Outlined.Settings)
+    ];
+  }
+
+  private void OnMenuItemSelected(string key)
+  {
+    _lastAction = key switch
+    {
+      "view" => "Ver detalle",
+      "edit" => "Editar",
+      "archive" => "Archivar",
+      _ => key
+    };
+  }
+}

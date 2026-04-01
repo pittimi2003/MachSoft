@@ -1,86 +1,52 @@
 @page "/components/forms"
 
-<MxPageContainer Title="Components / Forms" Subtitle="Controles densos, sólidos y legibles para operación empresarial en sesiones largas.">
+<MxPageContainer Title="Components / Advanced Inputs" Subtitle="Inputs avanzados con API consistente Mx* para captura extensa, selección y toggles de estado.">
   <section class="mx-forms-grid">
-    <MxSectionCard Title="Formulario operativo">
+    <MxSectionCard Title="MxTextArea">
       <MudStack Spacing="2">
-        <MxTextField Label="Nombre del cliente"
-                     @bind-Value="Name"
-                     Placeholder="Ej: MachSoft Industries"
-                     HelperText="Identificador comercial visible en contratos y reportes."
-                     Required="true" />
-        <MxSelect Label="Rol"
-                  @bind-Value="Role"
-                  HelperText="Define permisos y superficies habilitadas."
-                  Options="_roles" />
-        <MxCheckbox Label="Cuenta habilitada" @bind-Value="Active" />
+        <MxTextArea Label="Descripción operativa"
+                    @bind-Value="Description"
+                    Placeholder="Escribe contexto, objetivos y riesgo esperado..."
+                    HelperText="Máximo 500 caracteres para resumen ejecutivo." />
+        <MxTextArea Label="Observación invalid"
+                    Value="@ShortNote"
+                    Error="true"
+                    ErrorText="Debe tener al menos 20 caracteres."
+                    HelperText="Captura un contexto suficiente para auditoría." />
+        <MxTextArea Label="Observación disabled"
+                    Value="Bloqueada por estado de aprobación."
+                    Disabled="true"
+                    HelperText="El área se habilita cuando la solicitud vuelve a borrador." />
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="Estado de validación">
+    <MxSectionCard Title="MxRadio + MxRadioGroup">
       <MudStack Spacing="2">
-        <MxTextField Label="Correo corporativo"
-                     Value="@InvalidEmail"
-                     Error="true"
-                     ErrorText="Formato inválido. Debe incluir dominio corporativo válido."
-                     HelperText="Usa una cuenta trazable para auditoría de cambios."
-                     Placeholder="usuario@empresa.com" />
-        <MxSelect Label="Unidad de negocio"
-                  Value=""
-                  Error="true"
-                  ErrorText="Selecciona una unidad para continuar."
-                  HelperText="Campo requerido para asignación presupuestaria."
-                  Options="_businessUnits" />
-        <MxCheckbox Label="Acepta política de operación segura" @bind-Value="PolicyAccepted" />
+        <MudText Typo="Typo.body2">Nivel de criticidad</MudText>
+        <MxRadioGroup @bind-Value="RiskLevel">
+          <MxRadio Label="Baja" Value="Baja" />
+          <MxRadio Label="Media" Value="Media" />
+          <MxRadio Label="Alta" Value="Alta" />
+          <MxRadio Label="Crítica (disabled)" Value="Crítica" Disabled="true" />
+        </MxRadioGroup>
+        <MudText Typo="Typo.caption">Selección actual: @RiskLevel</MudText>
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="Matriz visual de estados">
+    <MxSectionCard Title="MxSwitch">
       <MudStack Spacing="2">
-        <MxTextField Label="Text field / normal"
-                     Value="Operación estándar"
-                     HelperText="Helper text sin ruido adicional." />
-        <MxTextField Label="Text field / focus"
-                     Value="Focus activo"
-                     Class="mx-demo-force-focus" />
-        <MxTextField Label="Text field / invalid"
-                     Value="@("usuario@")"
-                     Error="true"
-                     ErrorText="El formato es inválido." />
-        <MxTextField Label="Text field / invalid + focus"
-                     Value="@("usuario@")"
-                     Error="true"
-                     ErrorText="Error con foco activo."
-                     Class="mx-demo-force-focus" />
-
-        <MxSelect Label="Select / normal"
-                  Value="Operaciones"
-                  Options="_businessUnits" />
-        <MxSelect Label="Select / focus"
-                  Value="Finanzas"
-                  Options="_businessUnits"
-                  Class="mx-demo-force-focus" />
-        <MxSelect Label="Select / invalid"
-                  Value=""
-                  Error="true"
-                  ErrorText="Selecciona una opción válida."
-                  Options="_businessUnits" />
-
-        <MxCheckbox Label="Checkbox / normal" Value="false" />
-        <MxCheckbox Label="Checkbox / focus" Value="false" Class="mx-demo-force-focus" />
-        <MxCheckbox Label="Checkbox / checked" Value="true" />
+        <MxSwitch Label="Publicar cambios en entorno productivo" @bind-Value="PublishToProduction" />
+        <MxSwitch Label="Activar notificación por correo" @bind-Value="SendNotifications" Class="mx-demo-force-focus" />
+        <MxSwitch Label="Sincronización bloqueada" Value="true" Disabled="true" />
       </MudStack>
     </MxSectionCard>
   </section>
 </MxPageContainer>
 
 @code {
-  private string? Name;
-  private string? Role;
-  private bool Active = true;
-  private bool PolicyAccepted;
-  private const string InvalidEmail = "soporte@";
-
-  private readonly List<string> _roles = ["Administrador", "Operador", "Auditor"];
-  private readonly List<string> _businessUnits = ["Operaciones", "Finanzas", "Riesgo", "Seguridad"];
+  private string? Description;
+  private string? RiskLevel = "Media";
+  private bool PublishToProduction;
+  private bool SendNotifications = true;
+  private const string ShortNote = "Corta";
 }

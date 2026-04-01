@@ -1,18 +1,42 @@
 @page "/states/feedback"
 
-<MxPageContainer Title="States" Subtitle="Estados operativos consistentes con contraste frío y jerarquía enterprise.">
-  <MxSectionCard Title="Empty">
-    <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">No hay datos para el filtro aplicado.</MudAlert>
-  </MxSectionCard>
+<MxPageContainer Title="States / Feedback Controls" Subtitle="Mensajes y carga con semántica clara para operación continua en light/dark.">
+  <section class="mx-feedback-grid">
+    <MxSectionCard Title="MxAlert">
+      <MudStack Spacing="2">
+        <MxAlert Tone="MxAlertTone.Info">Información: se cargaron 128 registros nuevos.</MxAlert>
+        <MxAlert Tone="MxAlertTone.Success">Éxito: la conciliación terminó sin diferencias.</MxAlert>
+        <MxAlert Tone="MxAlertTone.Warning">Advertencia: hay 3 elementos pendientes de validación manual.</MxAlert>
+        <MxAlert Tone="MxAlertTone.Error">Error: no se pudo completar la sincronización con el servicio externo.</MxAlert>
+      </MudStack>
+    </MxSectionCard>
 
-  <MxSectionCard Title="Loading">
-    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
-      <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
-      <MudText Typo="Typo.body2">Sincronizando registros...</MudText>
-    </MudStack>
-  </MxSectionCard>
+    <MxSectionCard Title="MxProgress">
+      <MudStack Spacing="2">
+        <MudText Typo="Typo.body2">Lineal / determinate 62%</MudText>
+        <MxProgress Kind="MxProgressKind.Linear" Value="62" Tone="MxTone.Primary" />
+        <MudText Typo="Typo.body2">Lineal / indeterminate</MudText>
+        <MxProgress Kind="MxProgressKind.Linear" Indeterminate="true" Tone="MxTone.Warning" />
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+          <MxProgress Kind="MxProgressKind.Circular" Value="75" Tone="MxTone.Success" Size="MxSize.Small" />
+          <MxProgress Kind="MxProgressKind.Circular" Indeterminate="true" Tone="MxTone.Secondary" Size="MxSize.Medium" />
+        </MudStack>
+      </MudStack>
+    </MxSectionCard>
 
-  <MxSectionCard Title="Error">
-    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">Error de conexión con el servicio de clientes.</MudAlert>
-  </MxSectionCard>
+    <MxSectionCard Title="MxSkeleton">
+      <MudStack Spacing="2">
+        <MxSkeleton Shape="MxSkeletonShape.Text" Width="80%" />
+        <MxSkeleton Shape="MxSkeletonShape.Text" Width="65%" />
+        <MxSkeleton Shape="MxSkeletonShape.Rectangle" Height="84px" />
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center">
+          <MxSkeleton Shape="MxSkeletonShape.Circle" Width="42px" Height="42px" />
+          <MudStack Spacing="1" Style="width:100%">
+            <MxSkeleton Shape="MxSkeletonShape.Text" Width="70%" />
+            <MxSkeleton Shape="MxSkeletonShape.Text" Width="45%" />
+          </MudStack>
+        </MudStack>
+      </MudStack>
+    </MxSectionCard>
+  </section>
 </MxPageContainer>
