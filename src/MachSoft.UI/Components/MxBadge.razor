@@ -1,0 +1,5 @@
+<MudBadge Class="mx-badge" Color="Color.Info" Content="@Content">@ChildContent</MudBadge>
+@code {
+    [Parameter] public string Content { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

@@ -66,6 +66,18 @@
         <MudText Typo="Typo.caption">Archivo seleccionado: @(_selectedFileName ?? "Sin archivo")</MudText>
       </MudStack>
     </MxSectionCard>
+
+    <MxSectionCard Title="MxForm / Number / Time">
+      <MxForm Model="@this">
+        <MxFormSection Title="Parámetros operativos">
+          <MudStack Spacing="2">
+            <MxNumberField Label="Monto máximo" Value="@_amount" ValueChanged="v => _amount = v" HelperText="Límite para aprobación automática." />
+            <MxTimePicker Label="Hora de corte" Value="@_time" ValueChanged="v => _time = v" HelperText="Horario de cierre diario." />
+            <MxValidationSummary />
+          </MudStack>
+        </MxFormSection>
+      </MxForm>
+    </MxSectionCard>
   </section>
 </MxPageContainer>
 
@@ -83,6 +95,8 @@
   private MxDateRange EvaluationRange = new(DateTime.Today.AddDays(-14), DateTime.Today.AddDays(14));
 
   private string? _selectedFileName;
+  private decimal? _amount = 1200;
+  private TimeSpan? _time = new(18,0,0);
 
   private Task OnChannelsChanged(IEnumerable<string> values)
   {

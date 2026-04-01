@@ -1,0 +1,12 @@
+<div class="mx-crud-toolbar">
+    <div class="mx-crud-toolbar-title">
+        <h4>@Title</h4>
+        <p>@Subtitle</p>
+    </div>
+    <div class="mx-crud-toolbar-actions">@ChildContent</div>
+</div>
+@code {
+ [Parameter] public string Title { get; set; } = string.Empty;
+ [Parameter] public string Subtitle { get; set; } = string.Empty;
+ [Parameter] public RenderFragment? ChildContent { get; set; }
+}

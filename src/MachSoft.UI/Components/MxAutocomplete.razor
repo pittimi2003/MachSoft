@@ -12,7 +12,10 @@
                  ErrorText="@ErrorText"
                  Disabled="@Disabled"
                  Immediate="true"
-                 Margin="Margin.Dense"
+                 Dense="true"
+                 DebounceInterval="180"
+                 MaxItems="@MaxItems"
+                 MinCharacters="@MinCharacters"
                  Variant="MudBlazor.Variant.Outlined"
                  FullWidth="true"
                  Clearable="true" />
@@ -27,16 +30,18 @@
     [Parameter] public string ErrorText { get; set; } = string.Empty;
     [Parameter] public bool Error { get; set; }
     [Parameter] public bool Disabled { get; set; }
+    [Parameter] public int MinCharacters { get; set; } = 0;
+    [Parameter] public int MaxItems { get; set; } = 12;
     [Parameter] public string Class { get; set; } = string.Empty;
 
-    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-autocomplete" : $"mx-autocomplete {Class}";
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-autocomplete mx-input" : $"mx-autocomplete mx-input {Class}";
 
     private Task<IEnumerable<string>> SearchAsync(string? value, CancellationToken token)
     {
         var query = value?.Trim();
         IEnumerable<string> result = string.IsNullOrWhiteSpace(query)
-            ? Options
-            : Options.Where(o => o.Contains(query, StringComparison.OrdinalIgnoreCase));
+            ? Options.Take(MaxItems)
+            : Options.Where(o => o.Contains(query, StringComparison.OrdinalIgnoreCase)).Take(MaxItems);
         return Task.FromResult(result);
     }
 }

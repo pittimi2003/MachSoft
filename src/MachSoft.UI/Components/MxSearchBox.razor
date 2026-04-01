@@ -1,0 +1,7 @@
+<MxTextField Label="@Label" Value="@Value" ValueChanged="ValueChanged" Placeholder="@Placeholder" Class="mx-search-box" StartIcon="@Icons.Material.Outlined.Search" />
+@code {
+ [Parameter] public string Label { get; set; } = "Buscar";
+ [Parameter] public string? Value { get; set; }
+ [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+ [Parameter] public string Placeholder { get; set; } = "Buscar...";
+}

@@ -1,0 +1,6 @@
+<MudListItem T="string" Class="mx-list-item" Icon="@Icon" Text="@Text" OnClick="OnClick" />
+@code {
+ [Parameter] public string Text { get; set; } = string.Empty;
+ [Parameter] public string Icon { get; set; } = Icons.Material.Outlined.ChevronRight;
+ [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+}

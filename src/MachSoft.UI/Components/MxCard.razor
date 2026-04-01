@@ -1,0 +1,17 @@
+<MudCard Class="@BuildClass()">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <MudCardHeader>
+            <MudText Typo="Typo.h6">@Title</MudText>
+        </MudCardHeader>
+    }
+    <MudCardContent>
+        @ChildContent
+    </MudCardContent>
+</MudCard>
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public RenderFragment ChildContent { get; set; } = default!;
+    [Parameter] public string Class { get; set; } = string.Empty;
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-card" : $"mx-card {Class}";
+}

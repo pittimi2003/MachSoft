@@ -1,0 +1,10 @@
+<EditForm EditContext="@EditContext" Model="@Model" OnValidSubmit="OnValidSubmit" OnInvalidSubmit="OnInvalidSubmit" class="mx-form">
+    @ChildContent
+</EditForm>
+@code {
+ [Parameter] public object? Model { get; set; }
+ [Parameter] public EditContext? EditContext { get; set; }
+ [Parameter] public EventCallback<EditContext> OnValidSubmit { get; set; }
+ [Parameter] public EventCallback<EditContext> OnInvalidSubmit { get; set; }
+ [Parameter] public RenderFragment? ChildContent { get; set; }
+}

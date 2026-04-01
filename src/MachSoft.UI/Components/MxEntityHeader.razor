@@ -1,0 +1,10 @@
+<header class="mx-entity-header">
+    <h3>@Title</h3>
+    <p>@Subtitle</p>
+    @if (Meta is not null) { <div class="mx-entity-meta">@Meta</div> }
+</header>
+@code {
+ [Parameter] public string Title { get; set; } = string.Empty;
+ [Parameter] public string Subtitle { get; set; } = string.Empty;
+ [Parameter] public RenderFragment? Meta { get; set; }
+}

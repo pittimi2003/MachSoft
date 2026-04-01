@@ -1,0 +1,11 @@
+<div class="mx-state mx-loading-state @(Compact ? "mx-state-compact" : string.Empty)">
+    <MxProgress Kind="MxProgressKind.Circular" Indeterminate="true" Size="MxSize.Small" />
+    <h5>@Title</h5>
+    <p>@Description</p>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Cargando";
+    [Parameter] public string Description { get; set; } = "Procesando solicitud...";
+    [Parameter] public bool Compact { get; set; }
+}

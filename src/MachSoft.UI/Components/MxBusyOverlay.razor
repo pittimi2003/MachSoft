@@ -1,0 +1,11 @@
+@if (Busy)
+{
+    <div class="mx-busy-overlay">
+        <MxLoadingState Title="@Title" Description="@Description" />
+    </div>
+}
+@code {
+ [Parameter] public bool Busy { get; set; }
+ [Parameter] public string Title { get; set; } = "Procesando";
+ [Parameter] public string Description { get; set; } = "Por favor espera.";
+}

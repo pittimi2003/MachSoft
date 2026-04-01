@@ -1,0 +1,64 @@
+@page "/components/data-listing"
+
+<MxPageContainer Title="Data Listing" Subtitle="MxDataGrid enterprise: selección, estados, paginación y acciones operativas.">
+  <MxSectionCard Title="MxDataGrid + MxPaginator + filtros">
+    <MudStack Spacing="2">
+      <MxFilterBar>
+        <MxSearchBox Label="Buscar cliente" Value="@_search" ValueChanged="OnSearchChanged" Placeholder="Nombre, región o estado" />
+      </MxFilterBar>
+
+      <MxDataGrid TItem="CustomerRow"
+                  Title="Clientes"
+                  Subtitle="Seguimiento operativo multi-región"
+                  Items="@PagedItems"
+                  Columns="_columns"
+                  SelectedItems="_selected"
+                  SelectedItemsChanged="OnSelectedChanged"
+                  UsePagination="true"
+                  CurrentPage="@CurrentPage"
+                  CurrentPageChanged="OnPageChanged"
+                  TotalItems="@FilteredItems.Count"
+                  PageSize="@PageSize"
+                  Loading="@_loading">
+        <ToolbarContent>
+          <MxButton Tone="MxTone.Primary">Nuevo cliente</MxButton>
+          <MxButton Variant="MxVariant.Outlined">Exportar</MxButton>
+        </ToolbarContent>
+      </MxDataGrid>
+    </MudStack>
+  </MxSectionCard>
+</MxPageContainer>
+
+@code {
+  private const int PageSize = 5;
+  private bool _loading;
+  private int CurrentPage = 1;
+  private string? _search;
+  private IReadOnlyCollection<CustomerRow> _selected = Array.Empty<CustomerRow>();
+
+  private readonly List<CustomerRow> _items =
+  [
+    new("Acme Systems", "Activo", "MX-Norte"), new("Globex Tech", "Activo", "MX-Centro"), new("Initech", "Pendiente", "MX-Sur"),
+    new("Umbrella North", "Inactivo", "US-East"), new("Stark Logistics", "Activo", "US-West"), new("Wayne Data", "Pendiente", "LATAM"),
+    new("Oscorp", "Activo", "EU-West"), new("Wonka Labs", "Activo", "EU-Central"), new("Tyrell Corp", "Inactivo", "APAC")
+  ];
+
+  private readonly List<MxDataGridColumn<CustomerRow>> _columns =
+  [
+    new("name", "Cliente", x => x.Name){ IsPrimary = true },
+    new("status", "Estado", x => x.Status),
+    new("region", "Región", x => x.Region)
+  ];
+
+  private IReadOnlyList<CustomerRow> FilteredItems => _items
+    .Where(x => string.IsNullOrWhiteSpace(_search) || $"{x.Name} {x.Status} {x.Region}".Contains(_search, StringComparison.OrdinalIgnoreCase))
+    .ToArray();
+
+  private IReadOnlyList<CustomerRow> PagedItems => FilteredItems.Skip((CurrentPage - 1) * PageSize).Take(PageSize).ToArray();
+
+  private Task OnPageChanged(int page) { CurrentPage = page; return Task.CompletedTask; }
+  private Task OnSelectedChanged(IReadOnlyCollection<CustomerRow> rows) { _selected = rows; return Task.CompletedTask; }
+  private Task OnSearchChanged(string? value) { _search = value; CurrentPage = 1; return Task.CompletedTask; }
+
+  private sealed record CustomerRow(string Name, string Status, string Region);
+}

@@ -1,0 +1,123 @@
+@typeparam TItem
+
+<div class="@BuildClass()">
+    @if (!string.IsNullOrWhiteSpace(Title) || ToolbarContent is not null)
+    {
+        <div class="mx-datagrid-toolbar">
+            <div>
+                @if (!string.IsNullOrWhiteSpace(Title))
+                {
+                    <h4>@Title</h4>
+                }
+                @if (!string.IsNullOrWhiteSpace(Subtitle))
+                {
+                    <p>@Subtitle</p>
+                }
+            </div>
+            @if (ToolbarContent is not null)
+            {
+                <div class="mx-datagrid-toolbar-actions">@ToolbarContent</div>
+            }
+        </div>
+    }
+
+    @if (Loading)
+    {
+        <MxLoadingState Title="Cargando registros" Description="Consultando datos..." Compact="true" />
+    }
+    else if (Items.Count == 0)
+    {
+        <MxEmptyState Title="@EmptyTitle" Description="@EmptyDescription" Compact="true" />
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    @if (Selectable)
+                    {
+                        <th class="mx-datagrid-check">
+                            <MxCheckbox Value="@AllSelected" ValueChanged="OnToggleAll" />
+                        </th>
+                    }
+                    @foreach (var c in Columns)
+                    {
+                        <th style="@BuildHeaderStyle(c)">@c.Header</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Items)
+                {
+                    var selected = IsSelected(item);
+                    <tr class="@(selected ? "mx-datagrid-row-selected" : string.Empty)">
+                        @if (Selectable)
+                        {
+                            <td class="mx-datagrid-check">
+                                <MxCheckbox Value="selected" ValueChanged="v => OnToggle(item, v)" />
+                            </td>
+                        }
+                        @foreach (var c in Columns)
+                        {
+                            <td class="@(c.IsPrimary ? "mx-datagrid-primary" : string.Empty)">
+                                @if (c.CellTemplate is not null)
+                                {
+                                    @c.CellTemplate(item)
+                                }
+                                else
+                                {
+                                    @c.ValueSelector(item)
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (UsePagination)
+    {
+        <MxPaginator CurrentPage="CurrentPage" CurrentPageChanged="CurrentPageChanged" TotalItems="TotalItems" PageSize="PageSize" />
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyList<TItem> Items { get; set; } = [];
+    [Parameter] public IReadOnlyList<MxDataGridColumn<TItem>> Columns { get; set; } = [];
+    [Parameter] public bool Loading { get; set; }
+    [Parameter] public bool Selectable { get; set; } = true;
+    [Parameter] public IReadOnlyCollection<TItem> SelectedItems { get; set; } = Array.Empty<TItem>();
+    [Parameter] public EventCallback<IReadOnlyCollection<TItem>> SelectedItemsChanged { get; set; }
+    [Parameter] public bool UsePagination { get; set; }
+    [Parameter] public int CurrentPage { get; set; } = 1;
+    [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
+    [Parameter] public int TotalItems { get; set; }
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public string EmptyTitle { get; set; } = "Sin datos";
+    [Parameter] public string EmptyDescription { get; set; } = "No se encontraron registros para los filtros activos.";
+    [Parameter] public RenderFragment? ToolbarContent { get; set; }
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private bool AllSelected => Items.Count > 0 && Items.All(IsSelected);
+    private bool IsSelected(TItem item) => SelectedItems.Contains(item);
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-datagrid" : $"mx-datagrid {Class}";
+
+    private string BuildHeaderStyle(MxDataGridColumn<TItem> c)
+        => $"text-align:{c.Align};width:{c.Width ?? "auto"};";
+
+    private Task OnToggleAll(bool value)
+    {
+        IReadOnlyCollection<TItem> next = value ? Items.ToArray() : Array.Empty<TItem>();
+        return SelectedItemsChanged.InvokeAsync(next);
+    }
+
+    private Task OnToggle(TItem item, bool value)
+    {
+        var set = new HashSet<TItem>(SelectedItems);
+        if (value) set.Add(item); else set.Remove(item);
+        return SelectedItemsChanged.InvokeAsync(set.ToArray());
+    }
+}
