@@ -24,7 +24,11 @@
     <div class="mx-multiselect-chips" aria-live="polite">
         @foreach (var value in _selectedValues)
         {
-            <button type="button" class="mx-multiselect-chip-btn" @onclick="() => Remove(value)" disabled="@Disabled" aria-label="Quitar @value">
+            <button type="button"
+                    class="mx-multiselect-chip-btn"
+                    @onclick="() => Remove(value)"
+                    disabled="@Disabled"
+                    aria-label="Quitar @value">
                 <MxChip Text="@value" />
             </button>
         }
@@ -47,7 +51,11 @@
 
     protected override void OnParametersSet()
     {
-        _selectedValues = SelectedValues.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var incoming = SelectedValues.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (!_selectedValues.SetEquals(incoming))
+        {
+            _selectedValues = incoming;
+        }
     }
 
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-multiselect mx-select" : $"mx-multiselect mx-select {Class}";
@@ -55,12 +63,12 @@
     private Task OnSelectedChanged(IEnumerable<string> values)
     {
         _selectedValues = values.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return SelectedValuesChanged.InvokeAsync(_selectedValues.ToArray());
+        return SelectedValuesChanged.InvokeAsync(_selectedValues.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
     }
 
     private Task Remove(string value)
     {
         _selectedValues.Remove(value);
-        return SelectedValuesChanged.InvokeAsync(_selectedValues.ToArray());
+        return SelectedValuesChanged.InvokeAsync(_selectedValues.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray());
     }
 }
