@@ -1,23 +1,18 @@
 @page "/components/data-listing"
 
-<MxPageContainer Title="Data Listing / MxDataGrid" Subtitle="Grid empresarial: toolbar, búsqueda, filtros rápidos/avanzados, selección, ordenamiento, estados y patrón CRUD.">
+<MxPageContainer Title="Data Listing / MxDataGrid" Subtitle="Grid empresarial auditado: toolbar, búsqueda, filtros rápidos/avanzados, ordenamiento, selección, estados y composición CRUD.">
   <MudStack Spacing="3">
-    <MxSectionCard Title="Escenario operativo real">
+    <MxSectionCard Title="Escenario operativo real (listing CRUD)">
       <MudStack Spacing="2">
-        <MxFilterBar>
-          <MxSearchBox Label="Buscar cliente" Value="@_search" ValueChanged="OnSearchChanged" Placeholder="Nombre, región, gerente o estado" />
-          <MxSelect Label="Región" Value="@_region" ValueChanged="OnRegionChanged" Options="_regions" />
-          <MxSelect Label="SLA" Value="@_sla" ValueChanged="OnSlaChanged" Options="_slaOptions" />
-        </MxFilterBar>
-
         <MxDataGrid TItem="CustomerRow"
                     Title="Backoffice de clientes"
-                    Subtitle="Listing CRUD multi-región con gobierno de cumplimiento"
+                    Subtitle="Cartera enterprise multi-región con cumplimiento SLA"
                     Items="@FilteredItems"
                     Columns="_columns"
                     SelectedItems="_selected"
                     SelectedItemsChanged="OnSelectedChanged"
                     UsePagination="true"
+                    TotalItems="@FilteredItems.Count"
                     CurrentPage="@CurrentPage"
                     CurrentPageChanged="OnPageChanged"
                     PageSize="@PageSize"
@@ -31,6 +26,8 @@
                     EmptyDescription="Ajusta filtros o crea un nuevo cliente.">
           <AdvancedFilters>
             <div class="mx-datagrid-advanced-grid">
+              <MxSelect Label="Región" Value="@_region" ValueChanged="OnRegionChanged" Options="_regions" />
+              <MxSelect Label="SLA" Value="@_sla" ValueChanged="OnSlaChanged" Options="_slaOptions" />
               <MxDateRangePicker Label="Última actividad" Value="@_activityRange" ValueChanged="v => _activityRange = v" />
               <MxCheckbox Label="Solo contratos vencidos" Value="@_onlyExpired" ValueChanged="v => _onlyExpired = v" />
             </div>
@@ -71,7 +68,6 @@
   private bool _error;
   private bool _onlyExpired;
   private int CurrentPage = 1;
-  private string? _search;
   private string? _region = "Todas";
   private string? _sla = "Todos";
   private GridState _gridState = GridState.Normal;
@@ -79,7 +75,7 @@
   private IReadOnlyCollection<CustomerRow> _selected = Array.Empty<CustomerRow>();
 
   private readonly List<string> _quickFilters = ["Activos", "En riesgo", "Vencidos"];
-  private readonly List<string> _regions = ["Todas", "MX-Norte", "MX-Centro", "US-East", "US-West", "LATAM", "EU"];
+  private readonly List<string> _regions = ["Todas", "MX-Norte", "MX-Centro", "MX-Sur", "US-East", "US-West", "LATAM", "EU", "APAC"];
   private readonly List<string> _slaOptions = ["Todos", "SLA OK", "SLA en riesgo", "SLA vencido"];
 
   private readonly List<CustomerRow> _items =
@@ -97,7 +93,7 @@
 
   private readonly List<MxDataGridColumn<CustomerRow>> _columns =
   [
-    new("name", "Cliente", x => x.Name){ IsPrimary = true },
+    new("name", "Cliente", x => x.Name){ IsPrimary = true, Width = "24%" },
     new("status", "Estado", x => x.Status),
     new("region", "Región", x => x.Region),
     new("sla", "Cumplimiento", x => x.Sla),
@@ -105,22 +101,19 @@
   ];
 
   private IReadOnlyList<CustomerRow> FilteredItems => _items
-    .Where(x => string.IsNullOrWhiteSpace(_search) || $"{x.Name} {x.Status} {x.Region} {x.Sla}".Contains(_search, StringComparison.OrdinalIgnoreCase))
     .Where(x => _region == "Todas" || x.Region == _region)
     .Where(x => _sla == "Todos" || x.Sla == _sla)
     .Where(x => !_onlyExpired || x.Expired)
     .Where(x => x.LastActivity.Date >= (_activityRange.Start ?? DateTime.MinValue).Date && x.LastActivity.Date <= (_activityRange.End ?? DateTime.MaxValue).Date)
-    .Skip((CurrentPage - 1) * PageSize)
-    .Take(PageSize)
     .ToArray();
 
   private IReadOnlyList<CustomerRow> StateItems => _gridState == GridState.Empty ? Array.Empty<CustomerRow>() : _items.Take(3).ToArray();
 
   private Task OnPageChanged(int page) { CurrentPage = page; return Task.CompletedTask; }
   private Task OnSelectedChanged(IReadOnlyCollection<CustomerRow> rows) { _selected = rows; return Task.CompletedTask; }
-  private Task OnSearchChanged(string? value) { _search = value; CurrentPage = 1; return Task.CompletedTask; }
   private Task OnRegionChanged(string? value) { _region = value; CurrentPage = 1; return Task.CompletedTask; }
   private Task OnSlaChanged(string? value) { _sla = value; CurrentPage = 1; return Task.CompletedTask; }
+
   private bool OnQuickFilter(CustomerRow row, string filter)
     => filter switch
     {

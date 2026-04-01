@@ -11,8 +11,18 @@
            @ondrop="OnDrop">
         <InputFile OnChange="OnFileChange" multiple="@Multiple" disabled="@Disabled" accept="@Accept" class="mx-file-upload-input" />
         <MudIcon Icon="@Icons.Material.Outlined.UploadFile" Class="mx-file-upload-icon" />
-        <span class="mx-file-upload-title">@DisplayTitle</span>
-        <span class="mx-file-upload-subtitle">@DisplaySubtitle</span>
+        <div class="mx-file-upload-content">
+            <span class="mx-file-upload-title">@DisplayTitle</span>
+            <span class="mx-file-upload-subtitle">@DisplaySubtitle</span>
+            @if (Uploading)
+            {
+                <div class="mx-file-upload-progress">
+                    <MxProgress Value="UploadProgress" />
+                    <span>Procesando @UploadProgress%</span>
+                </div>
+            }
+        </div>
+        <MudIcon Icon="@DropZoneActionIcon" Class="mx-file-upload-state-icon" />
     </label>
 
     @if (ShowFileList && SelectedFiles.Count > 0)
@@ -63,6 +73,8 @@
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public bool Multiple { get; set; }
     [Parameter] public bool ShowFileList { get; set; } = true;
+    [Parameter] public bool Uploading { get; set; }
+    [Parameter] public int UploadProgress { get; set; }
     [Parameter] public string Accept { get; set; } = ".pdf,.xlsx,.xls,.csv,.png,.jpg";
     [Parameter] public int MaxFileSizeMb { get; set; } = 15;
     [Parameter] public IReadOnlyList<string> AllowedExtensions { get; set; } = [".pdf", ".xlsx", ".xls", ".csv", ".png", ".jpg"];
@@ -74,10 +86,26 @@
     private List<IBrowserFile> SelectedFiles { get; set; } = [];
     private readonly List<string> _validationErrors = [];
 
-    private string DisplayTitle => SelectedFiles.Count == 0 ? Placeholder : $"{SelectedFiles.Count} archivo(s) listo(s) para subir";
-    private string DisplaySubtitle => SelectedFiles.Count == 0
-        ? "Arrastra y suelta directamente en esta superficie o haz click para explorar archivos."
-        : string.Join(" · ", SelectedFiles.Select(x => x.Name));
+    private string DisplayTitle => SelectedFiles.Count switch
+    {
+        0 => Placeholder,
+        1 => "1 archivo listo para cargar",
+        _ => $"{SelectedFiles.Count} archivos listos para cargar"
+    };
+
+    private string DisplaySubtitle => Disabled
+        ? "Carga deshabilitada para este flujo."
+        : _isDragOver
+            ? "Suelta aquí para adjuntar documentos"
+            : SelectedFiles.Count == 0
+                ? "Arrastra y suelta directamente en esta superficie o haz click para explorar archivos."
+                : string.Join(" · ", SelectedFiles.Select(x => x.Name));
+
+    private string DropZoneActionIcon => Error || _validationErrors.Count > 0
+        ? Icons.Material.Outlined.ErrorOutline
+        : SelectedFiles.Count > 0
+            ? Icons.Material.Outlined.TaskAlt
+            : Icons.Material.Outlined.CloudUpload;
 
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-file-upload" : $"mx-file-upload {Class}";
 

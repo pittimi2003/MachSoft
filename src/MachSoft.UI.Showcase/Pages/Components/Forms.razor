@@ -1,7 +1,34 @@
 @page "/components/forms"
 
-<MxPageContainer Title="Components / Advanced Inputs" Subtitle="Bloque 2: selección inteligente, fechas y carga de archivos con API Mx* consistente.">
+<MxPageContainer Title="Components / Forms + Advanced Inputs" Subtitle="Catálogo auditable de controles de formulario: estados, variantes, tamaños y casos operativos.">
   <section class="mx-forms-grid">
+    <MxSectionCard Title="Text controls (normal / invalid / disabled)">
+      <MudStack Spacing="2">
+        <MxTextField Label="Nombre del cliente" Value="@_customerName" ValueChanged="v => _customerName = v" Placeholder="Ingresa razón social" HelperText="Se usará como identificador principal del expediente." />
+        <MxTextField Label="Nombre invalid" Value="" Error="true" ErrorText="El nombre del cliente es obligatorio." />
+        <MxTextArea Label="Observaciones" Value="@_notes" ValueChanged="v => _notes = v" Lines="3" HelperText="Describe hallazgos relevantes del comité." />
+        <MxTextArea Label="Observaciones disabled" Value="Bloqueado por estado cerrado" Disabled="true" />
+      </MudStack>
+    </MxSectionCard>
+
+    <MxSectionCard Title="Selection controls (select / checkbox / radio / switch)">
+      <MudStack Spacing="2">
+        <MxSelect Label="Canal principal" Value="@_mainChannel" ValueChanged="v => _mainChannel = v" Options="_channels" />
+        <MxSelect Label="Canal invalid" Value="" Options="_channels" Error="true" ErrorText="Debes elegir un canal primario." />
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+          <MxCheckbox Label="Recibir alertas" Value="@_alerts" ValueChanged="v => _alerts = v" />
+          <MxSwitch Label="Activar revisión automática" Value="@_autoReview" ValueChanged="v => _autoReview = v" />
+        </MudStack>
+        <MudText Typo="Typo.body2">Prioridad</MudText>
+        <MxRadioGroup Value="@_priority" ValueChanged="v => _priority = v">
+          <MxRadio Value="Alta" Label="Alta" />
+          <MxRadio Value="Media" Label="Media" />
+          <MxRadio Value="Baja" Label="Baja" />
+        </MxRadioGroup>
+        <MudText Typo="Typo.caption">Valor seleccionado: @_priority</MudText>
+      </MudStack>
+    </MxSectionCard>
+
     <MxSectionCard Title="MxAutocomplete">
       <MudStack Spacing="2">
         <MxAutocomplete Label="Cliente"
@@ -55,12 +82,18 @@
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="MxFileUpload (idle, drag, success, error, disabled)">
+    <MxSectionCard Title="MxFileUpload (idle, drag, success, error, uploading, disabled)">
       <MudStack Spacing="2">
         <MxFileUpload Label="Evidencia documental"
                       HelperText="Adjunta PDF, Excel o CSV. Límite 15 MB por archivo."
                       Multiple="true"
+                      Uploading="@_uploading"
+                      UploadProgress="@_uploadProgress"
                       FilesChanged="OnFilesChanged" />
+        <MudStack Row="true" Spacing="2">
+          <MxButton Label="Simular carga" Variant="MxVariant.Outlined" OnClick="SimulateUpload" />
+          <MxButton Label="Reset progreso" Variant="MxVariant.Text" Tone="MxTone.Neutral" OnClick="ResetUpload" />
+        </MudStack>
         <MxFileUpload Label="Carga invalid"
                       Error="true"
                       ErrorText="Debes adjuntar un contrato vigente firmado."
@@ -71,22 +104,17 @@
         <MudText Typo="Typo.caption">Archivo(s) seleccionados: @(_selectedFileName ?? "Sin archivo")</MudText>
       </MudStack>
     </MxSectionCard>
-
-    <MxSectionCard Title="MxForm / Number / Time">
-      <MxForm Model="@this">
-        <MxFormSection Title="Parámetros operativos">
-          <MudStack Spacing="2">
-            <MxNumberField Label="Monto máximo" Value="@_amount" ValueChanged="v => _amount = v" HelperText="Límite para aprobación automática." />
-            <MxTimePicker Label="Hora de corte" Value="@_time" ValueChanged="v => _time = v" HelperText="Horario de cierre diario." />
-            <MxValidationSummary />
-          </MudStack>
-        </MxFormSection>
-      </MxForm>
-    </MxSectionCard>
   </section>
 </MxPageContainer>
 
 @code {
+  private string? _customerName;
+  private string? _notes;
+  private string? _mainChannel = "Portal";
+  private bool _alerts = true;
+  private bool _autoReview;
+  private string _priority = "Media";
+
   private string? SelectedCustomer;
   private const string InvalidCustomer = "Cliente inexistente";
   private readonly List<string> _customers = ["Acme Systems", "Globex Tech", "Initech", "Umbrella North", "Stark Logistics"];
@@ -99,9 +127,9 @@
   private readonly DateTime? InvalidDate = DateTime.Today.AddDays(-120);
   private MxDateRange EvaluationRange = new(DateTime.Today.AddDays(-14), DateTime.Today.AddDays(14));
 
+  private bool _uploading;
+  private int _uploadProgress;
   private string? _selectedFileName;
-  private decimal? _amount = 1200;
-  private TimeSpan? _time = new(18,0,0);
 
   private Task OnChannelsChanged(IEnumerable<string> values)
   {
@@ -120,6 +148,26 @@
   private Task OnFilesChanged(IReadOnlyList<IBrowserFile> files)
   {
     _selectedFileName = files.Count == 0 ? null : string.Join(", ", files.Select(x => x.Name));
+    return Task.CompletedTask;
+  }
+
+  private async Task SimulateUpload(MouseEventArgs _)
+  {
+    _uploading = true;
+    for (var i = 0; i <= 100; i += 20)
+    {
+      _uploadProgress = i;
+      await Task.Delay(120);
+      StateHasChanged();
+    }
+
+    _uploading = false;
+  }
+
+  private Task ResetUpload(MouseEventArgs _)
+  {
+    _uploading = false;
+    _uploadProgress = 0;
     return Task.CompletedTask;
   }
 }
