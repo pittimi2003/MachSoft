@@ -1,0 +1,37 @@
+<MudDateRangePicker Class="@BuildClass()"
+                    Label="@Label"
+                    DateRange="@ToMudRange(Value)"
+                    DateRangeChanged="OnDateRangeChanged"
+                    PlaceholderStart="@PlaceholderStart"
+                    PlaceholderEnd="@PlaceholderEnd"
+                    HelperText="@HelperText"
+                    Disabled="@Disabled"
+                    DateFormat="@DateFormat"
+                    Margin="Margin.Dense"
+                    Variant="MudBlazor.Variant.Outlined" />
+
+@if (Error)
+{
+    <MudText Typo="Typo.caption" Class="mx-date-range-error">@ErrorText</MudText>
+}
+
+@code {
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public MxDateRange Value { get; set; }
+    [Parameter] public EventCallback<MxDateRange> ValueChanged { get; set; }
+    [Parameter] public string PlaceholderStart { get; set; } = "Inicio";
+    [Parameter] public string PlaceholderEnd { get; set; } = "Fin";
+    [Parameter] public string HelperText { get; set; } = string.Empty;
+    [Parameter] public string ErrorText { get; set; } = string.Empty;
+    [Parameter] public bool Error { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string DateFormat { get; set; } = "yyyy-MM-dd";
+    [Parameter] public string Class { get; set; } = string.Empty;
+
+    private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-date-range-picker" : $"mx-date-range-picker {Class}";
+
+    private static DateRange ToMudRange(MxDateRange value) => new(value.Start, value.End);
+
+    private Task OnDateRangeChanged(DateRange range)
+        => ValueChanged.InvokeAsync(new MxDateRange(range.Start, range.End));
+}

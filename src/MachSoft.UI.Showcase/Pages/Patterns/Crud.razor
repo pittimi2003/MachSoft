@@ -1,35 +1,64 @@
 @page "/patterns/crud"
 
-<MxPageContainer Title="Patterns / CRUD" Subtitle="Patrón operativo con superficies limpias, bordes visibles y tabla legible.">
-  <MxSectionCard Title="Clientes">
-    <MudTable Items="_items" Dense="true" Hover="true" Bordered="true" Striped="false" Class="mx-table">
-      <HeaderContent>
-        <MudTh>Nombre</MudTh>
-        <MudTh>Estado</MudTh>
-        <MudTh class="text-right">Acciones</MudTh>
-      </HeaderContent>
-      <RowTemplate>
-        <MudTd>@context.Name</MudTd>
-        <MudTd>
-          <MudChip T="string" Color="@(context.Active ? Color.Success : Color.Warning)" Variant="Variant.Outlined" Size="Size.Small">
-            @(context.Active ? "Activo" : "Pendiente")
-          </MudChip>
-        </MudTd>
-        <MudTd Class="text-right">
-          <MxIconButton Icon="@Icons.Material.Outlined.Edit" AriaLabel="Editar" Tone="MxTone.Neutral" />
-        </MudTd>
-      </RowTemplate>
-    </MudTable>
+<MxPageContainer Title="Patterns / Data Listing" Subtitle="Base de listado CRUD con MxTable + MxPaginator para flujos enterprise técnicos.">
+  <MxSectionCard Title="MxTable + MxPaginator">
+    <MudStack Spacing="2">
+      <MxTable TItem="CustomerRow" Items="@PagedItems"
+               Columns="_columns"
+               SelectedItem="@_selected"
+               OnRowClick="@(item => OnRowClick(item))"
+               EmptyText="No hay clientes en esta página." />
+
+      <MudText Typo="Typo.caption">Registro seleccionado: @(_selected?.Name ?? "Ninguno")</MudText>
+
+      <MxPaginator CurrentPage="@CurrentPage"
+                   CurrentPageChanged="OnPageChanged"
+                   TotalItems="@_items.Count"
+                   PageSize="@PageSize" />
+    </MudStack>
   </MxSectionCard>
 </MxPageContainer>
 
 @code {
+  private const int PageSize = 4;
+  private int CurrentPage = 1;
+  private CustomerRow? _selected;
+
   private readonly List<CustomerRow> _items =
   [
-    new("Acme Systems", true),
-    new("Globex Tech", true),
-    new("Initech", false)
+    new("Acme Systems", "Activo", "MX-Norte"),
+    new("Globex Tech", "Activo", "MX-Centro"),
+    new("Initech", "Pendiente", "MX-Sur"),
+    new("Umbrella North", "Inactivo", "US-East"),
+    new("Stark Logistics", "Activo", "US-West"),
+    new("Wayne Data", "Pendiente", "LATAM"),
+    new("Oscorp", "Activo", "EU-West")
   ];
 
-  private sealed record CustomerRow(string Name, bool Active);
+  private readonly List<MxTableColumn<CustomerRow>> _columns =
+  [
+    new("name", "Cliente", x => x.Name, IsPrimary: true),
+    new("status", "Estado", x => x.Status),
+    new("region", "Región", x => x.Region)
+  ];
+
+  private IReadOnlyList<CustomerRow> PagedItems => _items
+      .Skip((CurrentPage - 1) * PageSize)
+      .Take(PageSize)
+      .ToArray();
+
+  private Task OnPageChanged(int page)
+  {
+    CurrentPage = page;
+    _selected = null;
+    return Task.CompletedTask;
+  }
+
+  private Task OnRowClick(CustomerRow item)
+  {
+    _selected = item;
+    return Task.CompletedTask;
+  }
+
+  private sealed record CustomerRow(string Name, string Status, string Region);
 }

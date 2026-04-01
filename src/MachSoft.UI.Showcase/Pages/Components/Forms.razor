@@ -1,52 +1,104 @@
 @page "/components/forms"
 
-<MxPageContainer Title="Components / Advanced Inputs" Subtitle="Inputs avanzados con API consistente Mx* para captura extensa, selección y toggles de estado.">
+<MxPageContainer Title="Components / Advanced Inputs" Subtitle="Bloque 2: selección inteligente, fechas y carga de archivos con API Mx* consistente.">
   <section class="mx-forms-grid">
-    <MxSectionCard Title="MxTextArea">
+    <MxSectionCard Title="MxAutocomplete">
       <MudStack Spacing="2">
-        <MxTextArea Label="Descripción operativa"
-                    @bind-Value="Description"
-                    Placeholder="Escribe contexto, objetivos y riesgo esperado..."
-                    HelperText="Máximo 500 caracteres para resumen ejecutivo." />
-        <MxTextArea Label="Observación invalid"
-                    Value="@ShortNote"
-                    Error="true"
-                    ErrorText="Debe tener al menos 20 caracteres."
-                    HelperText="Captura un contexto suficiente para auditoría." />
-        <MxTextArea Label="Observación disabled"
-                    Value="Bloqueada por estado de aprobación."
-                    Disabled="true"
-                    HelperText="El área se habilita cuando la solicitud vuelve a borrador." />
+        <MxAutocomplete Label="Cliente"
+                        @bind-Value="SelectedCustomer"
+                        Options="_customers"
+                        Placeholder="Busca por nombre o alias..."
+                        HelperText="Selecciona un cliente único para operar el expediente." />
+        <MxAutocomplete Label="Cliente invalid"
+                        Value="@InvalidCustomer"
+                        Options="_customers"
+                        Error="true"
+                        ErrorText="Debes seleccionar un cliente activo del catálogo." />
+        <MxAutocomplete Label="Cliente disabled"
+                        Value="Acme Systems"
+                        Options="_customers"
+                        Disabled="true"
+                        HelperText="Bloqueado por estado de aprobación." />
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="MxRadio + MxRadioGroup">
+    <MxSectionCard Title="MxMultiSelect">
       <MudStack Spacing="2">
-        <MudText Typo="Typo.body2">Nivel de criticidad</MudText>
-        <MxRadioGroup @bind-Value="RiskLevel">
-          <MxRadio Label="Baja" Value="Baja" />
-          <MxRadio Label="Media" Value="Media" />
-          <MxRadio Label="Alta" Value="Alta" />
-          <MxRadio Label="Crítica (disabled)" Value="Crítica" Disabled="true" />
-        </MxRadioGroup>
-        <MudText Typo="Typo.caption">Selección actual: @RiskLevel</MudText>
+        <MxMultiSelect Label="Canales habilitados"
+                       SelectedValues="@SelectedChannels"
+                       SelectedValuesChanged="OnChannelsChanged"
+                       Options="_channels"
+                       Placeholder="Selecciona uno o más canales"
+                       HelperText="Los canales seleccionados reciben notificaciones automáticas." />
+        <MxMultiSelect Label="Canales invalid"
+                       SelectedValues="_invalidChannels"
+                       Options="_channels"
+                       Error="true"
+                       ErrorText="Debes mantener al menos un canal activo." />
       </MudStack>
     </MxSectionCard>
 
-    <MxSectionCard Title="MxSwitch">
+    <MxSectionCard Title="MxDatePicker + MxDateRangePicker">
       <MudStack Spacing="2">
-        <MxSwitch Label="Publicar cambios en entorno productivo" @bind-Value="PublishToProduction" />
-        <MxSwitch Label="Activar notificación por correo" @bind-Value="SendNotifications" Class="mx-demo-force-focus" />
-        <MxSwitch Label="Sincronización bloqueada" Value="true" Disabled="true" />
+        <MxDatePicker Label="Fecha de ejecución"
+                      @bind-Value="ExecutionDate"
+                      Placeholder="yyyy-mm-dd"
+                      HelperText="Define la fecha de corte operativa." />
+        <MxDatePicker Label="Fecha invalid"
+                      Value="@InvalidDate"
+                      Error="true"
+                      ErrorText="La fecha no puede ser anterior al cierre contable." />
+        <MxDateRangePicker Label="Ventana de evaluación"
+                           Value="@EvaluationRange"
+                           ValueChanged="OnRangeChanged"
+                           HelperText="Rango analizado para indicadores de cumplimiento." />
+      </MudStack>
+    </MxSectionCard>
+
+    <MxSectionCard Title="MxFileUpload">
+      <MudStack Spacing="2">
+        <MxFileUpload Label="Evidencia documental"
+                      HelperText="Adjunta evidencia en formato PDF o Excel para auditoría."
+                      FileChanged="OnFileChanged" />
+        <MxFileUpload Label="Carga invalid"
+                      Error="true"
+                      ErrorText="El archivo supera el límite permitido de 15 MB." />
+        <MudText Typo="Typo.caption">Archivo seleccionado: @(_selectedFileName ?? "Sin archivo")</MudText>
       </MudStack>
     </MxSectionCard>
   </section>
 </MxPageContainer>
 
 @code {
-  private string? Description;
-  private string? RiskLevel = "Media";
-  private bool PublishToProduction;
-  private bool SendNotifications = true;
-  private const string ShortNote = "Corta";
+  private string? SelectedCustomer;
+  private const string InvalidCustomer = "Cliente inexistente";
+  private readonly List<string> _customers = ["Acme Systems", "Globex Tech", "Initech", "Umbrella North", "Stark Logistics"];
+
+  private IEnumerable<string> SelectedChannels = ["Portal", "Correo"];
+  private readonly List<string> _channels = ["Portal", "Correo", "SMS", "Webhook", "Teams"];
+  private readonly IEnumerable<string> _invalidChannels = Array.Empty<string>();
+
+  private DateTime? ExecutionDate = DateTime.Today;
+  private readonly DateTime? InvalidDate = DateTime.Today.AddDays(-120);
+  private MxDateRange EvaluationRange = new(DateTime.Today.AddDays(-14), DateTime.Today.AddDays(14));
+
+  private string? _selectedFileName;
+
+  private Task OnChannelsChanged(IEnumerable<string> values)
+  {
+    SelectedChannels = values.ToArray();
+    return Task.CompletedTask;
+  }
+
+  private Task OnRangeChanged(MxDateRange value)
+  {
+    EvaluationRange = value;
+    return Task.CompletedTask;
+  }
+
+  private Task OnFileChanged(IBrowserFile? file)
+  {
+    _selectedFileName = file?.Name;
+    return Task.CompletedTask;
+  }
 }
