@@ -33,6 +33,10 @@
                 {
                     <MxButton Label="@(_advancedOpen ? "Ocultar filtros" : "Filtros avanzados")" Variant="MxVariant.Text" Tone="MxTone.Neutral" EndIcon="@(_advancedOpen ? Icons.Material.Outlined.ExpandLess : Icons.Material.Outlined.ExpandMore)" OnClick="_ => _advancedOpen = !_advancedOpen" />
                 }
+                @if (Selectable)
+                {
+                    <span class="mx-datagrid-selection-meta">@SelectedItems.Count seleccionados</span>
+                }
                 @ToolbarContent
             </div>
         </div>
@@ -51,7 +55,7 @@
     {
         <MxLoadingState Title="Cargando registros" Description="Consultando datos..." Compact="true" />
     }
-    else if (VisibleItems.Count == 0)
+    else if (FilteredItems.Count == 0)
     {
         <MxEmptyState Title="@EmptyTitle" Description="@EmptyDescription" Compact="true" />
     }
@@ -63,7 +67,7 @@
                     @if (Selectable)
                     {
                         <th class="mx-datagrid-check">
-                            <MxCheckbox Value="@AllSelected" ValueChanged="OnToggleAll" />
+                            <MxCheckbox Value="@AllSelectedInPage" ValueChanged="OnToggleAll" />
                         </th>
                     }
                     @foreach (var c in Columns)
@@ -81,7 +85,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in VisibleItems)
+                @foreach (var item in PagedItems)
                 {
                     var selected = IsSelected(item);
                     <tr class="@(selected ? "mx-datagrid-row-selected" : string.Empty)" @onclick="() => OnRowClick(item)">
@@ -112,7 +116,7 @@
 
     @if (UsePagination)
     {
-        <MxPaginator CurrentPage="CurrentPage" CurrentPageChanged="CurrentPageChanged" TotalItems="VisibleItems.Count" PageSize="PageSize" />
+        <MxPaginator CurrentPage="CurrentPage" CurrentPageChanged="CurrentPageChanged" TotalItems="@ResolvedTotalItems" PageSize="PageSize" />
     }
 </div>
 
@@ -138,7 +142,7 @@
     [Parameter] public bool UsePagination { get; set; }
     [Parameter] public int CurrentPage { get; set; } = 1;
     [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
-    [Parameter] public int TotalItems { get; set; }
+    [Parameter] public int? TotalItems { get; set; }
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public string EmptyTitle { get; set; } = "Sin datos";
     [Parameter] public string EmptyDescription { get; set; } = "No se encontraron registros para los filtros activos.";
@@ -151,11 +155,12 @@
     private string? _sortKey;
     private bool _sortDesc;
 
-    private bool AllSelected => VisibleItems.Count > 0 && VisibleItems.All(IsSelected);
+    private int ResolvedTotalItems => TotalItems ?? FilteredItems.Count;
     private bool IsSelected(TItem item) => SelectedItems.Contains(item);
+    private bool AllSelectedInPage => PagedItems.Count > 0 && PagedItems.All(IsSelected);
     private string BuildClass() => string.IsNullOrWhiteSpace(Class) ? "mx-datagrid" : $"mx-datagrid {Class}";
 
-    private IReadOnlyList<TItem> VisibleItems
+    private IReadOnlyList<TItem> FilteredItems
     {
         get
         {
@@ -185,6 +190,13 @@
         }
     }
 
+    private IReadOnlyList<TItem> PagedItems => !UsePagination
+        ? FilteredItems
+        : FilteredItems
+            .Skip((Math.Max(CurrentPage, 1) - 1) * Math.Max(PageSize, 1))
+            .Take(Math.Max(PageSize, 1))
+            .ToArray();
+
     private bool MatchSearch(TItem item)
         => Columns.Any(c => c.ValueSelector(item)?.ToString()?.Contains(_search!, StringComparison.OrdinalIgnoreCase) == true);
 
@@ -193,8 +205,13 @@
 
     private Task OnToggleAll(bool value)
     {
-        IReadOnlyCollection<TItem> next = value ? VisibleItems.ToArray() : Array.Empty<TItem>();
-        return SelectedItemsChanged.InvokeAsync(next);
+        var set = new HashSet<TItem>(SelectedItems);
+        foreach (var row in PagedItems)
+        {
+            if (value) set.Add(row); else set.Remove(row);
+        }
+
+        return SelectedItemsChanged.InvokeAsync(set.ToArray());
     }
 
     private Task OnToggle(TItem item, bool value)
@@ -226,7 +243,7 @@
         return CurrentPageChanged.InvokeAsync(1);
     }
 
-    private void ToggleSort(MxDataGridColumn<TItem> column)
+    private async Task ToggleSort(MxDataGridColumn<TItem> column)
     {
         if (!Sortable)
         {
@@ -236,11 +253,14 @@
         if (_sortKey == column.Key)
         {
             _sortDesc = !_sortDesc;
-            return;
+        }
+        else
+        {
+            _sortKey = column.Key;
+            _sortDesc = false;
         }
 
-        _sortKey = column.Key;
-        _sortDesc = false;
+        await CurrentPageChanged.InvokeAsync(1);
     }
 
     private string SortIcon(MxDataGridColumn<TItem> column)

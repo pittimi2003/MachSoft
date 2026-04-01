@@ -37,6 +37,18 @@ public class MxBlock2ControlsTests : TestContext
         cut.Markup.Should().Contain("Archivo").And.Contain("Selecciona archivo");
     }
 
+
+    [Fact]
+    public void MxFileUpload_ShouldRenderUploadingProgress()
+    {
+        var cut = RenderComponent<MxFileUpload>(p => p
+            .Add(x => x.Label, "Archivo")
+            .Add(x => x.Uploading, true)
+            .Add(x => x.UploadProgress, 60));
+
+        cut.Markup.Should().Contain("Procesando 60%");
+    }
+
     [Fact]
     public void MxTable_ShouldRenderEmptyText()
     {
