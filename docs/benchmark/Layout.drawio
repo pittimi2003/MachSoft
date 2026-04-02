@@ -1,0 +1,28 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Página-1" id="ZImmmW2i301uT0_f5_TP">
+    <mxGraphModel dx="938" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="KayAXGBhYb-UuMwLuzEU-6" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="400" width="720" x="80" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="KayAXGBhYb-UuMwLuzEU-1" parent="KayAXGBhYb-UuMwLuzEU-6" style="rounded=0;whiteSpace=wrap;html=1;" value="Headerbar" vertex="1">
+          <mxGeometry height="60" width="720" as="geometry" />
+        </mxCell>
+        <mxCell id="KayAXGBhYb-UuMwLuzEU-2" parent="KayAXGBhYb-UuMwLuzEU-6" style="rounded=0;whiteSpace=wrap;html=1;" value="LeftSiderBar" vertex="1">
+          <mxGeometry height="340" width="160" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="KayAXGBhYb-UuMwLuzEU-3" parent="KayAXGBhYb-UuMwLuzEU-6" style="rounded=0;whiteSpace=wrap;html=1;" value="RigthSideBar" vertex="1">
+          <mxGeometry height="340" width="160" x="560" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="KayAXGBhYb-UuMwLuzEU-4" parent="KayAXGBhYb-UuMwLuzEU-6" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;Footer" vertex="1">
+          <mxGeometry height="60" width="400" x="160" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="KayAXGBhYb-UuMwLuzEU-5" parent="KayAXGBhYb-UuMwLuzEU-6" style="rounded=0;whiteSpace=wrap;html=1;" value="MainContainer" vertex="1">
+          <mxGeometry height="280" width="400" x="160" y="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
