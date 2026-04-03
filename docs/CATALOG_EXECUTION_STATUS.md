@@ -123,3 +123,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - `RightSidebar` queda reservado para contexto profundo (detalle, inspección y acciones de edición/creación contextual), sin trasladar dominancia visual fuera del contenido central.
 - Se ajusta `LeftSidebarWidth` a un ancho lateral razonable (272px) para escenarios `Inline`, evitando lectura de contenedor principal lateral.
 - Se mantiene el arranque contractual: `NavigationMenu` cerrado + `LeftSidebar`/`RightSidebar` en `Overlay` cerrados por defecto, con `MainContainer` visible y dominante desde carga inicial.
+
+## 19) Actualización 2026-04-03 (UTC) — Plantilla central reusable para páginas del Showcase
+- Se introduce `ShowcasePageLayout` en `MachSoft.UI.Showcase` como plantilla visual común para páginas del catálogo renderizadas en `MainContent`.
+- La plantilla estandariza encabezado, subtítulo, resumen opcional, bloque principal dominante y rail contextual opcional sin alterar la separación estructural del `MainLayout`.
+- Se migra el set principal de rutas del Showcase (home, foundations, components, patterns, states y audit) para consumir la plantilla común y eliminar composición de columna angosta heredada.
+- Se incorporan estilos `mx-showcase-page-*` en `machsoft-ui.css` para ocupar ancho central real, mantener cards coherentes y usar grid/stack fluido con degradación responsive.
+- Resultado operativo: el contenido de `@Body` se percibe como región dominante del workspace, manteniendo `NavigationMenu`, `LeftSidebar` y `RightSidebar` como regiones independientes del shell.

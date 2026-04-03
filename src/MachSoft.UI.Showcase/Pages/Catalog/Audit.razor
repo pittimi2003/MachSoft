@@ -1,6 +1,6 @@
 @page "/catalog/audit"
 
-<MxPageContainer Title="Catalog / Audit Matrix" Subtitle="Inventario contractual de controles, familias, variantes y estados auditables del catálogo MachSoft.">
+<ShowcasePageLayout Title="Catalog / Audit Matrix" Subtitle="Inventario contractual de controles, familias, variantes y estados auditables del catálogo MachSoft.">
   <MudStack Spacing="3">
     <MxSectionCard Title="Cobertura por familias">
       <table class="mx-catalog-table">
@@ -35,7 +35,7 @@
       </ul>
     </MxSectionCard>
   </MudStack>
-</MxPageContainer>
+</ShowcasePageLayout>
 
 @code {
   private readonly IReadOnlyList<CatalogRow> _rows =
