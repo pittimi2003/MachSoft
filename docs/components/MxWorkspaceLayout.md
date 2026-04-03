@@ -1,15 +1,30 @@
 # MxWorkspaceLayout
 
-## Propósito
-`MxWorkspaceLayout` es el shell oficial de MachSoft para aplicaciones de trabajo. Separa explícitamente:
-- `NavigationMenu` (navegación global),
-- `LeftSidebar`/`RightSidebar` (paneles funcionales),
-- `MainContent` (zona principal),
-- `FooterContent` (opcional).
+## 1) Propósito del componente
+`MxWorkspaceLayout` es el shell oficial de workspace para MachSoft. Su responsabilidad es separar explícitamente capas estructurales y capas flotantes del shell:
+- `Header`
+- `NavigationMenu`
+- `LeftSidebar`
+- `MainContainer` (`MainContent`)
+- `RightSidebar`
+- `Footer`
 
-## Contrato público vigente
+## 2) Cuándo usarlo
+Úsalo cuando una pantalla/app necesite:
+- navegación global (`NavigationMenu`) independiente de paneles funcionales,
+- sidebars funcionales con modo `Inline`/`Overlay`,
+- superficie principal de trabajo con reglas estructurales consistentes,
+- header persistente fijo de 48px.
 
-### Regiones declarativas
+## 3) Cuándo no usarlo
+No usarlo para:
+- páginas simples sin shell de workspace,
+- layouts temporales/prototipo,
+- composiciones que mezclen navegación global como `LeftSidebar`.
+
+## 4) Contrato público
+
+### Regiones declarativas mínimas
 - `HeaderContent`
 - `NavigationMenu`
 - `LeftSidebar`
@@ -17,102 +32,68 @@
 - `RightSidebar`
 - `FooterContent`
 
-### Parámetros
+### Parámetros públicos
 - `bool MainMenuOpen`
 - `EventCallback<bool> MainMenuOpenChanged`
 - `MxSidebarMode NavigationMenuMode`
 - `string NavigationMenuWidth`
 - `MxSidebarMode LeftSidebarMode`
+- `bool LeftSidebarOpen`
+- `EventCallback<bool> LeftSidebarOpenChanged`
+- `string LeftSidebarWidth`
 - `MxSidebarMode RightSidebarMode`
+- `bool RightSidebarOpen`
+- `EventCallback<bool> RightSidebarOpenChanged`
+- `string RightSidebarWidth`
+
+Parámetros complementarios del shell:
 - `EventCallback<MxSidebarMode> LeftSidebarModeChanged`
 - `EventCallback<MxSidebarMode> RightSidebarModeChanged`
-- `bool LeftSidebarOpen`
-- `bool RightSidebarOpen`
-- `EventCallback<bool> LeftSidebarOpenChanged`
-- `EventCallback<bool> RightSidebarOpenChanged`
-- `string LeftSidebarWidth`
-- `string RightSidebarWidth`
 - `EventCallback OnMenuToggle`
 - `EventCallback OnBackdropClick`
-- `string Class`
-- `string Style`
+- `string? Class`
+- `string? Style`
 
-> `NavigationMenuMode` permanece en API para evolución; la implementación estable actual de navegación principal es `Overlay`.
+> `NavigationMenuMode` se mantiene por compatibilidad/evolución, pero en la iteración actual el comportamiento efectivo del menú principal es `Overlay`.
 
-## Modelo funcional obligatorio de sidebars
+## 5) Diferencia oficial: `NavigationMenu` vs sidebars funcionales
+- `NavigationMenu`: navegación global de aplicación, capa overlay independiente del grid del workspace.
+- `LeftSidebar`/`RightSidebar`: paneles funcionales de la vista activa (filtros, detalle, edición contextual).
 
-`LeftSidebar` y `RightSidebar` tienen **dos modos mutuamente excluyentes**:
+Regla: **`NavigationMenu` no puede modelarse como `LeftSidebar`**.
 
-### 1) `Inline`
-- Siempre visible.
-- Ocupa espacio estructural real en el grid.
-- Reduce el ancho de `MainContent`.
+## 6) Definición oficial de `Inline`
+`Inline` significa:
+- siempre visible,
+- estructural,
+- ocupa columna real del grid,
+- reduce el ancho del `MainContainer`,
+- no usa backdrop,
+- no depende de `Open`.
 
-### 2) `Overlay`
-- Visible solo cuando `*SidebarOpen = true`.
-- Se renderiza superpuesto.
-- No ocupa columna estructural.
-- Usa backdrop.
+## 7) Definición oficial de `Overlay`
+`Overlay` significa:
+- flotante/superpuesto,
+- abierto/cerrado por estado `Open`,
+- no estructural,
+- usa backdrop cuando está abierto,
+- cerrado no reserva ancho.
 
-No se aceptan estados ambiguos (por ejemplo “visible” sin ser inline ni overlay abierto).
+## 8) Reglas oficiales del `MainContainer`
+- `MainContainer` **solo cede espacio estructural** a sidebars en `Inline`.
+- El grid estructural usa `left inline | minmax(0, 1fr) | right inline`.
+- Sidebars `Overlay` no forman parte del cálculo de columnas.
+- Overlays abiertos pueden aplicar desplazamiento visual con `transform`, pero ese desplazamiento **no forma parte del cálculo estructural**.
+- Overlays cerrados no reservan ancho en la columna central.
 
-## Header y control del shell
-- Header fijo de `48px`.
-- Incluye botón hamburguesa para `MainMenuOpen`.
-- Incluye `MxMenu` de control del shell para:
-  - cambiar `LeftSidebarMode` (`Inline` / `Overlay`),
-  - abrir/cerrar `LeftSidebar` cuando está en `Overlay`,
-  - cambiar `RightSidebarMode` (`Inline` / `Overlay`),
-  - abrir/cerrar `RightSidebar` cuando está en `Overlay`.
+## 9) Ejemplos de uso
 
-Este menú controla estructura/estado del shell, **no sustituye** el contenido funcional de los sidebars.
-
-## Reglas de layout del MainContainer
-- `LeftSidebarMode = Inline` => descuenta `LeftSidebarWidth`.
-- `RightSidebarMode = Inline` => descuenta `RightSidebarWidth`.
-- Ambos inline => 3 columnas estructurales.
-- Cualquier sidebar en overlay => no descuenta ancho.
-- La columna central usa `minmax(0, 1fr)`.
-- El desplazamiento visual de `MainContent` con overlays abiertos se resuelve con `transform` del contenedor principal (`--mx-main-visual-shift`), nunca agregando columnas inline.
-
-## Separación técnica obligatoria (estructura vs overlay)
-- Grid estructural: solo `Left inline` + `Main` + `Right inline`.
-- Capa overlay separada (`mx-workspace-overlay-layer`) para:
-  - `NavigationMenu` overlay
-  - `LeftSidebar` overlay abierto
-  - `RightSidebar` overlay abierto
-- Backdrop independiente (`mx-workspace-backdrop`) activado cuando hay al menos un overlay visible.
-
-## Estados de MainContainer
-- `data-main-structural-span`: `full`, `center-with-left-inline`, `center-with-right-inline`, `center-with-both-inline`.
-- `data-main-visual-state`: `neutral`, `shift-left`, `shift-right`, `shift-both`.
-- Clases visuales asociadas:
-  - `mx-workspace-main-region-neutral`
-  - `mx-workspace-main-region-shift-left`
-  - `mx-workspace-main-region-shift-right`
-  - `mx-workspace-main-region-shift-both`
-
-## Diferencia obligatoria: `NavigationMenu` vs sidebars funcionales
-- `NavigationMenu`: navegación global de producto (overlay con `MainMenuOpen`).
-- `LeftSidebar`/`RightSidebar`: paneles funcionales de la pantalla activa.
-
-## Matriz resumida
-
-| Configuración | Estructura | Overlay visible | Impacto en MainContent |
-|---|---|---|---|
-| Left inline, Right inline | Left + Main + Right | No | Pierde ancho por ambos |
-| Left inline, Right overlay abierto | Left + Main | Right overlay | Pierde ancho solo por left |
-| Left overlay abierto, Right inline | Main + Right | Left overlay | Pierde ancho solo por right |
-| Left overlay cerrado, Right overlay cerrado | Main | No | No pierde ancho |
-
-## Ejemplos actualizados
-
-### Layout base con navegación
+### Shell base con navegación global
 ```razor
-<MxWorkspaceLayout MainMenuOpen="@mainMenuOpen"
-                   MainMenuOpenChanged="@(v => mainMenuOpen = v)">
-  <NavigationMenu><MenuGlobal /></NavigationMenu>
-  <MainContent><Dashboard /></MainContent>
+<MxWorkspaceLayout MainMenuOpen="@menuOpen"
+                   MainMenuOpenChanged="@(v => menuOpen = v)">
+    <NavigationMenu><AppNav /></NavigationMenu>
+    <MainContent><Dashboard /></MainContent>
 </MxWorkspaceLayout>
 ```
 
@@ -122,13 +103,13 @@ Este menú controla estructura/estado del shell, **no sustituye** el contenido f
                    RightSidebarMode="MxSidebarMode.Overlay"
                    RightSidebarOpen="@rightOpen"
                    RightSidebarOpenChanged="@(v => rightOpen = v)">
-  <LeftSidebar><Filtros /></LeftSidebar>
-  <MainContent><Listado /></MainContent>
-  <RightSidebar><Detalle /></RightSidebar>
+    <LeftSidebar><Filters /></LeftSidebar>
+    <MainContent><ListPage /></MainContent>
+    <RightSidebar><Details /></RightSidebar>
 </MxWorkspaceLayout>
 ```
 
-### Ambos overlay controlados por estado
+### Ambos overlay
 ```razor
 <MxWorkspaceLayout LeftSidebarMode="MxSidebarMode.Overlay"
                    RightSidebarMode="MxSidebarMode.Overlay"
@@ -136,8 +117,32 @@ Este menú controla estructura/estado del shell, **no sustituye** el contenido f
                    LeftSidebarOpenChanged="@(v => leftOpen = v)"
                    RightSidebarOpen="@rightOpen"
                    RightSidebarOpenChanged="@(v => rightOpen = v)">
-  <LeftSidebar><Comandos /></LeftSidebar>
-  <MainContent><VistaTrabajo /></MainContent>
-  <RightSidebar><Edicion /></RightSidebar>
+    <LeftSidebar><Commands /></LeftSidebar>
+    <MainContent><Workbench /></MainContent>
+    <RightSidebar><Inspector /></RightSidebar>
 </MxWorkspaceLayout>
 ```
+
+## 10) Matriz de comportamiento oficial
+
+| Caso | Qué se ve | Qué ocupa espacio estructural | Backdrop | Comportamiento de `MainContainer` |
+|---|---|---|---|---|
+| NavigationMenu cerrado | Header + workspace normal | Solo sidebars inline | No | Ancho definido solo por inline |
+| NavigationMenu abierto | NavigationMenu overlay + workspace | Solo sidebars inline | Sí | Sin cambio estructural por navegación |
+| Left inline / Right cerrado (overlay) | Left visible + main | Left | No (si ningún overlay abierto) | Cede ancho solo a left |
+| Left cerrado (overlay) / Right inline | Right visible + main | Right | No (si ningún overlay abierto) | Cede ancho solo a right |
+| Left inline / Right inline | Left + main + right visibles | Left + Right | No | Cede ancho a ambos |
+| Left overlay cerrado / Right cerrado | Solo main | Ninguno | No | Ocupa ancho completo |
+| Left cerrado / Right overlay cerrado | Solo main | Ninguno | No | Ocupa ancho completo |
+| Left overlay abierto / Right cerrado | Left overlay + main | Ninguno | Sí | Estructuralmente full-width; desplazamiento visual opcional |
+| Left cerrado / Right overlay abierto | Right overlay + main | Ninguno | Sí | Estructuralmente full-width; desplazamiento visual opcional |
+| Left overlay abierto / Right overlay abierto | Ambos overlays + main | Ninguno | Sí | Estructuralmente full-width; desplazamiento visual opcional |
+| Left inline / Right overlay | Left inline + right overlay (si abierto) | Left | Sí si right overlay abierto | Cede ancho solo a left |
+| Left overlay / Right inline | Right inline + left overlay (si abierto) | Right | Sí si left overlay abierto | Cede ancho solo a right |
+
+## Reglas de implementación interna
+- Header fijo: `48px`.
+- `NavigationMenu` overlay separado del grid.
+- Grid estructural exclusivo para regiones inline.
+- Capa overlay separada para `NavigationMenu`, `LeftSidebar` overlay, `RightSidebar` overlay.
+- Backdrop independiente para overlays visibles.

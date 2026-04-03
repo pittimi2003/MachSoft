@@ -94,3 +94,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se agrega estado visual del contenedor principal (`data-main-visual-state` + clases `mx-workspace-main-region-*`) y desplazamiento por `transform` usando `--mx-main-visual-shift` para acompañar overlays abiertos sin convertirlos en columnas inline.
 - Se actualiza Showcase para arrancar en modo overlay cerrado y exponer en footer el estado estructural + estado de desplazamiento visual, facilitando auditoría explícita de comportamiento real.
 - Se amplía cobertura bUnit para validar full-width estructural cuando overlays están cerrados, visibilidad de paneles/backdrop al abrir overlays, estado visual del main y reducción estructural correcta en modos inline.
+
+## 15) Actualización 2026-04-03 (UTC) — Consolidación semántica de `MxWorkspaceLayout` (Mode/Open + separación estructural)
+- Se consolida el contrato semántico del shell: `Inline` = siempre visible y estructural; `Overlay` = abierto/cerrado y no estructural.
+- Se mantiene `NavigationMenu` como capa independiente del workspace grid, con comportamiento efectivo `Overlay` y apertura controlada por hamburguesa (`MainMenuOpen`).
+- El cálculo de columnas del `MainContainer` queda restringido a sidebars en `Inline`; overlays cerrados no reservan ancho estructural.
+- Se preserva el desplazamiento visual opcional del contenido principal ante overlays abiertos mediante `transform`, separado explícitamente del cálculo estructural del grid.
+- Se amplía cobertura bUnit para footer opcional y para garantizar que al cambiar de `Overlay` a `Inline` desde el menú shell se cierre estado `Open` residual.
+- Templates Server/Wasm adoptan callbacks de cambio de modo para preservar consistencia del control de shell desde header.

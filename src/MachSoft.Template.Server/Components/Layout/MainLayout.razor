@@ -5,7 +5,9 @@
                    NavigationMenuMode="MxSidebarMode.Overlay"
                    NavigationMenuWidth="280px"
                    LeftSidebarMode="@LeftSidebarMode"
+                   LeftSidebarModeChanged="@OnLeftSidebarModeChanged"
                    RightSidebarMode="@RightSidebarMode"
+                   RightSidebarModeChanged="@OnRightSidebarModeChanged"
                    LeftSidebarOpen="@LeftSidebarOpen"
                    RightSidebarOpen="@RightSidebarOpen"
                    LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
@@ -53,9 +55,21 @@
         return Task.CompletedTask;
     }
 
+    private Task OnLeftSidebarModeChanged(MxSidebarMode mode)
+    {
+        LeftSidebarMode = mode;
+        return Task.CompletedTask;
+    }
+
     private Task OnRightSidebarOpenChanged(bool isOpen)
     {
         RightSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarModeChanged(MxSidebarMode mode)
+    {
+        RightSidebarMode = mode;
         return Task.CompletedTask;
     }
 
