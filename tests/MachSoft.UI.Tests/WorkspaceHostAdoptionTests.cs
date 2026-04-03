@@ -21,6 +21,7 @@ public class WorkspaceHostAdoptionTests
         var markup = File.ReadAllText(fullPath);
 
         markup.Should().Contain("<MxWorkspaceLayout");
+        markup.Should().Contain("<NavigationMenu>", "la navegación global ya no debe modelarse como LeftSidebar en hosts");
         markup.Should().NotContain("<MudLayout", "el host no debe resolver estructura del shell con MudLayout");
         markup.Should().NotContain("<MudDrawer", "el host no debe resolver sidebars con MudDrawer");
         markup.Should().NotContain("<MudMainContent", "el host no debe resolver distribución principal con MudMainContent");

@@ -1091,6 +1091,9 @@ a { color: var(--mx-accent); }
 
 .mx-workspace-layout {
   --mx-workspace-header-height: 48px;
+  --mx-navigation-menu-width: 288px;
+  --mx-left-sidebar-width: 320px;
+  --mx-right-sidebar-width: 360px;
   position: relative;
   min-height: 100vh;
   background:
@@ -1160,7 +1163,7 @@ a { color: var(--mx-accent); }
   min-height: 100vh;
 }
 
-.mx-workspace-grid {
+.mx-workspace-functional-grid {
   min-height: calc(100vh - var(--mx-workspace-header-height));
   display: grid;
   transition: grid-template-columns .2s ease;
@@ -1206,7 +1209,7 @@ a { color: var(--mx-accent); }
   top: var(--mx-workspace-header-height);
   bottom: 0;
   width: var(--mx-left-sidebar-width);
-  z-index: 70;
+  z-index: 72;
   box-shadow: var(--mx-elevation-2);
   transition: transform .2s ease;
 }
@@ -1223,6 +1226,19 @@ a { color: var(--mx-accent); }
   border-left: var(--mx-stroke-1) solid color-mix(in srgb, var(--mx-deep-blue) 36%, var(--mx-border));
 }
 
+.mx-workspace-navigation-menu {
+  position: fixed;
+  top: var(--mx-workspace-header-height);
+  bottom: 0;
+  left: 0;
+  width: var(--mx-navigation-menu-width);
+  z-index: 74;
+  overflow: auto;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--mx-shell) 90%, #0b1420 10%) 0%, color-mix(in srgb, var(--mx-shell) 96%, var(--mx-accent-soft) 4%) 100%);
+  border-right: var(--mx-stroke-1) solid color-mix(in srgb, var(--mx-deep-blue) 36%, var(--mx-border));
+  box-shadow: var(--mx-elevation-2);
+}
+
 .mx-workspace-backdrop {
   position: fixed;
   top: var(--mx-workspace-header-height);
@@ -1233,7 +1249,7 @@ a { color: var(--mx-accent); }
   padding: 0;
   margin: 0;
   background: rgba(6, 14, 24, .28);
-  z-index: 60;
+  z-index: 68;
 }
 
 .mx-workspace-nav {

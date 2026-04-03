@@ -71,3 +71,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se elimina wiring decorativo en Showcase (`OnMenuToggle` sin efecto), manteniendo solo estado + slots + navegación/controles mínimos del host.
 - Se agrega cobertura de pruebas para vigilar que los hosts no reintroduzcan `MudLayout`, `MudDrawer`, `MudMainContent` o `MudAppBar` en `MainLayout`.
 - Resultado operativo: el shell `MxWorkspaceLayout` queda como única pieza estructural del layout en los tres hosts consumidores.
+
+## 12) Actualización 2026-04-03 (UTC) — Corrección arquitectónica de `NavigationMenu` vs `LeftSidebar`
+- Se corrige el contrato de `MxWorkspaceLayout` para separar explícitamente `NavigationMenu` (navegación global) de `LeftSidebar` (panel funcional).
+- Se mantiene header fijo de 48px con botón hamburguesa embebido en el shell y `MainMenuOpen` cerrado por defecto.
+- `NavigationMenuMode` queda expuesto en API para evolución futura, con soporte estable actual en `Overlay` sin acoplarse al cálculo funcional left/right.
+- `MachSoft.UI.Showcase`, `MachSoft.Template.Wasm` y `MachSoft.Template.Server` migran a `NavigationMenu` y dejan de modelar el menú principal como `LeftSidebar`.
+- Se refuerzan pruebas bUnit del layout para independencia de navegación, composición inline/overlay, footer opcional y comportamiento de backdrop.
+- Se actualiza documentación contractual (`docs/components/MxWorkspaceLayout.md`) con matriz de comportamiento de navegación + workspace y reglas de consumo por host.

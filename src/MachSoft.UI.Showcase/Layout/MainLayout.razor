@@ -3,14 +3,16 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JS
 
-<MxWorkspaceLayout LeftSidebarVisible="@MainMenuOpen"
+<MxWorkspaceLayout MainMenuOpen="@MainMenuOpen"
+                   MainMenuOpenChanged="@OnMainMenuOpenChanged"
+                   NavigationMenuMode="MxSidebarMode.Overlay"
+                   NavigationMenuWidth="306px"
+                   LeftSidebarVisible="@LeftSidebarVisible"
                    RightSidebarVisible="@RightSidebarVisible"
                    LeftSidebarMode="@LeftSidebarMode"
                    RightSidebarMode="@RightSidebarMode"
-                   LeftSidebarWidth="306px"
+                   LeftSidebarWidth="320px"
                    RightSidebarWidth="360px"
-                   MainMenuOpen="@MainMenuOpen"
-                   MainMenuOpenChanged="@OnMainMenuOpenChanged"
                    OnBackdropClick="@OnBackdropClick">
     <HeaderContent>
         <div class="mx-showcase-topbar">
@@ -33,7 +35,7 @@
         </div>
     </HeaderContent>
 
-    <LeftSidebar>
+    <NavigationMenu>
         <nav class="mx-workspace-nav" aria-label="Menú principal showcase">
             <p class="mx-workspace-nav-group-title">Overview</p>
             <NavLink Match="NavLinkMatch.All" class="mx-workspace-nav-link" href="/">Home</NavLink>
@@ -57,6 +59,17 @@
             <NavLink class="mx-workspace-nav-link" href="/patterns/crud">Patterns / CRUD</NavLink>
             <NavLink class="mx-workspace-nav-link" href="/states/feedback">States</NavLink>
         </nav>
+    </NavigationMenu>
+
+    <LeftSidebar>
+        <div class="mx-workspace-panel">
+            <h4>Panel operativo</h4>
+            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Class="w-100">Nuevo registro</MxButton>
+            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Class="w-100">Exportar selección</MxButton>
+            <MxSwitch Label="Left sidebar visible" Value="@LeftSidebarVisible" ValueChanged="@OnLeftSidebarVisibleChanged" />
+            <MxSwitch Label="Left sidebar inline" Value="@LeftInline" ValueChanged="@OnLeftInlineChanged" />
+            <p class="mx-page-subtitle">Panel funcional de comandos rápidos (no navegación global).</p>
+        </div>
     </LeftSidebar>
 
     <MainContent>
@@ -65,18 +78,17 @@
 
     <RightSidebar>
         <div class="mx-workspace-panel">
-            <h4>Shell controls</h4>
-            <MxSwitch Label="Panel derecho visible" Value="@RightSidebarVisible" ValueChanged="@OnRightSidebarVisibleChanged" />
-            <MxSwitch Label="Sidebar izquierdo inline" Value="@LeftInline" ValueChanged="@OnLeftInlineChanged" />
-            <MxSwitch Label="Sidebar derecho inline" Value="@RightInline" ValueChanged="@OnRightInlineChanged" />
-            <p class="mx-page-subtitle">Este panel demuestra que el shell es declarativo: solo cambiamos estado, sin lógica de layout en el host.</p>
+            <h4>Contexto de workspace</h4>
+            <MxSwitch Label="Right sidebar visible" Value="@RightSidebarVisible" ValueChanged="@OnRightSidebarVisibleChanged" />
+            <MxSwitch Label="Right sidebar inline" Value="@RightInline" ValueChanged="@OnRightInlineChanged" />
+            <p class="mx-page-subtitle">Detalle contextual para flujos de lectura/edición.</p>
         </div>
     </RightSidebar>
 
     <FooterContent>
         <div class="mx-workspace-footer-meta">
             <span>Shell oficial: <strong>MxWorkspaceLayout</strong></span>
-            <span>Left: @LeftSidebarMode | Right: @RightSidebarMode | Menú: @(MainMenuOpen ? "Abierto" : "Cerrado")</span>
+            <span>Menu: @(MainMenuOpen ? "Abierto" : "Cerrado") | Left: @LeftSidebarMode | Right: @RightSidebarMode</span>
         </div>
     </FooterContent>
 </MxWorkspaceLayout>
@@ -85,8 +97,9 @@
     [CascadingParameter] public ShowcaseThemeState ThemeState { get; set; } = default!;
 
     private bool MainMenuOpen { get; set; }
+    private bool LeftSidebarVisible { get; set; } = true;
     private bool RightSidebarVisible { get; set; } = true;
-    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
+    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Inline;
     private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Inline;
 
     private bool LeftInline => LeftSidebarMode == MxSidebarMode.Inline;
@@ -114,10 +127,15 @@
         return Task.CompletedTask;
     }
 
-
     private Task OnBackdropClick()
     {
         MainMenuOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLeftSidebarVisibleChanged(bool isVisible)
+    {
+        LeftSidebarVisible = isVisible;
         return Task.CompletedTask;
     }
 
