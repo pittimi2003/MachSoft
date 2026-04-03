@@ -1,0 +1,188 @@
+<div class="mx-workspace-layout"
+     style="--mx-left-sidebar-width:@ResolvedLeftSidebarWidth; --mx-right-sidebar-width:@ResolvedRightSidebarWidth;"
+     data-main-menu-open="@MainMenuOpen.ToString().ToLowerInvariant()">
+    <header class="mx-workspace-header" data-header-height="48">
+        <div class="mx-workspace-header-primary">
+            <button type="button"
+                    class="mx-workspace-menu-toggle"
+                    aria-label="Alternar menú principal"
+                    aria-expanded="@MainMenuOpen.ToString().ToLowerInvariant()"
+                    title="Alternar menú principal"
+                    @onclick="ToggleMainMenuAsync">
+                <span aria-hidden="true">☰</span>
+            </button>
+            @if (HeaderContent is not null)
+            {
+                <div class="mx-workspace-header-content">@HeaderContent</div>
+            }
+        </div>
+    </header>
+
+    <div class="mx-workspace-body">
+        <div class="mx-workspace-grid" style="grid-template-columns:@GridColumns;">
+            @if (IsLeftInlineVisible)
+            {
+                <aside class="mx-workspace-sidebar mx-workspace-sidebar-inline mx-workspace-sidebar-left" data-sidebar="left" data-mode="inline">
+                    @LeftSidebar
+                </aside>
+            }
+
+            <section class="mx-workspace-main-region">
+                <main class="mx-workspace-main">@MainContent</main>
+                @if (FooterContent is not null)
+                {
+                    <footer class="mx-workspace-footer">@FooterContent</footer>
+                }
+            </section>
+
+            @if (IsRightInlineVisible)
+            {
+                <aside class="mx-workspace-sidebar mx-workspace-sidebar-inline mx-workspace-sidebar-right" data-sidebar="right" data-mode="inline">
+                    @RightSidebar
+                </aside>
+            }
+        </div>
+
+        @if (HasOverlayVisible)
+        {
+            <button type="button"
+                    class="mx-workspace-backdrop"
+                    aria-label="Fondo de panel lateral"
+                    @onclick="OnBackdropInteractionAsync"></button>
+        }
+
+        @if (IsLeftOverlayVisible)
+        {
+            <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-left" data-sidebar="left" data-mode="overlay">
+                @LeftSidebar
+            </aside>
+        }
+
+        @if (IsRightOverlayVisible)
+        {
+            <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-right" data-sidebar="right" data-mode="overlay">
+                @RightSidebar
+            </aside>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// Región declarativa para extender el header persistente del shell.
+    /// </summary>
+    [Parameter] public RenderFragment? HeaderContent { get; set; }
+
+    /// <summary>
+    /// Región declarativa para el sidebar izquierdo.
+    /// </summary>
+    [Parameter] public RenderFragment? LeftSidebar { get; set; }
+
+    /// <summary>
+    /// Región principal de trabajo (grids, formularios, dashboards y contenido de negocio).
+    /// </summary>
+    [Parameter] public RenderFragment MainContent { get; set; } = default!;
+
+    /// <summary>
+    /// Región declarativa para el sidebar derecho.
+    /// </summary>
+    [Parameter] public RenderFragment? RightSidebar { get; set; }
+
+    /// <summary>
+    /// Región opcional para acciones secundarias, estado o paginación del área central.
+    /// </summary>
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+
+    /// <summary>
+    /// Controla la visibilidad del sidebar izquierdo.
+    /// </summary>
+    [Parameter] public bool LeftSidebarVisible { get; set; }
+
+    /// <summary>
+    /// Controla la visibilidad del sidebar derecho.
+    /// </summary>
+    [Parameter] public bool RightSidebarVisible { get; set; }
+
+    /// <summary>
+    /// Define el modo del sidebar izquierdo.
+    /// </summary>
+    [Parameter] public MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Inline;
+
+    /// <summary>
+    /// Define el modo del sidebar derecho.
+    /// </summary>
+    [Parameter] public MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
+
+    /// <summary>
+    /// Ancho CSS del sidebar izquierdo (ej. 300px, 20rem, minmax(240px, 30vw)).
+    /// </summary>
+    [Parameter] public string LeftSidebarWidth { get; set; } = "320px";
+
+    /// <summary>
+    /// Ancho CSS del sidebar derecho (ej. 360px, 24rem).
+    /// </summary>
+    [Parameter] public string RightSidebarWidth { get; set; } = "360px";
+
+    /// <summary>
+    /// Estado del menú principal a nivel shell. Inicia en <c>false</c> por defecto.
+    /// </summary>
+    [Parameter] public bool MainMenuOpen { get; set; }
+
+    /// <summary>
+    /// Callback de sincronización para <see cref="MainMenuOpen"/>.
+    /// </summary>
+    [Parameter] public EventCallback<bool> MainMenuOpenChanged { get; set; }
+
+    /// <summary>
+    /// Callback de notificación para el gesto de toggle del menú principal.
+    /// </summary>
+    [Parameter] public EventCallback OnMenuToggle { get; set; }
+
+    /// <summary>
+    /// Callback opcional para interacción sobre backdrop de overlays.
+    /// </summary>
+    [Parameter] public EventCallback OnBackdropClick { get; set; }
+
+    private bool IsLeftInlineVisible => LeftSidebarVisible && LeftSidebarMode == MxSidebarMode.Inline;
+    private bool IsRightInlineVisible => RightSidebarVisible && RightSidebarMode == MxSidebarMode.Inline;
+    private bool IsLeftOverlayVisible => LeftSidebarVisible && LeftSidebarMode == MxSidebarMode.Overlay;
+    private bool IsRightOverlayVisible => RightSidebarVisible && RightSidebarMode == MxSidebarMode.Overlay;
+    private bool HasOverlayVisible => IsLeftOverlayVisible || IsRightOverlayVisible;
+
+    private string ResolvedLeftSidebarWidth => string.IsNullOrWhiteSpace(LeftSidebarWidth) ? "320px" : LeftSidebarWidth.Trim();
+    private string ResolvedRightSidebarWidth => string.IsNullOrWhiteSpace(RightSidebarWidth) ? "360px" : RightSidebarWidth.Trim();
+
+    private string GridColumns
+    {
+        get
+        {
+            var left = IsLeftInlineVisible ? ResolvedLeftSidebarWidth : "0px";
+            var right = IsRightInlineVisible ? ResolvedRightSidebarWidth : "0px";
+            return $"{left} minmax(0, 1fr) {right}";
+        }
+    }
+
+    private async Task ToggleMainMenuAsync()
+    {
+        var next = !MainMenuOpen;
+        MainMenuOpen = next;
+
+        if (MainMenuOpenChanged.HasDelegate)
+        {
+            await MainMenuOpenChanged.InvokeAsync(next);
+        }
+
+        if (OnMenuToggle.HasDelegate)
+        {
+            await OnMenuToggle.InvokeAsync();
+        }
+    }
+
+    private async Task OnBackdropInteractionAsync()
+    {
+        if (OnBackdropClick.HasDelegate)
+        {
+            await OnBackdropClick.InvokeAsync();
+        }
+    }
+}

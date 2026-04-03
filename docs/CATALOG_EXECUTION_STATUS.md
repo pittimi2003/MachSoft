@@ -47,12 +47,20 @@
 - **Objetivo vigente:** mantener este estado operativo como fuente de verdad activa y exigir su actualización en cada ejecución relevante del catálogo.
 
 ## 9) Último cierre válido / última actualización relevante
-- **Fecha:** 2026-04-02 (UTC).
-- **Tipo:** formalización de gobernanza documental.
-- **Resultado:** contrato raíz + archivo vivo de estado operativo creados y activos.
-- **Impacto operativo:** continuidad del trabajo desacoplada del chat y trazable en repositorio.
+- **Fecha:** 2026-04-03 (UTC).
+- **Tipo:** evolución contractual de layout reusable de plataforma.
+- **Resultado:** shell oficial `MxWorkspaceLayout` implementado y consumido por Showcase/Template.* con validación técnica.
+- **Impacto operativo:** layout de workspace unificado, reusable y gobernado por plataforma.
 
 ---
 
 ## Regla operativa obligatoria (aplicación continua)
 Toda ejecución relevante que cambie estado real del catálogo **debe** incluir actualización de este archivo en el mismo conjunto de cambios.
+
+
+## 10) Actualización 2026-04-03 (UTC) — Shell oficial de workspace
+- Se incorpora `MxWorkspaceLayout` como contrato público reusable en `MachSoft.UI`.
+- Se incorpora `MxSidebarMode` para gobernar sidebars inline/overlay sin exponer `Mud*` en API pública.
+- `MachSoft.UI.Showcase`, `MachSoft.Template.Server` y `MachSoft.Template.Wasm` migran su layout principal para consumir el nuevo shell `Mx*`.
+- Se agrega documentación contractual en `docs/components/MxWorkspaceLayout.md` con matriz obligatoria de comportamiento y reglas de consumo.
+- Se agregan pruebas de componente para estados cerrados/inline/overlay, footer opcional, toggle de menú y casos sin contenido de región.
