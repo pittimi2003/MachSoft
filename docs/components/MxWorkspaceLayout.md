@@ -73,6 +73,24 @@ Este menú controla estructura/estado del shell, **no sustituye** el contenido f
 - Ambos inline => 3 columnas estructurales.
 - Cualquier sidebar en overlay => no descuenta ancho.
 - La columna central usa `minmax(0, 1fr)`.
+- El desplazamiento visual de `MainContent` con overlays abiertos se resuelve con `transform` del contenedor principal (`--mx-main-visual-shift`), nunca agregando columnas inline.
+
+## Separación técnica obligatoria (estructura vs overlay)
+- Grid estructural: solo `Left inline` + `Main` + `Right inline`.
+- Capa overlay separada (`mx-workspace-overlay-layer`) para:
+  - `NavigationMenu` overlay
+  - `LeftSidebar` overlay abierto
+  - `RightSidebar` overlay abierto
+- Backdrop independiente (`mx-workspace-backdrop`) activado cuando hay al menos un overlay visible.
+
+## Estados de MainContainer
+- `data-main-structural-span`: `full`, `center-with-left-inline`, `center-with-right-inline`, `center-with-both-inline`.
+- `data-main-visual-state`: `neutral`, `shift-left`, `shift-right`, `shift-both`.
+- Clases visuales asociadas:
+  - `mx-workspace-main-region-neutral`
+  - `mx-workspace-main-region-shift-left`
+  - `mx-workspace-main-region-shift-right`
+  - `mx-workspace-main-region-shift-both`
 
 ## Diferencia obligatoria: `NavigationMenu` vs sidebars funcionales
 - `NavigationMenu`: navegación global de producto (overlay con `MainMenuOpen`).

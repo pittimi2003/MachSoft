@@ -61,6 +61,7 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("280px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='left'][data-mode='inline']").Should().NotBeNull();
         cut.FindAll("[data-sidebar='left'][data-mode='overlay']").Should().BeEmpty();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("center-with-left-inline");
     }
 
     [Fact]
@@ -73,6 +74,8 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.FindAll("[data-sidebar='left']").Should().BeEmpty();
         cut.FindAll(".mx-workspace-backdrop").Should().BeEmpty();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("full");
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("neutral");
     }
 
     [Fact]
@@ -85,12 +88,15 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='left'][data-mode='overlay']").Should().NotBeNull();
         cut.Find(".mx-workspace-backdrop").Should().NotBeNull();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("shift-left");
+        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-shift-left");
     }
 
     [Fact]
     public void Render_RightInline_ShouldAlwaysRenderInlineRegionAndReserveRightColumn()
     {
         var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
             .Add(x => x.RightSidebarMode, MxSidebarMode.Inline)
             .Add(x => x.RightSidebarOpen, false)
             .Add(x => x.RightSidebarWidth, "420px"));
@@ -98,18 +104,22 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 420px");
         cut.Find("[data-sidebar='right'][data-mode='inline']").Should().NotBeNull();
         cut.FindAll("[data-sidebar='right'][data-mode='overlay']").Should().BeEmpty();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("center-with-right-inline");
     }
 
     [Fact]
     public void Render_RightOverlayClosed_ShouldNotRenderStructuralOrOverlayRegion()
     {
         var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
             .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
             .Add(x => x.RightSidebarOpen, false));
 
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.FindAll("[data-sidebar='right']").Should().BeEmpty();
         cut.FindAll(".mx-workspace-backdrop").Should().BeEmpty();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("full");
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("neutral");
     }
 
     [Fact]
@@ -122,6 +132,8 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='right'][data-mode='overlay']").Should().NotBeNull();
         cut.Find(".mx-workspace-backdrop").Should().NotBeNull();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("shift-right");
+        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-shift-right");
     }
 
     [Fact]
@@ -164,6 +176,7 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("260px minmax(0, 1fr) 340px");
         cut.Find("[data-sidebar='left'][data-mode='inline']").Should().NotBeNull();
         cut.Find("[data-sidebar='right'][data-mode='inline']").Should().NotBeNull();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("center-with-both-inline");
     }
 
     [Fact]
@@ -179,6 +192,26 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.FindAll("[data-sidebar='left'][data-mode='overlay']").Should().BeEmpty();
         cut.FindAll("[data-sidebar='right'][data-mode='overlay']").Should().BeEmpty();
         cut.FindAll(".mx-workspace-backdrop").Should().BeEmpty();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("full");
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("neutral");
+    }
+
+    [Fact]
+    public void Render_BothOverlayOpen_ShouldRenderBothPanelsBackdropAndVisualState()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.LeftSidebarOpen, true)
+            .Add(x => x.RightSidebarOpen, true));
+
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
+        cut.Find("[data-sidebar='left'][data-mode='overlay']").Should().NotBeNull();
+        cut.Find("[data-sidebar='right'][data-mode='overlay']").Should().NotBeNull();
+        cut.Find(".mx-workspace-backdrop").Should().NotBeNull();
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("shift-both");
+        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-shift-both");
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("full");
     }
 
     [Fact]

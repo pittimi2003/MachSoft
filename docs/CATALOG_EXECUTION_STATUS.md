@@ -87,3 +87,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Header de 48px mantiene hamburguesa de menú principal e incorpora `MxMenu` de control de shell para cambio de modo/apertura de sidebars funcionales.
 - `MachSoft.UI.Showcase`, `MachSoft.Template.Wasm` y `MachSoft.Template.Server` consumen el contrato actualizado de forma declarativa.
 - Se actualiza documentación contractual y se amplía bUnit para cubrir combinaciones left/right inline/overlay, overlays cerrados/abiertos, independencia del menú principal y menú de control del shell.
+
+## 14) Actualización 2026-04-03 (UTC) — Corrección funcional de overlay y separación estructural/visual en `MxWorkspaceLayout`
+- Se refuerza la arquitectura del shell para separar explícitamente: grid estructural (solo inline), capa de overlays (`mx-workspace-overlay-layer`) y backdrop independiente.
+- Se mantiene el cálculo estructural del `MainContainer` exclusivamente con sidebars en modo `Inline`; sidebars `Overlay` cerrados no reservan ancho en ninguna columna.
+- Se agrega estado visual del contenedor principal (`data-main-visual-state` + clases `mx-workspace-main-region-*`) y desplazamiento por `transform` usando `--mx-main-visual-shift` para acompañar overlays abiertos sin convertirlos en columnas inline.
+- Se actualiza Showcase para arrancar en modo overlay cerrado y exponer en footer el estado estructural + estado de desplazamiento visual, facilitando auditoría explícita de comportamiento real.
+- Se amplía cobertura bUnit para validar full-width estructural cuando overlays están cerrados, visibilidad de paneles/backdrop al abrir overlays, estado visual del main y reducción estructural correcta en modos inline.

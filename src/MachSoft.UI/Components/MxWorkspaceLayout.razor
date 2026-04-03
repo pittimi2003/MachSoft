@@ -41,7 +41,10 @@
                 </aside>
             }
 
-            <section class="mx-workspace-main-region">
+            <section class="mx-workspace-main-region @MainRegionVisualStateClass"
+                     style="--mx-main-visual-shift:@MainRegionVisualShift;"
+                     data-main-structural-span="@MainRegionStructuralSpan"
+                     data-main-visual-state="@MainRegionVisualState">
                 <main class="mx-workspace-main">@MainContent</main>
                 @if (FooterContent is not null)
                 {
@@ -65,26 +68,29 @@
                     @onclick="OnBackdropInteractionAsync"></button>
         }
 
-        @if (IsNavigationMenuOverlayVisible)
-        {
-            <aside class="mx-workspace-navigation-menu mx-workspace-navigation-menu-overlay" data-region="navigation-menu" data-mode="overlay">
-                @NavigationMenu
-            </aside>
-        }
+        <div class="mx-workspace-overlay-layer" data-overlay-layer-open="@HasAnyOverlayVisible.ToString().ToLowerInvariant()">
+            @if (IsNavigationMenuOverlayVisible)
+            {
+                <aside class="mx-workspace-navigation-menu mx-workspace-navigation-menu-overlay" data-region="navigation-menu" data-mode="overlay">
+                    @NavigationMenu
+                </aside>
+            }
 
-        @if (HasLeftOverlayRegion)
-        {
-            <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-left" data-sidebar="left" data-mode="overlay">
-                @LeftSidebar
-            </aside>
-        }
+            @if (HasLeftOverlayRegion)
+            {
+                <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-left" data-sidebar="left" data-mode="overlay">
+                    @LeftSidebar
+                </aside>
+            }
 
-        @if (HasRightOverlayRegion)
-        {
-            <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-right" data-sidebar="right" data-mode="overlay">
-                @RightSidebar
-            </aside>
-        }
+            @if (HasRightOverlayRegion)
+            {
+                <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-right" data-sidebar="right" data-mode="overlay">
+                    @RightSidebar
+                </aside>
+            }
+        </div>
+
     </div>
 </div>
 
@@ -221,6 +227,8 @@
     private bool HasRightInlineRegion => RightSidebar is not null && RightSidebarMode == MxSidebarMode.Inline;
     private bool HasLeftOverlayRegion => LeftSidebar is not null && LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen;
     private bool HasRightOverlayRegion => RightSidebar is not null && RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen;
+    private bool IsLeftOverlayOpen => LeftSidebar is not null && LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen;
+    private bool IsRightOverlayOpen => RightSidebar is not null && RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen;
     private bool HasAnyOverlayVisible => IsNavigationMenuOverlayVisible || HasLeftOverlayRegion || HasRightOverlayRegion;
 
     private IReadOnlyList<MxMenuItem> ShellControlItems =>
@@ -246,6 +254,38 @@
             return $"{left} minmax(0, 1fr) {right}";
         }
     }
+
+    private string MainRegionVisualShift => (IsLeftOverlayOpen, IsRightOverlayOpen) switch
+    {
+        (true, true) => "calc(var(--mx-left-sidebar-width) - var(--mx-right-sidebar-width))",
+        (true, false) => "var(--mx-left-sidebar-width)",
+        (false, true) => "calc(var(--mx-right-sidebar-width) * -1)",
+        _ => "0px"
+    };
+
+    private string MainRegionVisualState => (IsLeftOverlayOpen, IsRightOverlayOpen) switch
+    {
+        (true, true) => "shift-both",
+        (true, false) => "shift-left",
+        (false, true) => "shift-right",
+        _ => "neutral"
+    };
+
+    private string MainRegionVisualStateClass => MainRegionVisualState switch
+    {
+        "shift-left" => "mx-workspace-main-region-shift-left",
+        "shift-right" => "mx-workspace-main-region-shift-right",
+        "shift-both" => "mx-workspace-main-region-shift-both",
+        _ => "mx-workspace-main-region-neutral"
+    };
+
+    private string MainRegionStructuralSpan => (HasLeftInlineRegion, HasRightInlineRegion) switch
+    {
+        (false, false) => "full",
+        (true, false) => "center-with-left-inline",
+        (false, true) => "center-with-right-inline",
+        _ => "center-with-both-inline"
+    };
 
     private async Task ToggleMainMenuAsync()
     {
