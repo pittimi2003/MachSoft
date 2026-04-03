@@ -1,10 +1,9 @@
 @inherits LayoutComponentBase
 
-<MxWorkspaceLayout LeftSidebarVisible="@MainMenuOpen"
-                   LeftSidebarMode="MxSidebarMode.Overlay"
-                   LeftSidebarWidth="280px"
-                   MainMenuOpen="@MainMenuOpen"
+<MxWorkspaceLayout MainMenuOpen="@MainMenuOpen"
                    MainMenuOpenChanged="@OnMainMenuOpenChanged"
+                   NavigationMenuMode="MxSidebarMode.Overlay"
+                   NavigationMenuWidth="280px"
                    OnBackdropClick="@OnBackdropClick">
     <HeaderContent>
         <div class="mx-showcase-topbar">
@@ -18,13 +17,13 @@
         </div>
     </HeaderContent>
 
-    <LeftSidebar>
+    <NavigationMenu>
         <nav class="mx-workspace-nav" aria-label="Template Server">
             <NavLink Match="NavLinkMatch.All" class="mx-workspace-nav-link" href="/">Dashboard</NavLink>
             <NavLink class="mx-workspace-nav-link" href="/formulario">Formulario</NavLink>
             <NavLink class="mx-workspace-nav-link" href="/lista">Lista</NavLink>
         </nav>
-    </LeftSidebar>
+    </NavigationMenu>
 
     <MainContent>@Body</MainContent>
 </MxWorkspaceLayout>

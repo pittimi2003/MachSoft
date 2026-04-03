@@ -1,198 +1,240 @@
 # MxWorkspaceLayout
 
 ## Propósito del componente
-`MxWorkspaceLayout` es el shell oficial reutilizable de plataforma para vistas tipo workspace en `MachSoft.UI`. Expone un contrato declarativo de regiones y estado para mantener header persistente, sidebars (inline/overlay), contenedor central adaptable y footer opcional, sin acoplarse a casos de negocio.
+`MxWorkspaceLayout` es el shell reusable oficial de plataforma para vistas de trabajo. Su contrato separa de forma explícita:
+- `NavigationMenu` (navegación global del producto),
+- `LeftSidebar`/`RightSidebar` (paneles funcionales de la feature activa),
+- `MainContent` (área principal adaptable),
+- `FooterContent` (opcional).
 
 ## Cuándo usarlo
-- Pantallas de trabajo con navegación persistente + contenido central dinámico.
-- Flujos CRUD con panel lateral de operaciones/contexto.
-- Pantallas que requieran panel derecho para detalle/edición contextual.
-- Hosts de plataforma (`Showcase`, `Template.Server`, `Template.Wasm`) y nuevas apps que consumen `MachSoft.UI`.
+- Layout principal de apps y módulos con header persistente.
+- Pantallas operativas que necesitan paneles laterales inline/overlay.
+- Hosts de plataforma (`Showcase`, `Template.Server`, `Template.Wasm`) y nuevas apps basadas en `MachSoft.UI`.
 
 ## Cuándo no usarlo
-- Vistas aisladas sin shell global persistente.
-- Componentes internos embebidos dentro de otra región ya gobernada por `MxWorkspaceLayout`.
-- Páginas que requieren estructura totalmente distinta (wizard fullscreen, landing, login sin frame).
+- Vistas aisladas sin frame persistente.
+- Flujos fullscreen (login, wizard de pantalla completa, landing).
+- Componentes internos ya contenidos dentro de otro `MxWorkspaceLayout`.
+
+---
 
 ## Contrato público soportado
 
 ### Regiones declarativas
 - `HeaderContent`
+- `NavigationMenu`
 - `LeftSidebar`
 - `MainContent`
 - `RightSidebar`
 - `FooterContent` (opcional)
 
 ### Parámetros públicos
+- `bool MainMenuOpen`
+- `EventCallback<bool> MainMenuOpenChanged`
+- `MxSidebarMode NavigationMenuMode`
+- `string NavigationMenuWidth`
 - `bool LeftSidebarVisible`
 - `bool RightSidebarVisible`
 - `MxSidebarMode LeftSidebarMode`
 - `MxSidebarMode RightSidebarMode`
 - `string LeftSidebarWidth`
 - `string RightSidebarWidth`
-- `bool MainMenuOpen`
-
-### Eventos públicos
-- `EventCallback<bool> MainMenuOpenChanged`
 - `EventCallback OnMenuToggle`
 - `EventCallback OnBackdropClick`
+- `string Class`
+- `string Style`
+
+### Evento/estado de menú principal
+- El botón hamburguesa vive en el header del shell.
+- El botón alterna `MainMenuOpen`.
+- `MainMenuOpen = false` por defecto.
 
 ### Enum público
-- `MxSidebarMode`
-  - `Inline`: ocupa columna real y reduce ancho central.
-  - `Overlay`: se superpone y no altera columnas centrales.
+`MxSidebarMode`:
+- `Inline`: ocupa columna real y reduce ancho central.
+- `Overlay`: se superpone y no cambia columnas centrales.
 
-## Comportamiento funcional del shell
+> **Nota de versión:** en esta iteración `NavigationMenuMode` se mantiene en API para evolución; la implementación estable de `NavigationMenu` es `Overlay`.
+
+---
+
+## Diferencia obligatoria: `NavigationMenu` vs `LeftSidebar`
+
+### `NavigationMenu`
+- Navegación global (módulos, secciones, acceso principal).
+- Se controla con hamburguesa (`MainMenuOpen`).
+- No forma parte del cálculo funcional left/right del workspace.
+
+### `LeftSidebar`
+- Panel funcional de la pantalla activa (CRUD, filtros, acciones contextuales).
+- Puede ser `Inline` u `Overlay`.
+- Sí participa del cálculo de ancho útil cuando está en `Inline`.
+
+---
+
+## Comportamiento funcional esperado
 
 ### Header
-- Es persistente y fijo.
+- Persistente y fijo.
 - Altura contractual: `48px`.
-- Incluye botón hamburguesa integrado en el shell.
-- El estado `MainMenuOpen` inicia en `false` por defecto.
+- Franja mínima y limpia para branding/acciones globales.
 
-### Sidebars
-- Solo aparecen cuando su visibilidad está activada (`LeftSidebarVisible` / `RightSidebarVisible`).
-- Se renderizan en `Inline` u `Overlay` según su modo configurado.
-- La lógica de cálculo de columnas y overlays está encapsulada dentro del shell.
+### NavigationMenu
+- Inicia cerrado (`MainMenuOpen = false`).
+- Se abre/cierra desde hamburguesa.
+- Se renderiza independiente de `LeftSidebar`.
 
-### MainContainer
-- Ocupa todo el ancho útil cuando ambos sidebars están cerrados.
-- Reduce ancho solo por sidebars `Inline`.
-- No pierde ancho por sidebars `Overlay`.
+### Sidebars funcionales (`LeftSidebar`, `RightSidebar`)
+- Son opcionales por estado (`Visible`).
+- `Inline`: reduce ancho útil de `MainContent`.
+- `Overlay`: no reduce ancho útil de `MainContent`.
 
-### Footer
-- Es opcional.
-- Si existe, usa el 100% del ancho útil central.
-- Si no existe, no deja huecos residuales.
+### MainContent
+- Nunca usa ancho rígido.
+- Se adapta por columnas inline activas.
+- Permanece estable ante overlays.
+
+### FooterContent
+- Render condicional (solo si existe contenido).
+- Ocupa 100% del ancho útil central.
+- Ausente => sin huecos residuales.
 
 ### Backdrop
-- Se muestra cuando hay al menos un sidebar en `Overlay` visible.
-- La reacción de negocio al click de backdrop se delega mediante `OnBackdropClick`.
+- Aparece cuando hay panel overlay visible (`NavigationMenu` o sidebars funcionales overlay).
+- El shell delega reacción de negocio vía `OnBackdropClick`.
+
+---
 
 ## Matriz de comportamiento obligatoria
 
-| Left | Right | Paneles visibles | Impacto en ancho MainContainer | Backdrop | Comportamiento esperado |
-|---|---|---|---|---|---|
-| Cerrado | Cerrado | Ninguno | Ancho completo | No | Flujo foco total en contenido central |
-| Inline | Cerrado | Left inline | Reduce por ancho left | No | Navegación/panel operativo estable sin superposición |
-| Cerrado | Inline | Right inline | Reduce por ancho right | No | Panel contextual fijo coexistiendo con contenido |
-| Inline | Inline | Ambos inline | Reduce por ambos anchos | No | Workspace de tres columnas persistentes |
-| Overlay | Cerrado | Left overlay | Sin reducción | Sí | Left se superpone; contenido mantiene ancho |
-| Cerrado | Overlay | Right overlay | Sin reducción | Sí | Right contextual modal lateral; contenido estable |
-| Overlay | Overlay | Ambos overlay | Sin reducción | Sí | Ambos paneles flotan sobre contenido central |
-| Inline | Overlay | Left inline + right overlay | Reduce solo por left | Sí | Operación izquierda fija + detalle derecho contextual |
-| Overlay | Inline | Left overlay + right inline | Reduce solo por right | Sí | Contexto izquierdo flotante + detalle derecho estructural |
+### Navegación
 
-## Responsabilidades del shell vs contenido
+| Caso | Visibilidad real | Impacto en MainContent | Backdrop | Interacción esperada |
+|---|---|---|---|---|
+| `MainMenuOpen = false` | `NavigationMenu` oculto | Ninguno | No | Workspace opera sin panel global abierto |
+| `MainMenuOpen = true` | `NavigationMenu` visible (overlay) | Ninguno | Sí | Menú global superpuesto, cierre por hamburguesa o backdrop |
+
+### Workspace funcional
+
+| Left | Right | Visibilidad real de paneles | Impacto en ancho MainContent | Backdrop | Implicación visual/interacción |
+|---|---|---|---|---|---|
+| Cerrado | Cerrado | Ninguno | Ancho completo | No | Foco total en contenido |
+| Inline | Cerrado | Left inline | Reduce por left | No | Panel operativo estructural |
+| Cerrado | Inline | Right inline | Reduce por right | No | Panel contextual estructural |
+| Inline | Inline | Ambos inline | Reduce por ambos | No | Tres columnas persistentes |
+| Overlay | Cerrado | Left overlay | Sin reducción | Sí | Left flotante sobre contenido |
+| Cerrado | Overlay | Right overlay | Sin reducción | Sí | Right flotante sobre contenido |
+| Overlay | Overlay | Ambos overlay | Sin reducción | Sí | Ambos paneles superpuestos |
+| Inline | Overlay | Left inline + right overlay | Reduce solo por left | Sí | Estructura izquierda + detalle flotante |
+| Overlay | Inline | Left overlay + right inline | Reduce solo por right | Sí | Menor intrusión izquierda + estructura derecha |
+
+---
+
+## Qué controla el shell y qué no
 
 ### Controla el shell
-- Estructura general y jerarquía de regiones.
-- Persistencia del header fijo de 48px.
-- Cálculo de columnas para sidebars inline.
-- Render y coordinación de sidebars overlay.
-- Backdrop y transición visual del frame.
-- Ancho útil del contenedor central.
-- Presencia opcional del footer central.
-- Interacción base del menú principal (hamburguesa + `MainMenuOpen`).
+- Estructura general.
+- Header persistente y su hamburguesa.
+- Render de `NavigationMenu`.
+- Cálculo de columnas del workspace funcional.
+- Comportamiento inline/overlay.
+- Backdrop y transiciones.
+- Ancho útil central.
+- Footer opcional.
 
 ### No controla el shell
-- Navegación de negocio específica.
+- Contenido de negocio del menú.
 - Reglas CRUD de dominio.
-- Formularios o entidades concretas.
-- Reglas funcionales particulares de cada pantalla.
-- Decisiones de flujo propias del host más allá de estado/slots.
+- Formularios/entidades específicas.
+- Acciones de negocio particulares de cada vista.
 
-## Reglas de consumo
+---
 
-### Showcase
-- Consumir `MxWorkspaceLayout` como host principal.
-- Demostrar estados inline/overlay únicamente mediante parámetros públicos.
-- No inyectar cálculos internos de layout en el host.
+## Reglas de consumo para hosts
 
-### Template.Server y Template.Wasm
-- Consumir `MxWorkspaceLayout` en `MainLayout`.
-- Usar sidebars/regiones por slots declarativos.
-- No replicar estructura de grid, overlay o backdrop fuera del componente.
+- `Showcase`, `Template.Server`, `Template.Wasm` deben consumir este contrato por slots y estado.
+- Hosts no deben duplicar lógica de columnas, overlay, backdrop, header persistente ni menú hamburguesa.
+- Hosts aportan solo estado + contenido de regiones + wiring mínimo.
+- `NavigationMenu` no debe volver a modelarse como `LeftSidebar`.
 
-### Nueva vista de negocio
-- Definir contenido de regiones con `RenderFragment`.
-- Manejar solo estado de visibilidad/modo/ancho, sin reimplementar shell.
-- Mantener desacople entre contenido de negocio y frame de layout.
-
-### Qué no deben hacer los hosts
-- No construir layouts paralelos con `MudLayout/MudDrawer` para resolver este shell.
-- No duplicar lógica de columnas, overlays o backdrop.
-- No acoplar `MainContent` a un caso de negocio único.
+---
 
 ## Ejemplos de consumo
 
-### 1) Layout mínimo
+### Layout mínimo
 ```razor
 <MxWorkspaceLayout MainMenuOpen="@menuOpen" MainMenuOpenChanged="@(v => menuOpen = v)">
-  <MainContent>
-    <MiVista />
-  </MainContent>
+  <MainContent><VistaTrabajo /></MainContent>
 </MxWorkspaceLayout>
 ```
 
-### 2) Left sidebar inline
+### Con NavigationMenu
 ```razor
-<MxWorkspaceLayout LeftSidebarVisible="true"
-                   LeftSidebarMode="MxSidebarMode.Inline"
-                   LeftSidebarWidth="280px">
-  <LeftSidebar><MiPanelOperativo /></LeftSidebar>
-  <MainContent><MiGrid /></MainContent>
+<MxWorkspaceLayout MainMenuOpen="@menuOpen" MainMenuOpenChanged="@(v => menuOpen = v)">
+  <NavigationMenu><NavGlobal /></NavigationMenu>
+  <MainContent><Dashboard /></MainContent>
 </MxWorkspaceLayout>
 ```
 
-### 3) Right sidebar overlay
+### LeftSidebar inline
 ```razor
-<MxWorkspaceLayout RightSidebarVisible="@showDetail"
+<MxWorkspaceLayout LeftSidebarVisible="true" LeftSidebarMode="MxSidebarMode.Inline" LeftSidebarWidth="300px">
+  <LeftSidebar><PanelFiltros /></LeftSidebar>
+  <MainContent><GridResultados /></MainContent>
+</MxWorkspaceLayout>
+```
+
+### RightSidebar overlay
+```razor
+<MxWorkspaceLayout RightSidebarVisible="@detailOpen"
                    RightSidebarMode="MxSidebarMode.Overlay"
-                   RightSidebarWidth="360px"
-                   OnBackdropClick="@(() => showDetail = false)">
-  <MainContent><MiListado /></MainContent>
-  <RightSidebar><DetalleSeleccionado /></RightSidebar>
+                   OnBackdropClick="@(() => detailOpen = false)">
+  <MainContent><Listado /></MainContent>
+  <RightSidebar><DetalleRegistro /></RightSidebar>
 </MxWorkspaceLayout>
 ```
 
-### 4) Layout con footer
+### Con footer
 ```razor
 <MxWorkspaceLayout>
-  <MainContent><MiDashboard /></MainContent>
-  <FooterContent><MiPaginacion /></FooterContent>
+  <MainContent><Vista /></MainContent>
+  <FooterContent><PaginacionEstado /></FooterContent>
 </MxWorkspaceLayout>
 ```
 
-### 5) Ambos paneles
+### Ambos sidebars funcionales
 ```razor
 <MxWorkspaceLayout LeftSidebarVisible="true"
                    RightSidebarVisible="@showEdit"
                    LeftSidebarMode="MxSidebarMode.Inline"
                    RightSidebarMode="MxSidebarMode.Overlay">
-  <LeftSidebar><FiltrosRapidos /></LeftSidebar>
-  <MainContent><GridClientes /></MainContent>
+  <LeftSidebar><ComandosRapidos /></LeftSidebar>
+  <MainContent><GridTrabajo /></MainContent>
   <RightSidebar><FormularioEdicion /></RightSidebar>
 </MxWorkspaceLayout>
 ```
 
-### 6) Pantalla de trabajo real
+### Pantalla de trabajo real
 ```razor
-<MxWorkspaceLayout LeftSidebarVisible="@menuOpen"
+<MxWorkspaceLayout MainMenuOpen="@menuOpen"
+                   MainMenuOpenChanged="@(v => menuOpen = v)"
+                   LeftSidebarVisible="true"
                    RightSidebarVisible="@detailOpen"
-                   LeftSidebarMode="MxSidebarMode.Overlay"
-                   RightSidebarMode="MxSidebarMode.Inline"
-                   MainMenuOpen="@menuOpen"
-                   MainMenuOpenChanged="@(v => menuOpen = v)">
+                   LeftSidebarMode="MxSidebarMode.Inline"
+                   RightSidebarMode="MxSidebarMode.Overlay">
   <HeaderContent><ToolbarClientes /></HeaderContent>
-  <LeftSidebar><NavClientes /></LeftSidebar>
+  <NavigationMenu><MenuGlobal /></NavigationMenu>
+  <LeftSidebar><FiltrosClientes /></LeftSidebar>
   <MainContent><GridClientes /></MainContent>
   <RightSidebar><FichaCliente /></RightSidebar>
-  <FooterContent><StatusOperacion /></FooterContent>
+  <FooterContent><EstadoOperacion /></FooterContent>
 </MxWorkspaceLayout>
 ```
 
-## Notas de estabilidad del contrato
-- **Contrato público estable:** regiones, parámetros y eventos documentados en este archivo.
-- **Comportamiento esperado estable:** semántica inline/overlay y reglas de ancho central.
-- **Detalle interno no garantizado:** estructura CSS interna exacta, clases privadas y estrategia de transición.
+---
+
+## Niveles de documentación
+- **Contrato público estable:** regiones, parámetros y eventos listados arriba.
+- **Comportamiento esperado estable:** separación `NavigationMenu`/`LeftSidebar`, reglas inline/overlay y adaptación de `MainContent`.
+- **No garantizado como API:** clases CSS internas y detalle de composición interna.

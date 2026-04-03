@@ -1,6 +1,8 @@
-<div class="mx-workspace-layout"
-     style="--mx-left-sidebar-width:@ResolvedLeftSidebarWidth; --mx-right-sidebar-width:@ResolvedRightSidebarWidth;"
-     data-main-menu-open="@MainMenuOpen.ToString().ToLowerInvariant()">
+<div class="mx-workspace-layout @Class"
+     style="--mx-navigation-menu-width:@ResolvedNavigationMenuWidth; --mx-left-sidebar-width:@ResolvedLeftSidebarWidth; --mx-right-sidebar-width:@ResolvedRightSidebarWidth; @Style"
+     data-main-menu-open="@MainMenuOpen.ToString().ToLowerInvariant()"
+     data-navigation-mode="@NavigationMenuMode.ToString().ToLowerInvariant()"
+     data-navigation-mode-effective="overlay">
     <header class="mx-workspace-header" data-header-height="48">
         <div class="mx-workspace-header-primary">
             <button type="button"
@@ -19,7 +21,7 @@
     </header>
 
     <div class="mx-workspace-body">
-        <div class="mx-workspace-grid" style="grid-template-columns:@GridColumns;">
+        <section class="mx-workspace-functional-grid" style="grid-template-columns:@WorkspaceGridColumns;">
             @if (IsLeftInlineVisible)
             {
                 <aside class="mx-workspace-sidebar mx-workspace-sidebar-inline mx-workspace-sidebar-left" data-sidebar="left" data-mode="inline">
@@ -41,14 +43,21 @@
                     @RightSidebar
                 </aside>
             }
-        </div>
+        </section>
 
-        @if (HasOverlayVisible)
+        @if (HasAnyOverlayVisible)
         {
             <button type="button"
                     class="mx-workspace-backdrop"
                     aria-label="Fondo de panel lateral"
                     @onclick="OnBackdropInteractionAsync"></button>
+        }
+
+        @if (IsNavigationMenuOverlayVisible)
+        {
+            <aside class="mx-workspace-navigation-menu mx-workspace-navigation-menu-overlay" data-region="navigation-menu" data-mode="overlay">
+                @NavigationMenu
+            </aside>
         }
 
         @if (IsLeftOverlayVisible)
@@ -74,7 +83,12 @@
     [Parameter] public RenderFragment? HeaderContent { get; set; }
 
     /// <summary>
-    /// Región declarativa para el sidebar izquierdo.
+    /// Región declarativa para navegación global de la aplicación, independiente del sidebar funcional izquierdo.
+    /// </summary>
+    [Parameter] public RenderFragment? NavigationMenu { get; set; }
+
+    /// <summary>
+    /// Región declarativa para el sidebar izquierdo funcional (acciones rápidas, filtros, comandos de feature).
     /// </summary>
     [Parameter] public RenderFragment? LeftSidebar { get; set; }
 
@@ -84,7 +98,7 @@
     [Parameter] public RenderFragment MainContent { get; set; } = default!;
 
     /// <summary>
-    /// Región declarativa para el sidebar derecho.
+    /// Región declarativa para el sidebar derecho funcional (detalle contextual, edición, formularios inline).
     /// </summary>
     [Parameter] public RenderFragment? RightSidebar { get; set; }
 
@@ -92,36 +106,6 @@
     /// Región opcional para acciones secundarias, estado o paginación del área central.
     /// </summary>
     [Parameter] public RenderFragment? FooterContent { get; set; }
-
-    /// <summary>
-    /// Controla la visibilidad del sidebar izquierdo.
-    /// </summary>
-    [Parameter] public bool LeftSidebarVisible { get; set; }
-
-    /// <summary>
-    /// Controla la visibilidad del sidebar derecho.
-    /// </summary>
-    [Parameter] public bool RightSidebarVisible { get; set; }
-
-    /// <summary>
-    /// Define el modo del sidebar izquierdo.
-    /// </summary>
-    [Parameter] public MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Inline;
-
-    /// <summary>
-    /// Define el modo del sidebar derecho.
-    /// </summary>
-    [Parameter] public MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
-
-    /// <summary>
-    /// Ancho CSS del sidebar izquierdo (ej. 300px, 20rem, minmax(240px, 30vw)).
-    /// </summary>
-    [Parameter] public string LeftSidebarWidth { get; set; } = "320px";
-
-    /// <summary>
-    /// Ancho CSS del sidebar derecho (ej. 360px, 24rem).
-    /// </summary>
-    [Parameter] public string RightSidebarWidth { get; set; } = "360px";
 
     /// <summary>
     /// Estado del menú principal a nivel shell. Inicia en <c>false</c> por defecto.
@@ -134,6 +118,46 @@
     [Parameter] public EventCallback<bool> MainMenuOpenChanged { get; set; }
 
     /// <summary>
+    /// Modo solicitado para el menú principal. En esta iteración el shell soporta <see cref="MxSidebarMode.Overlay"/> de forma estable.
+    /// </summary>
+    [Parameter] public MxSidebarMode NavigationMenuMode { get; set; } = MxSidebarMode.Overlay;
+
+    /// <summary>
+    /// Ancho CSS del menú principal (ej. 280px, 20rem).
+    /// </summary>
+    [Parameter] public string NavigationMenuWidth { get; set; } = "288px";
+
+    /// <summary>
+    /// Controla la visibilidad del sidebar izquierdo funcional.
+    /// </summary>
+    [Parameter] public bool LeftSidebarVisible { get; set; }
+
+    /// <summary>
+    /// Controla la visibilidad del sidebar derecho funcional.
+    /// </summary>
+    [Parameter] public bool RightSidebarVisible { get; set; }
+
+    /// <summary>
+    /// Define el modo del sidebar izquierdo funcional.
+    /// </summary>
+    [Parameter] public MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Inline;
+
+    /// <summary>
+    /// Define el modo del sidebar derecho funcional.
+    /// </summary>
+    [Parameter] public MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
+
+    /// <summary>
+    /// Ancho CSS del sidebar izquierdo funcional (ej. 300px, 20rem, minmax(240px, 30vw)).
+    /// </summary>
+    [Parameter] public string LeftSidebarWidth { get; set; } = "320px";
+
+    /// <summary>
+    /// Ancho CSS del sidebar derecho funcional (ej. 360px, 24rem).
+    /// </summary>
+    [Parameter] public string RightSidebarWidth { get; set; } = "360px";
+
+    /// <summary>
     /// Callback de notificación para el gesto de toggle del menú principal.
     /// </summary>
     [Parameter] public EventCallback OnMenuToggle { get; set; }
@@ -143,16 +167,28 @@
     /// </summary>
     [Parameter] public EventCallback OnBackdropClick { get; set; }
 
+    /// <summary>
+    /// Clase adicional opcional para el root del layout.
+    /// </summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>
+    /// Estilos inline adicionales opcionales para el root del layout.
+    /// </summary>
+    [Parameter] public string? Style { get; set; }
+
+    private bool IsNavigationMenuOverlayVisible => MainMenuOpen && NavigationMenu is not null;
     private bool IsLeftInlineVisible => LeftSidebarVisible && LeftSidebarMode == MxSidebarMode.Inline;
     private bool IsRightInlineVisible => RightSidebarVisible && RightSidebarMode == MxSidebarMode.Inline;
     private bool IsLeftOverlayVisible => LeftSidebarVisible && LeftSidebarMode == MxSidebarMode.Overlay;
     private bool IsRightOverlayVisible => RightSidebarVisible && RightSidebarMode == MxSidebarMode.Overlay;
-    private bool HasOverlayVisible => IsLeftOverlayVisible || IsRightOverlayVisible;
+    private bool HasAnyOverlayVisible => IsNavigationMenuOverlayVisible || IsLeftOverlayVisible || IsRightOverlayVisible;
 
+    private string ResolvedNavigationMenuWidth => string.IsNullOrWhiteSpace(NavigationMenuWidth) ? "288px" : NavigationMenuWidth.Trim();
     private string ResolvedLeftSidebarWidth => string.IsNullOrWhiteSpace(LeftSidebarWidth) ? "320px" : LeftSidebarWidth.Trim();
     private string ResolvedRightSidebarWidth => string.IsNullOrWhiteSpace(RightSidebarWidth) ? "360px" : RightSidebarWidth.Trim();
 
-    private string GridColumns
+    private string WorkspaceGridColumns
     {
         get
         {
@@ -164,13 +200,7 @@
 
     private async Task ToggleMainMenuAsync()
     {
-        var next = !MainMenuOpen;
-        MainMenuOpen = next;
-
-        if (MainMenuOpenChanged.HasDelegate)
-        {
-            await MainMenuOpenChanged.InvokeAsync(next);
-        }
+        await SetMainMenuOpenAsync(!MainMenuOpen);
 
         if (OnMenuToggle.HasDelegate)
         {
@@ -180,9 +210,29 @@
 
     private async Task OnBackdropInteractionAsync()
     {
+        if (MainMenuOpen)
+        {
+            await SetMainMenuOpenAsync(false);
+        }
+
         if (OnBackdropClick.HasDelegate)
         {
             await OnBackdropClick.InvokeAsync();
+        }
+    }
+
+    private async Task SetMainMenuOpenAsync(bool next)
+    {
+        if (MainMenuOpen == next)
+        {
+            return;
+        }
+
+        MainMenuOpen = next;
+
+        if (MainMenuOpenChanged.HasDelegate)
+        {
+            await MainMenuOpenChanged.InvokeAsync(next);
         }
     }
 }
