@@ -39,4 +39,47 @@
       <li>El showcase valida el comportamiento funcional real del toggle de tema.</li>
     </ul>
   </MxSectionCard>
+
+  <section class="mx-home-main-grid" aria-label="Composición principal del MainContainer">
+    <article class="mx-home-main-primary">
+      <p class="mx-home-kicker">MainContainer Region</p>
+      <h3>Región central prioritaria con densidad visual balanceada.</h3>
+      <p>
+        Esta demo usa un layout interno fluido con jerarquía real: bloque principal, paneles complementarios y un tablero operativo.
+        El objetivo es auditar que el área central se percibe dominante cuando los sidebars overlay están cerrados.
+      </p>
+    </article>
+    <article class="mx-home-main-side">
+      <h4>Estado inicial de shell</h4>
+      <ul>
+        <li>NavigationMenu: overlay cerrado.</li>
+        <li>LeftSidebar: overlay cerrado.</li>
+        <li>RightSidebar: overlay cerrado.</li>
+      </ul>
+    </article>
+    <article class="mx-home-main-side">
+      <h4>Resultado visible</h4>
+      <ul>
+        <li>MainContainer ocupa el ancho útil completo.</li>
+        <li>Sin reserva estructural lateral al arrancar.</li>
+        <li>Composición centrada y responsive.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="mx-home-ops-grid" aria-label="Tablero operativo central">
+    <MxSectionCard Title="Pipeline operativo">
+      <div class="mx-home-ops-kpis">
+        <article><strong>24</strong><span>Flujos activos</span></article>
+        <article><strong>98.7%</strong><span>SLA semanal</span></article>
+        <article><strong>12</strong><span>Alertas abiertas</span></article>
+      </div>
+    </MxSectionCard>
+    <MxSectionCard Title="Controles de auditoría">
+      <div class="mx-home-ops-checks">
+        <p>El shell inicia en modo limpio para validar overlays sin sesgo visual lateral.</p>
+        <p>Cuando abre un overlay, el impacto es visual (transform), no estructural (grid).</p>
+      </div>
+    </MxSectionCard>
+  </section>
 </MxPageContainer>
