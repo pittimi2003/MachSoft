@@ -28,6 +28,26 @@ public class WorkspaceHostAdoptionTests
         markup.Should().NotContain("<MudAppBar", "el host no debe resolver header persistente con MudAppBar");
     }
 
+    [Theory]
+    [InlineData("src/MachSoft.UI.Showcase/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Template.Wasm/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Template.Server/Components/Layout/MainLayout.razor")]
+    public void MainLayout_ShouldStartWithOverlaySidebarsClosed(string mainLayoutPath)
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var fullPath = Path.Combine(repositoryRoot.FullName, mainLayoutPath);
+
+        File.Exists(fullPath).Should().BeTrue($"debe existir el layout del host: {mainLayoutPath}");
+
+        var markup = File.ReadAllText(fullPath);
+
+        markup.Should().Contain("private bool MainMenuOpen { get; set; }", "el menú principal debe iniciar cerrado por defecto");
+        markup.Should().Contain("private bool LeftSidebarOpen { get; set; }", "el overlay izquierdo debe iniciar cerrado por defecto");
+        markup.Should().Contain("private bool RightSidebarOpen { get; set; }", "el overlay derecho debe iniciar cerrado por defecto");
+        markup.Should().Contain("private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;", "left sidebar oficial inicia en Overlay");
+        markup.Should().Contain("private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;", "right sidebar oficial inicia en Overlay");
+    }
+
     private static DirectoryInfo ResolveRepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

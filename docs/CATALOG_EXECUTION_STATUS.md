@@ -102,3 +102,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se preserva el desplazamiento visual opcional del contenido principal ante overlays abiertos mediante `transform`, separado explícitamente del cálculo estructural del grid.
 - Se amplía cobertura bUnit para footer opcional y para garantizar que al cambiar de `Overlay` a `Inline` desde el menú shell se cierre estado `Open` residual.
 - Templates Server/Wasm adoptan callbacks de cambio de modo para preservar consistencia del control de shell desde header.
+
+## 16) Actualización 2026-04-03 (UTC) — Estado inicial oficial del shell + composición central auditable en Showcase
+- Se corrige el estado inicial de hosts para que `LeftSidebar` y `RightSidebar` arranquen en `Overlay` y cerrados en Showcase, Template.Wasm y Template.Server.
+- Se mantiene `NavigationMenu` en modo efectivo `Overlay` con `MainMenuOpen` cerrado por defecto, asegurando arranque limpio sin dominancia visual lateral.
+- Se refuerza la página inicial del Showcase con composición central fluida (región principal + paneles secundarios + grid operativo responsive) para evidenciar visualmente la ocupación plena del `MainContainer`.
+- Se agrega cobertura de pruebas en `WorkspaceHostAdoptionTests` para vigilar que los tres hosts mantengan sidebars en `Overlay` y cerrados por defecto.
+- Resultado operativo: con overlays cerrados no hay reserva estructural lateral; al abrir overlays el comportamiento sigue siendo visual (overlay/transform) y no de columnas inline.

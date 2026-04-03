@@ -108,10 +108,10 @@
     private string StructuralSummary => $"{(LeftSidebarMode == MxSidebarMode.Inline ? "Left Inline" : "Left Overlay")} / {(RightSidebarMode == MxSidebarMode.Inline ? "Right Inline" : "Right Overlay")}";
     private string VisualShiftSummary => (LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen, RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen) switch
     {
-        (true, true) => "Shift left+right activo",
-        (true, false) => "Shift izquierdo activo",
-        (false, true) => "Shift derecho activo",
-        _ => "Sin desplazamiento visual"
+        (true, true) => "MainContainer con desplazamiento visual bilateral (overlay abierto)",
+        (true, false) => "MainContainer con desplazamiento visual hacia derecha (left overlay abierto)",
+        (false, true) => "MainContainer con desplazamiento visual hacia izquierda (right overlay abierto)",
+        _ => "MainContainer fijo sin desplazamiento visual (overlays cerrados)"
     };
 
     private string ThemeIcon => ThemeState.DarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode;
