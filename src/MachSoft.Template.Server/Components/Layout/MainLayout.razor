@@ -1,12 +1,46 @@
 @inherits LayoutComponentBase
-<MudLayout>
-  <MudAppBar Elevation="1">Template Server</MudAppBar>
-  <MudDrawer Open="true" ClipMode="DrawerClipMode.Always">
-    <MudNavMenu>
-      <MudNavLink Href="/">Dashboard</MudNavLink>
-      <MudNavLink Href="/formulario">Formulario</MudNavLink>
-      <MudNavLink Href="/lista">Lista</MudNavLink>
-    </MudNavMenu>
-  </MudDrawer>
-  <MudMainContent>@Body</MudMainContent>
-</MudLayout>
+
+<MxWorkspaceLayout LeftSidebarVisible="@MainMenuOpen"
+                   LeftSidebarMode="MxSidebarMode.Overlay"
+                   LeftSidebarWidth="280px"
+                   MainMenuOpen="@MainMenuOpen"
+                   MainMenuOpenChanged="@OnMainMenuOpenChanged"
+                   OnBackdropClick="@OnBackdropClick">
+    <HeaderContent>
+        <div class="mx-showcase-topbar">
+            <div class="mx-showcase-brand-wrap">
+                <span class="mx-showcase-brand-mark" aria-hidden="true">MS</span>
+                <div class="mx-showcase-brand-block">
+                    <span class="mx-showcase-brand">Template Server</span>
+                    <span class="mx-showcase-brand-subtitle">MachSoft.UI workspace shell</span>
+                </div>
+            </div>
+        </div>
+    </HeaderContent>
+
+    <LeftSidebar>
+        <nav class="mx-workspace-nav" aria-label="Template Server">
+            <NavLink Match="NavLinkMatch.All" class="mx-workspace-nav-link" href="/">Dashboard</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/formulario">Formulario</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/lista">Lista</NavLink>
+        </nav>
+    </LeftSidebar>
+
+    <MainContent>@Body</MainContent>
+</MxWorkspaceLayout>
+
+@code {
+    private bool MainMenuOpen { get; set; }
+
+    private Task OnMainMenuOpenChanged(bool isOpen)
+    {
+        MainMenuOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnBackdropClick()
+    {
+        MainMenuOpen = false;
+        return Task.CompletedTask;
+    }
+}

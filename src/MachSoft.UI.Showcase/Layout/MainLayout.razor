@@ -3,8 +3,17 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JS
 
-<MudLayout Class="mx-showcase-shell">
-    <MudAppBar Elevation="0" Dense="true">
+<MxWorkspaceLayout LeftSidebarVisible="@MainMenuOpen"
+                   RightSidebarVisible="@RightSidebarVisible"
+                   LeftSidebarMode="@LeftSidebarMode"
+                   RightSidebarMode="@RightSidebarMode"
+                   LeftSidebarWidth="306px"
+                   RightSidebarWidth="360px"
+                   MainMenuOpen="@MainMenuOpen"
+                   MainMenuOpenChanged="@OnMainMenuOpenChanged"
+                   OnMenuToggle="@OnMenuToggle"
+                   OnBackdropClick="@OnBackdropClick">
+    <HeaderContent>
         <div class="mx-showcase-topbar">
             <div class="mx-showcase-brand-wrap">
                 <span class="mx-showcase-brand-mark" aria-hidden="true">MS</span>
@@ -23,39 +32,66 @@
                     OnClick="_ => ToggleThemeAsync()" />
             </MxTooltip>
         </div>
-    </MudAppBar>
-    <MudDrawer Open="true" Elevation="0" ClipMode="DrawerClipMode.Always" Width="306px">
-        <MudNavMenu>
-            <MudText Typo="Typo.caption" Class="mx-nav-group-label">Overview</MudText>
-            <MudNavLink Match="NavLinkMatch.All" Href="/">Home</MudNavLink>
-            <MudNavLink Href="/catalog/audit">Catalog / Audit Matrix</MudNavLink>
+    </HeaderContent>
 
-            <MudText Typo="Typo.caption" Class="mx-nav-group-label">Foundations</MudText>
-            <MudNavLink Href="/foundations/colors">Foundations / Colors</MudNavLink>
-            <MudNavLink Href="/foundations/typography">Foundations / Typography</MudNavLink>
-            <MudNavLink Href="/foundations/spacing">Foundations / Spacing</MudNavLink>
-            <MudNavLink Href="/foundations/radius-elevation">Foundations / Radius & Elevation</MudNavLink>
+    <LeftSidebar>
+        <nav class="mx-workspace-nav" aria-label="Menú principal showcase">
+            <p class="mx-workspace-nav-group-title">Overview</p>
+            <NavLink Match="NavLinkMatch.All" class="mx-workspace-nav-link" href="/">Home</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/catalog/audit">Catalog / Audit Matrix</NavLink>
 
-            <MudText Typo="Typo.caption" Class="mx-nav-group-label">Components</MudText>
-            <MudNavLink Href="/components/buttons">Components / Buttons</MudNavLink>
-            <MudNavLink Href="/components/forms">Inputs / Advanced Inputs</MudNavLink>
-            <MudNavLink Href="/components/dialogs">Dialogs</MudNavLink>
-            <MudNavLink Href="/components/navigation">Navigation</MudNavLink>
-            <MudNavLink Href="/components/data-listing">Data Listing</MudNavLink>
-            <MudNavLink Href="/components/feedback">Feedback</MudNavLink>
+            <p class="mx-workspace-nav-group-title">Foundations</p>
+            <NavLink class="mx-workspace-nav-link" href="/foundations/colors">Foundations / Colors</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/foundations/typography">Foundations / Typography</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/foundations/spacing">Foundations / Spacing</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/foundations/radius-elevation">Foundations / Radius & Elevation</NavLink>
 
-            <MudText Typo="Typo.caption" Class="mx-nav-group-label">Patterns & states</MudText>
-            <MudNavLink Href="/patterns/crud">Patterns / CRUD</MudNavLink>
-            <MudNavLink Href="/states/feedback">States</MudNavLink>
-        </MudNavMenu>
-    </MudDrawer>
-    <MudMainContent>
+            <p class="mx-workspace-nav-group-title">Components</p>
+            <NavLink class="mx-workspace-nav-link" href="/components/buttons">Components / Buttons</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/components/forms">Inputs / Advanced Inputs</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/components/dialogs">Dialogs</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/components/navigation">Navigation</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/components/data-listing">Data Listing</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/components/feedback">Feedback</NavLink>
+
+            <p class="mx-workspace-nav-group-title">Patterns & states</p>
+            <NavLink class="mx-workspace-nav-link" href="/patterns/crud">Patterns / CRUD</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/states/feedback">States</NavLink>
+        </nav>
+    </LeftSidebar>
+
+    <MainContent>
         @Body
-    </MudMainContent>
-</MudLayout>
+    </MainContent>
+
+    <RightSidebar>
+        <div class="mx-workspace-panel">
+            <h4>Shell controls</h4>
+            <MxSwitch Label="Panel derecho visible" Value="@RightSidebarVisible" ValueChanged="@OnRightSidebarVisibleChanged" />
+            <MxSwitch Label="Sidebar izquierdo inline" Value="@LeftInline" ValueChanged="@OnLeftInlineChanged" />
+            <MxSwitch Label="Sidebar derecho inline" Value="@RightInline" ValueChanged="@OnRightInlineChanged" />
+            <p class="mx-page-subtitle">Este panel demuestra que el shell es declarativo: solo cambiamos estado, sin lógica de layout en el host.</p>
+        </div>
+    </RightSidebar>
+
+    <FooterContent>
+        <div class="mx-workspace-footer-meta">
+            <span>Shell oficial: <strong>MxWorkspaceLayout</strong></span>
+            <span>Left: @LeftSidebarMode | Right: @RightSidebarMode | Menú: @(MainMenuOpen ? "Abierto" : "Cerrado")</span>
+        </div>
+    </FooterContent>
+</MxWorkspaceLayout>
 
 @code {
     [CascadingParameter] public ShowcaseThemeState ThemeState { get; set; } = default!;
+
+    private bool MainMenuOpen { get; set; }
+    private bool RightSidebarVisible { get; set; } = true;
+    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
+    private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Inline;
+
+    private bool LeftInline => LeftSidebarMode == MxSidebarMode.Inline;
+    private bool RightInline => RightSidebarMode == MxSidebarMode.Inline;
 
     private string ThemeIcon => ThemeState.DarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode;
     private string ThemeTooltip => ThemeState.DarkMode ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
@@ -72,4 +108,36 @@
     }
 
     private Task ToggleThemeAsync() => ThemeState.ToggleAsync(JS);
+
+    private Task OnMainMenuOpenChanged(bool isOpen)
+    {
+        MainMenuOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnMenuToggle() => Task.CompletedTask;
+
+    private Task OnBackdropClick()
+    {
+        MainMenuOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarVisibleChanged(bool isVisible)
+    {
+        RightSidebarVisible = isVisible;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLeftInlineChanged(bool isInline)
+    {
+        LeftSidebarMode = isInline ? MxSidebarMode.Inline : MxSidebarMode.Overlay;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightInlineChanged(bool isInline)
+    {
+        RightSidebarMode = isInline ? MxSidebarMode.Inline : MxSidebarMode.Overlay;
+        return Task.CompletedTask;
+    }
 }
