@@ -75,6 +75,11 @@ a { color: var(--mx-accent); }
   gap: calc(var(--mx-space-6) + 2px);
 }
 
+.mx-page-container.mx-page-container-full {
+  max-width: none;
+  width: 100%;
+}
+
 .mx-page-header {
   display: grid;
   gap: calc(var(--mx-space-2) + 2px);
@@ -1431,4 +1436,188 @@ a { color: var(--mx-accent); }
   gap: var(--mx-space-3);
   color: var(--mx-text-secondary);
   font-size: .81rem;
+}
+
+.mx-home-shell-evidence {
+  display: grid;
+  gap: var(--mx-space-6);
+}
+
+.mx-home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(260px, 1fr);
+  gap: var(--mx-space-5);
+}
+
+.mx-home-hero-content,
+.mx-home-hero-metrics article,
+.mx-home-main-primary,
+.mx-home-main-side,
+.mx-home-main-operational,
+.mx-home-main-rail article {
+  border: 1px solid color-mix(in srgb, var(--mx-deep-blue) 18%, var(--mx-border));
+  border-radius: var(--mx-radius-md);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--mx-surface-raised) 84%, #fff) 0%, var(--mx-surface) 100%);
+  box-shadow: var(--mx-elevation-1);
+}
+
+.mx-home-hero-content {
+  padding: calc(var(--mx-space-6) + 2px);
+  display: grid;
+  gap: var(--mx-space-4);
+}
+
+.mx-home-kicker {
+  margin: 0;
+  color: var(--mx-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  font-size: 0.74rem;
+}
+
+.mx-home-hero-content h2 {
+  margin: 0;
+  font-size: 1.65rem;
+  line-height: 1.25;
+}
+
+.mx-home-hero-content p {
+  margin: 0;
+  color: var(--mx-text-secondary);
+  line-height: 1.55;
+}
+
+.mx-home-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mx-space-2);
+}
+
+.mx-home-hero-tags span {
+  border: 1px solid color-mix(in srgb, var(--mx-accent) 30%, var(--mx-border));
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--mx-text-primary);
+  background: color-mix(in srgb, var(--mx-accent-soft) 56%, var(--mx-surface));
+}
+
+.mx-home-hero-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mx-space-3);
+}
+
+.mx-home-hero-metrics article {
+  padding: var(--mx-space-4);
+  display: grid;
+  gap: var(--mx-space-2);
+}
+
+.mx-home-hero-metrics strong {
+  font-size: 1.25rem;
+}
+
+.mx-home-rules {
+  margin: 0;
+  padding-left: var(--mx-space-5);
+  display: grid;
+  gap: var(--mx-space-2);
+}
+
+.mx-home-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(250px, 1fr) minmax(250px, 1fr);
+  gap: var(--mx-space-4);
+  align-items: stretch;
+}
+
+.mx-home-main-primary,
+.mx-home-main-side {
+  padding: var(--mx-space-5);
+}
+
+.mx-home-main-primary {
+  display: grid;
+  gap: var(--mx-space-3);
+}
+
+.mx-home-main-primary h3,
+.mx-home-main-side h4 {
+  margin: 0;
+}
+
+.mx-home-main-primary p,
+.mx-home-main-side p,
+.mx-home-main-side li {
+  margin: 0;
+  color: var(--mx-text-secondary);
+}
+
+.mx-home-main-side ul {
+  margin: 0;
+  padding-left: var(--mx-space-5);
+  display: grid;
+  gap: var(--mx-space-2);
+}
+
+.mx-home-main-surface-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr);
+  gap: var(--mx-space-4);
+}
+
+.mx-home-main-operational {
+  padding: var(--mx-space-5);
+  display: grid;
+  gap: var(--mx-space-4);
+}
+
+.mx-home-main-operational h4 {
+  margin: 0;
+}
+
+.mx-home-ops-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mx-space-3);
+}
+
+.mx-home-ops-kpis article {
+  border: 1px solid color-mix(in srgb, var(--mx-accent) 22%, var(--mx-border));
+  border-radius: var(--mx-radius-sm);
+  background: color-mix(in srgb, var(--mx-accent-soft) 40%, var(--mx-surface));
+  padding: var(--mx-space-3);
+  display: grid;
+  gap: 4px;
+}
+
+.mx-home-main-rail {
+  display: grid;
+  gap: var(--mx-space-3);
+}
+
+.mx-home-main-rail article {
+  padding: var(--mx-space-4);
+  display: grid;
+  gap: var(--mx-space-2);
+}
+
+.mx-home-main-rail h5 {
+  margin: 0;
+}
+
+.mx-home-main-rail p {
+  margin: 0;
+  color: var(--mx-text-secondary);
+}
+
+@media (max-width: 1180px) {
+  .mx-home-hero,
+  .mx-home-main-grid,
+  .mx-home-main-surface-grid {
+    grid-template-columns: 1fr;
+  }
 }

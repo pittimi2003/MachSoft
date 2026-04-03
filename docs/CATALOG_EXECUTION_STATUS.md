@@ -109,3 +109,9 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se refuerza la página inicial del Showcase con composición central fluida (región principal + paneles secundarios + grid operativo responsive) para evidenciar visualmente la ocupación plena del `MainContainer`.
 - Se agrega cobertura de pruebas en `WorkspaceHostAdoptionTests` para vigilar que los tres hosts mantengan sidebars en `Overlay` y cerrados por defecto.
 - Resultado operativo: con overlays cerrados no hay reserva estructural lateral; al abrir overlays el comportamiento sigue siendo visual (overlay/transform) y no de columnas inline.
+
+## 17) Actualización 2026-04-03 (UTC) — Composición inicial premium del `MainContainer` en Showcase
+- Se extiende `MxPageContainer` con `FullWidth` para habilitar páginas de evidencia visual que deben ocupar el ancho útil completo del workspace.
+- La Home del Showcase adopta `MxPageContainer FullWidth` y una composición interna fluida con hero, matriz central y tablero operativo multibloque para evitar percepción de columna angosta.
+- Se formaliza estilo responsive de `mx-home-*` en `MachSoft.UI` para que el contenido central use ancho real disponible sin introducir sidebars inline por defecto.
+- Se mantiene el estado inicial contractual del shell (`NavigationMenu` cerrado, `LeftSidebar/RightSidebar` en `Overlay` y cerrados), de forma que la dominancia visual recaiga en `MainContainer`.

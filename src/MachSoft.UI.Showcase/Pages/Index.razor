@@ -1,6 +1,9 @@
 @page "/"
 
-<MxPageContainer Title="MachSoft UI Platform" Subtitle="Sistema visual oficial enterprise para productos críticos, consistente en light/dark y con lenguaje institucional propio.">
+<MxPageContainer FullWidth="true"
+                 Class="mx-home-shell-evidence"
+                 Title="MachSoft UI Platform"
+                 Subtitle="Sistema visual oficial enterprise para productos críticos, consistente en light/dark y con lenguaje institucional propio.">
   <section class="mx-home-hero" aria-labelledby="mx-home-hero-title">
     <div class="mx-home-hero-content">
       <p class="mx-home-kicker">MachSoft Design Authority</p>
@@ -67,19 +70,25 @@
     </article>
   </section>
 
-  <section class="mx-home-ops-grid" aria-label="Tablero operativo central">
-    <MxSectionCard Title="Pipeline operativo">
+  <section class="mx-home-main-surface-grid" aria-label="Demostración de ocupación útil del MainContainer">
+    <article class="mx-home-main-operational">
+      <h4>Tablero operativo central</h4>
       <div class="mx-home-ops-kpis">
         <article><strong>24</strong><span>Flujos activos</span></article>
         <article><strong>98.7%</strong><span>SLA semanal</span></article>
         <article><strong>12</strong><span>Alertas abiertas</span></article>
       </div>
-    </MxSectionCard>
-    <MxSectionCard Title="Controles de auditoría">
-      <div class="mx-home-ops-checks">
-        <p>El shell inicia en modo limpio para validar overlays sin sesgo visual lateral.</p>
-        <p>Cuando abre un overlay, el impacto es visual (transform), no estructural (grid).</p>
-      </div>
-    </MxSectionCard>
+      <p>El contenido principal se distribuye en un grid fluido para demostrar uso real del ancho central disponible.</p>
+    </article>
+    <aside class="mx-home-main-rail" aria-label="Paneles secundarios del contenido central">
+      <article>
+        <h5>Control de composición</h5>
+        <p>Sin sidebars inline activas, la región principal conserva toda la superficie útil del workspace.</p>
+      </article>
+      <article>
+        <h5>Auditoría visual</h5>
+        <p>Los overlays se abren por encima del contenido y no alteran el cálculo estructural del MainContainer.</p>
+      </article>
+    </aside>
   </section>
 </MxPageContainer>
