@@ -15,8 +15,8 @@
                    LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
                    RightSidebarOpen="@RightSidebarOpen"
                    RightSidebarOpenChanged="@OnRightSidebarOpenChanged"
-                   LeftSidebarWidth="320px"
-                   RightSidebarWidth="360px"
+                   LeftSidebarWidth="272px"
+                   RightSidebarWidth="344px"
                    OnBackdropClick="@OnBackdropClick">
     <HeaderContent>
         <div class="mx-showcase-topbar">
@@ -67,11 +67,12 @@
 
     <LeftSidebar>
         <div class="mx-workspace-panel">
-            <h4>Panel operativo</h4>
-            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Class="w-100">Nuevo registro</MxButton>
+            <h4>Panel operativo lateral</h4>
+            <MxButton Tone="MxTone.Primary" Class="w-100">Nuevo registro</MxButton>
+            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Class="w-100">Aplicar filtros</MxButton>
             <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Class="w-100">Exportar selección</MxButton>
+            <p class="mx-page-subtitle">Acciones rápidas y comandos compactos para apoyar la operación.</p>
             <p class="mx-page-subtitle">LeftSidebar: modo <strong>@LeftSidebarMode</strong>, overlay @(LeftSidebarOpen ? "abierto" : "cerrado").</p>
-            <p class="mx-page-subtitle">En Inline es estructural permanente; en Overlay lo controla el menú Shell del header.</p>
         </div>
     </LeftSidebar>
 
@@ -81,9 +82,14 @@
 
     <RightSidebar>
         <div class="mx-workspace-panel">
-            <h4>Contexto de workspace</h4>
+            <h4>Contexto profundo</h4>
+            <p class="mx-page-subtitle">Detalle contextual para lectura, inspección y edición de la selección activa.</p>
+            <ul>
+                <li>Inspector de estado y trazabilidad.</li>
+                <li>Acciones de edición contextual.</li>
+                <li>Panel de creación rápida vinculada.</li>
+            </ul>
             <p class="mx-page-subtitle">RightSidebar: modo <strong>@RightSidebarMode</strong>, overlay @(RightSidebarOpen ? "abierto" : "cerrado").</p>
-            <p class="mx-page-subtitle">Detalle contextual para flujos de lectura/edición.</p>
         </div>
     </RightSidebar>
 
