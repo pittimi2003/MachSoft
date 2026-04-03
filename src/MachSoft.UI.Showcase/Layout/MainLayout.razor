@@ -11,7 +11,6 @@
                    RightSidebarWidth="360px"
                    MainMenuOpen="@MainMenuOpen"
                    MainMenuOpenChanged="@OnMainMenuOpenChanged"
-                   OnMenuToggle="@OnMenuToggle"
                    OnBackdropClick="@OnBackdropClick">
     <HeaderContent>
         <div class="mx-showcase-topbar">
@@ -115,7 +114,6 @@
         return Task.CompletedTask;
     }
 
-    private Task OnMenuToggle() => Task.CompletedTask;
 
     private Task OnBackdropClick()
     {
