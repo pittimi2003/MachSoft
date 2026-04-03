@@ -1,4 +1,4 @@
-<div class="mx-page-container">
+<div class="mx-page-container @(FullWidth ? "mx-page-container-full" : string.Empty) @Class">
     @if (!string.IsNullOrWhiteSpace(Title) || !string.IsNullOrWhiteSpace(Subtitle))
     {
         <header class="mx-page-header">
@@ -18,5 +18,7 @@
 @code {
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public bool FullWidth { get; set; }
+    [Parameter] public string? Class { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
 }
