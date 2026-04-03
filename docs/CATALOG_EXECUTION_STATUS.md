@@ -115,3 +115,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - La Home del Showcase adopta `MxPageContainer FullWidth` y una composición interna fluida con hero, matriz central y tablero operativo multibloque para evitar percepción de columna angosta.
 - Se formaliza estilo responsive de `mx-home-*` en `MachSoft.UI` para que el contenido central use ancho real disponible sin introducir sidebars inline por defecto.
 - Se mantiene el estado inicial contractual del shell (`NavigationMenu` cerrado, `LeftSidebar/RightSidebar` en `Overlay` y cerrados), de forma que la dominancia visual recaiga en `MainContainer`.
+
+## 18) Actualización 2026-04-03 (UTC) — Redistribución oficial de regiones en Showcase (`LeftSidebar`/`MainContainer`/`RightSidebar`)
+- Se refactoriza `MainLayout` de `MachSoft.UI.Showcase` para impedir que `LeftSidebar` y `RightSidebar` actúen como contenedores de contenido principal.
+- `LeftSidebar` queda delimitado como panel operativo lateral compacto (acciones rápidas, filtros y comandos operativos), alineado con la regla contractual de región secundaria.
+- `MainContainer` conserva y exhibe la composición principal real de la pantalla (hero, cards informativas, dashboard y grid central) mediante `@Body` como slot dominante.
+- `RightSidebar` queda reservado para contexto profundo (detalle, inspección y acciones de edición/creación contextual), sin trasladar dominancia visual fuera del contenido central.
+- Se ajusta `LeftSidebarWidth` a un ancho lateral razonable (272px) para escenarios `Inline`, evitando lectura de contenedor principal lateral.
+- Se mantiene el arranque contractual: `NavigationMenu` cerrado + `LeftSidebar`/`RightSidebar` en `Overlay` cerrados por defecto, con `MainContainer` visible y dominante desde carga inicial.
