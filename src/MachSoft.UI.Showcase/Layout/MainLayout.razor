@@ -90,7 +90,9 @@
     <FooterContent>
         <div class="mx-workspace-footer-meta">
             <span>Shell oficial: <strong>MxWorkspaceLayout</strong></span>
-            <span>Menu: @(MainMenuOpen ? "Abierto" : "Cerrado") | Left: @LeftSidebarMode | Right: @RightSidebarMode</span>
+            <span>Menu: @(MainMenuOpen ? "Abierto" : "Cerrado") | Left: @LeftSidebarMode (@(LeftSidebarOpen ? "Open" : "Closed")) | Right: @RightSidebarMode (@(RightSidebarOpen ? "Open" : "Closed"))</span>
+            <span>Estructura: @StructuralSummary</span>
+            <span>Main visual: @VisualShiftSummary</span>
         </div>
     </FooterContent>
 </MxWorkspaceLayout>
@@ -101,8 +103,16 @@
     private bool MainMenuOpen { get; set; }
     private bool LeftSidebarOpen { get; set; }
     private bool RightSidebarOpen { get; set; }
-    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Inline;
+    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
     private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
+    private string StructuralSummary => $"{(LeftSidebarMode == MxSidebarMode.Inline ? "Left Inline" : "Left Overlay")} / {(RightSidebarMode == MxSidebarMode.Inline ? "Right Inline" : "Right Overlay")}";
+    private string VisualShiftSummary => (LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen, RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen) switch
+    {
+        (true, true) => "Shift left+right activo",
+        (true, false) => "Shift izquierdo activo",
+        (false, true) => "Shift derecho activo",
+        _ => "Sin desplazamiento visual"
+    };
 
     private string ThemeIcon => ThemeState.DarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode;
     private string ThemeTooltip => ThemeState.DarkMode ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
