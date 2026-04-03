@@ -1,14 +1,23 @@
 using Bunit;
+using Bunit.JSInterop;
 using FluentAssertions;
 using MachSoft.UI.Components;
 using MachSoft.UI.Models;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using MudBlazor.Services;
 using Xunit;
 
 namespace MachSoft.UI.Tests;
 
 public class MxWorkspaceLayoutTests : TestContext
 {
+    public MxWorkspaceLayoutTests()
+    {
+        Services.AddMudServices();
+        JSInterop.Mode = JSRuntimeMode.Loose;
+    }
+
     [Fact]
     public void Render_WithMainMenuClosed_ShouldNotRenderNavigationMenu()
     {
@@ -42,60 +51,36 @@ public class MxWorkspaceLayoutTests : TestContext
     }
 
     [Fact]
-    public void Render_NavigationMenuOpen_ShouldBeIndependentFromLeftSidebar()
+    public void Render_LeftInline_ShouldAlwaysRenderInlineRegionAndReserveLeftColumn()
     {
         var cut = RenderLayout(p => p
-            .Add(x => x.MainMenuOpen, true)
-            .Add(x => x.LeftSidebarVisible, false));
-
-        cut.Find("[data-region='navigation-menu'][data-mode='overlay']").Should().NotBeNull();
-        cut.FindAll("[data-sidebar='left']").Should().BeEmpty();
-        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
-    }
-
-    [Fact]
-    public void Render_WithBothFunctionalSidebarsClosed_ShouldUseOnlyCentralColumn()
-    {
-        var cut = RenderLayout(p => p
-            .Add(x => x.LeftSidebarVisible, false)
-            .Add(x => x.RightSidebarVisible, false));
-
-        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
-        cut.FindAll("[data-sidebar='left'][data-mode='inline']").Should().BeEmpty();
-        cut.FindAll("[data-sidebar='right'][data-mode='inline']").Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Render_WithLeftInline_ShouldReserveLeftColumn()
-    {
-        var cut = RenderLayout(p => p
-            .Add(x => x.LeftSidebarVisible, true)
             .Add(x => x.LeftSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.LeftSidebarOpen, false)
             .Add(x => x.LeftSidebarWidth, "280px"));
 
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("280px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='left'][data-mode='inline']").Should().NotBeNull();
+        cut.FindAll("[data-sidebar='left'][data-mode='overlay']").Should().BeEmpty();
     }
 
     [Fact]
-    public void Render_WithRightInline_ShouldReserveRightColumn()
+    public void Render_LeftOverlayClosed_ShouldNotRenderStructuralOrOverlayRegion()
     {
         var cut = RenderLayout(p => p
-            .Add(x => x.RightSidebarVisible, true)
-            .Add(x => x.RightSidebarMode, MxSidebarMode.Inline)
-            .Add(x => x.RightSidebarWidth, "420px"));
-
-        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 420px");
-        cut.Find("[data-sidebar='right'][data-mode='inline']").Should().NotBeNull();
-    }
-
-    [Fact]
-    public void Render_WithLeftOverlay_ShouldNotReduceCentralGrid()
-    {
-        var cut = RenderLayout(p => p
-            .Add(x => x.LeftSidebarVisible, true)
             .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
-            .Add(x => x.LeftSidebarWidth, "320px"));
+            .Add(x => x.LeftSidebarOpen, false));
+
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
+        cut.FindAll("[data-sidebar='left']").Should().BeEmpty();
+        cut.FindAll(".mx-workspace-backdrop").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Render_LeftOverlayOpen_ShouldRenderOverlayWithBackdropWithoutStructuralWidthLoss()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.LeftSidebarOpen, true));
 
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='left'][data-mode='overlay']").Should().NotBeNull();
@@ -103,11 +88,36 @@ public class MxWorkspaceLayoutTests : TestContext
     }
 
     [Fact]
-    public void Render_WithRightOverlay_ShouldNotReduceCentralGrid()
+    public void Render_RightInline_ShouldAlwaysRenderInlineRegionAndReserveRightColumn()
     {
         var cut = RenderLayout(p => p
-            .Add(x => x.RightSidebarVisible, true)
-            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay));
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.RightSidebarOpen, false)
+            .Add(x => x.RightSidebarWidth, "420px"));
+
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 420px");
+        cut.Find("[data-sidebar='right'][data-mode='inline']").Should().NotBeNull();
+        cut.FindAll("[data-sidebar='right'][data-mode='overlay']").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Render_RightOverlayClosed_ShouldNotRenderStructuralOrOverlayRegion()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarOpen, false));
+
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
+        cut.FindAll("[data-sidebar='right']").Should().BeEmpty();
+        cut.FindAll(".mx-workspace-backdrop").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Render_RightOverlayOpen_ShouldRenderOverlayWithBackdropWithoutStructuralWidthLoss()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarOpen, true));
 
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='right'][data-mode='overlay']").Should().NotBeNull();
@@ -115,15 +125,13 @@ public class MxWorkspaceLayoutTests : TestContext
     }
 
     [Fact]
-    public void Render_WithLeftInlineAndRightOverlay_ShouldOnlyReserveLeftColumn()
+    public void Render_LeftInlineRightOverlayOpen_ShouldOnlyReserveLeftColumn()
     {
         var cut = RenderLayout(p => p
-            .Add(x => x.LeftSidebarVisible, true)
-            .Add(x => x.RightSidebarVisible, true)
             .Add(x => x.LeftSidebarMode, MxSidebarMode.Inline)
             .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
-            .Add(x => x.LeftSidebarWidth, "300px")
-            .Add(x => x.RightSidebarWidth, "380px"));
+            .Add(x => x.RightSidebarOpen, true)
+            .Add(x => x.LeftSidebarWidth, "300px"));
 
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("300px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='left'][data-mode='inline']").Should().NotBeNull();
@@ -131,50 +139,94 @@ public class MxWorkspaceLayoutTests : TestContext
     }
 
     [Fact]
-    public void Render_WithFooter_ShouldRenderFooterRegion()
+    public void Render_LeftOverlayOpenRightInline_ShouldOnlyReserveRightColumn()
     {
         var cut = RenderLayout(p => p
-            .Add(x => x.FooterContent, b => b.AddContent(0, "footer-state")));
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.LeftSidebarOpen, true)
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.RightSidebarWidth, "380px"));
 
-        cut.Find(".mx-workspace-footer").TextContent.Should().Contain("footer-state");
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 380px");
+        cut.Find("[data-sidebar='left'][data-mode='overlay']").Should().NotBeNull();
+        cut.Find("[data-sidebar='right'][data-mode='inline']").Should().NotBeNull();
     }
 
     [Fact]
-    public void Render_WithoutFooter_ShouldNotRenderFooterRegion()
+    public void Render_BothInline_ShouldReserveBothColumns()
     {
-        var cut = RenderLayout();
+        var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.LeftSidebarWidth, "260px")
+            .Add(x => x.RightSidebarWidth, "340px"));
 
-        cut.FindAll(".mx-workspace-footer").Should().BeEmpty();
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("260px minmax(0, 1fr) 340px");
+        cut.Find("[data-sidebar='left'][data-mode='inline']").Should().NotBeNull();
+        cut.Find("[data-sidebar='right'][data-mode='inline']").Should().NotBeNull();
     }
 
     [Fact]
-    public void Header_ShouldBePersistentWithExpectedHeightMarker()
+    public void Render_BothOverlayClosed_ShouldUseOnlyCenterColumnWithoutBackdrop()
     {
-        var cut = RenderLayout();
+        var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.LeftSidebarOpen, false)
+            .Add(x => x.RightSidebarOpen, false));
 
-        var header = cut.Find(".mx-workspace-header");
-        header.GetAttribute("data-header-height").Should().Be("48");
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
+        cut.FindAll("[data-sidebar='left'][data-mode='overlay']").Should().BeEmpty();
+        cut.FindAll("[data-sidebar='right'][data-mode='overlay']").Should().BeEmpty();
+        cut.FindAll(".mx-workspace-backdrop").Should().BeEmpty();
     }
 
     [Fact]
-    public void BackdropClick_ShouldCloseMainMenuAndRaiseEvent()
+    public void Header_ShouldRenderShellControlMenu_AndMainMenuShouldRemainIndependent()
     {
-        var backdropRaised = false;
-        var changedValue = true;
+        var cut = RenderLayout(p => p
+            .Add(x => x.MainMenuOpen, false)
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarOpen, false));
+
+        cut.Find(".mx-workspace-header").GetAttribute("data-header-height").Should().Be("48");
+        cut.Find(".mx-workspace-shell-control-menu").Should().NotBeNull();
+        cut.FindAll("[data-region='navigation-menu']").Should().BeEmpty();
+
+        cut.Find(".mx-workspace-menu-toggle").Click();
+
+        cut.Find(".mx-workspace-layout").GetAttribute("data-main-menu-open").Should().Be("true");
+    }
+
+    [Fact]
+    public void BackdropClick_ShouldCloseNavigationAndOverlaySidebars()
+    {
+        var menuChanged = true;
+        var leftChanged = true;
+        var rightChanged = true;
 
         var cut = RenderLayout(p => p
             .Add(x => x.MainMenuOpen, true)
-            .Add(x => x.MainMenuOpenChanged, EventCallback.Factory.Create<bool>(this, value => changedValue = value))
-            .Add(x => x.OnBackdropClick, EventCallback.Factory.Create(this, () => backdropRaised = true)));
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.LeftSidebarOpen, true)
+            .Add(x => x.RightSidebarOpen, true)
+            .Add(x => x.MainMenuOpenChanged, EventCallback.Factory.Create<bool>(this, value => menuChanged = value))
+            .Add(x => x.LeftSidebarOpenChanged, EventCallback.Factory.Create<bool>(this, value => leftChanged = value))
+            .Add(x => x.RightSidebarOpenChanged, EventCallback.Factory.Create<bool>(this, value => rightChanged = value)));
 
         cut.Find(".mx-workspace-backdrop").Click();
 
-        backdropRaised.Should().BeTrue();
-        changedValue.Should().BeFalse();
+        menuChanged.Should().BeFalse();
+        leftChanged.Should().BeFalse();
+        rightChanged.Should().BeFalse();
     }
 
     private IRenderedComponent<MxWorkspaceLayout> RenderLayout(Action<ComponentParameterCollectionBuilder<MxWorkspaceLayout>>? setup = null)
     {
+        RenderComponent<MudPopoverProvider>();
+
         return RenderComponent<MxWorkspaceLayout>(p =>
         {
             p.Add(x => x.NavigationMenu, b => b.AddContent(0, "nav-menu"));

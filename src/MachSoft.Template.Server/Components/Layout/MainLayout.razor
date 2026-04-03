@@ -4,6 +4,12 @@
                    MainMenuOpenChanged="@OnMainMenuOpenChanged"
                    NavigationMenuMode="MxSidebarMode.Overlay"
                    NavigationMenuWidth="280px"
+                   LeftSidebarMode="@LeftSidebarMode"
+                   RightSidebarMode="@RightSidebarMode"
+                   LeftSidebarOpen="@LeftSidebarOpen"
+                   RightSidebarOpen="@RightSidebarOpen"
+                   LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
+                   RightSidebarOpenChanged="@OnRightSidebarOpenChanged"
                    OnBackdropClick="@OnBackdropClick">
     <HeaderContent>
         <div class="mx-showcase-topbar">
@@ -30,6 +36,10 @@
 
 @code {
     private bool MainMenuOpen { get; set; }
+    private bool LeftSidebarOpen { get; set; }
+    private bool RightSidebarOpen { get; set; }
+    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Inline;
+    private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
 
     private Task OnMainMenuOpenChanged(bool isOpen)
     {
@@ -37,9 +47,23 @@
         return Task.CompletedTask;
     }
 
+    private Task OnLeftSidebarOpenChanged(bool isOpen)
+    {
+        LeftSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarOpenChanged(bool isOpen)
+    {
+        RightSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
     private Task OnBackdropClick()
     {
         MainMenuOpen = false;
+        LeftSidebarOpen = false;
+        RightSidebarOpen = false;
         return Task.CompletedTask;
     }
 }

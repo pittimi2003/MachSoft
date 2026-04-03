@@ -79,3 +79,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - `MachSoft.UI.Showcase`, `MachSoft.Template.Wasm` y `MachSoft.Template.Server` migran a `NavigationMenu` y dejan de modelar el menú principal como `LeftSidebar`.
 - Se refuerzan pruebas bUnit del layout para independencia de navegación, composición inline/overlay, footer opcional y comportamiento de backdrop.
 - Se actualiza documentación contractual (`docs/components/MxWorkspaceLayout.md`) con matriz de comportamiento de navegación + workspace y reglas de consumo por host.
+
+## 13) Actualización 2026-04-03 (UTC) — Modelo funcional definitivo de sidebars en `MxWorkspaceLayout`
+- Se elimina el modelo ambiguo `Visible + Mode` para `LeftSidebar`/`RightSidebar` y se formaliza contrato con `LeftSidebarMode`/`RightSidebarMode` + `LeftSidebarOpen`/`RightSidebarOpen`.
+- Regla contractual implementada: `Inline` siempre visible y estructural; `Overlay` solo visible cuando `*SidebarOpen = true` y siempre con backdrop.
+- `MainContent` pasa a calcular columnas exclusivamente con sidebars `Inline`, manteniendo `minmax(0, 1fr)` en la columna central y sin contaminación estructural por overlays.
+- Header de 48px mantiene hamburguesa de menú principal e incorpora `MxMenu` de control de shell para cambio de modo/apertura de sidebars funcionales.
+- `MachSoft.UI.Showcase`, `MachSoft.Template.Wasm` y `MachSoft.Template.Server` consumen el contrato actualizado de forma declarativa.
+- Se actualiza documentación contractual y se amplía bUnit para cubrir combinaciones left/right inline/overlay, overlays cerrados/abiertos, independencia del menú principal y menú de control del shell.

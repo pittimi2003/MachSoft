@@ -2,6 +2,10 @@
      style="--mx-navigation-menu-width:@ResolvedNavigationMenuWidth; --mx-left-sidebar-width:@ResolvedLeftSidebarWidth; --mx-right-sidebar-width:@ResolvedRightSidebarWidth; @Style"
      data-main-menu-open="@MainMenuOpen.ToString().ToLowerInvariant()"
      data-navigation-mode="@NavigationMenuMode.ToString().ToLowerInvariant()"
+     data-left-mode="@LeftSidebarMode.ToString().ToLowerInvariant()"
+     data-right-mode="@RightSidebarMode.ToString().ToLowerInvariant()"
+     data-left-open="@LeftSidebarOpen.ToString().ToLowerInvariant()"
+     data-right-open="@RightSidebarOpen.ToString().ToLowerInvariant()"
      data-navigation-mode-effective="overlay">
     <header class="mx-workspace-header" data-header-height="48">
         <div class="mx-workspace-header-primary">
@@ -13,16 +17,24 @@
                     @onclick="ToggleMainMenuAsync">
                 <span aria-hidden="true">☰</span>
             </button>
+
             @if (HeaderContent is not null)
             {
                 <div class="mx-workspace-header-content">@HeaderContent</div>
             }
+
+            <MxMenu Class="mx-workspace-shell-control-menu"
+                    Label="Shell"
+                    Icon="@Icons.Material.Outlined.Tune"
+                    Tone="MxTone.Neutral"
+                    Items="@ShellControlItems"
+                    OnItemSelected="OnShellControlItemSelectedAsync" />
         </div>
     </header>
 
     <div class="mx-workspace-body">
         <section class="mx-workspace-functional-grid" style="grid-template-columns:@WorkspaceGridColumns;">
-            @if (IsLeftInlineVisible)
+            @if (HasLeftInlineRegion)
             {
                 <aside class="mx-workspace-sidebar mx-workspace-sidebar-inline mx-workspace-sidebar-left" data-sidebar="left" data-mode="inline">
                     @LeftSidebar
@@ -37,7 +49,7 @@
                 }
             </section>
 
-            @if (IsRightInlineVisible)
+            @if (HasRightInlineRegion)
             {
                 <aside class="mx-workspace-sidebar mx-workspace-sidebar-inline mx-workspace-sidebar-right" data-sidebar="right" data-mode="inline">
                     @RightSidebar
@@ -60,14 +72,14 @@
             </aside>
         }
 
-        @if (IsLeftOverlayVisible)
+        @if (HasLeftOverlayRegion)
         {
             <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-left" data-sidebar="left" data-mode="overlay">
                 @LeftSidebar
             </aside>
         }
 
-        @if (IsRightOverlayVisible)
+        @if (HasRightOverlayRegion)
         {
             <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-right" data-sidebar="right" data-mode="overlay">
                 @RightSidebar
@@ -77,6 +89,13 @@
 </div>
 
 @code {
+    private const string LeftModeInlineKey = "left.mode.inline";
+    private const string LeftModeOverlayKey = "left.mode.overlay";
+    private const string LeftOpenToggleKey = "left.open.toggle";
+    private const string RightModeInlineKey = "right.mode.inline";
+    private const string RightModeOverlayKey = "right.mode.overlay";
+    private const string RightOpenToggleKey = "right.open.toggle";
+
     /// <summary>
     /// Región declarativa para extender el header persistente del shell.
     /// </summary>
@@ -128,16 +147,6 @@
     [Parameter] public string NavigationMenuWidth { get; set; } = "288px";
 
     /// <summary>
-    /// Controla la visibilidad del sidebar izquierdo funcional.
-    /// </summary>
-    [Parameter] public bool LeftSidebarVisible { get; set; }
-
-    /// <summary>
-    /// Controla la visibilidad del sidebar derecho funcional.
-    /// </summary>
-    [Parameter] public bool RightSidebarVisible { get; set; }
-
-    /// <summary>
     /// Define el modo del sidebar izquierdo funcional.
     /// </summary>
     [Parameter] public MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Inline;
@@ -146,6 +155,36 @@
     /// Define el modo del sidebar derecho funcional.
     /// </summary>
     [Parameter] public MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
+
+    /// <summary>
+    /// Estado de apertura del sidebar izquierdo cuando se usa en modo overlay.
+    /// </summary>
+    [Parameter] public bool LeftSidebarOpen { get; set; }
+
+    /// <summary>
+    /// Callback de sincronización para <see cref="LeftSidebarOpen"/>.
+    /// </summary>
+    [Parameter] public EventCallback<bool> LeftSidebarOpenChanged { get; set; }
+
+    /// <summary>
+    /// Estado de apertura del sidebar derecho cuando se usa en modo overlay.
+    /// </summary>
+    [Parameter] public bool RightSidebarOpen { get; set; }
+
+    /// <summary>
+    /// Callback de sincronización para <see cref="RightSidebarOpen"/>.
+    /// </summary>
+    [Parameter] public EventCallback<bool> RightSidebarOpenChanged { get; set; }
+
+    /// <summary>
+    /// Callback de sincronización para <see cref="LeftSidebarMode"/>.
+    /// </summary>
+    [Parameter] public EventCallback<MxSidebarMode> LeftSidebarModeChanged { get; set; }
+
+    /// <summary>
+    /// Callback de sincronización para <see cref="RightSidebarMode"/>.
+    /// </summary>
+    [Parameter] public EventCallback<MxSidebarMode> RightSidebarModeChanged { get; set; }
 
     /// <summary>
     /// Ancho CSS del sidebar izquierdo funcional (ej. 300px, 20rem, minmax(240px, 30vw)).
@@ -178,11 +217,21 @@
     [Parameter] public string? Style { get; set; }
 
     private bool IsNavigationMenuOverlayVisible => MainMenuOpen && NavigationMenu is not null;
-    private bool IsLeftInlineVisible => LeftSidebarVisible && LeftSidebarMode == MxSidebarMode.Inline;
-    private bool IsRightInlineVisible => RightSidebarVisible && RightSidebarMode == MxSidebarMode.Inline;
-    private bool IsLeftOverlayVisible => LeftSidebarVisible && LeftSidebarMode == MxSidebarMode.Overlay;
-    private bool IsRightOverlayVisible => RightSidebarVisible && RightSidebarMode == MxSidebarMode.Overlay;
-    private bool HasAnyOverlayVisible => IsNavigationMenuOverlayVisible || IsLeftOverlayVisible || IsRightOverlayVisible;
+    private bool HasLeftInlineRegion => LeftSidebar is not null && LeftSidebarMode == MxSidebarMode.Inline;
+    private bool HasRightInlineRegion => RightSidebar is not null && RightSidebarMode == MxSidebarMode.Inline;
+    private bool HasLeftOverlayRegion => LeftSidebar is not null && LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen;
+    private bool HasRightOverlayRegion => RightSidebar is not null && RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen;
+    private bool HasAnyOverlayVisible => IsNavigationMenuOverlayVisible || HasLeftOverlayRegion || HasRightOverlayRegion;
+
+    private IReadOnlyList<MxMenuItem> ShellControlItems =>
+    [
+        new(LeftModeInlineKey, LeftSidebarMode == MxSidebarMode.Inline ? "Left: Inline ✓" : "Left: Inline", Icons.Material.Outlined.ViewWeek),
+        new(LeftModeOverlayKey, LeftSidebarMode == MxSidebarMode.Overlay ? "Left: Overlay ✓" : "Left: Overlay", Icons.Material.Outlined.Layers),
+        new(LeftOpenToggleKey, LeftSidebarOpen ? "Left: Cerrar overlay" : "Left: Abrir overlay", Icons.Material.Outlined.ChevronLeft, LeftSidebarMode == MxSidebarMode.Inline),
+        new(RightModeInlineKey, RightSidebarMode == MxSidebarMode.Inline ? "Right: Inline ✓" : "Right: Inline", Icons.Material.Outlined.ViewWeek),
+        new(RightModeOverlayKey, RightSidebarMode == MxSidebarMode.Overlay ? "Right: Overlay ✓" : "Right: Overlay", Icons.Material.Outlined.Layers),
+        new(RightOpenToggleKey, RightSidebarOpen ? "Right: Cerrar overlay" : "Right: Abrir overlay", Icons.Material.Outlined.ChevronRight, RightSidebarMode == MxSidebarMode.Inline)
+    ];
 
     private string ResolvedNavigationMenuWidth => string.IsNullOrWhiteSpace(NavigationMenuWidth) ? "288px" : NavigationMenuWidth.Trim();
     private string ResolvedLeftSidebarWidth => string.IsNullOrWhiteSpace(LeftSidebarWidth) ? "320px" : LeftSidebarWidth.Trim();
@@ -192,8 +241,8 @@
     {
         get
         {
-            var left = IsLeftInlineVisible ? ResolvedLeftSidebarWidth : "0px";
-            var right = IsRightInlineVisible ? ResolvedRightSidebarWidth : "0px";
+            var left = HasLeftInlineRegion ? ResolvedLeftSidebarWidth : "0px";
+            var right = HasRightInlineRegion ? ResolvedRightSidebarWidth : "0px";
             return $"{left} minmax(0, 1fr) {right}";
         }
     }
@@ -215,9 +264,44 @@
             await SetMainMenuOpenAsync(false);
         }
 
+        if (LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen)
+        {
+            await SetLeftSidebarOpenAsync(false);
+        }
+
+        if (RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen)
+        {
+            await SetRightSidebarOpenAsync(false);
+        }
+
         if (OnBackdropClick.HasDelegate)
         {
             await OnBackdropClick.InvokeAsync();
+        }
+    }
+
+    private async Task OnShellControlItemSelectedAsync(string key)
+    {
+        switch (key)
+        {
+            case LeftModeInlineKey:
+                await SetLeftSidebarModeAsync(MxSidebarMode.Inline);
+                break;
+            case LeftModeOverlayKey:
+                await SetLeftSidebarModeAsync(MxSidebarMode.Overlay);
+                break;
+            case LeftOpenToggleKey when LeftSidebarMode == MxSidebarMode.Overlay:
+                await SetLeftSidebarOpenAsync(!LeftSidebarOpen);
+                break;
+            case RightModeInlineKey:
+                await SetRightSidebarModeAsync(MxSidebarMode.Inline);
+                break;
+            case RightModeOverlayKey:
+                await SetRightSidebarModeAsync(MxSidebarMode.Overlay);
+                break;
+            case RightOpenToggleKey when RightSidebarMode == MxSidebarMode.Overlay:
+                await SetRightSidebarOpenAsync(!RightSidebarOpen);
+                break;
         }
     }
 
@@ -233,6 +317,66 @@
         if (MainMenuOpenChanged.HasDelegate)
         {
             await MainMenuOpenChanged.InvokeAsync(next);
+        }
+    }
+
+    private async Task SetLeftSidebarOpenAsync(bool next)
+    {
+        if (LeftSidebarOpen == next)
+        {
+            return;
+        }
+
+        LeftSidebarOpen = next;
+
+        if (LeftSidebarOpenChanged.HasDelegate)
+        {
+            await LeftSidebarOpenChanged.InvokeAsync(next);
+        }
+    }
+
+    private async Task SetRightSidebarOpenAsync(bool next)
+    {
+        if (RightSidebarOpen == next)
+        {
+            return;
+        }
+
+        RightSidebarOpen = next;
+
+        if (RightSidebarOpenChanged.HasDelegate)
+        {
+            await RightSidebarOpenChanged.InvokeAsync(next);
+        }
+    }
+
+    private async Task SetLeftSidebarModeAsync(MxSidebarMode next)
+    {
+        if (LeftSidebarMode == next)
+        {
+            return;
+        }
+
+        LeftSidebarMode = next;
+
+        if (LeftSidebarModeChanged.HasDelegate)
+        {
+            await LeftSidebarModeChanged.InvokeAsync(next);
+        }
+    }
+
+    private async Task SetRightSidebarModeAsync(MxSidebarMode next)
+    {
+        if (RightSidebarMode == next)
+        {
+            return;
+        }
+
+        RightSidebarMode = next;
+
+        if (RightSidebarModeChanged.HasDelegate)
+        {
+            await RightSidebarModeChanged.InvokeAsync(next);
         }
     }
 }
