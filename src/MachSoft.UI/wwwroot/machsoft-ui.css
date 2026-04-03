@@ -1157,6 +1157,12 @@ a { color: var(--mx-accent); }
   min-width: 0;
 }
 
+
+.mx-workspace-shell-control-menu {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .mx-workspace-body {
   position: relative;
   padding-top: var(--mx-workspace-header-height);
