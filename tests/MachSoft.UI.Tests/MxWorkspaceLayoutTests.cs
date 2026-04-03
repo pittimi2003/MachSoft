@@ -25,6 +25,7 @@ public class MxWorkspaceLayoutTests : TestContext
 
         cut.FindAll("[data-region='navigation-menu']").Should().BeEmpty();
         cut.Find(".mx-workspace-layout").GetAttribute("data-main-menu-open").Should().Be("false");
+        cut.Find(".mx-workspace-layout").GetAttribute("data-navigation-mode-effective").Should().Be("overlay");
     }
 
     [Fact]
@@ -230,6 +231,60 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-menu-toggle").Click();
 
         cut.Find(".mx-workspace-layout").GetAttribute("data-main-menu-open").Should().Be("true");
+    }
+
+    [Fact]
+    public void Render_WithFooterContent_ShouldRenderFooter()
+    {
+        var cut = RenderLayout(p => p.Add(x => x.FooterContent, b => b.AddContent(0, "footer-meta")));
+
+        cut.Find(".mx-workspace-footer").TextContent.Should().Contain("footer-meta");
+    }
+
+    [Fact]
+    public void Render_WithoutFooterContent_ShouldNotRenderFooter()
+    {
+        var cut = RenderLayout();
+
+        cut.FindAll(".mx-workspace-footer").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ShellMenu_SetLeftInline_ShouldCloseLeftOverlayState()
+    {
+        var leftModeChanged = MxSidebarMode.Overlay;
+        var leftOpenChanged = true;
+
+        var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.LeftSidebarOpen, true)
+            .Add(x => x.LeftSidebarModeChanged, EventCallback.Factory.Create<MxSidebarMode>(this, mode => leftModeChanged = mode))
+            .Add(x => x.LeftSidebarOpenChanged, EventCallback.Factory.Create<bool>(this, open => leftOpenChanged = open)));
+
+        var shellMenu = cut.FindComponent<MxMenu>();
+        shellMenu.InvokeAsync(() => shellMenu.Instance.OnItemSelected.InvokeAsync("left.mode.inline"));
+
+        leftModeChanged.Should().Be(MxSidebarMode.Inline);
+        leftOpenChanged.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShellMenu_SetRightInline_ShouldCloseRightOverlayState()
+    {
+        var rightModeChanged = MxSidebarMode.Overlay;
+        var rightOpenChanged = true;
+
+        var cut = RenderLayout(p => p
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarOpen, true)
+            .Add(x => x.RightSidebarModeChanged, EventCallback.Factory.Create<MxSidebarMode>(this, mode => rightModeChanged = mode))
+            .Add(x => x.RightSidebarOpenChanged, EventCallback.Factory.Create<bool>(this, open => rightOpenChanged = open)));
+
+        var shellMenu = cut.FindComponent<MxMenu>();
+        shellMenu.InvokeAsync(() => shellMenu.Instance.OnItemSelected.InvokeAsync("right.mode.inline"));
+
+        rightModeChanged.Should().Be(MxSidebarMode.Inline);
+        rightOpenChanged.Should().BeFalse();
     }
 
     [Fact]

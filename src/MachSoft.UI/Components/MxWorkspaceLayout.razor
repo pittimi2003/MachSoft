@@ -2,11 +2,11 @@
      style="--mx-navigation-menu-width:@ResolvedNavigationMenuWidth; --mx-left-sidebar-width:@ResolvedLeftSidebarWidth; --mx-right-sidebar-width:@ResolvedRightSidebarWidth; @Style"
      data-main-menu-open="@MainMenuOpen.ToString().ToLowerInvariant()"
      data-navigation-mode="@NavigationMenuMode.ToString().ToLowerInvariant()"
+     data-navigation-mode-effective="@EffectiveNavigationMenuMode.ToString().ToLowerInvariant()"
      data-left-mode="@LeftSidebarMode.ToString().ToLowerInvariant()"
      data-right-mode="@RightSidebarMode.ToString().ToLowerInvariant()"
      data-left-open="@LeftSidebarOpen.ToString().ToLowerInvariant()"
-     data-right-open="@RightSidebarOpen.ToString().ToLowerInvariant()"
-     data-navigation-mode-effective="overlay">
+     data-right-open="@RightSidebarOpen.ToString().ToLowerInvariant()">
     <header class="mx-workspace-header" data-header-height="48">
         <div class="mx-workspace-header-primary">
             <button type="button"
@@ -222,7 +222,8 @@
     /// </summary>
     [Parameter] public string? Style { get; set; }
 
-    private bool IsNavigationMenuOverlayVisible => MainMenuOpen && NavigationMenu is not null;
+    private MxSidebarMode EffectiveNavigationMenuMode => MxSidebarMode.Overlay;
+    private bool IsNavigationMenuOverlayVisible => EffectiveNavigationMenuMode == MxSidebarMode.Overlay && MainMenuOpen && NavigationMenu is not null;
     private bool HasLeftInlineRegion => LeftSidebar is not null && LeftSidebarMode == MxSidebarMode.Inline;
     private bool HasRightInlineRegion => RightSidebar is not null && RightSidebarMode == MxSidebarMode.Inline;
     private bool HasLeftOverlayRegion => LeftSidebar is not null && LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen;
@@ -403,6 +404,11 @@
         {
             await LeftSidebarModeChanged.InvokeAsync(next);
         }
+
+        if (next == MxSidebarMode.Inline && LeftSidebarOpen)
+        {
+            await SetLeftSidebarOpenAsync(false);
+        }
     }
 
     private async Task SetRightSidebarModeAsync(MxSidebarMode next)
@@ -417,6 +423,11 @@
         if (RightSidebarModeChanged.HasDelegate)
         {
             await RightSidebarModeChanged.InvokeAsync(next);
+        }
+
+        if (next == MxSidebarMode.Inline && RightSidebarOpen)
+        {
+            await SetRightSidebarOpenAsync(false);
         }
     }
 }
