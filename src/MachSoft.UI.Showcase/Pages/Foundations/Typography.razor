@@ -1,6 +1,19 @@
 @page "/foundations/typography"
 
-<ShowcasePageLayout Title="Foundations / Typography" Subtitle="Escala clara para dashboards, formularios y tablas con jerarquía técnica.">
+<ShowcasePageLayout Title="Foundations / Typography"
+                    Subtitle="Escala clara para dashboards, formularios y tablas con jerarquía técnica."
+                    Summary="Página migrada a composición reusable con región central dominante y rail contextual opcional.">
+  <HeaderContent>
+    <section class="mx-showcase-intent-block" aria-label="Intención tipográfica">
+      <p class="mx-showcase-kicker">Typography Intent</p>
+      <h2>Jerarquías compactas para lectura estable en escenarios de alta densidad.</h2>
+      <p>
+        La escala mantiene foco en datos críticos y evita ruido visual en formularios, dashboards y tablas extensas.
+      </p>
+    </section>
+  </HeaderContent>
+
+  <ChildContent>
   <MxSectionCard Title="Typography principles">
     <p class="mx-foundation-intro">
       Jerarquías compactas, lectura estable y tono institucional. Titulares con presencia controlada,
@@ -18,4 +31,15 @@
       <MudText Typo="Typo.body2">Body 2 · Soporte y contexto secundario.</MudText>
     </MudStack>
   </MxSectionCard>
+  </ChildContent>
+
+  <ContextContent>
+    <MxSectionCard Title="Reglas rápidas">
+      <ul class="mx-showcase-context-list">
+        <li>H1/H2 reservados para marcos de módulo o navegación mayor.</li>
+        <li>Body1 para contenido principal; body2 para apoyo contextual.</li>
+        <li>Caption para metadatos y densidad secundaria.</li>
+      </ul>
+    </MxSectionCard>
+  </ContextContent>
 </ShowcasePageLayout>

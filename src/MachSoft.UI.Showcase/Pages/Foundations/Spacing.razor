@@ -1,6 +1,17 @@
 @page "/foundations/spacing"
 
-<ShowcasePageLayout Title="Foundations / Spacing" Subtitle="Escala 4px-based densa pero respirable para producto enterprise.">
+<ShowcasePageLayout Title="Foundations / Spacing"
+                    Subtitle="Escala 4px-based densa pero respirable para producto enterprise."
+                    Summary="Base reusable aplicada para evidenciar la escala en una región principal fluida.">
+  <HeaderContent>
+    <section class="mx-showcase-intent-block" aria-label="Intención de spacing">
+      <p class="mx-showcase-kicker">Spacing Intent</p>
+      <h2>Ritmo consistente para composición y legibilidad operativa.</h2>
+      <p>La escala 4px unifica separación entre componentes, bloques de formulario y paneles de contexto.</p>
+    </section>
+  </HeaderContent>
+
+  <ChildContent>
   <MxSectionCard Title="Spacing scale">
     <MudStack Spacing="2">
       @foreach (var item in _scale)
@@ -13,6 +24,16 @@
       }
     </MudStack>
   </MxSectionCard>
+  </ChildContent>
+
+  <ContextContent>
+    <MxSectionCard Title="Uso recomendado">
+      <ul class="mx-showcase-context-list">
+        <li>Usar `space-4` como separación base entre controles.</li>
+        <li>Reservar `space-6/7` para separación entre secciones.</li>
+      </ul>
+    </MxSectionCard>
+  </ContextContent>
 </ShowcasePageLayout>
 
 @code {
