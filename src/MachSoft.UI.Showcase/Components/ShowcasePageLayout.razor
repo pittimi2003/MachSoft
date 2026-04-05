@@ -2,25 +2,34 @@
                  Class="@ContainerClass"
                  Title="@Title"
                  Subtitle="@Subtitle">
-    @if (!string.IsNullOrWhiteSpace(Summary))
-    {
-        <section class="mx-showcase-page-summary" aria-label="Resumen de página">
-            <p>@Summary</p>
-        </section>
-    }
-
-    <section class="mx-showcase-page-main @(ContextContent is null ? "mx-showcase-page-main-single" : string.Empty)">
-        <div class="mx-showcase-page-primary">
-            @ChildContent
-        </div>
-
-        @if (ContextContent is not null)
+    <div class="mx-showcase-page-frame">
+        @if (HeaderContent is not null)
         {
-            <aside class="mx-showcase-page-context" aria-label="Contexto de la página">
-                @ContextContent
-            </aside>
+            <section class="mx-showcase-page-header-region" aria-label="Encabezado de página">
+                @HeaderContent
+            </section>
         }
-    </section>
+
+        @if (!string.IsNullOrWhiteSpace(Summary))
+        {
+            <section class="mx-showcase-page-summary" aria-label="Resumen de página">
+                <p>@Summary</p>
+            </section>
+        }
+
+        <section class="mx-showcase-page-main @(ContextContent is null ? "mx-showcase-page-main-single" : string.Empty)">
+            <div class="mx-showcase-page-primary">
+                @ChildContent
+            </div>
+
+            @if (ContextContent is not null)
+            {
+                <aside class="mx-showcase-page-context" aria-label="Contexto de la página">
+                    @ContextContent
+                </aside>
+            }
+        </section>
+    </div>
 </MxPageContainer>
 
 @code {
@@ -29,6 +38,7 @@
     [Parameter] public string Summary { get; set; } = string.Empty;
     [Parameter] public bool FullWidth { get; set; } = true;
     [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? HeaderContent { get; set; }
     [Parameter] public RenderFragment? ContextContent { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
 

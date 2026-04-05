@@ -130,3 +130,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se migra el set principal de rutas del Showcase (home, foundations, components, patterns, states y audit) para consumir la plantilla común y eliminar composición de columna angosta heredada.
 - Se incorporan estilos `mx-showcase-page-*` en `machsoft-ui.css` para ocupar ancho central real, mantener cards coherentes y usar grid/stack fluido con degradación responsive.
 - Resultado operativo: el contenido de `@Body` se percibe como región dominante del workspace, manteniendo `NavigationMenu`, `LeftSidebar` y `RightSidebar` como regiones independientes del shell.
+
+## 20) Actualización 2026-04-04 (UTC) — Composición central reusable reforzada para páginas del Showcase
+- Se refuerza `ShowcasePageLayout` como base reusable de composición en `MainContent`, incorporando frame centrado, región de encabezado opcional (`HeaderContent`), resumen opcional, región principal fluida y rail contextual opcional.
+- Se ajusta la distribución visual para priorizar explícitamente la columna central (`mx-showcase-page-main` con proporción dominante) y evitar percepción de columna angosta anclada a la izquierda.
+- Se migra la Home (`/`) y Foundations Colors (`/foundations/colors`) a la base reusable reforzada, unificando patrones visuales antes implementados como caso especial aislado.
+- Se migran además páginas equivalentes de foundations (`/foundations/spacing`, `/foundations/typography`) para reducir divergencia de composición entre rutas principales del catálogo.
+- Se amplían estilos de `machsoft-ui.css` con clases `mx-showcase-*` para hero, grids dominantes, bloques de intención, token grids y rail contextual, manteniendo sidebars del shell como regiones secundarias.
+- Resultado operativo: el contenido renderizado en `@Body` recupera dominancia visual consistente dentro de `MainContent` sin tocar contrato estructural de `MxWorkspaceLayout`.
