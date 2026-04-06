@@ -152,3 +152,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se amplía `mx-showcase-metrics` a distribución horizontal (3 columnas) en desktop y degradación a una sola columna en breakpoint responsive.
 - Se refuerza robustez de ancho con `min-width:0` en regiones críticas (`mx-showcase-main-primary`, `mx-showcase-main-side`, `mx-showcase-main-operational`, `mx-showcase-main-rail`, `mx-showcase-main-surface-grid`) para evitar colapso visual por contenido.
 - Resultado operativo: la Home deja de percibirse como columna estrecha pegada a la izquierda y pasa a ocupar el `MainContent` completo con jerarquía central dominante.
+
+## 23) Actualización 2026-04-06 (UTC) — Auditoría y depuración de duplicados CSS de Home
+- Se audita `machsoft-ui.css` y se elimina el bloque legado duplicado de clases `mx-home-*` que redefinía composición de Home en una segunda zona del archivo.
+- Se conserva una única fuente de verdad para Home (`mx-home-main-grid`, `mx-home-main-surface-grid`, `mx-home-hero`, `mx-home-kicker`, `mx-home-hero-tags`, `mx-home-hero-metrics`, `mx-home-rules`, `mx-home-ops-kpis` y breakpoint asociado).
+- Se evita conflicto de cascada donde reglas antiguas (declaradas antes) imponían `box-shadow`, fondos y paddings distintos respecto al bloque vigente, generando resultados visuales inconsistentes según orden y combinación de clases.
+- Se preservan estilos no relacionados con Home (`mx-forms-grid`, `mx-token-grid`, `mx-foundation-*`, `mx-table`) para mantener estabilidad del resto del showcase.
+- Resultado operativo: Home queda con contrato visual único y predecible dentro de `MainContent`, sin doble definición competidora.
