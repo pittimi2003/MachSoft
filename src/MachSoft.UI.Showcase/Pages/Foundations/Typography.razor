@@ -1,45 +1,46 @@
 @page "/foundations/typography"
 
-<ShowcasePageLayout Title="Foundations / Typography"
-                    Subtitle="Escala clara para dashboards, formularios y tablas con jerarquía técnica."
-                    Summary="Página migrada a composición reusable con región central dominante y rail contextual opcional.">
-  <HeaderContent>
-    <section class="mx-showcase-intent-block" aria-label="Intención tipográfica">
-      <p class="mx-showcase-kicker">Typography Intent</p>
-      <h2>Jerarquías compactas para lectura estable en escenarios de alta densidad.</h2>
-      <p>
-        La escala mantiene foco en datos críticos y evita ruido visual en formularios, dashboards y tablas extensas.
-      </p>
-    </section>
-  </HeaderContent>
-
-  <ChildContent>
-  <MxSectionCard Title="Typography principles">
-    <p class="mx-foundation-intro">
-      Jerarquías compactas, lectura estable y tono institucional. Titulares con presencia controlada,
-      texto operativo en peso medio y metadatos discretos para no competir con datos críticos.
+<MxPageContainer Title="Foundations / Typography"
+                 Subtitle="Escala clara para dashboards, formularios y tablas con jerarquía técnica.">
+  <section class="mx-showcase-intent-block" aria-label="Intención tipográfica">
+    <p class="mx-showcase-kicker">Typography Intent</p>
+    <h2>Jerarquías compactas para lectura estable en escenarios de alta densidad.</h2>
+    <p>
+      La escala mantiene foco en datos críticos y evita ruido visual en formularios, dashboards y tablas extensas.
     </p>
-  </MxSectionCard>
+  </section>
 
-  <MxSectionCard Title="Scale preview">
-    <MudStack Spacing="2">
-      <MudText Typo="Typo.h1">Heading 1 · Sección institucional</MudText>
-      <MudText Typo="Typo.h2">Heading 2 · Módulo</MudText>
-      <MudText Typo="Typo.h3">Heading 3 · Bloque operativo</MudText>
-      <MudText Typo="Typo.subtitle2">Subtitle · Etiquetas y metadatos</MudText>
-      <MudText Typo="Typo.body1">Body 1 · Texto principal de formularios, detalle y celdas importantes.</MudText>
-      <MudText Typo="Typo.body2">Body 2 · Soporte y contexto secundario.</MudText>
-    </MudStack>
-  </MxSectionCard>
-  </ChildContent>
+  <MudGrid Class="mx-foundation-layout" Spacing="3">
+    <MudItem xs="12" lg="8">
+      <MudStack Spacing="3">
+        <MxSectionCard Title="Typography principles">
+          <p class="mx-foundation-intro">
+            Jerarquías compactas, lectura estable y tono institucional. Titulares con presencia controlada,
+            texto operativo en peso medio y metadatos discretos para no competir con datos críticos.
+          </p>
+        </MxSectionCard>
 
-  <ContextContent>
-    <MxSectionCard Title="Reglas rápidas">
-      <ul class="mx-showcase-context-list">
-        <li>H1/H2 reservados para marcos de módulo o navegación mayor.</li>
-        <li>Body1 para contenido principal; body2 para apoyo contextual.</li>
-        <li>Caption para metadatos y densidad secundaria.</li>
-      </ul>
-    </MxSectionCard>
-  </ContextContent>
-</ShowcasePageLayout>
+        <MxSectionCard Title="Scale preview">
+          <MudStack Spacing="2">
+            <MudText Typo="Typo.h1">Heading 1 · Sección institucional</MudText>
+            <MudText Typo="Typo.h2">Heading 2 · Módulo</MudText>
+            <MudText Typo="Typo.h3">Heading 3 · Bloque operativo</MudText>
+            <MudText Typo="Typo.subtitle2">Subtitle · Etiquetas y metadatos</MudText>
+            <MudText Typo="Typo.body1">Body 1 · Texto principal de formularios, detalle y celdas importantes.</MudText>
+            <MudText Typo="Typo.body2">Body 2 · Soporte y contexto secundario.</MudText>
+          </MudStack>
+        </MxSectionCard>
+      </MudStack>
+    </MudItem>
+
+    <MudItem xs="12" lg="4">
+      <MxSectionCard Title="Reglas rápidas">
+        <ul class="mx-showcase-context-list">
+          <li>H1/H2 reservados para marcos de módulo o navegación mayor.</li>
+          <li>Body1 para contenido principal; body2 para apoyo contextual.</li>
+          <li>Caption para metadatos y densidad secundaria.</li>
+        </ul>
+      </MxSectionCard>
+    </MudItem>
+  </MudGrid>
+</MxPageContainer>

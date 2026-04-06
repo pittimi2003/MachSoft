@@ -1,81 +1,82 @@
 @page "/foundations/colors"
 
-<ShowcasePageLayout Title="Foundations / Colors"
-                    Subtitle="Paleta oficial MachSoft: graphite estructural + accent cian de identidad + azul profundo secundario."
-                    Summary="Composición base reusable del Showcase: núcleo central dominante para tokens y una rail contextual opcional para reglas de uso.">
-  <HeaderContent>
-    <section class="mx-showcase-intent-block" aria-label="Intención del sistema de color">
-      <p class="mx-showcase-kicker">Color System Intent</p>
-      <h2>Lenguaje cromático técnico para lectura prolongada y operación crítica.</h2>
-      <p>
-        El sistema equilibra contraste técnico y legibilidad prolongada. Graphite gobierna estructura,
-        el cian define acciones críticas y el azul profundo entrega soporte institucional en shell y navegación.
-      </p>
-    </section>
-  </HeaderContent>
-
-  <ChildContent>
-
-  <section class="mx-showcase-token-section" aria-label="Tokens de marca">
-    <MxSectionCard Title="Brand tokens">
-      <div class="mx-showcase-token-grid">
-        @foreach (var token in _brand)
-        {
-          <div class="mx-token-swatch">
-            <div class="mx-token-color" style="background:@token.Value"></div>
-            <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
-          </div>
-        }
-      </div>
-    </MxSectionCard>
+<MxPageContainer Title="Foundations / Colors"
+                 Subtitle="Paleta oficial MachSoft: graphite estructural + accent cian de identidad + azul profundo secundario.">
+  <section class="mx-showcase-intent-block" aria-label="Intención del sistema de color">
+    <p class="mx-showcase-kicker">Color System Intent</p>
+    <h2>Lenguaje cromático técnico para lectura prolongada y operación crítica.</h2>
+    <p>
+      El sistema equilibra contraste técnico y legibilidad prolongada. Graphite gobierna estructura,
+      el cian define acciones críticas y el azul profundo entrega soporte institucional en shell y navegación.
+    </p>
   </section>
 
-  <section class="mx-showcase-token-section" aria-label="Neutrales de sistema">
-    <MxSectionCard Title="Neutral graphite core">
-      <div class="mx-showcase-token-grid">
-        @foreach (var token in _neutrals)
-        {
-          <div class="mx-token-swatch">
-            <div class="mx-token-color" style="background:@token.Value"></div>
-            <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
-          </div>
-        }
-      </div>
-    </MxSectionCard>
-  </section>
+  <MudGrid Class="mx-foundation-layout" Spacing="3">
+    <MudItem xs="12" lg="8">
+      <MudStack Spacing="3">
+        <section class="mx-showcase-token-section" aria-label="Tokens de marca">
+          <MxSectionCard Title="Brand tokens">
+            <div class="mx-showcase-token-grid">
+              @foreach (var token in _brand)
+              {
+                <div class="mx-token-swatch">
+                  <div class="mx-token-color" style="background:@token.Value"></div>
+                  <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
+                </div>
+              }
+            </div>
+          </MxSectionCard>
+        </section>
 
-  <MxSectionCard Title="Semantic signaling">
-    <div class="mx-showcase-semantic-block">
-      <p>Los colores semánticos preservan contraste y reconocimiento inmediato en estados operativos.</p>
-      <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-        <MudChip T="string" Color="Color.Info">Info</MudChip>
-        <MudChip T="string" Color="Color.Success">Success</MudChip>
-        <MudChip T="string" Color="Color.Warning">Warning</MudChip>
-        <MudChip T="string" Color="Color.Error">Error</MudChip>
+        <section class="mx-showcase-token-section" aria-label="Neutrales de sistema">
+          <MxSectionCard Title="Neutral graphite core">
+            <div class="mx-showcase-token-grid">
+              @foreach (var token in _neutrals)
+              {
+                <div class="mx-token-swatch">
+                  <div class="mx-token-color" style="background:@token.Value"></div>
+                  <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
+                </div>
+              }
+            </div>
+          </MxSectionCard>
+        </section>
+
+        <MxSectionCard Title="Semantic signaling">
+          <div class="mx-showcase-semantic-block">
+            <p>Los colores semánticos preservan contraste y reconocimiento inmediato en estados operativos.</p>
+            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
+              <MudChip T="string" Color="Color.Info">Info</MudChip>
+              <MudChip T="string" Color="Color.Success">Success</MudChip>
+              <MudChip T="string" Color="Color.Warning">Warning</MudChip>
+              <MudChip T="string" Color="Color.Error">Error</MudChip>
+            </MudStack>
+          </div>
+        </MxSectionCard>
       </MudStack>
-    </div>
-  </MxSectionCard>
+    </MudItem>
 
-  </ChildContent>
+    <MudItem xs="12" lg="4">
+      <MudStack Spacing="3">
+        <MxSectionCard Title="Reglas de uso">
+          <ul class="mx-showcase-context-list">
+            <li>Accent solo para acciones primarias, links críticos y foco.</li>
+            <li>Neutrales graphite sostienen layout, divisores y fondo de trabajo.</li>
+            <li>Estados semánticos deben conservar prioridad sobre color de marca.</li>
+          </ul>
+        </MxSectionCard>
 
-  <ContextContent>
-    <MxSectionCard Title="Reglas de uso">
-      <ul class="mx-showcase-context-list">
-        <li>Accent solo para acciones primarias, links críticos y foco.</li>
-        <li>Neutrales graphite sostienen layout, divisores y fondo de trabajo.</li>
-        <li>Estados semánticos deben conservar prioridad sobre color de marca.</li>
-      </ul>
-    </MxSectionCard>
-
-    <MxSectionCard Title="Checklist de contraste">
-      <ul class="mx-showcase-context-list">
-        <li>Texto principal siempre en pares de alto contraste.</li>
-        <li>No usar cian sobre superficies claras sin refuerzo tipográfico.</li>
-        <li>Validar combinaciones en light y dark antes de publicar.</li>
-      </ul>
-    </MxSectionCard>
-  </ContextContent>
-</ShowcasePageLayout>
+        <MxSectionCard Title="Checklist de contraste">
+          <ul class="mx-showcase-context-list">
+            <li>Texto principal siempre en pares de alto contraste.</li>
+            <li>No usar cian sobre superficies claras sin refuerzo tipográfico.</li>
+            <li>Validar combinaciones en light y dark antes de publicar.</li>
+          </ul>
+        </MxSectionCard>
+      </MudStack>
+    </MudItem>
+  </MudGrid>
+</MxPageContainer>
 
 @code {
   private readonly (string Name, string Value)[] _brand =
