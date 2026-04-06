@@ -2,19 +2,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.DesignSystem", "src/MachSoft.DesignSystem/MachSoft.DesignSystem.csproj", "{48EC5BBA-EFA2-4515-BE73-8C329D4C4B7B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.DesignSystem", "src\MachSoft.DesignSystem\MachSoft.DesignSystem.csproj", "{48EC5BBA-EFA2-4515-BE73-8C329D4C4B7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.UI", "src/MachSoft.UI/MachSoft.UI.csproj", "{8986A0FD-C445-4790-9AD8-D4EDC55DFD45}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.UI", "src\MachSoft.UI\MachSoft.UI.csproj", "{8986A0FD-C445-4790-9AD8-D4EDC55DFD45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.UI.Showcase", "src/MachSoft.UI.Showcase/MachSoft.UI.Showcase.csproj", "{4A447C9E-B6EA-4212-BB5E-400ADA9B7997}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.Template.Server", "src\MachSoft.Template.Server\MachSoft.Template.Server.csproj", "{DD69995B-BA38-4CB7-BD27-593358A20C53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.Template.Server", "src/MachSoft.Template.Server/MachSoft.Template.Server.csproj", "{DD69995B-BA38-4CB7-BD27-593358A20C53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.Template.Wasm", "src\MachSoft.Template.Wasm\MachSoft.Template.Wasm.csproj", "{E0F6D38C-9D19-4F43-9D56-53FCEB0453FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.Template.Wasm", "src/MachSoft.Template.Wasm/MachSoft.Template.Wasm.csproj", "{E0F6D38C-9D19-4F43-9D56-53FCEB0453FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.UI.Tests", "tests\MachSoft.UI.Tests\MachSoft.UI.Tests.csproj", "{228C3EEB-D46D-4B9D-A560-00AFC7DB083F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.UI.Tests", "tests/MachSoft.UI.Tests/MachSoft.UI.Tests.csproj", "{228C3EEB-D46D-4B9D-A560-00AFC7DB083F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.UI.Showcase.SmokeTests", "tests/MachSoft.UI.Showcase.SmokeTests/MachSoft.UI.Showcase.SmokeTests.csproj", "{4FB3FD3B-E284-4CB3-976E-AD55219E42E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachSoft.UI.Showcase.SmokeTests", "tests\MachSoft.UI.Showcase.SmokeTests\MachSoft.UI.Showcase.SmokeTests.csproj", "{4FB3FD3B-E284-4CB3-976E-AD55219E42E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,10 +28,6 @@ Global
 		{8986A0FD-C445-4790-9AD8-D4EDC55DFD45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8986A0FD-C445-4790-9AD8-D4EDC55DFD45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8986A0FD-C445-4790-9AD8-D4EDC55DFD45}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4A447C9E-B6EA-4212-BB5E-400ADA9B7997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4A447C9E-B6EA-4212-BB5E-400ADA9B7997}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4A447C9E-B6EA-4212-BB5E-400ADA9B7997}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4A447C9E-B6EA-4212-BB5E-400ADA9B7997}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DD69995B-BA38-4CB7-BD27-593358A20C53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DD69995B-BA38-4CB7-BD27-593358A20C53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD69995B-BA38-4CB7-BD27-593358A20C53}.Release|Any CPU.ActiveCfg = Release|Any CPU
