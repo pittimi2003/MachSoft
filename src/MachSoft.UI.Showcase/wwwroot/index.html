@@ -1,39 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MachSoft.UI.Showcase</title>
-  <base href="/" />
-  <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-  <link href="_content/MachSoft.UI/machsoft-ui.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MachSoft.UI.Showcase</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="_content/MachSoft.UI/machsoft-ui.css" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="showcase.css" rel="stylesheet" />
 </head>
 <body>
-  <div id="app">Loading...</div>
-  <script src="_content/MudBlazor/MudBlazor.min.js"></script>
-  <script>
-    (function () {
-      const fallbackKey = "mx-showcase-theme";
-      const read = (key) => window.localStorage.getItem(key || fallbackKey);
-      const write = (key, value) => window.localStorage.setItem(key || fallbackKey, value);
-      const normalize = (value) => value === "dark" ? "dark" : "light";
-
-      const savedTheme = normalize(read(fallbackKey));
-      write(fallbackKey, savedTheme);
-      if (savedTheme === "dark") {
-        document.body.classList.add("mud-theme-dark");
-      }
-
-      window.machsoftTheme = {
-        get: (key) => normalize(read(key)),
-        set: (key, value) => {
-          const nextTheme = normalize(value);
-          write(key, nextTheme);
-          document.body.classList.toggle("mud-theme-dark", nextTheme === "dark");
-        }
-      };
-    })();
-  </script>
-  <script src="_framework/blazor.webassembly.js"></script>
+    <div id="app">Loading...</div>
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
 </body>
 </html>

@@ -12,7 +12,11 @@
             </Found>
             <NotFound>
                 <LayoutView Layout="typeof(Layout.MainLayout)">
-                    <p>Página no encontrada.</p>
+                    <MxPageContainer FullWidth="true">
+                        <MxSectionCard Title="Ruta no encontrada">
+                            <p>La ruta solicitada no existe en este showcase.</p>
+                        </MxSectionCard>
+                    </MxPageContainer>
                 </LayoutView>
             </NotFound>
         </Router>
@@ -24,16 +28,13 @@
 
     protected override void OnInitialized()
     {
-        _themeState.OnChange += HandleThemeChanged;
+        _themeState.OnChange += OnThemeChanged;
     }
 
-    private void HandleThemeChanged()
-    {
-        _ = InvokeAsync(StateHasChanged);
-    }
+    private void OnThemeChanged() => _ = InvokeAsync(StateHasChanged);
 
     public void Dispose()
     {
-        _themeState.OnChange -= HandleThemeChanged;
+        _themeState.OnChange -= OnThemeChanged;
     }
 }

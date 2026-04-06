@@ -167,3 +167,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se confirma presencia en runtime de reglas objetivo: `.mx-page-container.mx-page-container-full`, `.mx-showcase-hero`, `.mx-showcase-metrics`, `.mx-showcase-main-grid` y `.mx-showcase-main-surface-grid`.
 - Se confirma que la otra hoja cargada (`_content/MudBlazor/MudBlazor.min.css`) no contiene esos selectores y no sobreescribe dichas reglas específicas.
 - Resultado operativo: el runtime local queda alineado con el fuente vigente; no se aplican cambios adicionales de layout, páginas ni CSS en esta ejecución.
+
+## 25) Actualización 2026-04-06 (UTC) — Regeneración completa de `MachSoft.UI.Showcase` como host limpio
+- Se regenera `src/MachSoft.UI.Showcase` desde cero para eliminar deuda visual/estructural acumulada y mantener un host pequeño, gobernable y auditable.
+- `Layout/MainLayout.razor` se consolida como único layout global y único consumidor estructural de `MxWorkspaceLayout` (sin `ShowcasePageLayout` ni sublayouts equivalentes).
+- El estado inicial contractual del shell queda explícito: `MainMenuOpen=false`, `LeftSidebarMode/RightSidebarMode=Overlay`, `LeftSidebarOpen/RightSidebarOpen=false`, con `MainContent` dominante al inicio.
+- La navegación global se reduce a secciones clave (`Home`, `Foundations`, `Components`) mediante `NavigationMenu` dedicado y separado de sidebars funcionales.
+- Se rehacen desde cero las páginas `Index`, `Foundations/Colors` y `Components/Buttons` con render directo en `@Body`, uso de `MxPageContainer FullWidth="true"` y composición central amplia.
+- Se crea una capa de estilos local de showcase (`wwwroot/showcase.css`) sin duplicados heredados y con comportamiento responsive explícito para preservar dominancia del contenido principal.
