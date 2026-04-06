@@ -68,9 +68,12 @@ html, body {
 a { color: var(--mx-accent); }
 
 .mx-page-container {
+  width: 100%;
+  min-width: 0;
   max-width: 1240px;
   margin: 0 auto;
   padding: calc(var(--mx-space-6) + 2px) var(--mx-space-7) calc(var(--mx-space-7) + 2px);
+  box-sizing: border-box;
   display: grid;
   gap: calc(var(--mx-space-6) + 2px);
 }
@@ -78,6 +81,8 @@ a { color: var(--mx-accent); }
 .mx-page-container.mx-page-container-full {
   max-width: none;
   width: 100%;
+  margin: 0;
+  padding-inline: clamp(18px, 2.2vw, 34px);
 }
 
 .mx-page-header {
@@ -1440,6 +1445,9 @@ a { color: var(--mx-accent); }
 
 .mx-home-shell-evidence {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
   gap: var(--mx-space-6);
 }
 
@@ -1732,13 +1740,15 @@ a { color: var(--mx-accent); }
 
 .mx-showcase-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(260px, .8fr);
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 1fr);
+  align-items: stretch;
   gap: var(--mx-space-4);
   padding: var(--mx-space-5);
 }
 
 .mx-showcase-hero-content {
   display: grid;
+  min-width: 0;
   gap: var(--mx-space-3);
 }
 
@@ -1770,6 +1780,7 @@ a { color: var(--mx-accent); }
 
 .mx-showcase-metrics {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--mx-space-3);
 }
 
@@ -1780,12 +1791,20 @@ a { color: var(--mx-accent); }
 .mx-showcase-main-grid,
 .mx-showcase-main-surface-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) repeat(2, minmax(220px, .8fr));
+  grid-template-columns: minmax(0, 1.7fr) repeat(2, minmax(0, 1fr));
   gap: var(--mx-space-4);
 }
 
 .mx-showcase-main-surface-grid {
-  grid-template-columns: minmax(0, 1.6fr) minmax(280px, .85fr);
+  grid-template-columns: minmax(0, 1.75fr) minmax(320px, 1fr);
+}
+
+.mx-showcase-main-primary,
+.mx-showcase-main-side,
+.mx-showcase-main-operational,
+.mx-showcase-main-rail,
+.mx-showcase-main-surface-grid {
+  min-width: 0;
 }
 
 .mx-showcase-main-side h4,
@@ -1853,6 +1872,7 @@ a { color: var(--mx-accent); }
   .mx-showcase-page-main,
   .mx-showcase-main-grid,
   .mx-showcase-main-surface-grid,
+  .mx-showcase-metrics,
   .mx-showcase-hero {
     grid-template-columns: minmax(0, 1fr);
   }

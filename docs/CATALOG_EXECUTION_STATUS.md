@@ -145,3 +145,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - La Home (`/`) y Foundations (`/foundations/colors`, `/foundations/spacing`, `/foundations/typography`) reemplazan regiones implícitas (`HeaderContent`, `ChildContent`, `ContextContent`) por composición explícita y local sin wrapper estructural adicional.
 - Se preserva la jerarquía del shell: `MainLayout` + `MxWorkspaceLayout` como único layout global; `LeftSidebar`/`RightSidebar` continúan como regiones secundarias.
 - Resultado operativo: la región dominante vuelve a ser el contenido central real renderizado en `MainContent`, sin layouts de página anidados.
+
+## 22) Actualización 2026-04-06 (UTC) — Corrección de composición CSS en Home dentro de `MainContent`
+- Se corrigen reglas de `MxPageContainer` para formalizar que `FullWidth=true` use ancho útil real: `width:100%`, `min-width:0`, `box-sizing:border-box`, `max-width:none`, `margin:0` y `padding-inline` fluido en modo full.
+- Se elimina la restricción visual de composición angosta en Home ajustando `mx-home-shell-evidence` y los grids `mx-showcase-*` para usar columnas fluidas sin mínimos rígidos que comprimían la región principal.
+- Se amplía `mx-showcase-metrics` a distribución horizontal (3 columnas) en desktop y degradación a una sola columna en breakpoint responsive.
+- Se refuerza robustez de ancho con `min-width:0` en regiones críticas (`mx-showcase-main-primary`, `mx-showcase-main-side`, `mx-showcase-main-operational`, `mx-showcase-main-rail`, `mx-showcase-main-surface-grid`) para evitar colapso visual por contenido.
+- Resultado operativo: la Home deja de percibirse como columna estrecha pegada a la izquierda y pasa a ocupar el `MainContent` completo con jerarquía central dominante.
