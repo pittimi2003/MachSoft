@@ -1,60 +1,43 @@
 @page "/components/buttons"
 
-<MxPageContainer Title="Components / Buttons" Subtitle="Matriz exhaustiva auditable: variantes, tamaños, iconografía, estados y combinaciones para tema light/dark.">
-  <MudStack Spacing="3">
-    <MxSectionCard Title="Variantes contractuales">
-      <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-        <MxButton Label="Primary filled" Tone="MxTone.Primary" />
-        <MxButton Label="Secondary filled" Tone="MxTone.Secondary" />
-        <MxButton Label="Outline" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
-        <MxButton Label="Text / Tertiary" Variant="MxVariant.Text" Tone="MxTone.Neutral" />
-        <MxButton Label="Success" Tone="MxTone.Success" />
-        <MxButton Label="Danger" Tone="MxTone.Danger" />
-      </MudStack>
+<MxPageContainer FullWidth="true" Class="showcase-page">
+    <section class="showcase-hero">
+        <p class="showcase-kicker">Components</p>
+        <h1>Buttons auditables: variantes, estados, tamaños e iconografía</h1>
+    </section>
+
+    <MxSectionCard Title="Variantes contractuales" Class="showcase-section">
+        <div class="buttons-row">
+            <MxButton Tone="MxTone.Primary">Primary</MxButton>
+            <MxButton Tone="MxTone.Neutral">Neutral</MxButton>
+            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined">Outlined</MxButton>
+            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Text">Text</MxButton>
+        </div>
     </MxSectionCard>
 
-    <MxSectionCard Title="Estados auditables (normal, hover, focus, active, disabled, loading, link)">
-      <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" AlignItems="AlignItems.Center">
-        <MxButton Label="Normal" />
-        <MxButton Class="mx-force-hover" Label="Hover (preview)" StartIcon="@Icons.Material.Outlined.TouchApp" />
-        <MxButton Class="mx-force-focus" Label="Focus (preview)" StartIcon="@Icons.Material.Outlined.CenterFocusStrong" />
-        <MxButton Label="Pressed / Active" Active="true" />
-        <MxButton Label="Disabled" Disabled="true" />
-        <MxButton Label="Loading" Loading="true" />
-        <MxButton Label="Link mode" Href="https://example.com" Target="_blank" Variant="MxVariant.Text" EndIcon="@Icons.Material.Outlined.OpenInNew" />
-      </MudStack>
+    <MxSectionCard Title="Estados" Class="showcase-section">
+        <div class="buttons-row">
+            <MxButton Tone="MxTone.Primary">Enabled</MxButton>
+            <MxButton Tone="MxTone.Primary" Disabled="true">Disabled</MxButton>
+            <MxButton Tone="MxTone.Danger">Danger</MxButton>
+            <MxButton Tone="MxTone.Success">Success</MxButton>
+        </div>
     </MxSectionCard>
 
-    <MxSectionCard Title="Iconografía integrada">
-      <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" AlignItems="AlignItems.Center">
-        <MxButton Label="Icon left" StartIcon="@Icons.Material.Outlined.Add" />
-        <MxButton Label="Icon right" EndIcon="@Icons.Material.Outlined.ArrowForward" Variant="MxVariant.Outlined" />
-        <MxButton Label="Icon + loading" StartIcon="@Icons.Material.Outlined.Save" Loading="true" />
-        <MxButton Label="" IconOnly="true" StartIcon="@Icons.Material.Outlined.Settings" />
-        <MxButton Label="" IconOnly="true" StartIcon="@Icons.Material.Outlined.Delete" Tone="MxTone.Danger" Variant="MxVariant.Outlined" />
-        <MxIconButton Icon="@Icons.Material.Outlined.MoreVert" AriaLabel="Más acciones" />
-        <MxIconButton Class="mx-force-hover" Icon="@Icons.Material.Outlined.Star" AriaLabel="Favorito" />
-        <MxIconButton Icon="@Icons.Material.Outlined.Alarm" AriaLabel="Notificaciones" Tone="MxTone.Warning" />
-      </MudStack>
+    <MxSectionCard Title="Tamaños" Class="showcase-section">
+        <div class="buttons-row">
+            <MxButton Tone="MxTone.Primary" Size="MxSize.Small">Small</MxButton>
+            <MxButton Tone="MxTone.Primary" Size="MxSize.Medium">Medium</MxButton>
+            <MxButton Tone="MxTone.Primary" Size="MxSize.Large">Large</MxButton>
+        </div>
     </MxSectionCard>
 
-    <MxSectionCard Title="Tamaños completos">
-      <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" AlignItems="AlignItems.Center">
-        <MxButton Label="Small" Size="MxSize.Small" StartIcon="@Icons.Material.Outlined.Add" />
-        <MxButton Label="Medium" Size="MxSize.Medium" StartIcon="@Icons.Material.Outlined.Add" />
-        <MxButton Label="Large" Size="MxSize.Large" StartIcon="@Icons.Material.Outlined.Add" />
-        <MxButton Label="Large outline" Size="MxSize.Large" Variant="MxVariant.Outlined" EndIcon="@Icons.Material.Outlined.ChevronRight" />
-      </MudStack>
+    <MxSectionCard Title="Iconografía y combinaciones" Class="showcase-section">
+        <div class="buttons-row">
+            <MxButton Tone="MxTone.Primary" StartIcon="@Icons.Material.Outlined.Add">Crear</MxButton>
+            <MxButton Tone="MxTone.Neutral" EndIcon="@Icons.Material.Outlined.ArrowForward">Continuar</MxButton>
+            <MxIconButton Icon="@Icons.Material.Outlined.Settings" AriaLabel="Configuración" Tone="MxTone.Neutral" />
+            <MxIconButton Icon="@Icons.Material.Outlined.Search" AriaLabel="Buscar" Tone="MxTone.Primary" />
+        </div>
     </MxSectionCard>
-
-    <MxSectionCard Title="Caso real: Toolbar de listing CRUD">
-      <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-        <MxButton Label="Guardar cambios" StartIcon="@Icons.Material.Outlined.Save" />
-        <MxButton Label="Aprobar" Tone="MxTone.Success" StartIcon="@Icons.Material.Outlined.TaskAlt" />
-        <MxButton Label="Escalar" Tone="MxTone.Warning" Variant="MxVariant.Outlined" StartIcon="@Icons.Material.Outlined.PriorityHigh" />
-        <MxButton Label="Exportar" Variant="MxVariant.Outlined" StartIcon="@Icons.Material.Outlined.Download" />
-        <MxButton Label="Cancelar" Variant="MxVariant.Text" Tone="MxTone.Neutral" />
-      </MudStack>
-    </MxSectionCard>
-  </MudStack>
 </MxPageContainer>

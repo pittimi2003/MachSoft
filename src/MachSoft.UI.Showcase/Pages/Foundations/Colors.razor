@@ -1,97 +1,81 @@
 @page "/foundations/colors"
 
-<MxPageContainer Title="Foundations / Colors"
-                 Subtitle="Paleta oficial MachSoft: graphite estructural + accent cian de identidad + azul profundo secundario.">
-  <section class="mx-showcase-intent-block" aria-label="Intención del sistema de color">
-    <p class="mx-showcase-kicker">Color System Intent</p>
-    <h2>Lenguaje cromático técnico para lectura prolongada y operación crítica.</h2>
-    <p>
-      El sistema equilibra contraste técnico y legibilidad prolongada. Graphite gobierna estructura,
-      el cian define acciones críticas y el azul profundo entrega soporte institucional en shell y navegación.
-    </p>
-  </section>
+<MxPageContainer FullWidth="true" Class="showcase-page">
+    <section class="showcase-hero">
+        <p class="showcase-kicker">Foundations</p>
+        <h1>Color system de MachSoft</h1>
+        <p>Tokens de marca, neutrales y semánticos auditables en composición central dominante.</p>
+    </section>
 
-  <MudGrid Class="mx-foundation-layout" Spacing="3">
-    <MudItem xs="12" lg="8">
-      <MudStack Spacing="3">
-        <section class="mx-showcase-token-section" aria-label="Tokens de marca">
-          <MxSectionCard Title="Brand tokens">
-            <div class="mx-showcase-token-grid">
-              @foreach (var token in _brand)
-              {
-                <div class="mx-token-swatch">
-                  <div class="mx-token-color" style="background:@token.Value"></div>
-                  <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
-                </div>
-              }
-            </div>
-          </MxSectionCard>
-        </section>
+    <MxSectionCard Title="Brand tokens" Class="showcase-section">
+        <div class="token-grid">
+            @foreach (var token in BrandTokens)
+            {
+                <article class="token-card">
+                    <div class="token-chip" style="@($"background:{token.Hex}")"></div>
+                    <strong>@token.Name</strong>
+                    <span>@token.Hex</span>
+                </article>
+            }
+        </div>
+    </MxSectionCard>
 
-        <section class="mx-showcase-token-section" aria-label="Neutrales de sistema">
-          <MxSectionCard Title="Neutral graphite core">
-            <div class="mx-showcase-token-grid">
-              @foreach (var token in _neutrals)
-              {
-                <div class="mx-token-swatch">
-                  <div class="mx-token-color" style="background:@token.Value"></div>
-                  <div class="mx-token-meta"><strong>@token.Name</strong><br />@token.Value</div>
-                </div>
-              }
-            </div>
-          </MxSectionCard>
-        </section>
+    <MxSectionCard Title="Neutrales" Class="showcase-section">
+        <div class="token-grid">
+            @foreach (var token in NeutralTokens)
+            {
+                <article class="token-card">
+                    <div class="token-chip" style="@($"background:{token.Hex}")"></div>
+                    <strong>@token.Name</strong>
+                    <span>@token.Hex</span>
+                </article>
+            }
+        </div>
+    </MxSectionCard>
 
-        <MxSectionCard Title="Semantic signaling">
-          <div class="mx-showcase-semantic-block">
-            <p>Los colores semánticos preservan contraste y reconocimiento inmediato en estados operativos.</p>
-            <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-              <MudChip T="string" Color="Color.Info">Info</MudChip>
-              <MudChip T="string" Color="Color.Success">Success</MudChip>
-              <MudChip T="string" Color="Color.Warning">Warning</MudChip>
-              <MudChip T="string" Color="Color.Error">Error</MudChip>
-            </MudStack>
-          </div>
-        </MxSectionCard>
-      </MudStack>
-    </MudItem>
+    <MxSectionCard Title="Semánticos" Class="showcase-section">
+        <div class="token-grid">
+            @foreach (var token in SemanticTokens)
+            {
+                <article class="token-card">
+                    <div class="token-chip" style="@($"background:{token.Hex}")"></div>
+                    <strong>@token.Name</strong>
+                    <span>@token.Hex</span>
+                </article>
+            }
+        </div>
+    </MxSectionCard>
 
-    <MudItem xs="12" lg="4">
-      <MudStack Spacing="3">
-        <MxSectionCard Title="Reglas de uso">
-          <ul class="mx-showcase-context-list">
-            <li>Accent solo para acciones primarias, links críticos y foco.</li>
-            <li>Neutrales graphite sostienen layout, divisores y fondo de trabajo.</li>
-            <li>Estados semánticos deben conservar prioridad sobre color de marca.</li>
-          </ul>
-        </MxSectionCard>
-
-        <MxSectionCard Title="Checklist de contraste">
-          <ul class="mx-showcase-context-list">
-            <li>Texto principal siempre en pares de alto contraste.</li>
-            <li>No usar cian sobre superficies claras sin refuerzo tipográfico.</li>
-            <li>Validar combinaciones en light y dark antes de publicar.</li>
-          </ul>
-        </MxSectionCard>
-      </MudStack>
-    </MudItem>
-  </MudGrid>
+    <MxSectionCard Title="Criterios de uso" Class="showcase-section">
+        <ul>
+            <li>Brand para identidad y llamadas primarias.</li>
+            <li>Neutrales para superficies, bordes y lectura.</li>
+            <li>Semánticos solo para feedback contextual.</li>
+        </ul>
+    </MxSectionCard>
 </MxPageContainer>
 
 @code {
-  private readonly (string Name, string Value)[] _brand =
-  [
-      ("Accent", "#00B5D8"),
-      ("Accent Hover", "#0099BA"),
-      ("Accent Active", "#007F99"),
-      ("Deep Blue", "#123E73")
-  ];
+    private static readonly (string Name, string Hex)[] BrandTokens =
+    [
+        ("Brand / 700", "#0044C9"),
+        ("Brand / 500", "#0E63F4"),
+        ("Brand / 300", "#7EB0FF")
+    ];
 
-  private readonly (string Name, string Value)[] _neutrals =
-  [
-      ("Graphite 050", "#F3F6F8"),
-      ("Graphite 200", "#D4DEE6"),
-      ("Graphite 600", "#556779"),
-      ("Graphite 900", "#1A2530")
-  ];
+    private static readonly (string Name, string Hex)[] NeutralTokens =
+    [
+        ("Neutral / 950", "#101828"),
+        ("Neutral / 700", "#344054"),
+        ("Neutral / 300", "#D0D5DD"),
+        ("Neutral / 50", "#F9FAFB")
+    ];
+
+    private static readonly (string Name, string Hex)[] SemanticTokens =
+    [
+        ("Success", "#12B76A"),
+        ("Warning", "#F79009"),
+        ("Danger", "#F04438"),
+        ("Info", "#2E90FA")
+    ];
 }

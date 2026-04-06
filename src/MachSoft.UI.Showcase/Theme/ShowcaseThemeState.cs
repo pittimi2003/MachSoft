@@ -10,47 +10,17 @@ public sealed class ShowcaseThemeState
 
     public bool DarkMode { get; private set; }
 
-    public bool IsInitialized { get; private set; }
-
-    public async Task InitializeAsync(IJSRuntime js)
+    public async Task InitializeAsync(IJSRuntime jsRuntime)
     {
-        if (IsInitialized)
-        {
-            return;
-        }
-
-        var storedTheme = await js.InvokeAsync<string?>("machsoftTheme.get", ThemeStorageKey);
-        var isDark = string.Equals(storedTheme, "dark", StringComparison.OrdinalIgnoreCase);
-
-        DarkMode = isDark;
-        IsInitialized = true;
+        var theme = await jsRuntime.InvokeAsync<string?>("localStorage.getItem", ThemeStorageKey);
+        DarkMode = string.Equals(theme, "dark", StringComparison.OrdinalIgnoreCase);
         OnChange?.Invoke();
-
-        if (!string.Equals(storedTheme, "light", StringComparison.OrdinalIgnoreCase)
-            && !string.Equals(storedTheme, "dark", StringComparison.OrdinalIgnoreCase))
-        {
-            await PersistAsync(js);
-        }
     }
 
-    public Task ToggleAsync(IJSRuntime js) => SetDarkModeAsync(!DarkMode, js);
-
-    public async Task SetDarkModeAsync(bool darkMode, IJSRuntime js)
+    public async Task ToggleAsync(IJSRuntime jsRuntime)
     {
-        if (DarkMode == darkMode && IsInitialized)
-        {
-            return;
-        }
-
-        DarkMode = darkMode;
-        IsInitialized = true;
+        DarkMode = !DarkMode;
+        await jsRuntime.InvokeVoidAsync("localStorage.setItem", ThemeStorageKey, DarkMode ? "dark" : "light");
         OnChange?.Invoke();
-        await PersistAsync(js);
-    }
-
-    private Task PersistAsync(IJSRuntime js)
-    {
-        var theme = DarkMode ? "dark" : "light";
-        return js.InvokeVoidAsync("machsoftTheme.set", ThemeStorageKey, theme).AsTask();
     }
 }

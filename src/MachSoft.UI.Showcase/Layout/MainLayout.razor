@@ -6,7 +6,6 @@
 <MxWorkspaceLayout MainMenuOpen="@MainMenuOpen"
                    MainMenuOpenChanged="@OnMainMenuOpenChanged"
                    NavigationMenuMode="MxSidebarMode.Overlay"
-                   NavigationMenuWidth="306px"
                    LeftSidebarMode="@LeftSidebarMode"
                    LeftSidebarModeChanged="@OnLeftSidebarModeChanged"
                    RightSidebarMode="@RightSidebarMode"
@@ -15,64 +14,41 @@
                    LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
                    RightSidebarOpen="@RightSidebarOpen"
                    RightSidebarOpenChanged="@OnRightSidebarOpenChanged"
-                   LeftSidebarWidth="272px"
-                   RightSidebarWidth="344px"
-                   OnBackdropClick="@OnBackdropClick">
+                   LeftSidebarWidth="280px"
+                   RightSidebarWidth="320px"
+                   OnBackdropClick="@CloseAllOverlays">
+
     <HeaderContent>
-        <div class="mx-showcase-topbar">
-            <div class="mx-showcase-brand-wrap">
-                <span class="mx-showcase-brand-mark" aria-hidden="true">MS</span>
-                <div class="mx-showcase-brand-block">
-                    <span class="mx-showcase-brand">MachSoft UI Showcase</span>
-                    <span class="mx-showcase-brand-subtitle">Plataforma visual enterprise</span>
+        <div class="showcase-topbar">
+            <div class="showcase-brand">
+                <span class="showcase-brand-mark" aria-hidden="true">Mx</span>
+                <div>
+                    <strong>MachSoft UI Showcase</strong>
+                    <div class="showcase-brand-sub">Host oficial de demostración</div>
                 </div>
             </div>
+
             <MxTooltip Text="@ThemeTooltip">
-                <MxIconButton
-                    Icon="@ThemeIcon"
-                    AriaLabel="@ThemeAriaLabel"
-                    Title="@ThemeTooltip"
-                    Tone="MxTone.Neutral"
-                    Class="mx-theme-toggle"
-                    OnClick="_ => ToggleThemeAsync()" />
+                <MxIconButton Class="mx-theme-toggle"
+                              Icon="@ThemeIcon"
+                              AriaLabel="@ThemeTooltip"
+                              Title="@ThemeTooltip"
+                              Tone="MxTone.Neutral"
+                              OnClick="_ => ToggleThemeAsync()" />
             </MxTooltip>
         </div>
     </HeaderContent>
 
     <NavigationMenu>
-        <nav class="mx-workspace-nav" aria-label="Menú principal showcase">
-            <p class="mx-workspace-nav-group-title">Overview</p>
-            <NavLink Match="NavLinkMatch.All" class="mx-workspace-nav-link" href="/">Home</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/catalog/audit">Catalog / Audit Matrix</NavLink>
-
-            <p class="mx-workspace-nav-group-title">Foundations</p>
-            <NavLink class="mx-workspace-nav-link" href="/foundations/colors">Foundations / Colors</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/foundations/typography">Foundations / Typography</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/foundations/spacing">Foundations / Spacing</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/foundations/radius-elevation">Foundations / Radius & Elevation</NavLink>
-
-            <p class="mx-workspace-nav-group-title">Components</p>
-            <NavLink class="mx-workspace-nav-link" href="/components/buttons">Components / Buttons</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/components/forms">Inputs / Advanced Inputs</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/components/dialogs">Dialogs</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/components/navigation">Navigation</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/components/data-listing">Data Listing</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/components/feedback">Feedback</NavLink>
-
-            <p class="mx-workspace-nav-group-title">Patterns & states</p>
-            <NavLink class="mx-workspace-nav-link" href="/patterns/crud">Patterns / CRUD</NavLink>
-            <NavLink class="mx-workspace-nav-link" href="/states/feedback">States</NavLink>
-        </nav>
+        <NavMenu />
     </NavigationMenu>
 
     <LeftSidebar>
-        <div class="mx-workspace-panel">
-            <h4>Panel operativo lateral</h4>
-            <MxButton Tone="MxTone.Primary" Class="w-100">Nuevo registro</MxButton>
-            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Class="w-100">Aplicar filtros</MxButton>
-            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Class="w-100">Exportar selección</MxButton>
-            <p class="mx-page-subtitle">Acciones rápidas y comandos compactos para apoyar la operación.</p>
-            <p class="mx-page-subtitle">LeftSidebar: modo <strong>@LeftSidebarMode</strong>, overlay @(LeftSidebarOpen ? "abierto" : "cerrado").</p>
+        <div class="showcase-sidebar">
+            <h4>Quick actions</h4>
+            <MxButton Tone="MxTone.Primary" Size="MxSize.Small">Nuevo ejemplo</MxButton>
+            <MxButton Tone="MxTone.Neutral" Variant="MxVariant.Outlined" Size="MxSize.Small">Reset filtros</MxButton>
+            <p>Panel secundario para acciones operativas del host.</p>
         </div>
     </LeftSidebar>
 
@@ -81,25 +57,19 @@
     </MainContent>
 
     <RightSidebar>
-        <div class="mx-workspace-panel">
-            <h4>Contexto profundo</h4>
-            <p class="mx-page-subtitle">Detalle contextual para lectura, inspección y edición de la selección activa.</p>
+        <div class="showcase-sidebar">
+            <h4>Contexto</h4>
+            <p>Notas de auditoría visual y estado del host.</p>
             <ul>
-                <li>Inspector de estado y trazabilidad.</li>
-                <li>Acciones de edición contextual.</li>
-                <li>Panel de creación rápida vinculada.</li>
+                <li>Menu: @(MainMenuOpen ? "abierto" : "cerrado")</li>
+                <li>Left: @(LeftSidebarOpen ? "abierto" : "cerrado")</li>
+                <li>Right: @(RightSidebarOpen ? "abierto" : "cerrado")</li>
             </ul>
-            <p class="mx-page-subtitle">RightSidebar: modo <strong>@RightSidebarMode</strong>, overlay @(RightSidebarOpen ? "abierto" : "cerrado").</p>
         </div>
     </RightSidebar>
 
     <FooterContent>
-        <div class="mx-workspace-footer-meta">
-            <span>Shell oficial: <strong>MxWorkspaceLayout</strong></span>
-            <span>Menu: @(MainMenuOpen ? "Abierto" : "Cerrado") | Left: @LeftSidebarMode (@(LeftSidebarOpen ? "Open" : "Closed")) | Right: @RightSidebarMode (@(RightSidebarOpen ? "Open" : "Closed"))</span>
-            <span>Estructura: @StructuralSummary</span>
-            <span>Main visual: @VisualShiftSummary</span>
-        </div>
+        <div class="showcase-footer">MainLayout único · MxWorkspaceLayout · sidebars secundarios</div>
     </FooterContent>
 </MxWorkspaceLayout>
 
@@ -111,27 +81,16 @@
     private bool RightSidebarOpen { get; set; }
     private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
     private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
-    private string StructuralSummary => $"{(LeftSidebarMode == MxSidebarMode.Inline ? "Left Inline" : "Left Overlay")} / {(RightSidebarMode == MxSidebarMode.Inline ? "Right Inline" : "Right Overlay")}";
-    private string VisualShiftSummary => (LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen, RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen) switch
-    {
-        (true, true) => "MainContainer con desplazamiento visual bilateral (overlay abierto)",
-        (true, false) => "MainContainer con desplazamiento visual hacia derecha (left overlay abierto)",
-        (false, true) => "MainContainer con desplazamiento visual hacia izquierda (right overlay abierto)",
-        _ => "MainContainer fijo sin desplazamiento visual (overlays cerrados)"
-    };
 
     private string ThemeIcon => ThemeState.DarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode;
     private string ThemeTooltip => ThemeState.DarkMode ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
-    private string ThemeAriaLabel => ThemeState.DarkMode ? "Activar tema claro" : "Activar tema oscuro";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
+        if (firstRender)
         {
-            return;
+            await ThemeState.InitializeAsync(JS);
         }
-
-        await ThemeState.InitializeAsync(JS);
     }
 
     private Task ToggleThemeAsync() => ThemeState.ToggleAsync(JS);
@@ -166,7 +125,7 @@
         return Task.CompletedTask;
     }
 
-    private Task OnBackdropClick()
+    private Task CloseAllOverlays()
     {
         MainMenuOpen = false;
         LeftSidebarOpen = false;
