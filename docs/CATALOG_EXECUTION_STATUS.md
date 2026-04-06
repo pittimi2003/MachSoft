@@ -159,3 +159,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se evita conflicto de cascada donde reglas antiguas (declaradas antes) imponían `box-shadow`, fondos y paddings distintos respecto al bloque vigente, generando resultados visuales inconsistentes según orden y combinación de clases.
 - Se preservan estilos no relacionados con Home (`mx-forms-grid`, `mx-token-grid`, `mx-foundation-*`, `mx-table`) para mantener estabilidad del resto del showcase.
 - Resultado operativo: Home queda con contrato visual único y predecible dentro de `MainContent`, sin doble definición competidora.
+
+## 24) Actualización 2026-04-06 (UTC) — Verificación de alineación runtime vs fuente (sin refactor adicional)
+- Se ejecuta limpieza operativa completa de runtime local: cierre de procesos `dotnet run`/`dotnet watch` del host, limpieza de `bin/obj`, `restore` y `build` limpio de la solución.
+- Se levanta únicamente `MachSoft.UI.Showcase` desde cero y se verifica que la hoja cargada en runtime es `/_content/MachSoft.UI/machsoft-ui.css`.
+- Se valida coincidencia exacta entre CSS servido y fuente (`src/MachSoft.UI/wwwroot/machsoft-ui.css`) mediante hash SHA-256 idéntico.
+- Se confirma presencia en runtime de reglas objetivo: `.mx-page-container.mx-page-container-full`, `.mx-showcase-hero`, `.mx-showcase-metrics`, `.mx-showcase-main-grid` y `.mx-showcase-main-surface-grid`.
+- Se confirma que la otra hoja cargada (`_content/MudBlazor/MudBlazor.min.css`) no contiene esos selectores y no sobreescribe dichas reglas específicas.
+- Resultado operativo: el runtime local queda alineado con el fuente vigente; no se aplican cambios adicionales de layout, páginas ni CSS en esta ejecución.
