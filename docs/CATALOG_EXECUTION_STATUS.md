@@ -138,3 +138,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se migran además páginas equivalentes de foundations (`/foundations/spacing`, `/foundations/typography`) para reducir divergencia de composición entre rutas principales del catálogo.
 - Se amplían estilos de `machsoft-ui.css` con clases `mx-showcase-*` para hero, grids dominantes, bloques de intención, token grids y rail contextual, manteniendo sidebars del shell como regiones secundarias.
 - Resultado operativo: el contenido renderizado en `@Body` recupera dominancia visual consistente dentro de `MainContent` sin tocar contrato estructural de `MxWorkspaceLayout`.
+
+## 21) Actualización 2026-04-06 (UTC) — Eliminación definitiva de `ShowcasePageLayout`
+- Se elimina `ShowcasePageLayout.razor` de `MachSoft.UI.Showcase` para evitar doble layout estructural dentro de `MainContent`.
+- Todas las páginas del Showcase que dependían de `ShowcasePageLayout` migran a composición directa en `@Body` usando `MxPageContainer`, `MxSectionCard`, grids/stacks locales y componentes propios de cada vista.
+- La Home (`/`) y Foundations (`/foundations/colors`, `/foundations/spacing`, `/foundations/typography`) reemplazan regiones implícitas (`HeaderContent`, `ChildContent`, `ContextContent`) por composición explícita y local sin wrapper estructural adicional.
+- Se preserva la jerarquía del shell: `MainLayout` + `MxWorkspaceLayout` como único layout global; `LeftSidebar`/`RightSidebar` continúan como regiones secundarias.
+- Resultado operativo: la región dominante vuelve a ser el contenido central real renderizado en `MainContent`, sin layouts de página anidados.
