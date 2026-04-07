@@ -215,6 +215,31 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("full");
     }
 
+
+    [Fact]
+    public void Render_WithCustomSidebarWidths_ShouldExposeCssVariables()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarWidth, "240px")
+            .Add(x => x.RightSidebarWidth, "420px"));
+
+        var style = cut.Find(".mx-workspace-layout").GetAttribute("style");
+        style.Should().Contain("--mx-left-sidebar-width:240px");
+        style.Should().Contain("--mx-right-sidebar-width:420px");
+    }
+
+    [Fact]
+    public void Render_WithBlankSidebarWidths_ShouldFallbackToContractDefaults()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.LeftSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Inline)
+            .Add(x => x.LeftSidebarWidth, "   ")
+            .Add(x => x.RightSidebarWidth, string.Empty));
+
+        cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("320px minmax(0, 1fr) 360px");
+    }
+
     [Fact]
     public void Header_ShouldRenderShellControlMenu_AndMainMenuShouldRemainIndependent()
     {

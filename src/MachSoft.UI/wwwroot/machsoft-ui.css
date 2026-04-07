@@ -1022,8 +1022,6 @@ a { color: var(--mx-accent); }
 .mx-workspace-layout {
   --mx-workspace-header-height: 48px;
   --mx-navigation-menu-width: 288px;
-  --mx-left-sidebar-width: 320px;
-  --mx-right-sidebar-width: 360px;
   position: relative;
   min-height: 100vh;
   background:

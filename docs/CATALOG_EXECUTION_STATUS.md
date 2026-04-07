@@ -216,3 +216,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se mantiene región central dominante con `MxDataGrid` y metadatos de paginación/volumen, preservando proporciones tipo “grid-focused workspace”.
 - Se consolida panel contextual derecho como card de detalle colapsable, con ancho reducido cuando no hay selección y expansión por interacción real.
 - Se aplica la misma composición a los cuatro hosts activos (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`) para mantener paridad operativa entre demos y plantillas.
+
+## 31) Actualización 2026-04-07 (UTC) — Contrato de anchos configurables para `LeftSidebar`/`RightSidebar`
+- Se consolida el contrato del shell para que `LeftSidebarWidth` y `RightSidebarWidth` controlen el ancho real de paneles laterales visibles en `Inline` y `Overlay`.
+- Se elimina hardcode redundante de anchos laterales en CSS base de `MxWorkspaceLayout`; el layout consume anchos vía variables provenientes del contrato público.
+- Se actualizan hosts (`Template` y `Demo`, Server + WebAssembly) para exponer ambos anchos desde `MainLayout`, con valores por defecto trazables y fáciles de ajustar para validación visual.
+- Se incorpora región `RightSidebar` operativa en hosts para validar visualmente el ancho derecho y su impacto estructural en `MainContainer` cuando aplica modo `Inline`.
+

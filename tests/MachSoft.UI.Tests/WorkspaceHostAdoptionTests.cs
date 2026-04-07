@@ -50,6 +50,27 @@ public class WorkspaceHostAdoptionTests
         markup.Should().Contain("private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;", "right sidebar oficial inicia en Overlay");
     }
 
+
+    [Theory]
+    [InlineData("src/MachSoft.Template.Wasm/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Template.Server/Components/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Demo.WebAssembly/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Demo.Server/Components/Layout/MainLayout.razor")]
+    public void MainLayout_ShouldExposeConfigurableSidebarWidths(string mainLayoutPath)
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var fullPath = Path.Combine(repositoryRoot.FullName, mainLayoutPath);
+
+        File.Exists(fullPath).Should().BeTrue($"debe existir el layout del host: {mainLayoutPath}");
+
+        var markup = File.ReadAllText(fullPath);
+
+        markup.Should().Contain("LeftSidebarWidth=\"@LeftSidebarWidth\"");
+        markup.Should().Contain("RightSidebarWidth=\"@RightSidebarWidth\"");
+        markup.Should().Contain("private string LeftSidebarWidth { get; set; }");
+        markup.Should().Contain("private string RightSidebarWidth { get; set; }");
+    }
+
     private static DirectoryInfo ResolveRepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

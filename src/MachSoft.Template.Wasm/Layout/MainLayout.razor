@@ -12,6 +12,11 @@
                    LeftSidebarWidth="@LeftSidebarWidth"
                    LeftSidebarOpen="@LeftSidebarOpen"
                    LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
+                   RightSidebarMode="@RightSidebarMode"
+                   RightSidebarModeChanged="@OnRightSidebarModeChanged"
+                   RightSidebarWidth="@RightSidebarWidth"
+                   RightSidebarOpen="@RightSidebarOpen"
+                   RightSidebarOpenChanged="@OnRightSidebarOpenChanged"
                    DarkMode="@ShellState.DarkMode"
                    DarkModeChanged="@OnDarkModeChanged"
                    OnBackdropClick="@OnBackdropClick">
@@ -54,13 +59,26 @@
     <MainContent>
         @Body
     </MainContent>
+
+    <RightSidebar>
+        @if (IsWorkRoute)
+        {
+            <section class="mx-workspace-panel" aria-label="Panel contextual">
+                <h4>Contexto</h4>
+                <p>Panel lateral para inspección y edición contextual del registro activo.</p>
+            </section>
+        }
+    </RightSidebar>
 </MxWorkspaceLayout>
 
 @code {
     private bool MainMenuOpen { get; set; }
     private bool LeftSidebarOpen { get; set; }
+    private bool RightSidebarOpen { get; set; }
     private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
-    private string LeftSidebarWidth { get; set; } = "88px";
+    private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
+    private string LeftSidebarWidth { get; set; } = "272px";
+    private string RightSidebarWidth { get; set; } = "360px";
     private bool IsWorkRoute { get; set; }
 
     protected override void OnInitialized()
@@ -89,19 +107,25 @@
         if (IsWorkRoute)
         {
             LeftSidebarMode = MxSidebarMode.Inline;
-            LeftSidebarWidth = "84px";
+            RightSidebarMode = MxSidebarMode.Inline;
+            LeftSidebarWidth = "272px";
+            RightSidebarWidth = "360px";
         }
         else
         {
             LeftSidebarMode = MxSidebarMode.Overlay;
-            LeftSidebarWidth = "280px";
+            RightSidebarMode = MxSidebarMode.Overlay;
+            LeftSidebarWidth = "272px";
+            RightSidebarWidth = "360px";
             LeftSidebarOpen = false;
+            RightSidebarOpen = false;
         }
 
         if (isLoginRoute)
         {
             MainMenuOpen = false;
             LeftSidebarOpen = false;
+            RightSidebarOpen = false;
         }
     }
 
@@ -129,10 +153,23 @@
         return Task.CompletedTask;
     }
 
+    private Task OnRightSidebarOpenChanged(bool isOpen)
+    {
+        RightSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarModeChanged(MxSidebarMode mode)
+    {
+        RightSidebarMode = mode;
+        return Task.CompletedTask;
+    }
+
     private Task OnBackdropClick()
     {
         MainMenuOpen = false;
         LeftSidebarOpen = false;
+        RightSidebarOpen = false;
         return Task.CompletedTask;
     }
 
