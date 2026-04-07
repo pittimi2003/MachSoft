@@ -1,62 +1,81 @@
 @page "/work"
 @using MachSoft.Template.Server.Services
 
-<section class="mx-app-work-surface" aria-label="Superficie de trabajo">
-    <aside class="mx-app-work-rail" aria-label="Acciones rápidas">
-        <button type="button" class="mx-app-rail-action is-active" title="Editar"><MudIcon Icon="@Icons.Material.Outlined.Edit" /></button>
-        <button type="button" class="mx-app-rail-action" title="Duplicar"><MudIcon Icon="@Icons.Material.Outlined.ContentCopy" /></button>
-        <button type="button" class="mx-app-rail-action" title="Deshabilitar"><MudIcon Icon="@Icons.Material.Outlined.Block" /></button>
-        <button type="button" class="mx-app-rail-action" title="Exportar"><MudIcon Icon="@Icons.Material.Outlined.FileDownload" /></button>
-    </aside>
+<section class="mx-app-work-shell" aria-label="Superficie de trabajo">
+    <header class="mx-app-work-head">
+        <div class="mx-app-work-head-title">
+            <p class="mx-app-work-overline">Operations workspace</p>
+            <h1>Stations control</h1>
+        </div>
 
-    <div class="mx-app-work-main">
-        <header class="mx-app-work-toolbar">
-            <div class="mx-app-work-toolbar-actions">
-                <MxButton Label="Nuevo" Variant="MxVariant.Filled" Tone="MxTone.Primary" />
-                <MxButton Label="Sincronizar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
-            </div>
+        <div class="mx-app-work-head-tools">
             <MxSearchBox Label="Buscar" Value="@Search" ValueChanged="@OnSearchChanged" Placeholder="Código, nombre, estado" />
-        </header>
-
-        <div class="mx-app-work-grid-shell">
-            <MxDataGrid TItem="WorkItem"
-                        Items="@FilteredItems"
-                        Columns="@Columns"
-                        SearchEnabled="false"
-                        UsePagination="true"
-                        CurrentPage="@Page"
-                        CurrentPageChanged="@OnPageChanged"
-                        PageSize="10"
-                        Selectable="true"
-                        SelectedItems="@SelectedItems"
-                        SelectedItemsChanged="@OnSelectedItemsChanged" />
+            <MxIconButton Icon="@Icons.Material.Outlined.Add"
+                          AriaLabel="Crear estación"
+                          Title="Crear estación"
+                          Tone="MxTone.Primary"
+                          Class="mx-app-work-head-add"
+                          OnClick="@(_ => Task.CompletedTask)" />
         </div>
+    </header>
+
+    <div class="mx-app-work-surface">
+        <aside class="mx-app-work-rail" aria-label="Acciones rápidas">
+            <MxIconButton Icon="@Icons.Material.Outlined.Edit" AriaLabel="Editar" Title="Editar" Tone="MxTone.Neutral" Class="mx-app-rail-action" />
+            <MxIconButton Icon="@Icons.Material.Outlined.ContentCopy" AriaLabel="Duplicar" Title="Duplicar" Tone="MxTone.Neutral" Class="mx-app-rail-action" />
+            <MxIconButton Icon="@Icons.Material.Outlined.Block" AriaLabel="Deshabilitar" Title="Deshabilitar" Tone="MxTone.Neutral" Class="mx-app-rail-action" />
+            <MxIconButton Icon="@Icons.Material.Outlined.FileDownload" AriaLabel="Exportar" Title="Exportar" Tone="MxTone.Neutral" Class="mx-app-rail-action" />
+        </aside>
+
+        <div class="mx-app-work-main">
+            <header class="mx-app-work-toolbar">
+                <div class="mx-app-work-toolbar-actions">
+                    <MxButton Label="Nuevo" Variant="MxVariant.Filled" Tone="MxTone.Primary" />
+                    <MxButton Label="Sincronizar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
+                </div>
+                <p class="mx-app-work-toolbar-meta">Página @Page · @FilteredItems.Count registros</p>
+            </header>
+
+            <div class="mx-app-work-grid-shell">
+                <MxDataGrid TItem="WorkItem"
+                            Items="@FilteredItems"
+                            Columns="@Columns"
+                            SearchEnabled="false"
+                            UsePagination="true"
+                            CurrentPage="@Page"
+                            CurrentPageChanged="@OnPageChanged"
+                            PageSize="10"
+                            Selectable="true"
+                            SelectedItems="@SelectedItems"
+                            SelectedItemsChanged="@OnSelectedItemsChanged" />
+            </div>
+        </div>
+
+        <aside class="mx-app-work-context" data-open="@HasSelection.ToString().ToLowerInvariant()" aria-label="Panel contextual">
+            <div class="mx-app-work-context-head">
+                <h3>Detalle</h3>
+                <MxIconButton Icon="@(HasSelection ? Icons.Material.Outlined.Close : Icons.Material.Outlined.ChevronRight)"
+                              AriaLabel="Alternar panel contextual"
+                              Tone="MxTone.Neutral"
+                              OnClick="@(_ => ToggleContext())" />
+            </div>
+
+            @if (HasSelection)
+            {
+                var current = SelectedItems.Last();
+                <dl>
+                    <dt>Código</dt><dd>@current.Code</dd>
+                    <dt>Nombre</dt><dd>@current.Name</dd>
+                    <dt>Estado</dt><dd>@current.Status</dd>
+                    <dt>Responsable</dt><dd>@current.Owner</dd>
+                </dl>
+            }
+            else
+            {
+                <p class="mx-app-work-context-empty">Selecciona un registro para abrir el detalle contextual.</p>
+            }
+        </aside>
     </div>
-
-    <aside class="mx-app-work-context" data-open="@HasSelection.ToString().ToLowerInvariant()" aria-label="Panel contextual">
-        <div class="mx-app-work-context-head">
-            <h3>Detalle</h3>
-            <MxIconButton Icon="@(HasSelection ? Icons.Material.Outlined.Close : Icons.Material.Outlined.ChevronRight)"
-                          AriaLabel="Alternar panel contextual"
-                          Tone="MxTone.Neutral"
-                          OnClick="@(_ => ToggleContext())" />
-        </div>
-
-        @if (HasSelection)
-        {
-            var current = SelectedItems.Last();
-            <dl>
-                <dt>Código</dt><dd>@current.Code</dd>
-                <dt>Nombre</dt><dd>@current.Name</dd>
-                <dt>Estado</dt><dd>@current.Status</dd>
-                <dt>Responsable</dt><dd>@current.Owner</dd>
-            </dl>
-        }
-        else
-        {
-            <p class="mx-app-work-context-empty">Selecciona un registro para abrir el detalle contextual.</p>
-        }
-    </aside>
 </section>
 
 @code {
