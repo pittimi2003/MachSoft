@@ -223,3 +223,8 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se actualizan hosts (`Template` y `Demo`, Server + WebAssembly) para exponer ambos anchos desde `MainLayout`, con valores por defecto trazables y fáciles de ajustar para validación visual.
 - Se incorpora región `RightSidebar` operativa en hosts para validar visualmente el ancho derecho y su impacto estructural en `MainContainer` cuando aplica modo `Inline`.
 
+## 32) Actualización 2026-04-07 (UTC) — Vista `/work` full-body con sidebars funcionales en overlay
+- Se ajusta la composición de `/work` (Demo/Template en Server + WebAssembly) para que el `MxDataGrid` ocupe el cuerpo completo de `MainContent`, eliminando rail y panel contextual embebidos dentro de la página.
+- Se reasigna la responsabilidad funcional al shell: acciones operativas en `LeftSidebar` y contexto de selección en `RightSidebar`, ambos en modo `Overlay` para no consumir ancho estructural del grid.
+- Se compacta el header operativo a altura efectiva de 48px con controles iconográficos (acciones, selección y tema), mejorando comportamiento del cambio de tema en vistas centradas en grid.
+- Se mantiene gobernanza visual del Design System en `machsoft-ui.css` sin exponer contratos `Mud*` fuera de implementación interna.

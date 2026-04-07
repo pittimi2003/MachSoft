@@ -1784,6 +1784,7 @@ a { color: var(--mx-accent); }
   align-items: center;
   justify-content: space-between;
   gap: var(--mx-space-4);
+  min-height: 48px;
 }
 
 .mx-app-shell-theme,
@@ -1797,6 +1798,31 @@ a { color: var(--mx-accent); }
   align-items: center;
   gap: .35rem;
   cursor: pointer;
+}
+
+.mx-app-shell-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mx-space-2);
+}
+
+.mx-app-shell-action {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--mx-border);
+  background: var(--mx-surface);
+  color: var(--mx-text-primary);
+  border-radius: var(--mx-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.mx-app-shell-action.is-active {
+  border-color: color-mix(in srgb, var(--mx-accent) 48%, var(--mx-border));
+  background: color-mix(in srgb, var(--mx-accent-soft) 35%, var(--mx-surface));
 }
 
 .mx-app-home-surface {
@@ -1921,10 +1947,10 @@ a { color: var(--mx-accent); }
 }
 
 .mx-app-work-shell {
-  min-height: calc(100dvh - 110px);
+  min-height: calc(100dvh - 48px);
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: var(--mx-space-3);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0;
 }
 
 .mx-app-work-head {
@@ -1961,8 +1987,8 @@ a { color: var(--mx-accent); }
 .mx-app-work-surface {
   min-height: 0;
   display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) var(--mx-work-context-width, 320px);
-  gap: var(--mx-space-3);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   overflow: hidden;
 }
 
@@ -1990,7 +2016,7 @@ a { color: var(--mx-accent); }
 .mx-app-work-main {
   min-width: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: var(--mx-space-3);
 }
 
@@ -2017,10 +2043,10 @@ a { color: var(--mx-accent); }
 .mx-app-work-grid-shell {
   min-height: 0;
   overflow: auto;
-  border: 1px solid var(--mx-border);
-  border-radius: var(--mx-radius-md);
-  padding: var(--mx-space-2);
-  background: var(--mx-surface);
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .mx-app-work-context {
