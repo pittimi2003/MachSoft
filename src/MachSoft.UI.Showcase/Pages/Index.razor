@@ -1,43 +1,33 @@
 @page "/"
-@using MachSoft.UI.Showcase.Models
 
-<MxPageContainer FullWidth="true" Title="MachSoft UI Platform" Class="showcase-page">
-    <div class="showcase-home-grid">
-        <MxSectionCard Class="showcase-hero-card">
-            <MudText Typo="Typo.h4">MachSoft UI Platform</MudText>
-            <MudText Typo="Typo.body1" Class="mt-2">Catálogo limpio, gobernable y auditable para contratos públicos Mx*.</MudText>
-            <MudStack Row="true" Spacing="2" Class="mt-4" Wrap="Wrap.Wrap">
-                <MxChip Text="Shell único" />
-                <MxChip Text="MainContent dominante" />
-                <MxChip Text="Catálogo por componente" />
-            </MudStack>
-        </MxSectionCard>
+<MxPageContainer FullWidth="true" Title="MachSoft UI Platform" Class="showcase-page-stack">
+    <MxSectionCard>
+        <h1>Showcase operativo de MachSoft.UI</h1>
+        <p>Este host valida contratos visuales Mx* con layout único, navegación global y catálogo auditable por componente.</p>
+    </MxSectionCard>
 
+    <div class="showcase-grid-two">
         <MxSectionCard>
-            <MudText Typo="Typo.h6">Resumen de plataforma</MudText>
-            <ul class="showcase-bullet-list">
-                <li><strong>Layout:</strong> MainLayout + MxWorkspaceLayout</li>
-                <li><strong>Foundations:</strong> color tokens y reglas de uso</li>
-                <li><strong>Components:</strong> páginas separadas por componente</li>
+            <h2>Resumen de plataforma</h2>
+            <ul>
+                <li>Único layout global: <code>MainLayout + MxWorkspaceLayout</code>.</li>
+                <li>Navegación global administrada desde shell header.</li>
+                <li>Sidebars funcionales separadas del contenido principal.</li>
             </ul>
         </MxSectionCard>
 
         <MxSectionCard>
-            <MudText Typo="Typo.h6">Cobertura de catálogo</MudText>
-            <MudText Typo="Typo.body2">@CatalogRegistry.ComponentPages.Count páginas de componentes con demos auditables.</MudText>
-            <MudDivider Class="my-2" />
-            <div class="showcase-inline-links">
-                @foreach (var item in CatalogRegistry.ComponentPages.Take(12))
-                {
-                    <NavLink href="@item.Route">@item.Title</NavLink>
-                }
-            </div>
-        </MxSectionCard>
-
-        <MxSectionCard>
-            <MudText Typo="Typo.h6">Superficie principal</MudText>
-            <MudText Typo="Typo.body2">El contenido vive en @@Body sin layout intermedio. Sidebars son secundarios y en modo overlay al inicio.</MudText>
-            <MxAlert Tone="MxAlertTone.Info" Title="Regla de operación" Description="Usar menú de shell para tema, navegación y sidebars." />
+            <h2>Controles globales del host</h2>
+            <ul>
+                <li>Tema light/dark persistido en <code>localStorage</code>.</li>
+                <li>Apertura/cierre de <code>NavigationMenu</code>.</li>
+                <li>Modo y apertura overlay para sidebars left/right.</li>
+            </ul>
         </MxSectionCard>
     </div>
+
+    <MxSectionCard>
+        <h2>Superficie central dominante</h2>
+        <p>Con sidebars en modo overlay cerradas al iniciar, el <code>MainContent</code> ocupa todo el ancho útil de forma inmediata.</p>
+    </MxSectionCard>
 </MxPageContainer>

@@ -1,0 +1,18 @@
+@page "/components/alerts"
+
+<MxPageContainer FullWidth="true" Title="Alerts" Class="showcase-page-stack">
+    <MxSectionCard>
+        <h2>Propósito</h2>
+        <p><code>MxAlert</code> comunica feedback contextual semántico sin bloquear el flujo.</p>
+    </MxSectionCard>
+
+    <MxSectionCard>
+        <h3>Variantes y estados</h3>
+        <MudStack Spacing="2">
+            <MxAlert Tone="MxAlertTone.Info">Información operativa para el usuario.</MxAlert>
+            <MxAlert Tone="MxAlertTone.Success">Operación completada correctamente.</MxAlert>
+            <MxAlert Tone="MxAlertTone.Warning">Revisa datos antes de confirmar.</MxAlert>
+            <MxAlert Tone="MxAlertTone.Error">Se detectó un error en la transacción.</MxAlert>
+        </MudStack>
+    </MxSectionCard>
+</MxPageContainer>
