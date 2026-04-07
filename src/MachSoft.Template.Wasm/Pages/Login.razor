@@ -1,0 +1,32 @@
+@page "/login"
+
+<div class="mx-app-login-wrap">
+    <div class="mx-app-login-card">
+    <MxSectionCard Title="MachSoft Platform">
+        <p>Acceso de usuarios</p>
+        <MxTextField Label="Usuario" @bind-Value="User" Required="true" />
+        <MxTextField Label="Contraseña" @bind-Value="Password" Required="true" />
+        <MxSelect Label="Idioma" @bind-Value="Language" Options="_languages" />
+        <div class="mx-app-work-top">
+            <MxButton Label="Limpiar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" OnClick="_ => Clear()" />
+            <MxButton Label="Aceptar" Variant="MxVariant.Filled" Tone="MxTone.Primary" />
+        </div>
+    </MxSectionCard>
+</div>
+</div>
+
+@code {
+    private string? User;
+    private string? Password;
+    private string? Language = "Español";
+
+    private readonly IReadOnlyList<string> _languages = ["Español", "English", "Português"];
+
+    private Task Clear()
+    {
+        User = string.Empty;
+        Password = string.Empty;
+        Language = _languages[0];
+        return Task.CompletedTask;
+    }
+}

@@ -95,6 +95,8 @@
 </div>
 
 @code {
+    private const string ThemeToggleKey = "theme.toggle";
+    private const string MainMenuToggleKey = "main.menu.toggle";
     private const string LeftModeInlineKey = "left.mode.inline";
     private const string LeftModeOverlayKey = "left.mode.overlay";
     private const string LeftOpenToggleKey = "left.open.toggle";
@@ -208,6 +210,16 @@
     [Parameter] public EventCallback OnMenuToggle { get; set; }
 
     /// <summary>
+    /// Estado global de tema oscuro.
+    /// </summary>
+    [Parameter] public bool DarkMode { get; set; }
+
+    /// <summary>
+    /// Callback de sincronización para <see cref="DarkMode"/>.
+    /// </summary>
+    [Parameter] public EventCallback<bool> DarkModeChanged { get; set; }
+
+    /// <summary>
     /// Callback opcional para interacción sobre backdrop de overlays.
     /// </summary>
     [Parameter] public EventCallback OnBackdropClick { get; set; }
@@ -234,6 +246,8 @@
 
     private IReadOnlyList<MxMenuItem> ShellControlItems =>
     [
+        new(ThemeToggleKey, DarkMode ? "Tema: Oscuro ✓" : "Tema: Claro ✓", DarkMode ? Icons.Material.Outlined.DarkMode : Icons.Material.Outlined.LightMode),
+        new(MainMenuToggleKey, MainMenuOpen ? "Menú: Cerrar" : "Menú: Abrir", Icons.Material.Outlined.MenuOpen),
         new(LeftModeInlineKey, LeftSidebarMode == MxSidebarMode.Inline ? "Left: Inline ✓" : "Left: Inline", Icons.Material.Outlined.ViewWeek),
         new(LeftModeOverlayKey, LeftSidebarMode == MxSidebarMode.Overlay ? "Left: Overlay ✓" : "Left: Overlay", Icons.Material.Outlined.Layers),
         new(LeftOpenToggleKey, LeftSidebarOpen ? "Left: Cerrar overlay" : "Left: Abrir overlay", Icons.Material.Outlined.ChevronLeft, LeftSidebarMode == MxSidebarMode.Inline),
@@ -325,6 +339,12 @@
     {
         switch (key)
         {
+            case ThemeToggleKey:
+                await SetDarkModeAsync(!DarkMode);
+                break;
+            case MainMenuToggleKey:
+                await SetMainMenuOpenAsync(!MainMenuOpen);
+                break;
             case LeftModeInlineKey:
                 await SetLeftSidebarModeAsync(MxSidebarMode.Inline);
                 break;
@@ -358,6 +378,21 @@
         if (MainMenuOpenChanged.HasDelegate)
         {
             await MainMenuOpenChanged.InvokeAsync(next);
+        }
+    }
+
+    private async Task SetDarkModeAsync(bool next)
+    {
+        if (DarkMode == next)
+        {
+            return;
+        }
+
+        DarkMode = next;
+
+        if (DarkModeChanged.HasDelegate)
+        {
+            await DarkModeChanged.InvokeAsync(next);
         }
     }
 

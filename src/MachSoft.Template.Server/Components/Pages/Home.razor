@@ -1,6 +1,20 @@
 @page "/"
-<MxPageContainer Title="Dashboard">
-  <MxSectionCard Title="Resumen">
-    <MudText>Proyecto base con consumo de componentes Mx*.</MudText>
-  </MxSectionCard>
+
+<MxPageContainer Title="Inicio de aplicación" FullWidth="true">
+    <MxSectionCard Title="Acceso rápido a módulos">
+        <div class="mx-app-quick-grid">
+            <MxSectionCard Title="Operación diaria">
+                <p>Ingresa al flujo principal de trabajo y seguimiento.</p>
+                <MxButton Label="Abrir Work" Variant="MxVariant.Filled" Tone="MxTone.Primary" Href="/work" />
+            </MxSectionCard>
+            <MxSectionCard Title="Autenticación">
+                <p>Gestiona inicio de sesión y preferencias de idioma.</p>
+                <MxButton Label="Abrir Login" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Href="/login" />
+            </MxSectionCard>
+            <MxSectionCard Title="Consulta">
+                <p>Revisa indicadores del módulo operativo activo.</p>
+                <MxButton Label="Ir a Home" Variant="MxVariant.Text" Tone="MxTone.Neutral" Href="/" />
+            </MxSectionCard>
+        </div>
+    </MxSectionCard>
 </MxPageContainer>
