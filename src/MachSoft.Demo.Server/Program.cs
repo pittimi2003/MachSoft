@@ -1,6 +1,6 @@
 using MachSoft.UI.Extensions;
-using MachSoft.Template.Server;
-using MachSoft.Template.Server.Services;
+using MachSoft.Demo.Server;
+using MachSoft.Demo.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();

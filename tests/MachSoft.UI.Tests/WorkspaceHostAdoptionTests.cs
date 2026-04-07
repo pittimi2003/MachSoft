@@ -8,9 +8,10 @@ namespace MachSoft.UI.Tests;
 public class WorkspaceHostAdoptionTests
 {
     [Theory]
-    [InlineData("src/MachSoft.UI.Showcase/Layout/MainLayout.razor")]
     [InlineData("src/MachSoft.Template.Wasm/Layout/MainLayout.razor")]
     [InlineData("src/MachSoft.Template.Server/Components/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Demo.WebAssembly/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Demo.Server/Components/Layout/MainLayout.razor")]
     public void MainLayout_ShouldUseMxWorkspaceLayoutAsRootShell(string mainLayoutPath)
     {
         var repositoryRoot = ResolveRepositoryRoot();
@@ -29,9 +30,10 @@ public class WorkspaceHostAdoptionTests
     }
 
     [Theory]
-    [InlineData("src/MachSoft.UI.Showcase/Layout/MainLayout.razor")]
     [InlineData("src/MachSoft.Template.Wasm/Layout/MainLayout.razor")]
     [InlineData("src/MachSoft.Template.Server/Components/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Demo.WebAssembly/Layout/MainLayout.razor")]
+    [InlineData("src/MachSoft.Demo.Server/Components/Layout/MainLayout.razor")]
     public void MainLayout_ShouldStartWithOverlaySidebarsClosed(string mainLayoutPath)
     {
         var repositoryRoot = ResolveRepositoryRoot();

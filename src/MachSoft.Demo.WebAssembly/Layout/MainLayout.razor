@@ -1,7 +1,7 @@
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject NavigationManager NavigationManager
-@inject MachSoft.Template.Wasm.Services.ShellState ShellState
+@inject MachSoft.Demo.WebAssembly.Services.ShellState ShellState
 
 <MxWorkspaceLayout MainMenuOpen="@MainMenuOpen"
                    MainMenuOpenChanged="@OnMainMenuOpenChanged"
@@ -77,7 +77,7 @@
     private bool RightSidebarOpen { get; set; }
     private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
     private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
-    private MachSoft.Template.Wasm.Services.WorkItem? _selectedWorkItem;
+    private MachSoft.Demo.WebAssembly.Services.WorkItem? _selectedWorkItem;
 
     protected override void OnInitialized()
     {
@@ -90,7 +90,7 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    public void SetSelectedWorkItem(MachSoft.Template.Wasm.Services.WorkItem? item)
+    public void SetSelectedWorkItem(MachSoft.Demo.WebAssembly.Services.WorkItem? item)
     {
         _selectedWorkItem = item;
         RightSidebarOpen = item is not null;

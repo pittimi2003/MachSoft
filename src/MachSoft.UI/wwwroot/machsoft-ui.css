@@ -1700,3 +1700,81 @@ a { color: var(--mx-accent); }
     position: static;
   }
 }
+
+/* Base oficial de aplicación (Server + Wasm) */
+.mx-app-shell-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mx-space-3);
+}
+
+.mx-app-shell-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--mx-radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: var(--mx-color-primary-600);
+  color: #fff;
+}
+
+.mx-app-shell-brand-copy {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mx-app-shell-brand-title {
+  font-weight: 700;
+  font-size: .95rem;
+}
+
+.mx-app-shell-brand-subtitle {
+  font-size: .78rem;
+  color: var(--mx-color-neutral-700);
+}
+
+.mx-app-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mx-space-2);
+  padding: var(--mx-space-3);
+}
+
+.mx-app-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--mx-space-4);
+}
+
+.mx-app-login-wrap {
+  min-height: calc(100dvh - 144px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--mx-space-6);
+}
+
+.mx-app-login-card {
+  width: min(520px, 100%);
+}
+
+.mx-app-work-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mx-space-4);
+  min-height: calc(100dvh - 168px);
+}
+
+.mx-app-work-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--mx-space-3);
+  align-items: end;
+}
+
+.mx-app-work-grid-surface {
+  min-height: 60dvh;
+}

@@ -1,6 +1,6 @@
 using MachSoft.UI.Extensions;
-using MachSoft.Template.Wasm;
-using MachSoft.Template.Wasm.Services;
+using MachSoft.Demo.WebAssembly;
+using MachSoft.Demo.WebAssembly.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 

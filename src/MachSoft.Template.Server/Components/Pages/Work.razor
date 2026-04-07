@@ -1,0 +1,85 @@
+@page "/work"
+@using MachSoft.Template.Server.Components.Layout
+@using MachSoft.Template.Server.Services
+
+<MxPageContainer Title="Work" FullWidth="true">
+    <div class="mx-app-work-layout">
+        <MxSectionCard Title="Superficie operativa">
+            <p>Búsqueda, acciones y listado empresarial.</p>
+            <div class="mx-app-work-top">
+                <MxSearchBox Label="Buscar" Value="@Search" ValueChanged="@OnSearchChanged" Placeholder="Código, nombre, estado" />
+                <MxButton Label="Nuevo registro" Variant="MxVariant.Filled" Tone="MxTone.Primary" />
+            </div>
+        </MxSectionCard>
+
+        <div class="mx-app-work-grid-surface">
+            <MxSectionCard Title="Registros">
+                <p>Seleccione para abrir contexto en panel derecho.</p>
+                <MxDataGrid TItem="WorkItem"
+                            Items="@FilteredItems"
+                            Columns="@Columns"
+                            SearchEnabled="false"
+                            UsePagination="true"
+                            CurrentPage="@Page"
+                            CurrentPageChanged="@OnPageChanged"
+                            PageSize="10"
+                            Selectable="true"
+                            SelectedItems="@SelectedItems"
+                            SelectedItemsChanged="@OnSelectedItemsChanged" />
+            </MxSectionCard>
+        </div>
+    </div>
+</MxPageContainer>
+
+@code {
+    [CascadingParameter] public MainLayout? Layout { get; set; }
+
+    private string? Search;
+    private int Page = 1;
+
+    private IReadOnlyCollection<WorkItem> SelectedItems { get; set; } = Array.Empty<WorkItem>();
+
+    private static IReadOnlyList<MxDataGridColumn<WorkItem>> Columns { get; } =
+    [
+        new("code", "Código", item => item.Code) { IsPrimary = true },
+        new("name", "Nombre", item => item.Name),
+        new("status", "Estado", item => item.Status),
+        new("owner", "Responsable", item => item.Owner),
+        new("updated", "Actualizado", item => item.UpdatedAtUtc.ToLocalTime().ToString("HH:mm:ss")) { Align = "right" }
+    ];
+
+    private IReadOnlyList<WorkItem> FilteredItems => WorkSeed.Items.Where(Matches).ToArray();
+
+    private bool Matches(WorkItem item)
+    {
+        if (string.IsNullOrWhiteSpace(Search))
+        {
+            return true;
+        }
+
+        return item.Code.Contains(Search, StringComparison.OrdinalIgnoreCase)
+               || item.Name.Contains(Search, StringComparison.OrdinalIgnoreCase)
+               || item.Status.Contains(Search, StringComparison.OrdinalIgnoreCase)
+               || item.Owner.Contains(Search, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private Task OnSearchChanged(string? term)
+    {
+        Search = term;
+        Page = 1;
+        return Task.CompletedTask;
+    }
+
+    private Task OnPageChanged(int page)
+    {
+        Page = page;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSelectedItemsChanged(IReadOnlyCollection<WorkItem> selected)
+    {
+        SelectedItems = selected;
+        Layout?.SetSelectedWorkItem(selected.LastOrDefault());
+        return Task.CompletedTask;
+    }
+}
