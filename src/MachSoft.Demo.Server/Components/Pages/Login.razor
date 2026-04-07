@@ -1,19 +1,34 @@
 @page "/login"
+@layout MachSoft.Demo.Server.Components.Layout.LoginLayout
 
-<div class="mx-app-login-wrap">
-    <div class="mx-app-login-card">
-    <MxSectionCard Title="MachSoft Platform">
-        <p>Acceso de usuarios</p>
+<section class="mx-app-login-screen">
+    <div class="mx-app-login-visual" aria-hidden="true">
+        <div class="mx-app-login-branding">
+            <span class="mx-app-login-logo">MS</span>
+            <div>
+                <p class="mx-app-login-brand-eyebrow">MachSoft Platform</p>
+                <h1>Control Center</h1>
+                <p>Acceso único institucional a los módulos operativos.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mx-app-login-panel">
+        <header>
+            <p class="mx-app-login-panel-kicker">Ingreso seguro</p>
+            <h2>Bienvenido</h2>
+        </header>
+
         <MxTextField Label="Usuario" @bind-Value="User" Required="true" />
         <MxTextField Label="Contraseña" @bind-Value="Password" Required="true" />
         <MxSelect Label="Idioma" @bind-Value="Language" Options="_languages" />
-        <div class="mx-app-work-top">
+
+        <div class="mx-app-login-actions">
             <MxButton Label="Limpiar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" OnClick="_ => Clear()" />
-            <MxButton Label="Aceptar" Variant="MxVariant.Filled" Tone="MxTone.Primary" />
+            <MxButton Label="Acceder" Variant="MxVariant.Filled" Tone="MxTone.Primary" Href="/" />
         </div>
-    </MxSectionCard>
-</div>
-</div>
+    </div>
+</section>
 
 @code {
     private string? User;
