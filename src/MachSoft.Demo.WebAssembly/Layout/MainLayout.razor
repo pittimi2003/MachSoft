@@ -9,22 +9,25 @@
                    NavigationMenuWidth="280px"
                    LeftSidebarMode="@LeftSidebarMode"
                    LeftSidebarModeChanged="@OnLeftSidebarModeChanged"
-                   RightSidebarMode="@RightSidebarMode"
-                   RightSidebarModeChanged="@OnRightSidebarModeChanged"
+                   LeftSidebarWidth="@LeftSidebarWidth"
                    LeftSidebarOpen="@LeftSidebarOpen"
-                   RightSidebarOpen="@RightSidebarOpen"
                    LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
-                   RightSidebarOpenChanged="@OnRightSidebarOpenChanged"
                    DarkMode="@ShellState.DarkMode"
                    DarkModeChanged="@OnDarkModeChanged"
                    OnBackdropClick="@OnBackdropClick">
     <HeaderContent>
-        <div class="mx-app-shell-brand">
-            <span class="mx-app-shell-brand-mark" aria-hidden="true">MS</span>
-            <span class="mx-app-shell-brand-copy">
-                <span class="mx-app-shell-brand-title">MachSoft App Base</span>
-                <span class="mx-app-shell-brand-subtitle">Demo WebAssembly</span>
-            </span>
+        <div class="mx-app-shell-header-row">
+            <div class="mx-app-shell-brand">
+                <span class="mx-app-shell-brand-mark" aria-hidden="true">MS</span>
+                <span class="mx-app-shell-brand-copy">
+                    <span class="mx-app-shell-brand-title">MachSoft App Base</span>
+                    <span class="mx-app-shell-brand-subtitle">Demo WebAssembly</span>
+                </span>
+            </div>
+            <button type="button" class="mx-app-shell-theme" @onclick="ToggleTheme" aria-label="Cambiar tema global">
+                <MudIcon Icon="@(ShellState.DarkMode ? Icons.Material.Outlined.DarkMode : Icons.Material.Outlined.LightMode)" />
+                <span>@(ShellState.DarkMode ? "Oscuro" : "Claro")</span>
+            </button>
         </div>
     </HeaderContent>
 
@@ -37,47 +40,28 @@
     </NavigationMenu>
 
     <LeftSidebar>
-        <MxSectionCard Title="Acciones operativas">
-            <MxButton Label="Nuevo" Variant="MxVariant.Filled" Tone="MxTone.Primary" />
-            <MxButton Label="Exportar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
-            <MxButton Label="Sincronizar" Variant="MxVariant.Text" Tone="MxTone.Neutral" />
-        </MxSectionCard>
+        @if (IsWorkRoute)
+        {
+            <div class="mx-app-left-rail">
+                <button type="button" class="mx-app-rail-action is-active" title="Editar"><MudIcon Icon="@Icons.Material.Outlined.Edit" /></button>
+                <button type="button" class="mx-app-rail-action" title="Sincronizar"><MudIcon Icon="@Icons.Material.Outlined.Sync" /></button>
+                <button type="button" class="mx-app-rail-action" title="Filtrar"><MudIcon Icon="@Icons.Material.Outlined.FilterAlt" /></button>
+                <button type="button" class="mx-app-rail-action" title="Exportar"><MudIcon Icon="@Icons.Material.Outlined.FileDownload" /></button>
+            </div>
+        }
     </LeftSidebar>
 
     <MainContent>
-        <CascadingValue Value="this">
-            @Body
-        </CascadingValue>
+        @Body
     </MainContent>
-
-    <RightSidebar>
-        @if (_selectedWorkItem is null)
-        {
-            <MxSectionCard Title="Contexto">
-                <p>Selecciona un registro en /work para ver su detalle contextual.</p>
-            </MxSectionCard>
-        }
-        else
-        {
-            <MxSectionCard Title="Detalle seleccionado">
-                <p>Contexto activo de trabajo</p>
-                <p><strong>Código:</strong> @_selectedWorkItem.Code</p>
-                <p><strong>Nombre:</strong> @_selectedWorkItem.Name</p>
-                <p><strong>Estado:</strong> @_selectedWorkItem.Status</p>
-                <p><strong>Responsable:</strong> @_selectedWorkItem.Owner</p>
-                <MxButton Label="Cerrar panel" Variant="MxVariant.Text" Tone="MxTone.Neutral" OnClick="_ => CloseContextPanel()" />
-            </MxSectionCard>
-        }
-    </RightSidebar>
 </MxWorkspaceLayout>
 
 @code {
     private bool MainMenuOpen { get; set; }
     private bool LeftSidebarOpen { get; set; }
-    private bool RightSidebarOpen { get; set; }
     private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
-    private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
-    private MachSoft.Demo.WebAssembly.Services.WorkItem? _selectedWorkItem;
+    private string LeftSidebarWidth { get; set; } = "88px";
+    private bool IsWorkRoute { get; set; }
 
     protected override void OnInitialized()
     {
@@ -90,20 +74,6 @@
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    public void SetSelectedWorkItem(MachSoft.Demo.WebAssembly.Services.WorkItem? item)
-    {
-        _selectedWorkItem = item;
-        RightSidebarOpen = item is not null;
-        StateHasChanged();
-    }
-
-    public Task CloseContextPanel()
-    {
-        RightSidebarOpen = false;
-        _selectedWorkItem = null;
-        return Task.CompletedTask;
-    }
-
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         ApplyRoutePolicy(e.Location);
@@ -112,18 +82,26 @@
 
     private void ApplyRoutePolicy(string location)
     {
-        var isWorkRoute = NavigationManager.ToBaseRelativePath(location).StartsWith("work", StringComparison.OrdinalIgnoreCase);
+        var route = NavigationManager.ToBaseRelativePath(location);
+        IsWorkRoute = route.StartsWith("work", StringComparison.OrdinalIgnoreCase);
+        var isLoginRoute = route.StartsWith("login", StringComparison.OrdinalIgnoreCase);
 
-        if (isWorkRoute)
+        if (IsWorkRoute)
         {
             LeftSidebarMode = MxSidebarMode.Inline;
+            LeftSidebarWidth = "84px";
         }
         else
         {
             LeftSidebarMode = MxSidebarMode.Overlay;
+            LeftSidebarWidth = "280px";
             LeftSidebarOpen = false;
-            RightSidebarOpen = false;
-            _selectedWorkItem = null;
+        }
+
+        if (isLoginRoute)
+        {
+            MainMenuOpen = false;
+            LeftSidebarOpen = false;
         }
     }
 
@@ -151,28 +129,15 @@
         return Task.CompletedTask;
     }
 
-    private Task OnRightSidebarOpenChanged(bool isOpen)
-    {
-        RightSidebarOpen = isOpen;
-        if (!isOpen)
-        {
-            _selectedWorkItem = null;
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private Task OnRightSidebarModeChanged(MxSidebarMode mode)
-    {
-        RightSidebarMode = mode;
-        return Task.CompletedTask;
-    }
-
     private Task OnBackdropClick()
     {
         MainMenuOpen = false;
         LeftSidebarOpen = false;
-        RightSidebarOpen = false;
         return Task.CompletedTask;
+    }
+
+    private void ToggleTheme()
+    {
+        ShellState.SetDarkMode(!ShellState.DarkMode);
     }
 }

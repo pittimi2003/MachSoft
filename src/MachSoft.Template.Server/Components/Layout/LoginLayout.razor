@@ -1,0 +1,26 @@
+@inherits LayoutComponentBase
+
+<div class="mx-app-login-layout-shell">
+    <button type="button" class="mx-app-login-theme" @onclick="ToggleTheme">
+        <MudIcon Icon="@(_dark ? Icons.Material.Outlined.DarkMode : Icons.Material.Outlined.LightMode)" />
+        <span>@(_dark ? "Tema oscuro" : "Tema claro")</span>
+    </button>
+    @Body
+</div>
+
+@code {
+    [Inject] private MachSoft.Template.Server.Services.ShellState ShellState { get; set; } = default!;
+
+    private bool _dark;
+
+    protected override void OnInitialized()
+    {
+        _dark = ShellState.DarkMode;
+    }
+
+    private void ToggleTheme()
+    {
+        _dark = !_dark;
+        ShellState.SetDarkMode(_dark);
+    }
+}

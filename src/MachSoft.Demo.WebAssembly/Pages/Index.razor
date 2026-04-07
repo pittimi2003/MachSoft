@@ -1,20 +1,38 @@
 @page "/"
 
-<MxPageContainer Title="Inicio de aplicación" FullWidth="true">
-    <MxSectionCard Title="Acceso rápido a módulos">
-        <div class="mx-app-quick-grid">
-            <MxSectionCard Title="Operación diaria">
-                <p>Ingresa al flujo principal de trabajo y seguimiento.</p>
-                <MxButton Label="Abrir Work" Variant="MxVariant.Filled" Tone="MxTone.Primary" Href="/work" />
-            </MxSectionCard>
-            <MxSectionCard Title="Autenticación">
-                <p>Gestiona inicio de sesión y preferencias de idioma.</p>
-                <MxButton Label="Abrir Login" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Href="/login" />
-            </MxSectionCard>
-            <MxSectionCard Title="Consulta">
-                <p>Revisa indicadores del módulo operativo activo.</p>
-                <MxButton Label="Ir a Home" Variant="MxVariant.Text" Tone="MxTone.Neutral" Href="/" />
-            </MxSectionCard>
-        </div>
-    </MxSectionCard>
-</MxPageContainer>
+<section class="mx-app-home-surface" aria-label="Accesos rápidos a módulos">
+    <header class="mx-app-home-header">
+        <p class="mx-app-home-kicker">MachSoft · Centro operativo</p>
+        <h1>Módulos de operación</h1>
+        <p>Selecciona un módulo para ingresar al flujo de trabajo correspondiente.</p>
+    </header>
+
+    <div class="mx-app-quick-grid" role="list">
+        @foreach (var module in _modules)
+        {
+            <a class="mx-app-module-tile" href="@module.Href" role="listitem" aria-label="Abrir @module.Name">
+                <span class="mx-app-module-icon" aria-hidden="true">
+                    <MudIcon Icon="@module.Icon" />
+                </span>
+                <span class="mx-app-module-name">@module.Name</span>
+            </a>
+        }
+    </div>
+</section>
+
+@code {
+    private static readonly IReadOnlyList<HomeModule> _modules =
+    [
+        new("Recepción", "/work", Icons.Material.Outlined.Inventory2),
+        new("Inventario", "/work", Icons.Material.Outlined.Warehouse),
+        new("Estaciones", "/work", Icons.Material.Outlined.ElectricalServices),
+        new("Movimientos", "/work", Icons.Material.Outlined.SyncAlt),
+        new("Canales", "/work", Icons.Material.Outlined.AccountTree),
+        new("Mantenimiento", "/work", Icons.Material.Outlined.BuildCircle),
+        new("Supervisión", "/work", Icons.Material.Outlined.Visibility),
+        new("Seguridad", "/work", Icons.Material.Outlined.AdminPanelSettings),
+        new("Accesos", "/login", Icons.Material.Outlined.Badge)
+    ];
+
+    private sealed record HomeModule(string Name, string Href, string Icon);
+}

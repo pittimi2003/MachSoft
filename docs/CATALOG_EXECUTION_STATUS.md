@@ -200,3 +200,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se incorpora ambos proyectos a `MachSoft.UiPlatform.sln` para build/test unificado y validación continua.
 - Se mantiene paridad funcional con templates: `MainLayout` único con `MxWorkspaceLayout`, rutas `/`, `/login`, `/work`, rail operativo izquierdo y panel contextual derecho controlado por selección.
 - Smoke tests amplían cobertura a 4 hosts (`template-server`, `template-wasm`, `demo-server`, `demo-wasm`) validando apertura de rutas oficiales.
+
+## 29) Actualización 2026-04-07 (UTC) — Corrección estricta de patrón visual base en `/`, `/login`, `/work`
+- Se rehacen las tres rutas base en los cuatro hosts activos (`Template.Server`, `Template.Wasm`, `Demo.Server`, `Demo.WebAssembly`) para alinear composición real con el patrón enterprise solicitado.
+- `/` pasa a ser pantalla operativa de entrada con mosaico responsive homogéneo (iconografía técnica + nombre de módulo), centrado y sin hero de marketing/showcase.
+- `/login` migra a layout dedicado (`LoginLayout`) para separar completamente la pantalla de acceso del shell normal: panel visual institucional + panel de formulario con jerarquía explícita.
+- `/work` adopta composición de trabajo estable con rail operativo estrecho, barra de acciones + búsqueda en región principal, grid dominante y panel contextual derecho con apertura/cierre explícito por selección.
+- Se incorpora control de tema visible y accionable en header del shell (y también en login dedicado) para asegurar gobernanza global del tema fuera del menú técnico.
+- Se actualiza la capa CSS base `machsoft-ui.css` para fijar proporciones enterprise, estabilidad del body central y respuesta adaptativa en breakpoints.
