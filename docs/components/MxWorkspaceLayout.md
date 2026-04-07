@@ -56,6 +56,19 @@ Parámetros complementarios del shell:
 
 > `NavigationMenuMode` se mantiene por compatibilidad/evolución, pero en la iteración actual el comportamiento efectivo del menú principal es `Overlay`.
 
+### Parámetros de ancho de sidebars (contrato obligatorio)
+- `LeftSidebarWidth`
+  - valor por defecto: `"320px"` en el contrato `MxWorkspaceLayout`.
+  - controla el ancho real del `LeftSidebar` cuando está visible (`Inline` u `Overlay`).
+  - participa en el cálculo estructural del `MainContainer` cuando `LeftSidebarMode = Inline`.
+- `RightSidebarWidth`
+  - valor por defecto: `"360px"` en el contrato `MxWorkspaceLayout`.
+  - controla el ancho real del `RightSidebar` cuando está visible (`Inline` u `Overlay`).
+  - participa en el cálculo estructural del `MainContainer` cuando `RightSidebarMode = Inline`.
+
+Regla de implementación: no definir anchos mágicos de sidebars fuera del contrato; los estilos consumen variables CSS inyectadas por parámetros (`--mx-left-sidebar-width`, `--mx-right-sidebar-width`).
+
+
 ## 5) Diferencia oficial: `NavigationMenu` vs sidebars funcionales
 - `NavigationMenu`: navegación global de aplicación, capa overlay independiente del grid del workspace.
 - `LeftSidebar`/`RightSidebar`: paneles funcionales de la vista activa (filtros, detalle, edición contextual).
