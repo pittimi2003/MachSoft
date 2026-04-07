@@ -228,3 +228,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se reasigna la responsabilidad funcional al shell: acciones operativas en `LeftSidebar` y contexto de selección en `RightSidebar`, ambos en modo `Overlay` para no consumir ancho estructural del grid.
 - Se compacta el header operativo a altura efectiva de 48px con controles iconográficos (acciones, selección y tema), mejorando comportamiento del cambio de tema en vistas centradas en grid.
 - Se mantiene gobernanza visual del Design System en `machsoft-ui.css` sin exponer contratos `Mud*` fuera de implementación interna.
+
+## 33) Actualización 2026-04-07 (UTC) — Corrección UX purista de shell para vistas tipo grid
+- Se formaliza el comportamiento solicitado para `/work` en los cuatro hosts activos (Template + Demo, Server + WebAssembly): el `MxDataGrid` ocupa todo el body central y no se incrustan paneles internos de acciones/contexto dentro de la página.
+- `LeftSidebar` pasa a modo `Inline` siempre visible en `/work` con ancho contractual de `48px`, quedando dedicado al rail de acciones operativas persistentes.
+- `RightSidebar` se mantiene en `Overlay` y su apertura/cierre queda gobernada por la selección real de registros del grid; al seleccionar se abre automáticamente y al limpiar selección se cierra.
+- Se agrega estado compartido de shell para selección (`WorkSelectionActive`, conteo, título y metadatos) para sincronizar página de grid y layout sin romper contratos públicos `Mx*`.
+- Se ajusta el header para priorizar estabilidad visual en modo grid y corregir contraste en tema (subtitle + acción de tema), manteniendo altura de 48px y consistencia con tokens del Design System.

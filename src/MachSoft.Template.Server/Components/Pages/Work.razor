@@ -1,5 +1,7 @@
 @page "/work"
 @using MachSoft.Template.Server.Services
+@implements IDisposable
+@inject ShellState ShellState
 
 <section class="mx-app-work-shell" aria-label="Superficie de trabajo">
     <div class="mx-app-work-surface">
@@ -37,6 +39,16 @@
 
     private IReadOnlyList<WorkItem> FilteredItems => WorkSeed.Items;
 
+    protected override void OnInitialized()
+    {
+        ShellState.ClearWorkSelection();
+    }
+
+    public void Dispose()
+    {
+        ShellState.ClearWorkSelection();
+    }
+
     private Task OnPageChanged(int page)
     {
         Page = page;
@@ -46,6 +58,18 @@
     private Task OnSelectedItemsChanged(IReadOnlyCollection<WorkItem> selected)
     {
         SelectedItems = selected;
+
+        var first = selected.FirstOrDefault();
+        var details = first is null
+            ? Array.Empty<string>()
+            :
+            [
+                $"Estado: {first.Status}",
+                $"Responsable: {first.Owner}",
+                $"Actualizado: {first.UpdatedAtUtc.ToLocalTime():dd/MM/yyyy HH:mm:ss}"
+            ];
+
+        ShellState.SetWorkSelection(selected.Count, first?.Name, details);
         return Task.CompletedTask;
     }
 }
