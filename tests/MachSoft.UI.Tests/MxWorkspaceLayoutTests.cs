@@ -89,8 +89,8 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='left'][data-mode='overlay']").Should().NotBeNull();
         cut.Find(".mx-workspace-backdrop").Should().NotBeNull();
-        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("shift-left");
-        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-shift-left");
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("neutral");
+        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-neutral");
     }
 
     [Fact]
@@ -133,8 +133,8 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find(".mx-workspace-functional-grid").GetAttribute("style").Should().Contain("0px minmax(0, 1fr) 0px");
         cut.Find("[data-sidebar='right'][data-mode='overlay']").Should().NotBeNull();
         cut.Find(".mx-workspace-backdrop").Should().NotBeNull();
-        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("shift-right");
-        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-shift-right");
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("neutral");
+        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-neutral");
     }
 
     [Fact]
@@ -210,8 +210,8 @@ public class MxWorkspaceLayoutTests : TestContext
         cut.Find("[data-sidebar='left'][data-mode='overlay']").Should().NotBeNull();
         cut.Find("[data-sidebar='right'][data-mode='overlay']").Should().NotBeNull();
         cut.Find(".mx-workspace-backdrop").Should().NotBeNull();
-        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("shift-both");
-        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-shift-both");
+        cut.Find(".mx-workspace-main-region").GetAttribute("data-main-visual-state").Should().Be("neutral");
+        cut.Find(".mx-workspace-main-region").ClassList.Should().Contain("mx-workspace-main-region-neutral");
         cut.Find(".mx-workspace-main-region").GetAttribute("data-main-structural-span").Should().Be("full");
     }
 
