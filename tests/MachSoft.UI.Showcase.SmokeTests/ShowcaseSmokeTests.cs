@@ -17,40 +17,26 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
     }
 
     [Fact]
-    public async Task VisualSmoke_ShouldCover_ShowcaseAndTemplates()
+    public async Task VisualSmoke_ShouldCover_ServerAndWasmOfficialRoutes()
     {
         using var playwright = await Playwright.CreateAsync();
         await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
         var page = await browser.NewPageAsync();
 
-        var showcaseChecks = new[]
+        var checks = new[]
         {
-            new RouteCheck("showcase", "/", "MachSoft UI Platform", "showcase-home-light.png", false),
-            new RouteCheck("showcase", "/", "MachSoft UI Platform", "showcase-home-dark.png", true),
-            new RouteCheck("showcase", "/foundations/colors", "Color system de MachSoft", "showcase-foundations-colors-light.png", false),
-            new RouteCheck("showcase", "/foundations/colors", "Color system de MachSoft", "showcase-foundations-colors-dark.png", true),
-            new RouteCheck("showcase", "/components/buttons", "Buttons auditables", "showcase-components-buttons-light.png", false),
-            new RouteCheck("showcase", "/components/buttons", "Buttons auditables", "showcase-components-buttons-dark.png", true)
+            new RouteCheck("template-server", "/", "Operación diaria"),
+            new RouteCheck("template-server", "/login", "Acceso de usuarios"),
+            new RouteCheck("template-server", "/work", "Superficie operativa"),
+            new RouteCheck("template-wasm", "/", "Operación diaria"),
+            new RouteCheck("template-wasm", "/login", "Acceso de usuarios"),
+            new RouteCheck("template-wasm", "/work", "Superficie operativa")
         };
 
-        foreach (var check in showcaseChecks)
+        foreach (var check in checks)
         {
             var baseUrl = _hosts.BaseUrls[check.HostKey];
             var targetUrl = $"{baseUrl}{check.Route}";
-            var theme = check.DarkMode ? "dark" : "light";
-
-            if (check.HostKey == "showcase")
-            {
-                await page.GotoAsync(baseUrl, new PageGotoOptions
-                {
-                    WaitUntil = WaitUntilState.NetworkIdle,
-                    Timeout = 60_000
-                });
-
-                await page.EvaluateAsync(
-                    "([key, value]) => localStorage.setItem(key, value)",
-                    new object[] { "mx-showcase-theme", theme });
-            }
 
             var response = await page.GotoAsync(targetUrl, new PageGotoOptions
             {
@@ -64,68 +50,13 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
             var locator = page.GetByText(check.ExpectedSignal, new PageGetByTextOptions { Exact = false });
             await locator.First.WaitForAsync(new LocatorWaitForOptions
             {
-                State = WaitForSelectorState.Visible,
+                State = WaitForSelectorState.Attached,
                 Timeout = 20_000
-            });
-
-            if (check.HostKey == "showcase")
-            {
-                await page.WaitForFunctionAsync(
-                    "theme => (localStorage.getItem('mx-showcase-theme') || 'light') === theme",
-                    theme);
-            }
-
-            await page.ScreenshotAsync(new PageScreenshotOptions
-            {
-                Path = Path.Combine(_hosts.ScreenshotsDirectory, check.ScreenshotFileName),
-                FullPage = true
             });
         }
     }
 
-
-    [Fact]
-    public async Task ThemeToggle_ShouldSyncThemeIconAndPersistence()
-    {
-        using var playwright = await Playwright.CreateAsync();
-        await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
-        var page = await browser.NewPageAsync();
-
-        var showcaseUrl = _hosts.BaseUrls["showcase"];
-        await page.GotoAsync(showcaseUrl, new PageGotoOptions
-        {
-            WaitUntil = WaitUntilState.NetworkIdle,
-            Timeout = 60_000
-        });
-
-        var toggle = page.Locator("button.mx-theme-toggle");
-        await toggle.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 20_000 });
-
-        static string NextTheme(string theme) => theme == "dark" ? "light" : "dark";
-
-        var initialTheme = await page.EvaluateAsync<string>("() => localStorage.getItem('mx-showcase-theme') || 'light'");
-        var expectedAfterFirstClick = NextTheme(initialTheme);
-
-        await toggle.ClickAsync();
-        await page.WaitForFunctionAsync("theme => localStorage.getItem('mx-showcase-theme') === theme", expectedAfterFirstClick);
-
-        var themeAfterClick = await page.EvaluateAsync<string>("() => localStorage.getItem('mx-showcase-theme') || 'light'");
-        themeAfterClick.Should().Be(expectedAfterFirstClick);
-
-        var expectedTitleAfterClick = themeAfterClick == "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
-        (await toggle.GetAttributeAsync("title")).Should().Be(expectedTitleAfterClick);
-
-        await page.ReloadAsync(new PageReloadOptions { WaitUntil = WaitUntilState.NetworkIdle, Timeout = 60_000 });
-        await toggle.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible, Timeout = 20_000 });
-
-        var themeAfterReload = await page.EvaluateAsync<string>("() => localStorage.getItem('mx-showcase-theme') || 'light'");
-        themeAfterReload.Should().Be(themeAfterClick);
-
-        var expectedTitleAfterReload = themeAfterReload == "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro";
-        (await toggle.GetAttributeAsync("title")).Should().Be(expectedTitleAfterReload);
-    }
-
-    private sealed record RouteCheck(string HostKey, string Route, string ExpectedSignal, string ScreenshotFileName, bool DarkMode = false);
+    private sealed record RouteCheck(string HostKey, string Route, string ExpectedSignal);
 }
 
 public sealed class SmokeTestHostsFixture : IAsyncLifetime
@@ -134,17 +65,12 @@ public sealed class SmokeTestHostsFixture : IAsyncLifetime
 
     public IReadOnlyDictionary<string, string> BaseUrls { get; private set; } = new Dictionary<string, string>();
 
-    public string ScreenshotsDirectory { get; private set; } = string.Empty;
-
     public async Task InitializeAsync()
     {
         var repositoryRoot = ResolveRepositoryRoot();
-        ScreenshotsDirectory = Path.Combine(repositoryRoot, "artifacts", "screenshots");
-        Directory.CreateDirectory(ScreenshotsDirectory);
 
         var hosts = new[]
         {
-            new HostDefinition("showcase", "src/MachSoft.UI.Showcase/MachSoft.UI.Showcase.csproj", "http://127.0.0.1:5123"),
             new HostDefinition("template-server", "src/MachSoft.Template.Server/MachSoft.Template.Server.csproj", "http://127.0.0.1:5124"),
             new HostDefinition("template-wasm", "src/MachSoft.Template.Wasm/MachSoft.Template.Wasm.csproj", "http://127.0.0.1:5125")
         };

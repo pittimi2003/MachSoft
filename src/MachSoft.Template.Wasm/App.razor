@@ -1,4 +1,8 @@
-<MxThemeProvider>
+@using MachSoft.Template.Wasm.Services
+@implements IDisposable
+@inject ShellState ShellState
+
+<MxThemeProvider DarkMode="@ShellState.DarkMode">
   <MudPopoverProvider />
   <MudDialogProvider />
   <MudSnackbarProvider />
@@ -13,3 +17,20 @@
     </NotFound>
   </Router>
 </MxThemeProvider>
+
+@code {
+  protected override void OnInitialized()
+  {
+    ShellState.Changed += OnShellStateChanged;
+  }
+
+  private void OnShellStateChanged()
+  {
+    InvokeAsync(StateHasChanged);
+  }
+
+  public void Dispose()
+  {
+    ShellState.Changed -= OnShellStateChanged;
+  }
+}

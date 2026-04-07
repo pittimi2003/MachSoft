@@ -1,7 +1,0 @@
-@page "/list"
-<MxPageContainer Title="Lista">
-  <MxSectionCard>
-    <MudTable Items="_items"><RowTemplate><MudTd>@context</MudTd></RowTemplate></MudTable>
-  </MxSectionCard>
-</MxPageContainer>
-@code{ private List<string> _items = ["A", "B", "C"]; }

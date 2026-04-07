@@ -184,3 +184,12 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se rehace catálogo por página con rutas activas para home, foundations/colors y componentes clave (`buttons`, `textfields`, `alerts`, `table`).
 - Se consolida capa de estilos local única en `src/MachSoft.UI.Showcase/wwwroot/showcase.css` sin duplicados.
 - Se agrega `src/MachSoft.UI.Showcase/MachSoft.UI.Showcase.csproj` a `MachSoft.UiPlatform.sln` para ejecución directa desde Visual Studio y validación en pipelines.
+
+
+## 27) Actualización 2026-04-07 (UTC) — Base oficial de aplicación (Server + WebAssembly)
+- Se consolida el patrón oficial de host sobre `MxWorkspaceLayout` para `MachSoft.Template.Server` y `MachSoft.Template.Wasm` con rutas base `/login`, `/` y `/work`.
+- `MainLayout` se mantiene como único layout global en ambos hosts, con navegación global en `NavigationMenu`, acciones operativas en `LeftSidebar`, contenido de negocio en `MainContent` y panel contextual en `RightSidebar`.
+- Se eliminan rutas heredadas de muestra (`/form`, `/list`, `/formulario`, `/lista`) para reducir ruido y asegurar foco exclusivo en patrones base de aplicación.
+- Se implementa comportamiento contextual real en `/work`: selección en grid abre `RightSidebar` y permite cierre controlado.
+- Se agrega guía operativa `docs/APP_BOOTSTRAP_GUIDE.md` para crear aplicaciones nuevas desde cero (Server y WebAssembly) sin prueba/error.
+- Se ajustan smoke tests para validar rutas oficiales en ambos hosts (`/`, `/login`, `/work`).
