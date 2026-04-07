@@ -47,10 +47,10 @@
 - **Objetivo vigente:** mantener este estado operativo como fuente de verdad activa y exigir su actualización en cada ejecución relevante del catálogo.
 
 ## 9) Último cierre válido / última actualización relevante
-- **Fecha:** 2026-04-03 (UTC).
-- **Tipo:** evolución contractual de layout reusable de plataforma.
-- **Resultado:** shell oficial `MxWorkspaceLayout` implementado y consumido por Showcase/Template.* con validación técnica.
-- **Impacto operativo:** layout de workspace unificado, reusable y gobernado por plataforma.
+- **Fecha:** 2026-04-07 (UTC).
+- **Tipo:** realineación de composición `/work` contra guía estructural Figma + Design System oficial.
+- **Resultado:** `/work` actualizado en Demo/Template (Server + WebAssembly) con layout estructural alineado (cabecera operativa, rail, grid dominante y panel contextual) usando contratos `Mx*`.
+- **Impacto operativo:** vista `/work` queda gobernada por composición reusable del sistema (sin estilos hardcoded de Figma ni exposición pública de `Mud*`).
 
 ---
 
@@ -208,3 +208,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - `/work` adopta composición de trabajo estable con rail operativo estrecho, barra de acciones + búsqueda en región principal, grid dominante y panel contextual derecho con apertura/cierre explícito por selección.
 - Se incorpora control de tema visible y accionable en header del shell (y también en login dedicado) para asegurar gobernanza global del tema fuera del menú técnico.
 - Se actualiza la capa CSS base `machsoft-ui.css` para fijar proporciones enterprise, estabilidad del body central y respuesta adaptativa en breakpoints.
+
+## 30) Actualización 2026-04-07 (UTC) — Alineación de `/work` con guía estructural Figma (sin romper autoridad visual DS)
+- Se toma `docs/benchmark/GuiasFigma/VistaTipoGrid.*` exclusivamente como referencia de estructura/composición y se conserva `MachSoft.DesignSystem` como fuente de verdad visual final.
+- Se introduce cabecera operativa en `/work` (overline + título + búsqueda + acción circular) para replicar jerarquía y distribución horizontal de la guía de layout.
+- Se refactoriza el rail izquierdo para usar `MxIconButton` en lugar de `MudIcon` directo en páginas de negocio, manteniendo API pública `Mx*`.
+- Se mantiene región central dominante con `MxDataGrid` y metadatos de paginación/volumen, preservando proporciones tipo “grid-focused workspace”.
+- Se consolida panel contextual derecho como card de detalle colapsable, con ancho reducido cuando no hay selección y expansión por interacción real.
+- Se aplica la misma composición a los cuatro hosts activos (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`) para mantener paridad operativa entre demos y plantillas.
