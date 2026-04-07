@@ -175,3 +175,12 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - La navegación global se reduce a secciones clave (`Home`, `Foundations`, `Components`) mediante `NavigationMenu` dedicado y separado de sidebars funcionales.
 - Se rehacen desde cero las páginas `Index`, `Foundations/Colors` y `Components/Buttons` con render directo en `@Body`, uso de `MxPageContainer FullWidth="true"` y composición central amplia.
 - Se crea una capa de estilos local de showcase (`wwwroot/showcase.css`) sin duplicados heredados y con comportamiento responsive explícito para preservar dominancia del contenido principal.
+
+## 26) Actualización 2026-04-07 (UTC) — Regeneración integral de `MachSoft.UI.Showcase` y reincorporación a solución
+- Se reconstruye completamente `src/MachSoft.UI.Showcase` como host Blazor WebAssembly limpio con estructura base auditable (`Program`, `App`, `MainLayout`, `NavMenu`, `Pages`, `wwwroot`).
+- `MainLayout.razor` queda como único layout global y único consumidor de `MxWorkspaceLayout`; no se incluye `ShowcasePageLayout` ni sublayouts equivalentes.
+- El estado inicial contractual del shell se mantiene explícito: `MainMenuOpen=false`, `NavigationMenu` cerrado, `LeftSidebarMode/RightSidebarMode=Overlay`, `LeftSidebarOpen/RightSidebarOpen=false`.
+- Los controles globales del host se centralizan en el menú del header del shell (tema, navegación y sidebars).
+- Se rehace catálogo por página con rutas activas para home, foundations/colors y componentes clave (`buttons`, `textfields`, `alerts`, `table`).
+- Se consolida capa de estilos local única en `src/MachSoft.UI.Showcase/wwwroot/showcase.css` sin duplicados.
+- Se agrega `src/MachSoft.UI.Showcase/MachSoft.UI.Showcase.csproj` a `MachSoft.UiPlatform.sln` para ejecución directa desde Visual Studio y validación en pipelines.

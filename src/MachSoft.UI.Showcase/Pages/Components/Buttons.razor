@@ -1,48 +1,37 @@
 @page "/components/buttons"
 
-<MxPageContainer FullWidth="true" Title="Buttons auditables" Class="showcase-page">
-    <div class="showcase-page-stack">
-        <MxSectionCard>
-            <MudText Typo="Typo.h5">MxButton</MudText>
-            <MudText Typo="Typo.body2">Acción primaria/secundaria con variantes, tamaños, estados e iconografía.</MudText>
-        </MxSectionCard>
+<MxPageContainer FullWidth="true" Title="Buttons auditables" Class="showcase-page-stack">
+    <MxSectionCard>
+        <h2>Propósito</h2>
+        <p><code>MxButton</code> acciona comandos de negocio con variantes visuales, tamaños y estado transaccional claro.</p>
+    </MxSectionCard>
 
-        <MxSectionCard>
-            <MudText Typo="Typo.h6">Variantes</MudText>
-            <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
-                <MxButton Label="Filled" Variant="MxVariant.Filled" />
-                <MxButton Label="Outlined" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
-                <MxButton Label="Text" Variant="MxVariant.Text" Tone="MxTone.Secondary" />
-            </MudStack>
-        </MxSectionCard>
+    <MxSectionCard>
+        <h3>Variantes</h3>
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+            <MxButton Label="Filled" Variant="MxVariant.Filled" />
+            <MxButton Label="Outlined" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
+            <MxButton Label="Text" Variant="MxVariant.Text" Tone="MxTone.Secondary" />
+        </MudStack>
+    </MxSectionCard>
 
-        <MxSectionCard>
-            <MudText Typo="Typo.h6">Tamaños</MudText>
-            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
-                <MxButton Label="Small" Size="MxSize.Small" />
-                <MxButton Label="Medium" Size="MxSize.Medium" />
-                <MxButton Label="Large" Size="MxSize.Large" />
-            </MudStack>
-        </MxSectionCard>
+    <MxSectionCard>
+        <h3>Tamaños</h3>
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+            <MxButton Label="Small" Size="MxSize.Small" />
+            <MxButton Label="Medium" Size="MxSize.Medium" />
+            <MxButton Label="Large" Size="MxSize.Large" />
+        </MudStack>
+    </MxSectionCard>
 
-        <MxSectionCard>
-            <MudText Typo="Typo.h6">Estados</MudText>
-            <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
-                <MxButton Label="Default" />
-                <MxButton Label="Active" Active="true" />
-                <MxButton Label="Loading" Loading="true" />
-                <MxButton Label="Disabled" Disabled="true" />
-            </MudStack>
-        </MxSectionCard>
-
-        <MxSectionCard>
-            <MudText Typo="Typo.h6">Iconografía y combinaciones</MudText>
-            <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
-                <MxButton Label="Guardar" StartIcon="@Icons.Material.Outlined.Save" />
-                <MxButton Label="Siguiente" EndIcon="@Icons.Material.Outlined.ArrowForward" Tone="MxTone.Success" />
-                <MxButton IconOnly="true" StartIcon="@Icons.Material.Outlined.Settings" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
-                <MxButton Label="Eliminar" Tone="MxTone.Danger" Variant="MxVariant.Filled" StartIcon="@Icons.Material.Outlined.Delete" />
-            </MudStack>
-        </MxSectionCard>
-    </div>
+    <MxSectionCard>
+        <h3>Estados e iconografía</h3>
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+            <MxButton Label="Activo" Active="true" />
+            <MxButton Label="Loading" Loading="true" />
+            <MxButton Label="Disabled" Disabled="true" />
+            <MxButton Label="Guardar" StartIcon="@Icons.Material.Outlined.Save" />
+            <MxButton Label="Eliminar" Tone="MxTone.Danger" StartIcon="@Icons.Material.Outlined.Delete" />
+        </MudStack>
+    </MxSectionCard>
 </MxPageContainer>

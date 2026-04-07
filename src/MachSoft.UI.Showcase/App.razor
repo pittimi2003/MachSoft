@@ -1,5 +1,5 @@
-@using Microsoft.JSInterop
 @using MachSoft.UI.Showcase.Models
+@using Microsoft.JSInterop
 @inject IJSRuntime JS
 @inject ShowcaseThemeState ThemeState
 @implements IDisposable
@@ -17,7 +17,8 @@
             <LayoutView Layout="typeof(Layout.MainLayout)">
                 <MxPageContainer FullWidth="true" Title="Ruta no encontrada">
                     <MxSectionCard>
-                        <MudText Typo="Typo.body1">La ruta solicitada no existe en el catálogo.</MudText>
+                        <h2>No encontramos esta ruta en el catálogo.</h2>
+                        <p>Usa el menú global del shell para navegar por foundations y componentes.</p>
                     </MxSectionCard>
                 </MxPageContainer>
             </LayoutView>
