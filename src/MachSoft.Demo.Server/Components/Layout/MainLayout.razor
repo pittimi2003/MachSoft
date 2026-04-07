@@ -31,21 +31,7 @@
             </div>
             <div class="mx-app-shell-actions">
                 <button type="button"
-                        class="mx-app-shell-action @(LeftSidebarOpen ? "is-active" : null)"
-                        @onclick="ToggleLeftSidebar"
-                        aria-label="Alternar acciones"
-                        title="Acciones">
-                    <MudIcon Icon="@Icons.Material.Outlined.Tune" />
-                </button>
-                <button type="button"
-                        class="mx-app-shell-action @(RightSidebarOpen ? "is-active" : null)"
-                        @onclick="ToggleRightSidebar"
-                        aria-label="Alternar selección"
-                        title="Selección">
-                    <MudIcon Icon="@Icons.Material.Outlined.Dataset" />
-                </button>
-                <button type="button"
-                        class="mx-app-shell-action"
+                        class="mx-app-shell-action mx-app-shell-action-header"
                         @onclick="ToggleTheme"
                         aria-label="Cambiar tema global"
                         title="Tema">
@@ -84,7 +70,25 @@
         {
             <section class="mx-workspace-panel" aria-label="Panel de selección">
                 <h4>Selección</h4>
-                <p>El detalle de elementos seleccionados del grid se presenta en este sidebar derecho.</p>
+                @if (ShellState.WorkSelectionActive)
+                {
+                    <p class="mx-workspace-panel-caption">@ShellState.WorkSelectionCount elemento(s) seleccionado(s)</p>
+                    @if (!string.IsNullOrWhiteSpace(ShellState.WorkSelectionTitle))
+                    {
+                        <h5>@ShellState.WorkSelectionTitle</h5>
+                    }
+
+                    <ul>
+                        @foreach (var detail in ShellState.WorkSelectionDetails)
+                        {
+                            <li>@detail</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>Selecciona un registro del grid para abrir este panel contextual.</p>
+                }
             </section>
         }
     </RightSidebar>
@@ -104,16 +108,28 @@
     {
         ApplyRoutePolicy(NavigationManager.Uri);
         NavigationManager.LocationChanged += OnLocationChanged;
+        ShellState.Changed += OnShellStateChanged;
     }
 
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+        ShellState.Changed -= OnShellStateChanged;
     }
 
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         ApplyRoutePolicy(e.Location);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnShellStateChanged()
+    {
+        if (IsWorkRoute)
+        {
+            RightSidebarOpen = ShellState.WorkSelectionActive;
+        }
+
         InvokeAsync(StateHasChanged);
     }
 
@@ -125,12 +141,12 @@
 
         if (IsWorkRoute)
         {
-            LeftSidebarMode = MxSidebarMode.Overlay;
+            LeftSidebarMode = MxSidebarMode.Inline;
             RightSidebarMode = MxSidebarMode.Overlay;
-            LeftSidebarWidth = "272px";
+            LeftSidebarWidth = "48px";
             RightSidebarWidth = "360px";
             LeftSidebarOpen = false;
-            RightSidebarOpen = false;
+            RightSidebarOpen = ShellState.WorkSelectionActive;
         }
         else
         {
@@ -197,37 +213,5 @@
     private void ToggleTheme()
     {
         ShellState.SetDarkMode(!ShellState.DarkMode);
-    }
-
-    private Task ToggleLeftSidebar()
-    {
-        if (!IsWorkRoute)
-        {
-            return Task.CompletedTask;
-        }
-
-        LeftSidebarOpen = !LeftSidebarOpen;
-        if (LeftSidebarOpen)
-        {
-            RightSidebarOpen = false;
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private Task ToggleRightSidebar()
-    {
-        if (!IsWorkRoute)
-        {
-            return Task.CompletedTask;
-        }
-
-        RightSidebarOpen = !RightSidebarOpen;
-        if (RightSidebarOpen)
-        {
-            LeftSidebarOpen = false;
-        }
-
-        return Task.CompletedTask;
     }
 }

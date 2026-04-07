@@ -1731,7 +1731,7 @@ a { color: var(--mx-accent); }
 
 .mx-app-shell-brand-subtitle {
   font-size: .78rem;
-  color: var(--mx-color-neutral-700);
+  color: var(--mx-text-secondary);
 }
 
 .mx-app-nav {
@@ -1805,6 +1805,8 @@ a { color: var(--mx-accent); }
   display: inline-flex;
   align-items: center;
   gap: var(--mx-space-2);
+  min-width: 48px;
+  justify-content: flex-end;
 }
 
 .mx-app-shell-action {
@@ -2008,9 +2010,32 @@ a { color: var(--mx-accent); }
 }
 
 .mx-app-rail-action {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   margin-inline: auto;
+}
+
+.mx-app-shell-action-header {
+  width: 40px;
+  height: 40px;
+}
+
+.mx-workspace-panel-caption {
+  margin: 0;
+  color: var(--mx-text-secondary);
+  font-size: .8rem;
+}
+
+.mx-workspace-panel h5 {
+  margin: 0;
+  font-size: .95rem;
+}
+
+.mx-workspace-panel ul {
+  margin: 0;
+  padding-left: var(--mx-space-4);
+  display: grid;
+  gap: var(--mx-space-2);
 }
 
 .mx-app-work-main {
