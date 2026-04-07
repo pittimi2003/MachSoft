@@ -235,3 +235,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - `RightSidebar` se mantiene en `Overlay` y su apertura/cierre queda gobernada por la selección real de registros del grid; al seleccionar se abre automáticamente y al limpiar selección se cierra.
 - Se agrega estado compartido de shell para selección (`WorkSelectionActive`, conteo, título y metadatos) para sincronizar página de grid y layout sin romper contratos públicos `Mx*`.
 - Se ajusta el header para priorizar estabilidad visual en modo grid y corregir contraste en tema (subtitle + acción de tema), manteniendo altura de 48px y consistencia con tokens del Design System.
+
+## 34) Actualización 2026-04-07 (UTC) — Corrección de sidebars en `/work` y neutralidad visual de overlays
+- Se corrige `MxWorkspaceLayout` para que la apertura de sidebars en modo `Overlay` no desplace `MainContent`; el contenido principal permanece fijo y los paneles se superponen como capa modal con backdrop.
+- Se actualiza la política de `/work` en los cuatro hosts activos (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`): `RightSidebar` pasa a `MxSidebarMode.Inline` para exponer detalle contextual persistente al seleccionar registros.
+- Se elimina dependencia de `RightSidebarOpen` ligada a selección en `/work`; la selección ahora sólo actualiza contenido contextual en el panel inline sin transición overlay.
+- Se ajusta documentación contractual y pruebas bUnit para reflejar la regla oficial: overlays no alteran posición visual del `MainContainer`.
+

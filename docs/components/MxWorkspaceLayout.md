@@ -96,7 +96,7 @@ Regla: **`NavigationMenu` no puede modelarse como `LeftSidebar`**.
 - `MainContainer` **solo cede espacio estructural** a sidebars en `Inline`.
 - El grid estructural usa `left inline | minmax(0, 1fr) | right inline`.
 - Sidebars `Overlay` no forman parte del cálculo de columnas.
-- Overlays abiertos pueden aplicar desplazamiento visual con `transform`, pero ese desplazamiento **no forma parte del cálculo estructural**.
+- Overlays abiertos no desplazan el `MainContainer`; se renderizan por encima como capa modal sin alterar la posición del contenido principal.
 - Overlays cerrados no reservan ancho en la columna central.
 
 ## 9) Ejemplos de uso
@@ -147,9 +147,9 @@ Regla: **`NavigationMenu` no puede modelarse como `LeftSidebar`**.
 | Left inline / Right inline | Left + main + right visibles | Left + Right | No | Cede ancho a ambos |
 | Left overlay cerrado / Right cerrado | Solo main | Ninguno | No | Ocupa ancho completo |
 | Left cerrado / Right overlay cerrado | Solo main | Ninguno | No | Ocupa ancho completo |
-| Left overlay abierto / Right cerrado | Left overlay + main | Ninguno | Sí | Estructuralmente full-width; desplazamiento visual opcional |
-| Left cerrado / Right overlay abierto | Right overlay + main | Ninguno | Sí | Estructuralmente full-width; desplazamiento visual opcional |
-| Left overlay abierto / Right overlay abierto | Ambos overlays + main | Ninguno | Sí | Estructuralmente full-width; desplazamiento visual opcional |
+| Left overlay abierto / Right cerrado | Left overlay + main | Ninguno | Sí | Estructuralmente full-width; main fijo (sin desplazamiento) |
+| Left cerrado / Right overlay abierto | Right overlay + main | Ninguno | Sí | Estructuralmente full-width; main fijo (sin desplazamiento) |
+| Left overlay abierto / Right overlay abierto | Ambos overlays + main | Ninguno | Sí | Estructuralmente full-width; main fijo (sin desplazamiento) |
 | Left inline / Right overlay | Left inline + right overlay (si abierto) | Left | Sí si right overlay abierto | Cede ancho solo a left |
 | Left overlay / Right inline | Right inline + left overlay (si abierto) | Right | Sí si left overlay abierto | Cede ancho solo a right |
 

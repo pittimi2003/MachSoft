@@ -270,29 +270,11 @@
         }
     }
 
-    private string MainRegionVisualShift => (IsLeftOverlayOpen, IsRightOverlayOpen) switch
-    {
-        (true, true) => "calc(var(--mx-left-sidebar-width) - var(--mx-right-sidebar-width))",
-        (true, false) => "var(--mx-left-sidebar-width)",
-        (false, true) => "calc(var(--mx-right-sidebar-width) * -1)",
-        _ => "0px"
-    };
+    private string MainRegionVisualShift => "0px";
 
-    private string MainRegionVisualState => (IsLeftOverlayOpen, IsRightOverlayOpen) switch
-    {
-        (true, true) => "shift-both",
-        (true, false) => "shift-left",
-        (false, true) => "shift-right",
-        _ => "neutral"
-    };
+    private string MainRegionVisualState => "neutral";
 
-    private string MainRegionVisualStateClass => MainRegionVisualState switch
-    {
-        "shift-left" => "mx-workspace-main-region-shift-left",
-        "shift-right" => "mx-workspace-main-region-shift-right",
-        "shift-both" => "mx-workspace-main-region-shift-both",
-        _ => "mx-workspace-main-region-neutral"
-    };
+    private string MainRegionVisualStateClass => "mx-workspace-main-region-neutral";
 
     private string MainRegionStructuralSpan => (HasLeftInlineRegion, HasRightInlineRegion) switch
     {

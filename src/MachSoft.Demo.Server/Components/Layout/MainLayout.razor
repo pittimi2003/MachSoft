@@ -125,11 +125,6 @@
 
     private void OnShellStateChanged()
     {
-        if (IsWorkRoute)
-        {
-            RightSidebarOpen = ShellState.WorkSelectionActive;
-        }
-
         InvokeAsync(StateHasChanged);
     }
 
@@ -142,11 +137,11 @@
         if (IsWorkRoute)
         {
             LeftSidebarMode = MxSidebarMode.Inline;
-            RightSidebarMode = MxSidebarMode.Overlay;
+            RightSidebarMode = MxSidebarMode.Inline;
             LeftSidebarWidth = "48px";
             RightSidebarWidth = "360px";
             LeftSidebarOpen = false;
-            RightSidebarOpen = ShellState.WorkSelectionActive;
+            RightSidebarOpen = false;
         }
         else
         {
