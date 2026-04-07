@@ -11,6 +11,8 @@ Plataforma base frontend Blazor (.NET 8) para estandarizar experiencia y acelera
 ## Estructura
 - `src/MachSoft.DesignSystem`: tokens + contrato de tema.
 - `src/MachSoft.UI`: wrappers y composición base.
+- `src/MachSoft.Template.Server|Wasm`: templates oficiales de arranque.
+- `src/MachSoft.Demo.Server|WebAssembly`: demos ejecutables oficiales.
 - `src/MachSoft.Template.Server|Wasm`: demos oficiales de arranque.
 - `tests/*`: pruebas unitarias/componentes y smoke visual.
 - `build/*`: scripts operativos.

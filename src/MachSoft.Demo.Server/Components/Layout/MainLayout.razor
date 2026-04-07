@@ -1,0 +1,178 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject MachSoft.Demo.Server.Services.ShellState ShellState
+
+<MxWorkspaceLayout MainMenuOpen="@MainMenuOpen"
+                   MainMenuOpenChanged="@OnMainMenuOpenChanged"
+                   NavigationMenuMode="MxSidebarMode.Overlay"
+                   NavigationMenuWidth="280px"
+                   LeftSidebarMode="@LeftSidebarMode"
+                   LeftSidebarModeChanged="@OnLeftSidebarModeChanged"
+                   RightSidebarMode="@RightSidebarMode"
+                   RightSidebarModeChanged="@OnRightSidebarModeChanged"
+                   LeftSidebarOpen="@LeftSidebarOpen"
+                   RightSidebarOpen="@RightSidebarOpen"
+                   LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
+                   RightSidebarOpenChanged="@OnRightSidebarOpenChanged"
+                   DarkMode="@ShellState.DarkMode"
+                   DarkModeChanged="@OnDarkModeChanged"
+                   OnBackdropClick="@OnBackdropClick">
+    <HeaderContent>
+        <div class="mx-app-shell-brand">
+            <span class="mx-app-shell-brand-mark" aria-hidden="true">MS</span>
+            <span class="mx-app-shell-brand-copy">
+                <span class="mx-app-shell-brand-title">MachSoft App Base</span>
+                <span class="mx-app-shell-brand-subtitle">Demo Server</span>
+            </span>
+        </div>
+    </HeaderContent>
+
+    <NavigationMenu>
+        <nav class="mx-app-nav" aria-label="Navegación global">
+            <NavLink Match="NavLinkMatch.All" class="mx-workspace-nav-link" href="/">Home</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/login">Login</NavLink>
+            <NavLink class="mx-workspace-nav-link" href="/work">Work</NavLink>
+        </nav>
+    </NavigationMenu>
+
+    <LeftSidebar>
+        <MxSectionCard Title="Acciones operativas">
+            <MxButton Label="Nuevo" Variant="MxVariant.Filled" Tone="MxTone.Primary" />
+            <MxButton Label="Exportar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" />
+            <MxButton Label="Sincronizar" Variant="MxVariant.Text" Tone="MxTone.Neutral" />
+        </MxSectionCard>
+    </LeftSidebar>
+
+    <MainContent>
+        <CascadingValue Value="this">
+            @Body
+        </CascadingValue>
+    </MainContent>
+
+    <RightSidebar>
+        @if (_selectedWorkItem is null)
+        {
+            <MxSectionCard Title="Contexto">
+                <p>Selecciona un registro en /work para ver su detalle contextual.</p>
+            </MxSectionCard>
+        }
+        else
+        {
+            <MxSectionCard Title="Detalle seleccionado">
+                <p>Contexto activo de trabajo</p>
+                <p><strong>Código:</strong> @_selectedWorkItem.Code</p>
+                <p><strong>Nombre:</strong> @_selectedWorkItem.Name</p>
+                <p><strong>Estado:</strong> @_selectedWorkItem.Status</p>
+                <p><strong>Responsable:</strong> @_selectedWorkItem.Owner</p>
+                <MxButton Label="Cerrar panel" Variant="MxVariant.Text" Tone="MxTone.Neutral" OnClick="_ => CloseContextPanel()" />
+            </MxSectionCard>
+        }
+    </RightSidebar>
+</MxWorkspaceLayout>
+
+@code {
+    private bool MainMenuOpen { get; set; }
+    private bool LeftSidebarOpen { get; set; }
+    private bool RightSidebarOpen { get; set; }
+    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
+    private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
+    private MachSoft.Demo.Server.Services.WorkItem? _selectedWorkItem;
+
+    protected override void OnInitialized()
+    {
+        ApplyRoutePolicy(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    public void SetSelectedWorkItem(MachSoft.Demo.Server.Services.WorkItem? item)
+    {
+        _selectedWorkItem = item;
+        RightSidebarOpen = item is not null;
+        StateHasChanged();
+    }
+
+    public Task CloseContextPanel()
+    {
+        RightSidebarOpen = false;
+        _selectedWorkItem = null;
+        return Task.CompletedTask;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        ApplyRoutePolicy(e.Location);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void ApplyRoutePolicy(string location)
+    {
+        var isWorkRoute = NavigationManager.ToBaseRelativePath(location).StartsWith("work", StringComparison.OrdinalIgnoreCase);
+
+        if (isWorkRoute)
+        {
+            LeftSidebarMode = MxSidebarMode.Inline;
+        }
+        else
+        {
+            LeftSidebarMode = MxSidebarMode.Overlay;
+            LeftSidebarOpen = false;
+            RightSidebarOpen = false;
+            _selectedWorkItem = null;
+        }
+    }
+
+    private Task OnDarkModeChanged(bool enabled)
+    {
+        ShellState.SetDarkMode(enabled);
+        return Task.CompletedTask;
+    }
+
+    private Task OnMainMenuOpenChanged(bool isOpen)
+    {
+        MainMenuOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLeftSidebarOpenChanged(bool isOpen)
+    {
+        LeftSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLeftSidebarModeChanged(MxSidebarMode mode)
+    {
+        LeftSidebarMode = mode;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarOpenChanged(bool isOpen)
+    {
+        RightSidebarOpen = isOpen;
+        if (!isOpen)
+        {
+            _selectedWorkItem = null;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarModeChanged(MxSidebarMode mode)
+    {
+        RightSidebarMode = mode;
+        return Task.CompletedTask;
+    }
+
+    private Task OnBackdropClick()
+    {
+        MainMenuOpen = false;
+        LeftSidebarOpen = false;
+        RightSidebarOpen = false;
+        return Task.CompletedTask;
+    }
+}

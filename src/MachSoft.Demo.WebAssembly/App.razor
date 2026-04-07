@@ -1,0 +1,36 @@
+@using MachSoft.Demo.WebAssembly.Services
+@implements IDisposable
+@inject ShellState ShellState
+
+<MxThemeProvider DarkMode="@ShellState.DarkMode">
+  <MudPopoverProvider />
+  <MudDialogProvider />
+  <MudSnackbarProvider />
+  <Router AppAssembly="typeof(App).Assembly">
+    <Found Context="routeData">
+      <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+    </Found>
+    <NotFound>
+      <LayoutView Layout="typeof(Layout.MainLayout)">
+        <p>Página no encontrada.</p>
+      </LayoutView>
+    </NotFound>
+  </Router>
+</MxThemeProvider>
+
+@code {
+  protected override void OnInitialized()
+  {
+    ShellState.Changed += OnShellStateChanged;
+  }
+
+  private void OnShellStateChanged()
+  {
+    InvokeAsync(StateHasChanged);
+  }
+
+  public void Dispose()
+  {
+    ShellState.Changed -= OnShellStateChanged;
+  }
+}

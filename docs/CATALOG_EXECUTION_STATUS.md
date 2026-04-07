@@ -193,3 +193,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se implementa comportamiento contextual real en `/work`: selección en grid abre `RightSidebar` y permite cierre controlado.
 - Se agrega guía operativa `docs/APP_BOOTSTRAP_GUIDE.md` para crear aplicaciones nuevas desde cero (Server y WebAssembly) sin prueba/error.
 - Se ajustan smoke tests para validar rutas oficiales en ambos hosts (`/`, `/login`, `/work`).
+
+
+## 28) Actualización 2026-04-07 (UTC) — Demos explícitas Server/WebAssembly
+- Se agregan proyectos ejecutables explícitos `MachSoft.Demo.Server` y `MachSoft.Demo.WebAssembly` como referencia operativa separada de templates.
+- Se incorpora ambos proyectos a `MachSoft.UiPlatform.sln` para build/test unificado y validación continua.
+- Se mantiene paridad funcional con templates: `MainLayout` único con `MxWorkspaceLayout`, rutas `/`, `/login`, `/work`, rail operativo izquierdo y panel contextual derecho controlado por selección.
+- Smoke tests amplían cobertura a 4 hosts (`template-server`, `template-wasm`, `demo-server`, `demo-wasm`) validando apertura de rutas oficiales.

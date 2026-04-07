@@ -30,6 +30,13 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
             new RouteCheck("template-server", "/work", "Superficie operativa"),
             new RouteCheck("template-wasm", "/", "Operación diaria"),
             new RouteCheck("template-wasm", "/login", "Acceso de usuarios"),
+            new RouteCheck("template-wasm", "/work", "Superficie operativa"),
+            new RouteCheck("demo-server", "/", "Operación diaria"),
+            new RouteCheck("demo-server", "/login", "Acceso de usuarios"),
+            new RouteCheck("demo-server", "/work", "Superficie operativa"),
+            new RouteCheck("demo-wasm", "/", "Operación diaria"),
+            new RouteCheck("demo-wasm", "/login", "Acceso de usuarios"),
+            new RouteCheck("demo-wasm", "/work", "Superficie operativa")
             new RouteCheck("template-wasm", "/work", "Superficie operativa")
         };
 
@@ -72,7 +79,9 @@ public sealed class SmokeTestHostsFixture : IAsyncLifetime
         var hosts = new[]
         {
             new HostDefinition("template-server", "src/MachSoft.Template.Server/MachSoft.Template.Server.csproj", "http://127.0.0.1:5124"),
-            new HostDefinition("template-wasm", "src/MachSoft.Template.Wasm/MachSoft.Template.Wasm.csproj", "http://127.0.0.1:5125")
+            new HostDefinition("template-wasm", "src/MachSoft.Template.Wasm/MachSoft.Template.Wasm.csproj", "http://127.0.0.1:5125"),
+            new HostDefinition("demo-server", "src/MachSoft.Demo.Server/MachSoft.Demo.Server.csproj", "http://127.0.0.1:5126"),
+            new HostDefinition("demo-wasm", "src/MachSoft.Demo.WebAssembly/MachSoft.Demo.WebAssembly.csproj", "http://127.0.0.1:5127")
         };
 
         foreach (var host in hosts)

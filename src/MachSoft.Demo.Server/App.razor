@@ -1,0 +1,43 @@
+@using MachSoft.Demo.Server.Services
+@implements IDisposable
+@inject ShellState ShellState
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <link href="_content/MachSoft.UI/machsoft-ui.css" rel="stylesheet" />
+    <HeadOutlet @rendermode="new Microsoft.AspNetCore.Components.Web.InteractiveServerRenderMode(prerender: true)" />
+</head>
+<body>
+    <MxThemeProvider DarkMode="@ShellState.DarkMode">
+        <MudPopoverProvider />
+        <MudDialogProvider />
+        <MudSnackbarProvider />
+        <Routes @rendermode="new Microsoft.AspNetCore.Components.Web.InteractiveServerRenderMode(prerender: true)" />
+    </MxThemeProvider>
+
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ShellState.Changed += OnShellStateChanged;
+    }
+
+    private void OnShellStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ShellState.Changed -= OnShellStateChanged;
+    }
+}

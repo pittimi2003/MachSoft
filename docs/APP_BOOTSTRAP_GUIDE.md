@@ -110,3 +110,12 @@ El menú Shell del header debe incluir:
    - `/login` abre sin excepción y renderiza;
    - `/` abre sin excepción y renderiza;
    - `/work` abre sin excepción, renderiza y abre/cierra panel contextual.
+
+## 11) Qué aplica a templates, demos y app nueva
+
+- **Templates (`MachSoft.Template.Server` / `MachSoft.Template.Wasm`)**:
+  base de arranque reusable, estructura mínima y contratos `Mx*` listos para clonar/adaptar.
+- **Demos (`MachSoft.Demo.Server` / `MachSoft.Demo.WebAssembly`)**:
+  referencia ejecutable y validable de comportamiento oficial (`/`, `/login`, `/work`) en ambos modelos de hosting.
+- **App nueva desde cero**:
+  seguir esta guía copiando patrón de layout, rutas, servicios de shell y validación inicial; no depender de prueba/error.
