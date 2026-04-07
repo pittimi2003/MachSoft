@@ -1,0 +1,43 @@
+@page "/"
+@using MachSoft.UI.Showcase.Models
+
+<MxPageContainer FullWidth="true" Title="MachSoft UI Platform" Class="showcase-page">
+    <div class="showcase-home-grid">
+        <MxSectionCard Class="showcase-hero-card">
+            <MudText Typo="Typo.h4">MachSoft UI Platform</MudText>
+            <MudText Typo="Typo.body1" Class="mt-2">Catálogo limpio, gobernable y auditable para contratos públicos Mx*.</MudText>
+            <MudStack Row="true" Spacing="2" Class="mt-4" Wrap="Wrap.Wrap">
+                <MxChip Text="Shell único" />
+                <MxChip Text="MainContent dominante" />
+                <MxChip Text="Catálogo por componente" />
+            </MudStack>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Resumen de plataforma</MudText>
+            <ul class="showcase-bullet-list">
+                <li><strong>Layout:</strong> MainLayout + MxWorkspaceLayout</li>
+                <li><strong>Foundations:</strong> color tokens y reglas de uso</li>
+                <li><strong>Components:</strong> páginas separadas por componente</li>
+            </ul>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Cobertura de catálogo</MudText>
+            <MudText Typo="Typo.body2">@CatalogRegistry.ComponentPages.Count páginas de componentes con demos auditables.</MudText>
+            <MudDivider Class="my-2" />
+            <div class="showcase-inline-links">
+                @foreach (var item in CatalogRegistry.ComponentPages.Take(12))
+                {
+                    <NavLink href="@item.Route">@item.Title</NavLink>
+                }
+            </div>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Superficie principal</MudText>
+            <MudText Typo="Typo.body2">El contenido vive en @@Body sin layout intermedio. Sidebars son secundarios y en modo overlay al inicio.</MudText>
+            <MxAlert Tone="MxAlertTone.Info" Title="Regla de operación" Description="Usar menú de shell para tema, navegación y sidebars." />
+        </MxSectionCard>
+    </div>
+</MxPageContainer>

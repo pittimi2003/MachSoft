@@ -1,0 +1,24 @@
+@page "/components/daterangepicker"
+
+<MxPageContainer FullWidth="true" Title="DateRangePicker" Class="showcase-page">
+    <div class="showcase-page-stack">
+        <MxSectionCard>
+            <MudText Typo="Typo.h5">MxDateRangePicker</MudText>
+            <MudText Typo="Typo.body2">Componente público Mx* con ejemplos auditables de propósito, variantes y estados.</MudText>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Variantes y combinaciones</MudText>
+            <MxDateRangePicker Label="Periodo" Value="@_range" ValueChanged="v => _range = v" />
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Estados de uso</MudText>
+            <MudText Typo="Typo.body2">Se valida comportamiento en estado por defecto, alterno y contextual dentro de layouts reales.</MudText>
+        </MxSectionCard>
+    </div>
+</MxPageContainer>
+
+@code {
+    private MxDateRange _range = new(DateTime.Today.AddDays(-7), DateTime.Today);
+}

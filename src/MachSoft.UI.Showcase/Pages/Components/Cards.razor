@@ -1,0 +1,28 @@
+@page "/components/cards"
+
+<MxPageContainer FullWidth="true" Title="Cards" Class="showcase-page">
+    <div class="showcase-page-stack">
+        <MxSectionCard>
+            <MudText Typo="Typo.h5">MxCard</MudText>
+            <MudText Typo="Typo.body2">Componente público Mx* con ejemplos auditables de propósito, variantes y estados.</MudText>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Variantes y combinaciones</MudText>
+            <div class="demo-grid">
+  <MxCard Title="Resumen"><MudText Typo="Typo.body2">Contenido principal.</MudText></MxCard>
+  <MxCard Title="Estado"><MxChip Text="Activo" /></MxCard>
+  <MxCard><MudText Typo="Typo.body2">Tarjeta sin título.</MudText></MxCard>
+</div>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Estados de uso</MudText>
+            <MudText Typo="Typo.body2">Se valida comportamiento en estado por defecto, alterno y contextual dentro de layouts reales.</MudText>
+        </MxSectionCard>
+    </div>
+</MxPageContainer>
+
+@code {
+    
+}

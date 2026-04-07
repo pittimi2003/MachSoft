@@ -1,0 +1,31 @@
+@page "/components/filterbar"
+
+<MxPageContainer FullWidth="true" Title="FilterBar" Class="showcase-page">
+    <div class="showcase-page-stack">
+        <MxSectionCard>
+            <MudText Typo="Typo.h5">MxFilterBar</MudText>
+            <MudText Typo="Typo.body2">Componente público Mx* con ejemplos auditables de propósito, variantes y estados.</MudText>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Variantes y combinaciones</MudText>
+            <MxFilterBar>
+  <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+    <MxSelect Label="Estado" Options="@_states" />
+    <MxDatePicker Label="Desde" />
+    <MxDatePicker Label="Hasta" />
+    <MxButton Label="Aplicar" Size="MxSize.Small" />
+  </MudStack>
+</MxFilterBar>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Estados de uso</MudText>
+            <MudText Typo="Typo.body2">Se valida comportamiento en estado por defecto, alterno y contextual dentro de layouts reales.</MudText>
+        </MxSectionCard>
+    </div>
+</MxPageContainer>
+
+@code {
+    private readonly IReadOnlyList<string> _states = ["Todos", "Activos", "Bloqueados"];
+}

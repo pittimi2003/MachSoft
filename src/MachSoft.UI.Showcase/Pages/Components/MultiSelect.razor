@@ -1,0 +1,25 @@
+@page "/components/multiselect"
+
+<MxPageContainer FullWidth="true" Title="MultiSelect" Class="showcase-page">
+    <div class="showcase-page-stack">
+        <MxSectionCard>
+            <MudText Typo="Typo.h5">MxMultiSelect</MudText>
+            <MudText Typo="Typo.body2">Componente público Mx* con ejemplos auditables de propósito, variantes y estados.</MudText>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Variantes y combinaciones</MudText>
+            <MxMultiSelect Label="Tecnologías" Options="@_tech" SelectedValues="@_selected" SelectedValuesChanged="v => _selected = v" />
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Estados de uso</MudText>
+            <MudText Typo="Typo.body2">Se valida comportamiento en estado por defecto, alterno y contextual dentro de layouts reales.</MudText>
+        </MxSectionCard>
+    </div>
+</MxPageContainer>
+
+@code {
+    private readonly IReadOnlyList<string> _tech = [".NET", "Blazor", "SQL", "Azure"];
+    private IEnumerable<string> _selected = new[] {".NET", "Blazor"};
+}
