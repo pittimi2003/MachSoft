@@ -37,6 +37,7 @@ public sealed class ShowcaseSmokeTests : IClassFixture<SmokeTestHostsFixture>
             new RouteCheck("demo-wasm", "/", "Operación diaria"),
             new RouteCheck("demo-wasm", "/login", "Acceso de usuarios"),
             new RouteCheck("demo-wasm", "/work", "Superficie operativa")
+            new RouteCheck("template-wasm", "/work", "Superficie operativa")
         };
 
         foreach (var check in checks)
