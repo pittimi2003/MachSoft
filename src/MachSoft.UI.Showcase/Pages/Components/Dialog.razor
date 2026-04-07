@@ -1,0 +1,34 @@
+@page "/components/dialog"
+
+<MxPageContainer FullWidth="true" Title="Dialog" Class="showcase-page">
+    <div class="showcase-page-stack">
+        <MxSectionCard>
+            <MudText Typo="Typo.h5">MxDialog</MudText>
+            <MudText Typo="Typo.body2">Componente público Mx* con ejemplos auditables de propósito, variantes y estados.</MudText>
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Variantes y combinaciones</MudText>
+            <MudStack Row="true" Spacing="2">
+  <MxButton Label="Abrir Dialog" OnClick="_ => _dialog = true" />
+  <MxButton Label="Abrir Confirm" Tone="MxTone.Warning" OnClick="_ => _confirm = true" />
+</MudStack>
+<MxDialog Open="@_dialog" Title="Editar" Message="Confirma los cambios" OnConfirm="OnDialogClose" OnCancel="OnDialogClose">
+  <MudText Typo="Typo.body2">Formulario o contenido contextual.</MudText>
+</MxDialog>
+<MxConfirmDialog Open="@_confirm" Title="Eliminar" Message="¿Deseas eliminar el registro?" OnConfirm="OnConfirmClose" OnCancel="OnConfirmClose" />
+        </MxSectionCard>
+
+        <MxSectionCard>
+            <MudText Typo="Typo.h6">Estados de uso</MudText>
+            <MudText Typo="Typo.body2">Se valida comportamiento en estado por defecto, alterno y contextual dentro de layouts reales.</MudText>
+        </MxSectionCard>
+    </div>
+</MxPageContainer>
+
+@code {
+    private bool _dialog;
+    private bool _confirm;
+    private Task OnDialogClose(){ _dialog = false; return Task.CompletedTask; }
+    private Task OnConfirmClose(){ _confirm = false; return Task.CompletedTask; }
+}

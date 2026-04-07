@@ -1,0 +1,17 @@
+@using MachSoft.UI.Showcase.Models
+
+<nav class="showcase-nav" aria-label="Catálogo global">
+    <NavLink class="showcase-nav-link" Match="NavLinkMatch.All" href="/">Home</NavLink>
+
+    <div class="showcase-nav-group-title">Foundations</div>
+    @foreach (var foundation in CatalogRegistry.FoundationPages)
+    {
+        <NavLink class="showcase-nav-link" href="@foundation.Route">@foundation.Title</NavLink>
+    }
+
+    <div class="showcase-nav-group-title">Components</div>
+    @foreach (var component in CatalogRegistry.ComponentPages)
+    {
+        <NavLink class="showcase-nav-link" href="@component.Route">@component.Title</NavLink>
+    }
+</nav>

@@ -1,0 +1,185 @@
+@inherits LayoutComponentBase
+@using Microsoft.JSInterop
+@using MachSoft.UI.Showcase.Models
+@inject IJSRuntime JS
+@inject ShowcaseThemeState ThemeState
+
+<MxWorkspaceLayout MainMenuOpen="@MainMenuOpen"
+                   MainMenuOpenChanged="@OnMainMenuOpenChanged"
+                   NavigationMenuMode="MxSidebarMode.Overlay"
+                   LeftSidebarMode="@LeftSidebarMode"
+                   LeftSidebarModeChanged="@OnLeftSidebarModeChanged"
+                   RightSidebarMode="@RightSidebarMode"
+                   RightSidebarModeChanged="@OnRightSidebarModeChanged"
+                   LeftSidebarOpen="@LeftSidebarOpen"
+                   RightSidebarOpen="@RightSidebarOpen"
+                   LeftSidebarOpenChanged="@OnLeftSidebarOpenChanged"
+                   RightSidebarOpenChanged="@OnRightSidebarOpenChanged"
+                   OnBackdropClick="@OnBackdropClick">
+    <HeaderContent>
+        <div class="showcase-header-content">
+            <div class="showcase-brand-block">
+                <span class="showcase-brand-title">MachSoft UI Platform</span>
+                <span class="showcase-brand-subtitle">Showcase auditable de componentes Mx*</span>
+            </div>
+            <MxMenu Class="showcase-control-menu"
+                    Label="Controles"
+                    Icon="@Icons.Material.Outlined.Tune"
+                    Tone="MxTone.Neutral"
+                    Items="@ControlItems"
+                    OnItemSelected="OnControlItemSelectedAsync" />
+            
+        </div>
+    </HeaderContent>
+
+    <NavigationMenu>
+        <NavMenu />
+    </NavigationMenu>
+
+    <LeftSidebar>
+        <div class="showcase-sidebar-content">
+            <MudText Typo="Typo.subtitle2">Host status</MudText>
+            <MudText Typo="Typo.body2">Theme: @(ThemeState.IsDarkMode ? "Dark" : "Light")</MudText>
+            <MudText Typo="Typo.body2">Nav: @(MainMenuOpen ? "Open" : "Closed")</MudText>
+            <MudText Typo="Typo.body2">Left: @LeftSidebarMode (@(LeftSidebarOpen ? "Open" : "Closed"))</MudText>
+            <MudText Typo="Typo.body2">Right: @RightSidebarMode (@(RightSidebarOpen ? "Open" : "Closed"))</MudText>
+        </div>
+    </LeftSidebar>
+
+    <MainContent>
+        @Body
+    </MainContent>
+
+    <RightSidebar>
+        <div class="showcase-sidebar-content">
+            <MudText Typo="Typo.subtitle2">Navegación rápida</MudText>
+            @foreach (var route in CatalogRegistry.ComponentPages.Take(8))
+            {
+                <NavLink class="showcase-nav-link" href="@route.Route">@route.Title</NavLink>
+            }
+        </div>
+    </RightSidebar>
+</MxWorkspaceLayout>
+
+@code {
+    private const string ThemeToggleKey = "theme.toggle";
+    private const string MainMenuToggleKey = "menu.main.toggle";
+    private const string LeftModeInlineKey = "left.mode.inline";
+    private const string LeftModeOverlayKey = "left.mode.overlay";
+    private const string LeftOpenToggleKey = "left.open.toggle";
+    private const string RightModeInlineKey = "right.mode.inline";
+    private const string RightModeOverlayKey = "right.mode.overlay";
+    private const string RightOpenToggleKey = "right.open.toggle";
+
+    private bool MainMenuOpen { get; set; }
+    private bool LeftSidebarOpen { get; set; }
+    private bool RightSidebarOpen { get; set; }
+    private MxSidebarMode LeftSidebarMode { get; set; } = MxSidebarMode.Overlay;
+    private MxSidebarMode RightSidebarMode { get; set; } = MxSidebarMode.Overlay;
+
+    private IReadOnlyList<MxMenuItem> ControlItems =>
+    [
+        new(ThemeToggleKey, ThemeState.IsDarkMode ? "Tema: Cambiar a light" : "Tema: Cambiar a dark", Icons.Material.Outlined.DarkMode),
+        new(MainMenuToggleKey, MainMenuOpen ? "Navigation: Cerrar" : "Navigation: Abrir", Icons.Material.Outlined.Menu),
+        new(LeftModeInlineKey, LeftSidebarMode == MxSidebarMode.Inline ? "Left mode: Inline ✓" : "Left mode: Inline", Icons.Material.Outlined.ViewWeek),
+        new(LeftModeOverlayKey, LeftSidebarMode == MxSidebarMode.Overlay ? "Left mode: Overlay ✓" : "Left mode: Overlay", Icons.Material.Outlined.Layers),
+        new(LeftOpenToggleKey, LeftSidebarOpen ? "Left overlay: Cerrar" : "Left overlay: Abrir", Icons.Material.Outlined.ChevronLeft, LeftSidebarMode == MxSidebarMode.Inline),
+        new(RightModeInlineKey, RightSidebarMode == MxSidebarMode.Inline ? "Right mode: Inline ✓" : "Right mode: Inline", Icons.Material.Outlined.ViewWeek),
+        new(RightModeOverlayKey, RightSidebarMode == MxSidebarMode.Overlay ? "Right mode: Overlay ✓" : "Right mode: Overlay", Icons.Material.Outlined.Layers),
+        new(RightOpenToggleKey, RightSidebarOpen ? "Right overlay: Cerrar" : "Right overlay: Abrir", Icons.Material.Outlined.ChevronRight, RightSidebarMode == MxSidebarMode.Inline)
+    ];
+
+    private Task OnMainMenuOpenChanged(bool isOpen)
+    {
+        MainMenuOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLeftSidebarOpenChanged(bool isOpen)
+    {
+        LeftSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarOpenChanged(bool isOpen)
+    {
+        RightSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OnLeftSidebarModeChanged(MxSidebarMode mode)
+    {
+        LeftSidebarMode = mode;
+        if (mode == MxSidebarMode.Inline)
+        {
+            LeftSidebarOpen = false;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnRightSidebarModeChanged(MxSidebarMode mode)
+    {
+        RightSidebarMode = mode;
+        if (mode == MxSidebarMode.Inline)
+        {
+            RightSidebarOpen = false;
+        }
+
+        return Task.CompletedTask;
+    }
+
+
+    private async Task OnControlItemSelectedAsync(string key)
+    {
+        switch (key)
+        {
+            case ThemeToggleKey:
+                await ToggleThemeAsync();
+                break;
+            case MainMenuToggleKey:
+                MainMenuOpen = !MainMenuOpen;
+                break;
+            case LeftModeInlineKey:
+                LeftSidebarMode = MxSidebarMode.Inline;
+                LeftSidebarOpen = false;
+                break;
+            case LeftModeOverlayKey:
+                LeftSidebarMode = MxSidebarMode.Overlay;
+                break;
+            case LeftOpenToggleKey:
+                if (LeftSidebarMode == MxSidebarMode.Overlay)
+                {
+                    LeftSidebarOpen = !LeftSidebarOpen;
+                }
+                break;
+            case RightModeInlineKey:
+                RightSidebarMode = MxSidebarMode.Inline;
+                RightSidebarOpen = false;
+                break;
+            case RightModeOverlayKey:
+                RightSidebarMode = MxSidebarMode.Overlay;
+                break;
+            case RightOpenToggleKey:
+                if (RightSidebarMode == MxSidebarMode.Overlay)
+                {
+                    RightSidebarOpen = !RightSidebarOpen;
+                }
+                break;
+        }
+    }
+
+    private async Task ToggleThemeAsync()
+    {
+        ThemeState.Set(!ThemeState.IsDarkMode);
+        await JS.InvokeVoidAsync("localStorage.setItem", "mx-showcase-theme", ThemeState.IsDarkMode ? "dark" : "light");
+    }
+
+    private Task OnBackdropClick()
+    {
+        MainMenuOpen = false;
+        LeftSidebarOpen = false;
+        RightSidebarOpen = false;
+        return Task.CompletedTask;
+    }
+}
