@@ -71,6 +71,26 @@ public class WorkspaceHostAdoptionTests
         markup.Should().Contain("private string RightSidebarWidth { get; set; }");
     }
 
+    [Theory]
+    [InlineData("src/MachSoft.Template.Wasm/Pages/Work.razor")]
+    [InlineData("src/MachSoft.Template.Server/Components/Pages/Work.razor")]
+    [InlineData("src/MachSoft.Demo.WebAssembly/Pages/Work.razor")]
+    [InlineData("src/MachSoft.Demo.Server/Components/Pages/Work.razor")]
+    public void WorkPage_ShouldUseOperationalSurfaceWithoutNestedTripartiteLayout(string workPagePath)
+    {
+        var repositoryRoot = ResolveRepositoryRoot();
+        var fullPath = Path.Combine(repositoryRoot.FullName, workPagePath);
+
+        File.Exists(fullPath).Should().BeTrue($"debe existir la página Work: {workPagePath}");
+
+        var markup = File.ReadAllText(fullPath);
+
+        markup.Should().Contain("mx-app-work-toolbar", "Work debe exponer toolbar + listado como referencia operacional");
+        markup.Should().Contain("<MxDataGrid", "Work debe usar la superficie principal para el listado");
+        markup.Should().NotContain("<MxWorkspaceLayout", "la estructura tripartita oficial vive en MainLayout");
+        markup.Should().NotContain("grid-template-columns", "Work no debe inyectar otro layout tripartito interno");
+    }
+
     private static DirectoryInfo ResolveRepositoryRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);

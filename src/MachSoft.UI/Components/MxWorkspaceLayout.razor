@@ -6,7 +6,10 @@
      data-left-mode="@LeftSidebarMode.ToString().ToLowerInvariant()"
      data-right-mode="@RightSidebarMode.ToString().ToLowerInvariant()"
      data-left-open="@LeftSidebarOpen.ToString().ToLowerInvariant()"
-     data-right-open="@RightSidebarOpen.ToString().ToLowerInvariant()">
+     data-right-open="@RightSidebarOpen.ToString().ToLowerInvariant()"
+     data-left-inline-active="@HasLeftInlineRegion.ToString().ToLowerInvariant()"
+     data-mobile-contextual-detail="@EnableMobileContextualDetailMode.ToString().ToLowerInvariant()"
+     data-mobile-contextual-detail-active="@IsMobileContextualDetailActive.ToString().ToLowerInvariant()">
     <header class="mx-workspace-header" data-header-height="48">
         <div class="mx-workspace-header-primary">
             <button type="button"
@@ -86,6 +89,17 @@
             @if (HasRightOverlayRegion)
             {
                 <aside class="mx-workspace-sidebar mx-workspace-sidebar-overlay mx-workspace-sidebar-right" data-sidebar="right" data-mode="overlay">
+                    @if (IsMobileContextualDetailActive)
+                    {
+                        <div class="mx-workspace-contextual-mobile-close">
+                            <button type="button"
+                                    class="mx-workspace-contextual-mobile-close-button"
+                                    @onclick="CloseRightSidebarAsync">
+                                <span aria-hidden="true">←</span>
+                                <span>@RightSidebarCloseLabel</span>
+                            </button>
+                        </div>
+                    }
                     @RightSidebar
                 </aside>
             }
@@ -185,6 +199,16 @@
     [Parameter] public EventCallback<bool> RightSidebarOpenChanged { get; set; }
 
     /// <summary>
+    /// Habilita el patrón responsive donde el panel derecho contextual reemplaza visualmente el contenido principal en mobile/tablet.
+    /// </summary>
+    [Parameter] public bool EnableMobileContextualDetailMode { get; set; } = true;
+
+    /// <summary>
+    /// Texto de acción para cerrar panel contextual derecho en mobile.
+    /// </summary>
+    [Parameter] public string RightSidebarCloseLabel { get; set; } = "Cerrar detalle";
+
+    /// <summary>
     /// Callback de sincronización para <see cref="LeftSidebarMode"/>.
     /// </summary>
     [Parameter] public EventCallback<MxSidebarMode> LeftSidebarModeChanged { get; set; }
@@ -243,6 +267,7 @@
     private bool IsLeftOverlayOpen => LeftSidebar is not null && LeftSidebarMode == MxSidebarMode.Overlay && LeftSidebarOpen;
     private bool IsRightOverlayOpen => RightSidebar is not null && RightSidebarMode == MxSidebarMode.Overlay && RightSidebarOpen;
     private bool HasAnyOverlayVisible => IsNavigationMenuOverlayVisible || HasLeftOverlayRegion || HasRightOverlayRegion;
+    private bool IsMobileContextualDetailActive => EnableMobileContextualDetailMode && HasRightOverlayRegion;
 
     private IReadOnlyList<MxMenuItem> ShellControlItems =>
     [
@@ -315,6 +340,11 @@
         {
             await OnBackdropClick.InvokeAsync();
         }
+    }
+
+    private Task CloseRightSidebarAsync()
+    {
+        return SetRightSidebarOpenAsync(false);
     }
 
     private async Task OnShellControlItemSelectedAsync(string key)

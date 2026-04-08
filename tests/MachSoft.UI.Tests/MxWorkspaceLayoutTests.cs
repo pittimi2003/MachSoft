@@ -241,6 +241,29 @@ public class MxWorkspaceLayoutTests : TestContext
     }
 
     [Fact]
+    public void Render_RightOverlayOpen_ShouldExposeMobileContextualDetailStateAndCloseAction()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarOpen, true));
+
+        cut.Find(".mx-workspace-layout").GetAttribute("data-mobile-contextual-detail-active").Should().Be("true");
+        cut.Find(".mx-workspace-contextual-mobile-close-button").Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Render_MobileContextualDetailDisabled_ShouldNotExposeCloseAction()
+    {
+        var cut = RenderLayout(p => p
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarOpen, true)
+            .Add(x => x.EnableMobileContextualDetailMode, false));
+
+        cut.Find(".mx-workspace-layout").GetAttribute("data-mobile-contextual-detail-active").Should().Be("false");
+        cut.FindAll(".mx-workspace-contextual-mobile-close-button").Should().BeEmpty();
+    }
+
+    [Fact]
     public void Header_ShouldRenderShellControlMenu_AndMainMenuShouldRemainIndependent()
     {
         var cut = RenderLayout(p => p
@@ -333,6 +356,21 @@ public class MxWorkspaceLayoutTests : TestContext
 
         menuChanged.Should().BeFalse();
         leftChanged.Should().BeFalse();
+        rightChanged.Should().BeFalse();
+    }
+
+    [Fact]
+    public void MobileContextualCloseAction_ShouldCloseRightOverlaySidebar()
+    {
+        var rightChanged = true;
+
+        var cut = RenderLayout(p => p
+            .Add(x => x.RightSidebarMode, MxSidebarMode.Overlay)
+            .Add(x => x.RightSidebarOpen, true)
+            .Add(x => x.RightSidebarOpenChanged, EventCallback.Factory.Create<bool>(this, value => rightChanged = value)));
+
+        cut.Find(".mx-workspace-contextual-mobile-close-button").Click();
+
         rightChanged.Should().BeFalse();
     }
 

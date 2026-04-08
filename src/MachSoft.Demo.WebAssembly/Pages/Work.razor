@@ -4,27 +4,47 @@
 @inject ShellState ShellState
 
 <section class="mx-app-work-shell" aria-label="Superficie de trabajo">
+    <div class="mx-app-work-toolbar">
+        <div>
+            <p class="mx-app-work-overline">Operación</p>
+            <h1 class="mx-app-work-title">Mesa de trabajo</h1>
+            <p class="mx-app-work-toolbar-caption">Flujo activo: <strong>@CurrentModeLabel</strong></p>
+        </div>
+        <div class="mx-app-work-toolbar-actions">
+            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("browse")'>Browse</button>
+            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("new")'>New</button>
+            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("detail")'>Detail</button>
+            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("edit")'>Edit</button>
+        </div>
+    </div>
+
     <div class="mx-app-work-surface">
-        <div class="mx-app-work-main">
-            <div class="mx-app-work-grid-shell">
-                <MxDataGrid TItem="WorkItem"
-                            Items="@FilteredItems"
-                            Columns="@Columns"
-                            SearchEnabled="false"
-                            UsePagination="true"
-                            CurrentPage="@Page"
-                            CurrentPageChanged="@OnPageChanged"
-                            PageSize="10"
-                            Selectable="true"
-                            SelectedItems="@SelectedItems"
-                            SelectedItemsChanged="@OnSelectedItemsChanged" />
-            </div>
+        <div class="mx-app-work-grid-shell">
+            <MxDataGrid TItem="WorkItem"
+                        Items="@FilteredItems"
+                        Columns="@Columns"
+                        SearchEnabled="false"
+                        UsePagination="true"
+                        CurrentPage="@Page"
+                        CurrentPageChanged="@OnPageChanged"
+                        PageSize="10"
+                        Selectable="true"
+                        SelectedItems="@SelectedItems"
+                        SelectedItemsChanged="@OnSelectedItemsChanged" />
         </div>
     </div>
 </section>
 
 @code {
     private int Page = 1;
+    private string CurrentMode { get; set; } = "browse";
+    private string CurrentModeLabel => CurrentMode switch
+    {
+        "new" => "new",
+        "detail" => "detail",
+        "edit" => "edit",
+        _ => "browse"
+    };
 
     private IReadOnlyCollection<WorkItem> SelectedItems { get; set; } = Array.Empty<WorkItem>();
 
@@ -72,5 +92,10 @@
 
         ShellState.SetWorkSelection(selected.Count, first?.Name, details);
         return Task.CompletedTask;
+    }
+
+    private void SetMode(string mode)
+    {
+        CurrentMode = mode;
     }
 }
