@@ -247,3 +247,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se formaliza regla operativa solicitada: `RightSidebarOpen` se activa **si y solo si** existe al menos un registro seleccionado en el grid (`WorkSelectionActive=true`), y se cierra automáticamente al limpiar selección o salir de `/work`.
 - Se corrige la propagación de cambio de tema en layouts de login de todos los hosts: el toggle ahora refleja `ShellState.DarkMode` en tiempo real y se suscribe al evento `ShellState.Changed` para mantener consistencia visual en todo el sitio.
 - Se preserva contrato de Design System y shell sin exposición de API `Mud*` en contratos públicos `Mx*`.
+
+## 36) Actualización 2026-04-08 (UTC) — Consolidación de patrón operativo único sobre `MxWorkspaceLayout`
+- Se consolida `MxWorkspaceLayout` como única fuente estructural para páginas operativas y se formaliza el patrón semántico obligatorio: `NavigationMenu` global, `LeftSidebar` funcional, `MainContent` dominante y `RightSidebar` contextual.
+- Se incorpora en el contrato del layout el modo responsive contextual: cuando `RightSidebar` está en `Overlay` y abierto, en mobile/tablet reemplaza visualmente la región central y expone acción explícita de cierre contextual.
+- Se actualiza documentación contractual (`docs/components/MxWorkspaceLayout.md`) para declarar que `MxWorkspaceLayout` reemplaza conceptualmente el rol del benchmark `MlxMainContainer`, sin replicar componente, nombres ni estilos del origen.
+- Se refactoriza `/work` (Demo/Template en Server + WebAssembly) como implementación de referencia reutilizable: toolbar operativa + listado principal en `MainContent`, manteniendo sidebars funcionales gobernadas por el shell.
+- Se amplía cobertura de pruebas para verificar estado responsive contextual, acción de cierre del panel derecho y ausencia de layout tripartito duplicado dentro de `Work.razor`.

@@ -1,7 +1,7 @@
 # MxWorkspaceLayout
 
 ## 1) Propósito del componente
-`MxWorkspaceLayout` es el shell oficial de workspace para MachSoft. Su responsabilidad es separar explícitamente capas estructurales y capas flotantes del shell:
+`MxWorkspaceLayout` es el shell oficial de workspace para MachSoft. Su responsabilidad es separar explícitamente capas estructurales y capas flotantes del shell. También reemplaza **conceptualmente** el rol que en el benchmark de origen cumplía `MlxMainContainer`, pero sin replicar su componente ni su identidad visual:
 - `Header`
 - `NavigationMenu`
 - `LeftSidebar`
@@ -75,6 +75,12 @@ Regla de implementación: no definir anchos mágicos de sidebars fuera del contr
 
 Regla: **`NavigationMenu` no puede modelarse como `LeftSidebar`**.
 
+Semántica oficial obligatoria:
+- `NavigationMenu` = navegación global de la aplicación.
+- `LeftSidebar` = región izquierda funcional de la vista activa.
+- `MainContent` = superficie principal de trabajo.
+- `RightSidebar` = región contextual derecha de la vista activa.
+
 ## 6) Definición oficial de `Inline`
 `Inline` significa:
 - siempre visible,
@@ -98,6 +104,7 @@ Regla: **`NavigationMenu` no puede modelarse como `LeftSidebar`**.
 - Sidebars `Overlay` no forman parte del cálculo de columnas.
 - Overlays abiertos no desplazan el `MainContainer`; se renderizan por encima como capa modal sin alterar la posición del contenido principal.
 - Overlays cerrados no reservan ancho en la columna central.
+- En responsive (`max-width: 1024px`), cuando `RightSidebar` está en `Overlay` y abierto con `EnableMobileContextualDetailMode=true`, el panel derecho reemplaza visualmente al `MainContent` (patrón browse/detail/edit en móvil) e incluye acción explícita de cierre contextual.
 
 ## 9) Ejemplos de uso
 
