@@ -120,11 +120,13 @@
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         ApplyRoutePolicy(e.Location);
+        SyncWorkSelectionState();
         InvokeAsync(StateHasChanged);
     }
 
     private void OnShellStateChanged()
     {
+        SyncWorkSelectionState();
         InvokeAsync(StateHasChanged);
     }
 
@@ -137,7 +139,7 @@
         if (IsWorkRoute)
         {
             LeftSidebarMode = MxSidebarMode.Inline;
-            RightSidebarMode = MxSidebarMode.Inline;
+            RightSidebarMode = MxSidebarMode.Overlay;
             LeftSidebarWidth = "48px";
             RightSidebarWidth = "360px";
             LeftSidebarOpen = false;
@@ -159,6 +161,13 @@
             LeftSidebarOpen = false;
             RightSidebarOpen = false;
         }
+
+        SyncWorkSelectionState();
+    }
+
+    private void SyncWorkSelectionState()
+    {
+        RightSidebarOpen = IsWorkRoute && ShellState.WorkSelectionActive;
     }
 
     private Task OnDarkModeChanged(bool enabled)

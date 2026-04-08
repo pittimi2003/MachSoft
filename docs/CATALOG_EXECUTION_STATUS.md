@@ -242,3 +242,8 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se elimina dependencia de `RightSidebarOpen` ligada a selección en `/work`; la selección ahora sólo actualiza contenido contextual en el panel inline sin transición overlay.
 - Se ajusta documentación contractual y pruebas bUnit para reflejar la regla oficial: overlays no alteran posición visual del `MainContainer`.
 
+## 35) Actualización 2026-04-08 (UTC) — Reapertura contextual de `RightSidebar` por selección + sincronización global de tema
+- Se ajusta la política de `/work` en los cuatro hosts activos (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`) para que `RightSidebar` opere nuevamente en `Overlay` y mantenga estado inicial cerrado (`RightSidebarOpen=false`).
+- Se formaliza regla operativa solicitada: `RightSidebarOpen` se activa **si y solo si** existe al menos un registro seleccionado en el grid (`WorkSelectionActive=true`), y se cierra automáticamente al limpiar selección o salir de `/work`.
+- Se corrige la propagación de cambio de tema en layouts de login de todos los hosts: el toggle ahora refleja `ShellState.DarkMode` en tiempo real y se suscribe al evento `ShellState.Changed` para mantener consistencia visual en todo el sitio.
+- Se preserva contrato de Design System y shell sin exposición de API `Mud*` en contratos públicos `Mx*`.

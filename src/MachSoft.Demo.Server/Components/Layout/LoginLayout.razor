@@ -1,9 +1,10 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 
 <div class="mx-app-login-layout-shell">
     <button type="button" class="mx-app-login-theme" @onclick="ToggleTheme">
-        <MudIcon Icon="@(_dark ? Icons.Material.Outlined.DarkMode : Icons.Material.Outlined.LightMode)" />
-        <span>@(_dark ? "Tema oscuro" : "Tema claro")</span>
+        <MudIcon Icon="@(ShellState.DarkMode ? Icons.Material.Outlined.DarkMode : Icons.Material.Outlined.LightMode)" />
+        <span>@(ShellState.DarkMode ? "Tema oscuro" : "Tema claro")</span>
     </button>
     @Body
 </div>
@@ -11,16 +12,23 @@
 @code {
     [Inject] private MachSoft.Demo.Server.Services.ShellState ShellState { get; set; } = default!;
 
-    private bool _dark;
-
     protected override void OnInitialized()
     {
-        _dark = ShellState.DarkMode;
+        ShellState.Changed += OnShellStateChanged;
+    }
+
+    public void Dispose()
+    {
+        ShellState.Changed -= OnShellStateChanged;
+    }
+
+    private void OnShellStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
     }
 
     private void ToggleTheme()
     {
-        _dark = !_dark;
-        ShellState.SetDarkMode(_dark);
+        ShellState.SetDarkMode(!ShellState.DarkMode);
     }
 }
