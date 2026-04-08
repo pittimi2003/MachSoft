@@ -52,12 +52,20 @@
     <LeftSidebar>
         @if (IsWorkRoute)
         {
-            <div class="mx-app-left-rail">
-                <button type="button" class="mx-app-rail-action is-active" title="Editar"><MudIcon Icon="@Icons.Material.Outlined.Edit" /></button>
-                <button type="button" class="mx-app-rail-action" title="Sincronizar"><MudIcon Icon="@Icons.Material.Outlined.Sync" /></button>
-                <button type="button" class="mx-app-rail-action" title="Filtrar"><MudIcon Icon="@Icons.Material.Outlined.FilterAlt" /></button>
-                <button type="button" class="mx-app-rail-action" title="Exportar"><MudIcon Icon="@Icons.Material.Outlined.FileDownload" /></button>
-            </div>
+            <section class="mx-app-left-rail" aria-label="Rail operativo izquierdo">
+                <div class="mx-app-left-rail-group">
+                    <span class="mx-app-left-rail-group-title">Modo</span>
+                    <button type="button" class="mx-app-rail-action is-active" title="Browse"><MudIcon Icon="@Icons.Material.Outlined.SpaceDashboard" /></button>
+                    <button type="button" class="mx-app-rail-action" title="Editor"><MudIcon Icon="@Icons.Material.Outlined.Edit" /></button>
+                </div>
+                <div class="mx-app-left-rail-separator" role="presentation"></div>
+                <div class="mx-app-left-rail-group">
+                    <span class="mx-app-left-rail-group-title">Acciones</span>
+                    <button type="button" class="mx-app-rail-action" title="Sincronizar"><MudIcon Icon="@Icons.Material.Outlined.Sync" /></button>
+                    <button type="button" class="mx-app-rail-action" title="Filtrar"><MudIcon Icon="@Icons.Material.Outlined.FilterAlt" /></button>
+                    <button type="button" class="mx-app-rail-action" title="Exportar"><MudIcon Icon="@Icons.Material.Outlined.FileDownload" /></button>
+                </div>
+            </section>
         }
     </LeftSidebar>
 
@@ -69,7 +77,13 @@
         @if (IsWorkRoute)
         {
             <section class="mx-workspace-panel" aria-label="Panel de selección">
-                <h4>Selección</h4>
+                <header class="mx-workspace-panel-header">
+                    <div>
+                        <p class="mx-workspace-panel-kicker">Contexto</p>
+                        <h4>Selección</h4>
+                    </div>
+                    <button type="button" class="mx-app-shell-action">Inspeccionar</button>
+                </header>
                 @if (ShellState.WorkSelectionActive)
                 {
                     <p class="mx-workspace-panel-caption">@ShellState.WorkSelectionCount elemento(s) seleccionado(s)</p>
@@ -84,6 +98,10 @@
                             <li>@detail</li>
                         }
                     </ul>
+                    <div class="mx-workspace-panel-actions">
+                        <button type="button" class="mx-app-shell-action">Abrir detalle</button>
+                        <button type="button" class="mx-app-shell-action">Comparar</button>
+                    </div>
                 }
                 else
                 {

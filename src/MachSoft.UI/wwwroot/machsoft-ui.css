@@ -1995,20 +1995,50 @@ a { color: var(--mx-accent); }
 .mx-app-work-shell {
   min-height: calc(100dvh - 48px);
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: var(--mx-space-3);
   padding: var(--mx-space-3);
 }
 
-.mx-app-work-toolbar {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
+.mx-app-work-head-block {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  align-items: start;
   gap: var(--mx-space-3);
   border: var(--mx-stroke-1) solid var(--mx-border);
   border-radius: var(--mx-radius-md);
   background: var(--mx-surface);
   padding: var(--mx-space-3) var(--mx-space-4);
+}
+
+.mx-app-work-head-main {
+  display: grid;
+  gap: var(--mx-space-1);
+}
+
+.mx-app-work-head-context {
+  border-left: var(--mx-stroke-1) solid var(--mx-border);
+  padding-left: var(--mx-space-3);
+  display: grid;
+  justify-items: start;
+  gap: var(--mx-space-2);
+  color: var(--mx-text-secondary);
+  font-size: .82rem;
+}
+
+.mx-app-work-head-context p {
+  margin: 0;
+}
+
+.mx-app-work-context-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding-inline: var(--mx-space-3);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--mx-accent) 14%, var(--mx-surface));
+  color: var(--mx-accent);
+  font-weight: 600;
 }
 
 .mx-app-work-title {
@@ -2021,41 +2051,12 @@ a { color: var(--mx-accent); }
   color: var(--mx-text-secondary);
 }
 
-.mx-app-work-toolbar-actions {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: var(--mx-space-2);
-}
-
-.mx-app-work-head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
-  gap: var(--mx-space-3);
-  align-items: end;
-}
-
 .mx-app-work-overline {
   margin: 0 0 .2rem;
   text-transform: uppercase;
   letter-spacing: .08em;
   font-size: .75rem;
   color: var(--mx-text-secondary);
-}
-
-.mx-app-work-head-title h1 {
-  margin: 0;
-  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
-}
-
-.mx-app-work-head-tools {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--mx-space-2);
-}
-
-.mx-app-work-head-add {
-  border-radius: 999px;
 }
 
 .mx-app-work-surface {
@@ -2066,30 +2067,76 @@ a { color: var(--mx-accent); }
   overflow: hidden;
 }
 
-.mx-app-work-rail {
-  border: 1px solid var(--mx-border);
-  border-radius: var(--mx-radius-md);
-  background: var(--mx-surface);
-  display: grid;
-  align-content: start;
-  gap: var(--mx-space-2);
-  padding: var(--mx-space-2) var(--mx-space-1);
-}
-
 .mx-app-left-rail {
   display: grid;
+  align-content: start;
+  gap: var(--mx-space-3);
+  padding: var(--mx-space-3) var(--mx-space-2);
+}
+
+.mx-app-left-rail-group {
+  display: grid;
   gap: var(--mx-space-2);
+  justify-items: center;
+}
+
+.mx-app-left-rail-group-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--mx-text-tertiary);
+  font-size: .62rem;
+  font-weight: 700;
+}
+
+.mx-app-left-rail-separator {
+  width: 28px;
+  height: 1px;
+  background: var(--mx-border);
+  margin-inline: auto;
 }
 
 .mx-app-rail-action {
   width: 40px;
   height: 40px;
   margin-inline: auto;
+  border-radius: var(--mx-radius-md);
+}
+
+.mx-app-rail-action.is-active {
+  outline: var(--mx-stroke-1) solid color-mix(in srgb, var(--mx-accent) 70%, var(--mx-border));
+  outline-offset: 1px;
+  background: color-mix(in srgb, var(--mx-accent) 16%, var(--mx-surface));
 }
 
 .mx-app-shell-action-header {
   width: 40px;
   height: 40px;
+}
+
+.mx-workspace-panel {
+  display: grid;
+  gap: var(--mx-space-3);
+}
+
+.mx-workspace-panel-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--mx-space-2);
+}
+
+.mx-workspace-panel-kicker {
+  margin: 0 0 var(--mx-space-1);
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--mx-text-secondary);
+}
+
+.mx-workspace-panel-header h4 {
+  margin: 0;
 }
 
 .mx-workspace-panel-caption {
@@ -2110,28 +2157,28 @@ a { color: var(--mx-accent); }
   gap: var(--mx-space-2);
 }
 
-.mx-app-work-main {
-  min-width: 0;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr);
-  gap: var(--mx-space-3);
-}
-
 .mx-app-work-toolbar {
   display: grid;
   grid-template-columns: auto minmax(220px, 1fr);
+  border: var(--mx-stroke-1) solid var(--mx-border);
+  border-radius: var(--mx-radius-md);
+  background: var(--mx-surface);
+  padding: var(--mx-space-2) var(--mx-space-3);
   justify-content: space-between;
-  gap: var(--mx-space-3);
+  gap: var(--mx-space-2);
   align-items: center;
 }
 
 .mx-app-work-toolbar-actions {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: var(--mx-space-2);
 }
 
 .mx-app-work-toolbar-meta {
-  margin: 0;
+  display: inline-flex;
+  justify-content: flex-end;
+  gap: var(--mx-space-2);
   text-align: right;
   color: var(--mx-text-secondary);
   font-size: .82rem;
@@ -2146,57 +2193,27 @@ a { color: var(--mx-accent); }
   background: transparent;
 }
 
-.mx-app-work-context {
-  border: 1px solid var(--mx-border);
-  border-radius: var(--mx-radius-md);
-  background: var(--mx-surface);
-  padding: var(--mx-space-3);
-  min-width: 0;
-  overflow: auto;
-}
-
-.mx-app-work-context[data-open="false"] {
-  --mx-work-context-width: 64px;
-  padding-inline: var(--mx-space-2);
-}
-
-.mx-app-work-context[data-open="false"] h3,
-.mx-app-work-context[data-open="false"] p,
-.mx-app-work-context[data-open="false"] dl {
-  display: none;
-}
-
-.mx-app-work-context-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.mx-app-work-context dl {
-  margin: 0;
-  display: grid;
-  grid-template-columns: minmax(90px, 130px) 1fr;
-  row-gap: .55rem;
-}
-
-.mx-app-work-context dt {
-  color: var(--mx-text-secondary);
-  font-weight: 600;
-}
-
-.mx-app-work-context dd {
-  margin: 0;
+.mx-workspace-panel-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--mx-space-2);
 }
 
 @media (max-width: 1080px) {
   .mx-app-login-screen,
-  .mx-app-work-head,
   .mx-app-work-surface {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .mx-app-work-context {
-    --mx-work-context-width: minmax(0, 1fr);
+  .mx-app-work-head-block {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mx-app-work-head-context {
+    border-left: 0;
+    border-top: var(--mx-stroke-1) solid var(--mx-border);
+    padding-left: 0;
+    padding-top: var(--mx-space-2);
   }
 
   .mx-app-work-toolbar {

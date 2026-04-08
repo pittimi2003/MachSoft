@@ -254,3 +254,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se actualiza documentación contractual (`docs/components/MxWorkspaceLayout.md`) para declarar que `MxWorkspaceLayout` reemplaza conceptualmente el rol del benchmark `MlxMainContainer`, sin replicar componente, nombres ni estilos del origen.
 - Se refactoriza `/work` (Demo/Template en Server + WebAssembly) como implementación de referencia reutilizable: toolbar operativa + listado principal en `MainContent`, manteniendo sidebars funcionales gobernadas por el shell.
 - Se amplía cobertura de pruebas para verificar estado responsive contextual, acción de cierre del panel derecho y ausencia de layout tripartito duplicado dentro de `Work.razor`.
+
+## 37) Actualización 2026-04-08 (UTC) — Ajuste de composición operativa real (Users/Designer/Warehouse como referencia)
+- Se corrige la composición de `/work` en los cuatro hosts (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`) manteniendo arquitectura vigente (`MxWorkspaceLayout` único) y reforzando patrón operativo observado en benchmark: bloque superior de trabajo + barra de acciones de listado + grid dominante.
+- Se rehace el bloque superior para separar jerarquía de operación (título/modo), contexto visible y capa de acciones de vista/listado, evitando encabezado plano sin transición hacia el grid.
+- Se refuerza `LeftSidebar` como rail operativo estable mediante agrupación explícita de acciones (modo vs acciones), separación visual y ritmo vertical consistente.
+- Se robustece `RightSidebar` contextual con cabecera propia, estado contextual visible y acciones de detalle para mantener balance con el peso visual del área principal.
+- Se actualiza la hoja base `machsoft-ui.css` para reflejar esta densidad operativa (espaciados, jerarquía y barras intermedias) sin importar estilos/tokens del benchmark origen.

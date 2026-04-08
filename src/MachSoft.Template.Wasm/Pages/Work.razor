@@ -4,17 +4,45 @@
 @inject ShellState ShellState
 
 <section class="mx-app-work-shell" aria-label="Superficie de trabajo">
-    <div class="mx-app-work-toolbar">
-        <div>
+    <header class="mx-app-work-head-block">
+        <div class="mx-app-work-head-main">
             <p class="mx-app-work-overline">Operación</p>
             <h1 class="mx-app-work-title">Mesa de trabajo</h1>
-            <p class="mx-app-work-toolbar-caption">Flujo activo: <strong>@CurrentModeLabel</strong></p>
+            <p class="mx-app-work-toolbar-caption">Modo activo: <strong>@CurrentModeLabel</strong></p>
         </div>
+        <div class="mx-app-work-head-context">
+            <span class="mx-app-work-context-badge">Browse rail</span>
+            <p>@SelectionSummary</p>
+        </div>
+    </header>
+
+    <div class="mx-app-work-toolbar" role="toolbar" aria-label="Acciones de operación">
         <div class="mx-app-work-toolbar-actions">
-            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("browse")'>Browse</button>
-            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("new")'>New</button>
-            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("detail")'>Detail</button>
-            <button type="button" class="mx-app-shell-action" @onclick='() => SetMode("edit")'>Edit</button>
+            <button type="button"
+                    class='@GetModeButtonClass("browse")'
+                    @onclick='() => SetMode("browse")'>
+                Browse
+            </button>
+            <button type="button"
+                    class='@GetModeButtonClass("new")'
+                    @onclick='() => SetMode("new")'>
+                New
+            </button>
+            <button type="button"
+                    class='@GetModeButtonClass("detail")'
+                    @onclick='() => SetMode("detail")'>
+                Detail
+            </button>
+            <button type="button"
+                    class='@GetModeButtonClass("edit")'
+                    @onclick='() => SetMode("edit")'>
+                Edit
+            </button>
+        </div>
+        <div class="mx-app-work-toolbar-meta">
+            <span>@FilteredItems.Count registros</span>
+            <span aria-hidden="true">•</span>
+            <span>@SelectionCountLabel</span>
         </div>
     </div>
 
@@ -45,6 +73,12 @@
         "edit" => "edit",
         _ => "browse"
     };
+    private string SelectionSummary => ShellState.WorkSelectionActive
+        ? $"{ShellState.WorkSelectionCount} elemento(s) en foco"
+        : "Sin selección contextual";
+    private string SelectionCountLabel => ShellState.WorkSelectionActive
+        ? $"{ShellState.WorkSelectionCount} seleccionados"
+        : "0 seleccionados";
 
     private IReadOnlyCollection<WorkItem> SelectedItems { get; set; } = Array.Empty<WorkItem>();
 
@@ -97,5 +131,11 @@
     private void SetMode(string mode)
     {
         CurrentMode = mode;
+    }
+
+    private string GetModeButtonClass(string mode)
+    {
+        var isActive = string.Equals(CurrentMode, mode, StringComparison.OrdinalIgnoreCase);
+        return isActive ? "mx-app-shell-action is-active" : "mx-app-shell-action";
     }
 }
