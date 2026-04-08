@@ -1,0 +1,89 @@
+﻿@page "/alerts"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Components.GridComponent
+@using Mss.WorkForce.Code.Web.Components.ToolBar
+@using Mss.WorkForce.Code.Web.Components.BaseComponent
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Models.DataAccess
+@inject DataAccess dataAccess
+@inherits Mss.WorkForce.Code.Web.Common.PageOperations
+@attribute [Authorize]
+
+
+<ConfirmDialog></ConfirmDialog>
+<MlxMainContainer IsLeftSideVisible="@(!IsNewMode)" IsRightSideVisible="@IsDetailsVisible" IsRightSideVisibleChanged="@OnRightSideVisibilityChanged" OnClearSelection="@CloseRightPanel" ShowDetailsMobile="@IsDetailsVisible">
+    <LeftSideContent>
+        <ToolbarActions Actions="@Actions" EventListener="@EventListener" SelectMode="@SelectMode"></ToolbarActions>
+    </LeftSideContent>
+
+    <MiddleSideContent>
+        @if (IsNewMode)
+        {
+            <div class="dxbl-modal-body">
+                <div class="d-flex flex-column" style="background-color: white; height:88vh">
+                    <div class="container-title-panel container-for-image" style="justify-content: space-between;">
+                        <div class="item-title-data">
+                            <span class="data-title">@Data</span>
+                            <span style="border-bottom: 4px solid black; display: block; padding: 0.25rem;"></span>
+                        </div>
+                    </div>
+                    <div class="container-data">
+                        <div class="data">
+                            <BaseComponente @ref="baseComponentRef"  Models="lstSelectedAlerts"  editMode="true" Container="@EmiterContainer" newMode="true"/>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer container-buttons">
+                        <button id="btnCancel" type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelEvent">@Cancel</button>
+                        <button id="btnSave" type="button" disabled="@savebtn" class="btn-mlx btn-mlx-blue-primary" @onclick="SaveEvent">@Save</button>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <GridComponent GridParameters="GetParametersDto" isExpandGrid="@isExpandGrid" UserFormat="userFormat"></GridComponent>
+        }
+    </MiddleSideContent>
+    <RightSideContent>
+        @if (SelectedAlert != null)
+        {
+            <DetailsComponent FillGridParameters="GetParametersDto"
+                              SelectedIds="SelectedAlertIds"
+                              IsEditable="IsEditMode"
+                              T="AlertDto" />
+        }
+    </RightSideContent>
+</MlxMainContainer>
+
+<DxPopup CssClass="mlx-modal"
+         HeaderText="@SelectWarehouse"
+         @bind-Visible="@IsModalWarehouse"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         CloseButtonClick="HiddeModalWarehouse"
+         ShowFooter="true"
+         Width="50%"
+         Scrollable="true">
+    <BodyContentTemplate>
+        <div class="row mb-2">
+            <div class="col-md-12">
+                <label for="idSelectWarehouse" class="mlx-form-label">@Warehouse</label>
+                <MlxComboBox Data="@Sites" TextFieldName="Name" ValueFieldName="Value" @bind-Value="@SelectedSite"
+                            CssClass="mlx-form-select" InputId="idSelectWarehouse" NullText="@Select" />
+
+            </div>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="HiddeModalWarehouse">@Cancel</button>
+        <button type="button" disabled="@(Validate())" class=" btn-mlx btn-mlx-blue-primary" @onclick="CloneAlertWithWarehouse">@Accept</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+
+}

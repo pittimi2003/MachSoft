@@ -1,0 +1,11 @@
+﻿.custom-height {
+    height: 40vh;
+}
+.mlx-ico-reload::before {
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
+.aligned {
+    align-content: center;
+}

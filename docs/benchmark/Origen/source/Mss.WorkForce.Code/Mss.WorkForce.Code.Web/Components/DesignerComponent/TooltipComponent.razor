@@ -1,0 +1,36 @@
+﻿@using DevExpress.Blazor
+
+@*Tooltip invoked by placing the cursor over the button*@
+<DxButton Id="@ButtonId" CssClass="@CssClass" @onmouseover="ToggleTooltipOnMouseOver" @onmouseout="ToggleTooltipOnMouseOut" aria-describedby="@FlyoutId" />
+
+<DxFlyout @bind-IsOpen="showTooltip" Id="@FlyoutId" Position="@Position" PositionTarget="@($"#{ButtonId}")" FitToRestriction="false" CloseMode="FlyoutCloseMode.Close" CloseOnOutsideClick="true" CssClass="mlx-flyout-tooltip" Width="max(25vw, 250px)" PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate>
+        @ChildContent
+    </BodyContentTemplate>
+</DxFlyout>
+
+@code {
+    private bool showTooltip = false;
+
+    [Parameter] public FlyoutPosition Position { get; set; } = FlyoutPosition.Right;
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+
+    // Unique IDs per instance (for multiple tooltips without conflicts)
+    private string ButtonId { get; } = $"infoButton_{Guid.NewGuid():N}";
+    private string FlyoutId { get; } = $"flyout_{Guid.NewGuid():N}";
+
+    // Event that displays the tooltip
+    private void ToggleTooltipOnMouseOver()
+    {
+        showTooltip = true;
+        StateHasChanged();
+    }
+
+    // Event that hides the tooltip
+    private void ToggleTooltipOnMouseOut()
+    {
+        showTooltip = false;
+        StateHasChanged();
+    }
+}

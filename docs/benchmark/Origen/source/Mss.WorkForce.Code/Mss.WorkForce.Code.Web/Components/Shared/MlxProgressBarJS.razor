@@ -1,0 +1,103 @@
+﻿<div class="progress-bar-wrapper">
+    <span class="progress-label">0%</span>
+
+    <div class="progress-bar-container"
+         id="@TrackId"
+         @ref="TrackElement">
+        <div class="progress-track"></div>
+        <div class="progress-fill" style="width: @(Percentage)%"></div>
+        <div class="progress-thumb" style="left: @(Percentage)%">@Value%</div>
+    </div>
+
+    <span class="progress-label">100%</span>
+</div>
+
+<style>
+    .progress-bar-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .progress-label {
+        color: #9ca3af;
+        font-size: 12px;
+        min-width: 32px;
+    }
+
+    .progress-bar-container {
+        position: relative;
+        flex: 1;
+        height: 6px;
+        background: #ccc;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    .progress-track {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 6px;
+        width: 100%;
+        border-radius: 3px;
+        background: #ccc;
+    }
+
+    .progress-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 6px;
+        /* background: linear-gradient(to right, #004a91, #007bff); */
+        background: var(--gl-color-blue-500);
+        border-radius: 3px;
+    }
+
+    .progress-thumb {
+        position: absolute;
+        top: -14px;
+        transform: translateX(-50%);
+        background: var(--gl-color-blue-500);
+        color: white;
+        padding: 4px 12px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 20px;
+        cursor: grab;
+        user-select: none;
+        transition: none;
+    }
+
+</style>
+
+@code {
+    [Parameter] public int Min { get; set; } = 0;
+    [Parameter] public int Max { get; set; } = 100;
+    [Parameter] public int Value { get; set; }
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+
+    private ElementReference TrackElement;
+    private string TrackId = $"track-{Guid.NewGuid().ToString("N")}";
+    private double Percentage => (Value - Min) * 100.0 / (Max - Min);
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    [JSInvokable]
+    public async Task UpdateValueFromJS(int newValue)
+    {
+        Value = newValue;
+        await ValueChanged.InvokeAsync(newValue);
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initProgressDragJS", TrackId, Min, Max, DotNetObjectReference.Create(this));
+        }
+    }
+}
+

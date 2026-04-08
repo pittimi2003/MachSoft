@@ -1,0 +1,257 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.DesignerComponent
+@inject ILocalizationService localizationService
+
+@if (Opened)
+{
+    <DialogComponent Title="@Title"
+                     Opened="Opened"
+                     CloseButtonClicked="OnClose"
+                     isLargeModal="true"
+                     CssClass="whatif-dialog">
+
+
+        <BodyContent>
+            <DxGrid Data="Logs"
+                    VirtualScrollingEnabled="true"
+                    ShowFilterRow="true"
+                    AllowSort="true"
+                    CssClass="mlx-grid">
+
+                <Columns>
+                    <DxGridDataColumn FieldName="@nameof(WorkerWhatIf.Shift)"
+                                      Caption="@localizationService.Loc("SHIFT_NAME_DISTRIBUTION")"
+                                      FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+
+                        <FilterRowCellTemplate Context="ctx">
+                            <MlxFilterOperationType FilterContext="ctx">
+                                <DxTextBox Text="@(ctx.FilterRowValue as string)"
+                                           TextChanged="@(v => ctx.FilterRowValue = v)" />
+                            </MlxFilterOperationType>
+                        </FilterRowCellTemplate>
+
+                    </DxGridDataColumn>
+
+                    <DxGridDataColumn FieldName="@nameof(WorkerWhatIf.Rol)"
+                                      Caption="@localizationService.Loc("ROL_DISTRIBUTION")"
+                                      FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+
+                        <FilterRowCellTemplate Context="ctx">
+                            <MlxFilterOperationType FilterContext="ctx">
+                                <DxTextBox Text="@(ctx.FilterRowValue as string)"
+                                           TextChanged="@(v => ctx.FilterRowValue = v)" />
+                            </MlxFilterOperationType>
+                        </FilterRowCellTemplate>
+
+
+                    </DxGridDataColumn>
+
+
+
+                    <DxGridDataColumn FieldName="@nameof(WorkerWhatIf.InitSecondsOfDay)" Caption="@localizationService.Loc("START_DISTRIBUTION")"
+                                      FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                        <!-- DISPLAY -->
+                        <CellDisplayTemplate Context="ctx">
+                            @{
+                                int? value = ctx.Value as int?;
+                                if (value is null && ctx.Value is int v)
+                                    value = v;
+                            }
+
+                            <span class="mlx-timeinput">
+                                <TimeInput TNumber="int?"
+                                           Value="@value"
+                                           Format="hhmm"
+                                           DisplayOnly="true" />
+                            </span>
+                        </CellDisplayTemplate>
+
+                        <!-- FILTER -->
+                        <FilterRowCellTemplate Context="ctx">
+                            <MlxFilterOperationType FilterContext="ctx">
+                                <TimeInput TNumber="int?"
+                                           IsFilter="true"
+                                           Value="@(ctx.FilterRowValue as int?)"
+                                           ValueChanged="@(v => ctx.FilterRowValue = v)"
+                                           Format="hhmm" />
+                            </MlxFilterOperationType>
+                        </FilterRowCellTemplate>
+
+                    </DxGridDataColumn>
+
+                    <DxGridDataColumn FieldName="@nameof(WorkerWhatIf.EndSecondsOfDay)"
+                                      Caption="@localizationService.Loc("END_DISTRIBUTION")"
+                                      FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                        <!-- DISPLAY -->
+                        <CellDisplayTemplate Context="ctx">
+                            @{
+                                int? value = ctx.Value as int?;
+                                if (value is null && ctx.Value is int v)
+                                    value = v;
+                            }
+
+                            <span class="mlx-timeinput">
+                                <TimeInput TNumber="int?"
+                                           Value="@value"
+                                           Format="hhmm"
+                                           DisplayOnly="true" />
+                            </span>
+                        </CellDisplayTemplate>
+
+                        <!-- FILTER -->
+                        <FilterRowCellTemplate Context="ctx">
+                            <MlxFilterOperationType FilterContext="ctx">
+                                <TimeInput TNumber="int?"
+                                           IsFilter="true"
+                                           Value="@(ctx.FilterRowValue as int?)"
+                                           ValueChanged="@(v => ctx.FilterRowValue = v)"
+                                           Format="hhmm" />
+                            </MlxFilterOperationType>
+                        </FilterRowCellTemplate>
+
+                    </DxGridDataColumn>
+
+
+                    <DxGridDataColumn FieldName="@nameof(WorkerWhatIf.DaysDifferenceValue)"
+                                      Caption="@localizationService.Loc("DAYS_DIFFERENCE_DISTRIBUTION")"
+                                      TextAlignment="GridTextAlignment.Right"
+                                      ShowInColumnChooser="true"
+                                      FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                        <CellDisplayTemplate>
+                            <div class="text-right">
+                                + @context.Value
+                            </div>
+                        </CellDisplayTemplate>
+
+                        <FilterRowCellTemplate Context="ctx">
+                            <MlxFilterOperationType FilterContext="ctx">
+                                <DxSpinEdit T="int?"
+                                            Value="@(ctx.FilterRowValue as int?)"
+                                            ValueChanged="@(v => ctx.FilterRowValue = v)"
+                                            ShowSpinButtons="false" />
+                            </MlxFilterOperationType>
+                        </FilterRowCellTemplate>
+
+                    </DxGridDataColumn>
+
+
+
+                    <DxGridDataColumn FieldName="@nameof(WorkerWhatIf.Percentage)"
+                                      Caption="@localizationService.Loc("UTILIZATION_DISTRIBUTION")"
+                                      DisplayFormat="p1"
+                                      TextAlignment="GridTextAlignment.Right"
+                                      ShowInColumnChooser="true"
+                                      FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+
+                        <CellDisplayTemplate>
+                            <div class="text-right">
+                                @context.DisplayText
+                            </div>
+                        </CellDisplayTemplate>
+
+                        <FilterRowCellTemplate Context="ctx">
+                            <MlxFilterOperationType FilterContext="ctx">
+                                <DxSpinEdit T="double?"
+                                            Value="@((ctx.FilterRowValue as double?) * 100)"
+                                            ValueChanged="@(v => ctx.FilterRowValue = v / 100)"
+                                            Increment="1"
+                                            DisplayFormat="n0"
+                                            ShowSpinButtons="false" />
+                            </MlxFilterOperationType>
+                        </FilterRowCellTemplate>
+
+
+                    </DxGridDataColumn>
+
+                </Columns>
+
+            </DxGrid>
+        </BodyContent>
+
+        <FooterContent>
+            <button id="btnCancel"
+                    type="button"
+                    class="btn-mlx btn-mlx-blue-primary"
+                    @onclick="OnClose">
+                @Button
+            </button>
+        </FooterContent>
+
+    </DialogComponent>
+}
+
+
+@code {
+    [Parameter] public bool Opened { get; set; }
+    [Parameter] public EventCallback<bool> OpenedChanged { get; set; }
+    [Parameter] public EventCallback<bool> AceptChange { get; set; }
+
+    [Parameter] public IReadOnlyList<WorkerWhatIf>? Logs { get; set; }
+    [Inject] private ILocalizationService L { get; set; }
+
+    public string Title = "MODAL_DISTRIBUTION_TITLE";
+    public string Button = "MODAL_DISTRIBUTION_BUTTON";
+
+    protected override void OnInitialized()
+    {
+        Translate();
+    }
+
+    private void Translate()
+    {
+        Title = L.Loc(Title);
+        Button = L.Loc(Button);
+    }
+
+    private async Task OnClose()
+    {
+        Opened = false;
+        await OpenedChanged.InvokeAsync(false);
+    }
+
+    private async Task OnApply()
+    {
+        Opened = false;
+        await AceptChange.InvokeAsync(false);
+    }
+}
+
+<style>
+    .popup-body-content {
+        height: calc(100vh - 220px);
+        overflow: hidden;
+    }
+
+    .whatif-grid {
+        height: 100%;
+    }
+
+    .wrap-cell {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+    /* Cell style for TimeInputs in the grid */
+    .mlx-timeinput {
+        display: inline-block;
+        min-width: 120px;
+    }
+
+    .whatif-dialog {
+        max-width: 1600px;
+        width: 80vw;
+    }
+
+    .popup-Large.whatif-dialog {
+        width: 70vw !important;
+        max-width: none;
+    }
+
+</style>

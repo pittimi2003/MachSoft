@@ -1,0 +1,53 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@inject IJSRuntime JS
+@inject IEventServices _eventServices
+@inject DataAccess dataAccess
+
+<div class="d-flex align-items-center">
+    <div class="temporalidad-container">
+        <div class="d-flex align-items-center w-100">
+            <!-- ComboBox personalizado para seleccionar temporalidades -->
+            <DxComboBox Data="@Views" Value="@SelectedView"
+                        TextFieldName="Name" ValueFieldName="Id"
+                        CssClass="site-combobox mlx-title-warehouse"
+                        ValueChanged="@((ViewModel newValue) => OnValueChanged(newValue))">
+                <ItemTemplate>
+                    <div class="d-flex justify-content-between w-100">
+                        <span>
+                            @((context as ViewModel)?.Name)
+                        </span>
+                    </div>
+                </ItemTemplate>
+            </DxComboBox>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<ViewModel> Views { get; set; }
+
+    [Parameter]
+    public ViewModel SelectedView { get; set; }
+
+
+    [Parameter]
+    public EventCallback<ViewModel> ValueChanged { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();       
+    }
+
+    private async Task OnValueChanged(ViewModel newView)
+    {
+        SelectedView = newView;
+        await ValueChanged.InvokeAsync(newView);
+
+    }
+
+}

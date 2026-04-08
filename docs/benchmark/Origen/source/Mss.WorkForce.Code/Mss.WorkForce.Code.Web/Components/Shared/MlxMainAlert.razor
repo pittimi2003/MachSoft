@@ -1,0 +1,114 @@
+﻿@using Mss.WorkForce.Code.Models
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService l
+<div id="mainAlertButton" class="alert-icon-container">
+	<DxButton IconCssClass="mlx-ico-bell"
+	CssClass="btn-mlx-header btn-mlx-blue-primary"
+	title="@l.Loc("Notifications")"
+	@onclick="ToggleMainAlertDropdown" />
+	@if (Alerts.Any(a => !a.IsRead))
+	{
+		var maxSeverity = Alerts
+        .Where(a => !a.IsRead)
+        .Select(a => a.AlertSeverity)
+        .DefaultIfEmpty()
+        .Min();
+
+		string colorBadge = maxSeverity switch
+		{
+			AlertSeverity.Error => "red",
+			AlertSeverity.Warning => "orange",
+			AlertSeverity.Information => "blue",
+			_ => ""
+		};
+
+		<span class="badge @colorBadge">@Alerts.Count(a => !a.IsRead)</span>
+	}
+</div>
+@if (IsMainAlertDropdownOpen && Alerts.Any())
+{
+	<DxDropDown @bind-IsOpen="IsMainAlertDropdownOpen"
+	PositionTarget="#mainAlertButton"
+	PositionMode="DropDownPositionMode.Bottom"
+	CloseOnOutsideClick="true"
+	Width="300px">
+		<div class="alert-dropdown-content">
+			<div class="alert-dropdown-header">
+				<span class="alert-title">@l.Loc("ALERTS")</span>
+			</div>
+
+			@foreach (var alert in Alerts)
+			{
+				var dotClass = alert.AlertSeverity switch
+				{
+					AlertSeverity.Error => "alert-dot-error",
+					AlertSeverity.Warning => "alert-dot-warning",
+					AlertSeverity.Information => "alert-dot-info",
+					_ => ""
+				};
+
+				<div class="alert-notification @(alert.IsRead ? "read" : "unread") alert-clickable"
+				@onclick="() => ShowAlertModal(alert)"
+				@onclick:preventDefault>
+					<div class="icon-with-badge">
+						<span class="@GetIconClass(alert.AlertSeverity) alert-icon"></span>
+
+					</div>
+					<div class="alert-message">
+						<div class="alert-text">@alert.Message</div>
+						<div class="alert-footer">
+							<span class="alert-time">@alert.CreationDate.ToString("g")</span>
+
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	</DxDropDown>
+}
+
+<MlxModalAlert Visible="@IsMyAlertModalVisible"
+VisibleChanged="@((bool value) => IsMyAlertModalVisible = value)"
+Alert="SelectedAlert" />
+
+@code {
+	private List<AlertMessageDto> Alerts { get; set; } = new();
+
+	private AlertMessageDto? SelectedAlert { get; set; }
+	private bool IsMainAlertDropdownOpen { get; set; } = false;
+	private bool IsMyAlertModalVisible { get; set; } = false;
+	
+	public void UpdateAlerts(IEnumerable<AlertMessageDto> alerts)
+	{
+		Alerts = alerts.ToList();
+		StateHasChanged(); 
+	}
+
+	private void ToggleMainAlertDropdown()
+	{
+		IsMainAlertDropdownOpen = !IsMainAlertDropdownOpen;
+	}
+
+	private void ShowAlertModal(AlertMessageDto alert)
+	{
+		SelectedAlert = alert;
+		IsMainAlertDropdownOpen = false;
+		IsMyAlertModalVisible = true;
+	}
+
+	private void HiddeModalAlert()
+	{
+		IsMyAlertModalVisible = false;
+	}
+
+	private string GetIconClass(AlertSeverity severity) => severity switch
+	{
+		AlertSeverity.Error => "mlx-ico-error-bg-solid",
+		AlertSeverity.Warning => "mlx-ico-warning-bg-solid",
+		AlertSeverity.Information => "mlx-ico-info-bg-solid",
+		_ => "mlx-ico-info-bg-solid"
+	};
+}
+

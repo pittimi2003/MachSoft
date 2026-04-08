@@ -1,0 +1,177 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Web.Services
+@inject IMlxDialogService DialogService
+@inject ILocalizationService L
+
+
+@if (taskGantt != null && !MultiSelectTask.Any(x => x.id == taskGantt.id))
+{
+	<div class="container-lock-cust">
+		<div class="row">
+			<div class="col-md-6 item-space">
+				<label class="mlx-form-label mlx-form-label-uppercase">@L.Loc("Order")</label>
+				<div class="container-label">
+					<span class="title-details">@taskGantt.title</span>
+				</div>
+			</div>
+			<div class="col-md-6 item-space">
+				<label class="mlx-form-label mlx-form-label-uppercase">@L.Loc("Flow")</label>
+				<div class="container-label">
+					<span class="title-details">@taskGantt.WorkFlow</span>
+				</div>
+			</div>
+
+			<div class="col-md-6 item-space">
+				<label class="mlx-form-label mlx-form-label-uppercase">@L.Loc("Commited hour")</label>
+				<div class="container-label">
+					<span class="title-details">@taskGantt.CommintedDate.ToUserTime(UserFormat.HourFormat)</span>
+				</div>
+			</div>
+			<div class="col-md-6 item-space">
+				<label class="mlx-form-label  mlx-form-label-uppercase">@L.Loc("Start hour")</label>
+				<Mss.WorkForce.Code.Web.Components.Shared.MlxTimePicker Time="GetValueTimeStart(timeForLockTask)" userFormat="UserFormat" TimeChanged="EventCallback.Factory.Create<TimeSpan>(this, newValue => UpdateTimeValue(newValue))"></Mss.WorkForce.Code.Web.Components.Shared.MlxTimePicker>
+				<small class="text-danger">@GetValidationError("StartHour")</small>
+			</div>
+		</div>
+		<div class="custom-alert-error custom-alert-backgroud-warning"
+			 style="margin-bottom: 16px; padding: 8px 12px;">
+			<div style="display: flex; align-items: center; font-family: 'Segoe UI' !important;">
+				<span class="mlx-ico-warning-bg-solid alert-icon" style="margin-right: 8px;"></span>
+				<span class="title-details-normal" style="font-weight: 500;">
+					@L.Loc("SIMULATION_TRIGGER_MESSAGE")
+				</span>
+			</div>
+		</div>
+	</div>
+}
+else if (taskGantt != null &&  MultiSelectTask.Any(x => x.id == taskGantt.id))
+{
+	<div>
+	<div class="col-md-6 item-space">
+		<label class="mlx-form-label  mlx-form-label-uppercase">@L.Loc("Start hour")</label>
+		<Mss.WorkForce.Code.Web.Components.Shared.MlxTimePicker Time="GetValueTimeStart(timeForLockTask)" TimeChanged="EventCallback.Factory.Create<TimeSpan>(this, newValue => UpdateTimeValue(newValue))" userFormat="UserFormat"></Mss.WorkForce.Code.Web.Components.Shared.MlxTimePicker>
+		<small class="text-danger">@GetValidationError("StartHour")</small>
+	</div>
+
+	<div class="container-lock">
+		<p class="title-details-normal" style="margin-bottom: 12px;">
+			@L.Loc("Do you want lock the next orders?")
+		</p>
+	</div>
+
+	<div class="container-lock">
+		<table class="table-custom">
+			<thead>
+				<tr>
+					<th>@L.Loc("Order")</th>
+					<th>@L.Loc("Flow")</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var task in MultiSelectTask)
+				{
+					<tr>
+						<td>@task.title</td>
+						<td>@task.WorkFlow</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+
+	</div>
+		<div class="custom-alert-error custom-alert-backgroud-warning"
+			 style="margin-bottom: 16px; padding: 8px 12px;">
+			<div style="display: flex; align-items: center; font-family: 'Segoe UI' !important;">
+				<span class="mlx-ico-warning-bg-solid alert-icon" style="margin-right: 8px;"></span>
+				<span class="title-details-normal" style="font-weight: 500;">
+					@L.Loc("SIMULATION_TRIGGER_MESSAGE")
+				</span>
+			</div>
+		</div>
+
+	
+}
+
+
+@code {
+	[Parameter] public TaskData taskGantt { get; set; } = new TaskData();
+	[Parameter] public List<TaskData> MultiSelectTask { get; set; } = new();
+	[Parameter] public EventCallback<bool> OnLockButtonStateChanged { get; set; }
+	[Parameter] public EventCallback<DateTime> OnDateEndChange { get; set; }
+	[Parameter] public UserFormatOptions UserFormat { get; set; } = new();
+	private bool isLockButtonDisabled = false;
+	private DateTime timeForLockTask;
+	private Dictionary<string, string> ValidationErrors { get; set; } = new();
+
+	private TimeSpan GetValueTime(string timeSpan)
+	{
+		try
+		{
+			if (!string.IsNullOrEmpty(timeSpan))
+			{
+				DateTime dateTime = DateTime.Parse(timeSpan);
+				return dateTime.TimeOfDay;
+			}
+			return new TimeSpan(0, 0, 0);
+		}
+		catch (Exception ex)
+		{
+			return new TimeSpan(0, 0, 0);
+		}
+	}
+
+	private string GetValidationError(string txtName) => ValidationErrors.TryGetValue(txtName, out var error) ? error : string.Empty;	
+
+	// Se cambia el argumento de string de la propiedad de start
+	// al StartDate de tipo DateTime para tomar la hora adecuada al desplegar
+	private TimeSpan GetValueTimeStart(DateTime timeSpan)
+	{
+		try
+		{
+			if (timeSpan == DateTime.MinValue)
+			{
+				timeSpan = taskGantt.StartDate.DateTime;
+				UpdateTimeValue(timeSpan.TimeOfDay);
+			}
+
+			return timeSpan.TimeOfDay;
+		}
+		catch (Exception ex)
+		{
+			return new TimeSpan(0, 0, 0);
+		}
+	}
+
+	private async Task UpdateTimeValue(TimeSpan timeStarthour)
+	{
+		timeForLockTask = DateTime.Today + timeStarthour;
+		var timeSpanNow = GetValueTimeStart(DateTime.UtcNow.AddHours(UserFormat.TimeZoneOffSet));
+		if (timeStarthour < timeSpanNow)
+		{
+			ValidationErrors["StartHour"] = L.Loc("It is not possible to select a start hour previous than now.");
+			isLockButtonDisabled = true;
+		}
+		else
+		{
+			ValidationErrors.Remove("StartHour");
+			isLockButtonDisabled = false;
+		}
+		await OnLockButtonStateChanged.InvokeAsync(isLockButtonDisabled);
+		await OnDateEndChange.InvokeAsync(timeForLockTask);
+		StateHasChanged();
+	}
+}
+
+<style>
+	.container-lock-cust {
+		display: contents;
+		justify-content: space-between;
+		gap: 10px;
+		flex-wrap: nowrap;
+	}
+
+</style>

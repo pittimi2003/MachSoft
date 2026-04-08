@@ -1,0 +1,56 @@
+﻿@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Models.Common
+@inject IEventServices _eventServices
+
+@if (ViewWidgetComponent)
+{
+    <div class="mlx-preview-section-button-chevron">
+        <div class="mlx-row-chevron">
+            <button id="BtnDrawerInfoPlanning" class="mlx-btn-action-enabled mlx-btn-chevron" @onclick="DrawerInfoVisibility" disabled>
+                <span class="@(ShowWidgetsComponentInfo ? "mlx-ico-chevron-down" : "mlx-ico-chevron-up") "></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="row flex-grow-1 mlx-container-info-dashboard @(ShowWidgetsComponentInfo ? "" : "mlx-drawer-hidden")" style="@(ShowWidgetsComponentInfo ? "height: 20%;" : "")">
+        @if (ShowWidgetsComponentInfo)
+        {
+            <Mss.WorkForce.Code.Web.Components.Widgets.WidgetCarousel reloadDashboard="ShowWidgetsComponentInfo" GroupWidgets="GroupWidgets" CurrentPlanning="CurrentPlanning" UserFormat="UserFormat" OffSet="OffSet"></Mss.WorkForce.Code.Web.Components.Widgets.WidgetCarousel>
+        }
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public eGroupWidgets GroupWidgets { get; set; }
+
+    [Parameter]
+    public bool ViewWidgetComponent { get; set; } = true;
+
+    [Parameter]
+    public EventCallback<bool> ChangeGanttRepaint { get; set; }
+
+    [Parameter]
+    public bool ReloadDashboard { get; set; }
+
+    public bool ShowWidgetsComponentInfo { get; set; } = false;
+
+    [Parameter]
+    public Guid CurrentPlanning { get; set; }
+
+    [Parameter]
+    public UserFormatOptions UserFormat { get; set; } = new();
+
+    [Parameter]
+    public double OffSet { get; set; }
+
+    private async Task DrawerInfoVisibility()
+    {
+        ShowWidgetsComponentInfo = !ShowWidgetsComponentInfo;
+        await ChangeGanttRepaint.InvokeAsync(ShowWidgetsComponentInfo);
+    }
+
+    private bool OnReloadDashboard() => ReloadDashboard = ShowWidgetsComponentInfo;
+
+}

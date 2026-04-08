@@ -1,0 +1,73 @@
+﻿@page "/yard-operations"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.SchedulerComponent
+@using Mss.WorkForce.Code.Web.Model.Enums
+@inherits Mss.WorkForce.Code.Web.Common.GanttOperations
+@attribute [Authorize]
+
+<ConfirmDialog></ConfirmDialog>
+<div class="mlx-preview-container">
+	<div class="row flex-grow-0 mt-1 align-items-center">
+		<div class="col-md-6 d-flex align-items-center gap-2 flex-wrap">
+			<SitePreview ValueChanged="OnSiteSeleccionadaChanged" />			
+
+			@if (!string.IsNullOrEmpty(FilterSummaryTextYard) && !OnSwitchView)
+			{
+				<div class="filter-summary">
+					<span class="mlx-ico-time-interval"></span>
+					<span>@FilterSummaryTextYard</span>
+					<button class="btn-clear" @onclick='() => ClearFilter(eFilterType.YardResource)'>
+						<span class="mlx-ico-close-sm"></span>
+					</button>
+				</div>
+			}
+
+			@if (OnSwitchView)
+			{
+				<div class="totalStagesYard">
+					<MlxTotalStages Data="metrics" ResourceType="selectedResourceGroup" />
+				</div>				
+			}
+		</div>
+		
+		<div class="col-md-6 d-flex justify-content-end">
+			<div class="switchBarYard">
+				<MlxSwitchBar TitleWhenOn="Calendar" IconWhenOn="mlx-ico-planification" IsSwitchOn="@OnSwitchView" IsSwitchOnChanged="OnSwitchChanged" />
+			</div>
+			@if (OnSwitchView)
+			{
+				<MlxSchedulerOptions OnReloadClicked="ReloadScheduler" ZoomLevel="@zoomLevel" ZoomLevelChanged="OnZoomChanged" HoursToShowChanged="OnHoursChanged" LastUpdateScheduler="@LastUpdateScheduler" OnResourceGroupChanged="@HandleResourceGroupSelection" ExistsAnyChild="@(ResourcesList.Any(x => x.ParentId != 0))" userFormat="userFormat"/>
+			}
+			else
+			{
+					<TopBar gantt="@GanttSetup" AddIntervalTime="true" LastUpdateGantt="@LastUpdateGantt" IsSwitchOn="@OnSwitchView" ActiveButtos="@IsDisabledTopBarButtons" UserFormat="userFormat" />
+			}
+		</div>
+	</div>
+	<div class="mlx-preview-section-gantt">
+		<div class="row">
+			<div class="col">
+				<div id="GanttContainer" class="mlx-container-gantt-80">
+					@if (OnSwitchView)
+					{
+						<MlxScheduler LoadPanelVisible="@LoadPanelVisibleForScheduler" Resources="@ResourcesList" ZoomLevel="@zoomLevel" ZoomLevelChanged="OnZoomChanged" HoursToShow="@_hoursToShow" Offset="CurrentSite.Offset" CurrentPlanning="CurrentPlanning" Metrics="@metrics" WarehouseName="@CurrentSite.NameComplete" userFormat="userFormat"></MlxScheduler>
+					}
+					else
+					{
+						<GanttComponent TModel="YardTaskGantt" GanttSetup="@GanttSetup" GanttTasksData="DataSimulation" LoadPanelVisible="LoadPanelVisible" BackgroundShading="BackGroudShading" UserFormat="userFormat" Properties="GanttProperties"></GanttComponent>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+
+}

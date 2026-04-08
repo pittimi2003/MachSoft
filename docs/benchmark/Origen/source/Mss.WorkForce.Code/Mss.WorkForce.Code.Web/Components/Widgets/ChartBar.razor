@@ -1,0 +1,66 @@
+﻿@using DevExpress.Blazor;
+
+<div>
+    @{
+        DrawDonutChart("Test");
+    }
+</div>
+
+
+@code {
+    private IEnumerable<DonutDataItem> NYSalesData;
+
+    class DonutDataItem
+    {
+        public int Year { get; }
+        public double Amount { get; }
+        public DonutDataItem(int year, double amount)
+        {
+            (Year, Amount) = (year, amount);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        DataCharts dataCharts = new DataCharts();
+        Func<DataCharts, DonutDataItem> selector = si => new(si.Date.Year, si.Amount / 10d);
+        NYSalesData = dataCharts.GetDataCharts().Where(x => x.City == "CDMX").Select(selector);
+    }
+}
+
+ @{
+    void DrawDonutChart(string titleText)
+    {
+
+        <div>
+            <div class="widget-chart-item">
+                <DxPieChart Data=NYSalesData
+                            Width="200"
+                            Height="100"
+                            InnerDiameter="0.5">
+                    <DxChartTitle Text="@titleText" />
+                    <DxPieChartSeries T="DonutDataItem"
+                                      TArgument="int"
+                                      TValue="double"
+                                      ArgumentField="s => s.Year"
+                                      ValueField="s => s.Amount"
+                                      SummaryMethod="Enumerable.Sum">
+                        <DxChartSeriesLabel Visible="false"
+                                            Position="RelativePosition.Inside"
+                                            ValueFormat='ChartElementFormat.FromLdmlString("$#K")' />
+                    </DxPieChartSeries>
+                    <DxChartLegend VerticalAlignment="VerticalEdge.Bottom"
+                                   Position="RelativePosition.Outside" />
+                    <DxChartTooltip Enabled="true" Position="RelativePosition.Outside">
+                        <div class="m-2">
+                            <div>
+                                @($"{context.Point.Argument}: ${(double)context.Point.Value * 1000d:0.}")
+                            </div>
+                        </div>
+                    </DxChartTooltip>
+                </DxPieChart>
+            </div>
+        </div>
+    }
+} 

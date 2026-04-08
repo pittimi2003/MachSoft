@@ -1,0 +1,17 @@
+{
+  "WorkOrderPlanning": {
+    "InitDate": "Start date",
+    "EndDate": "End date",
+    "AppointmentDate": "Committed time",
+    "IsBlocked": "Locked",
+    "IsEstimated": "Is estimated",
+    "IsOnTime": "Is on time",
+    "IsOutbound": "Is out bound",
+    "IsStarted": "Is started",
+    "IsStored": "Is stored",
+    "Priority": "Priority",
+    "Progress": "Progress",
+    "Status": "Status",
+    "WorkTime": "Work time"
+  }  
+}

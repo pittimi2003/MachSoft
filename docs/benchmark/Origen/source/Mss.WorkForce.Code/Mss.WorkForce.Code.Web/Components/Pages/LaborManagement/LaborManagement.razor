@@ -1,0 +1,45 @@
+﻿@page "/workers-operations"
+
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Models.ModelInsert
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview
+@using Mss.WorkForce.Code.Web.Model
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@inherits Mss.WorkForce.Code.Web.Common.GanttOperations
+@attribute [Authorize]
+
+<ConfirmDialog></ConfirmDialog>
+
+<div class="mlx-preview-container">
+	<div class="row flex-grow-0 mt-1 align-items-center">
+		<div class="col-md-6 d-flex align-items-center gap-2">
+			<SitePreview ValueChanged="OnSiteSeleccionadaChanged" />
+		</div>
+		<div class="col-md-6 d-flex justify-content-end">
+			<TopBar gantt="GanttSetup" LastUpdateGantt="@LastUpdateGantt" ActiveButtos="@IsDisabledTopBarButtons" UserFormat="userFormat"/>
+		</div>
+	</div>
+	<div class="mlx-preview-section-gantt">
+		<div class="row">
+			<div class="col">
+				<div id="GanttContainer" class="mlx-container-gantt-80">
+					<GanttComponent TModel="LaborTaskGantt" GanttSetup="GanttSetup" GanttTasksData="DataSimulation" LoadPanelVisible="LoadPanelVisible" BackgroundShading="BackGroudShading" UserFormat="userFormat" Properties="GanttProperties"></GanttComponent>
+				</div>
+			</div>
+		</div>
+	</div>
+	<Mss.WorkForce.Code.Web.Components.Widgets.WidgetComponent ViewWidgetComponent="true" GroupWidgets="eGroupWidgets.Workers" ChangeGanttRepaint="ChangeGanttRepaint" ReloadDashboard="ReloadDashboard" CurrentPlanning="CurrentPlanning" UserFormat="userFormat" OffSet="GanttSetup.Offset"></Mss.WorkForce.Code.Web.Components.Widgets.WidgetComponent>
+    
+</div>
+
+@code {
+}

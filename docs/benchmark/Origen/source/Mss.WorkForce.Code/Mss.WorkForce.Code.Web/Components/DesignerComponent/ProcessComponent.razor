@@ -1,0 +1,1777 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.DTO.Designer.Process
+@using Mss.WorkForce.Code.Models.Models
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using System.ComponentModel.DataAnnotations
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@inject ILocalizationService L
+@implements ITrackChanges
+@implements IDisposable
+@implements IChildSaver
+
+<div id="processComponentId" class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    @* Section without tabs *@
+    <div class="mlx-right-sideBar-body-content-widthout-tab">
+        <div class="row">
+            <div class="col-xl-12 col-sm-12">
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#idProcessBasicInfo"
+                            aria-expanded="true"
+                            aria-controls="idProcessBasicInfo">
+                                <span class="mlx-title-h3">@L.Loc("Common properties")</span>
+                            </button>
+                        </h2>
+                        <div id="idProcessBasicInfo" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <EditForm EditContext="@editContextProcess">
+                                    <DataAnnotationsValidator />
+                                    <div class="row">
+
+                                        <!-- NAME -->
+                                        <div class="col-xl-6 col-sm-12 control-space-to-validation-message">
+                                            <label class="mlx-form-label">@L.Loc("Name")</label>
+                                            <DxTextBox CssClass="mlx-form-text" @bind-Text="@DesignerDto.Name" />
+                                            <ValidationMessage class="text-danger" For="@(() => DesignerDto.Name)" />
+                                        </div>
+
+
+                                        <!-- IsWarehouseProcess -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("IS_WAREHOUSE_PROCESS")</label>
+                                            <div class="mlx-checkbox-container">
+                                                <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                            CheckedChanged="@((bool value)=> OnProcessWarehouseChange(value))"
+                                                            Checked="@DesignerDto.IsWarehouseProcess"
+                                                            CheckedExpression="@(() => DesignerDto.IsWarehouseProcess)">
+                                                </DxCheckBox>
+                                            </div>
+                                        </div>
+
+                                        <!-- TYPE -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Type")</label>
+                                            <MlxComboBox Data="@lstProcessType"
+                                                         CssClass="mlx-form-select"
+                                                         Value="@DesignerDto.Type"
+                                                         ValueChanged="@((ProcessType? processType) => OnProcessTypeChanged(processType))"
+                                                         ValueExpression="@(() => DesignerDto.Type)"
+                                                         ValueFieldName="Type"
+                                                         TextFieldName="TypeName"
+                                                         NullText="@L.Loc("Select...")" />
+                                        </div>
+
+                                        <!-- FLOW -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Flow")</label>
+                                            <MlxComboBox Data="@ParentFlowItems"
+                                                         CssClass="mlx-form-select"
+                                                         @bind-Value="@DesignerDto.Flow"
+                                                         ValueFieldName="Id"
+                                                         TextFieldName="@nameof(DesignerDto.Flow.Name)"
+                                                         NullText="@L.Loc("Select...")" />
+                                        </div>
+
+                                        <div class="col-xl-6 col-sm-12">
+                                            @if ( DesignerDto.Type == ProcessType.Picking)
+                                            {
+                                                <label class="mlx-form-label">@L.Loc("Pick time")</label>
+                                            }
+                                            else
+                                            {
+                                                <label class="mlx-form-label">@L.Loc("Activity time")</label>
+                                            }
+
+                                            @if ( DesignerDto.Type == ProcessType.CustomProcess)
+                                            {
+                                                <TimeInput @bind-Value="@DesignerDto.MinTime" Format="hhmmss" />
+                                            }
+                                            else if (DesignerDto.Type == ProcessType.Loading )
+                                            {
+                                                <TimeInput @bind-Value="@DesignerDto.MinTime" Format="hhmm" />
+                                            }
+                                            else
+                                            {
+                                                <TimeInput @bind-Value="@DesignerDto.MinTime" Format="mmss" />
+                                            }
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Preprocess time")</label>
+                                            <TimeInput @bind-Value="@DesignerDto.PreprocessTime" Format="mmss" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Postprocess time")</label>
+                                            <TimeInput @bind-Value="@DesignerDto.PostprocessTime" Format="mmss" />
+                                        </div>
+                                        @if (ShowInitProcessToggle)
+                                        {
+                                            <div class="col-xl-6 col-sm-12">
+                                            </div>
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Is it start process?")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@DesignerDto.IsInitProcess" CheckedChanged="OnIsVisibleStartProcess" CheckedExpression="@(() => DesignerDto.IsInitProcess)"></DxCheckBox>
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-xl-6 col-sm-12">
+                                            @if (IsVisibleStartProcess)
+                                            {
+                                                <label class="mlx-form-label">@L.Loc("Probability of start process (%)")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="100" @bind-Value="@DesignerDto.PercentageInitProcess" Mask="n2">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            }
+                                        </div>
+                                    </div>
+                                </EditForm>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (DesignerDto?.Type is ProcessType type && FieldTemplatesProcess.TryGetValue(type, out var templates) && templates is { Count: > 0 })
+        {
+            <div class="row">
+                @*   Quantity section*@
+                <div class="col-xl-12 col-sm-12">
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idShelfQuantity" aria-expanded="true" aria-controls="idShelfQuantity">
+                                    <span class="mlx-title-h3">@L.Loc("Detailed properties")</span>
+                                </button>
+                            </h2>
+                            <div id="idShelfQuantity" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        @foreach (var template in templates)
+                                        {
+                                            @template
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+
+        <div class="row">
+            @*Step section*@
+            <div class="col-xl-12 col-sm-12">
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idStep" aria-expanded="false" aria-controls="idStep">
+                                <span class="mlx-title-h3">@L.Loc("Steps")</span>
+                            </button>
+                        </h2>
+                        <div id="idStep" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <div class="mlx-panel-header">
+                                    <div style="display: ruby; margin-left: auto;">
+                                        <div class="mlx-panel-bar-action">
+                                            @if (showEditButton)
+                                            {
+                                                <button name="action-edit" disabled="@(!HasData())" @onclick="() => ExecuteEditMode()">
+                                                    <i class="mlx-ico-edit"></i>
+                                                </button>
+                                            }
+                                            @if (showReadOnlyButton)
+                                            {
+                                                <button name="action-readonly" @onclick="() => ResetState()">
+                                                    <i class="mlx-ico-show"></i>
+                                                </button>
+                                            }
+                                            @if (showAddButton)
+                                            {
+                                                <button name="action-add" @onclick="() => ExecuteStateAdd()">
+                                                    <i class="mlx-ico-add"></i>
+                                                </button>
+                                            }
+                                            @if (showSaveButton)
+                                            {
+                                                <button name="action-save" disabled="@(!HasLocalChanges)" @onclick="() => ExecuteSaveMode()">
+                                                    <i class="mlx-ico-save"></i>
+                                                </button>
+                                            }
+                                            @if(showDeleteButton)
+                                            {
+                                                <button name="action-trash" class="style-disabled-button-ico" disabled="@(!SelectedRows.Any())" @onclick="() => ExecuteDeleteMode()">
+                                                    <i class="mlx-ico-trash"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mlx-panel-body">
+                                    @{
+                                        if (showNewElementForm)
+                                        {
+                                            <div class="mlx-row-header mlx-row-header-background">
+                                                <div class="row">
+                                                    <EditForm EditContext="@editContextSteps">
+                                                        <DataAnnotationsValidator />
+                                                        <div class="row">
+                                                            <div class="col-xl-6 col-sm-12">
+                                                                <label class="mlx-form-label">@L.Loc("Name")</label>
+                                                                <DxTextBox CssClass="mlx-form-textbox" @bind-Text="stepDto.Name" />
+                                                                <ValidationMessage class="text-danger" For="@(() => stepDto.Name)" />
+                                                            </div>
+                                                            <div class="col-xl-6 col-sm-12">
+                                                                <label class="mlx-form-label">@L.Loc("Activity time")</label>
+                                                                <TimeInput Format="mmss" @bind-Value="@stepDto.TimeMin" />
+                                                                <ValidationMessage class="text-danger" For="@(() => stepDto.TimeMin)" />
+                                                            </div>
+                                                            <div class="col-xl-6 col-sm-12 flex-flow-column">
+                                                                <label class="mlx-form-label">@L.Loc("Step before or after process")</label>
+                                                                <MlxComboBox Data="stepProcessType" CssClass="mlx-form-select width-100" @bind-Value="@stepDto.StepInitEnd" ValueFieldName="Value" TextFieldName="Text" NullText="@L.Loc("Select...")" />
+                                                                <ValidationMessage class="text-danger" For="@(() => stepDto.StepInitEnd)" />
+                                                            </div>
+                                                            <div class="col-xl-6 col-sm-12 flex-flow-column">
+                                                                <label class="mlx-form-label">@L.Loc("Order")</label>
+                                                                <div class="flex-flow-row gap-10 align-items-center">
+                                                                    <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="@stepDto.Order" Mask="n0">
+                                                                        <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                                    </DxSpinEdit>
+                                                                    <button type="button" class="@(!isFormValid ? "mlx-btn-action-disabled" : "mlx-btn-action-enabled")" style="padding: 0 6px;" onclick="@(() => AddStep())" disabled="@(!isFormValid)">
+                                                                        <span class="mlx-ico-add"></span>
+                                                                    </button>
+                                                                </div>
+                                                                <ValidationMessage class="text-danger" For="@(() => stepDto.Order)" />
+                                                            </div>
+                                                        </div>
+                                                    </EditForm>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+
+                                <DxGrid CssClass="mlx-grid styles-to-cells-step-grid" Data="@StepList" KeyFieldName="Id" PageSize="10">
+                                    <Columns>
+                                        @{
+                                            if (isEditing)
+                                            {
+                                                @*Editing case*@
+                                                <DxGridDataColumn Width="50px">
+                                                    <CellDisplayTemplate Context="StepContext">
+                                                        @{
+                                                            var model = (StepDto)StepContext.DataItem;
+                                                        }
+                                                        <DxCheckBox Checked="@(SelectedRows.Contains(model))" CheckedChanged="@((bool isChecked) => OnRowChecked(isChecked, model))" />
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="Name" Caption="@L.Loc("Name")" AllowSort="false">
+                                                    <CellDisplayTemplate Context="StepContext">
+                                                        @{
+                                                            var model = (StepDto)StepContext.DataItem;
+                                                            string propertyName = nameof(StepDto.Name);
+                                                        }
+                                                        <DxTextBox CssClass="mlx-form-textbox" Text="@model.Name" TextChanged="(string name) => OnValueChanged(propertyName, name, model)" TextExpression="@(() => model.Name)" NullText="" ReadOnly="@(LockedEditingRowId.HasValue && LockedEditingRowId.Value != model.Id)" />
+                                                        <small class="text-danger">@GetValidationError(propertyName, model)</small>
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="TimeMin" Caption="@L.Loc("Activity time (sec)")" AllowSort="false" TextAlignment="GridTextAlignment.Left">
+                                                    <CellDisplayTemplate Context="StepContext">
+                                                        @{
+                                                            var model = (StepDto)StepContext.DataItem;
+                                                            string propertyTime = nameof(StepDto.TimeMin);
+                                                        }
+                                                        <TimeInput Format="mmss" Value="@(model.TimeMin)" ValueChanged="@((int timeMin) => OnValueChanged(propertyTime, timeMin, model))" ReadOnly="@(LockedEditingRowId != null && LockedEditingRowId != model.Id)" />
+                                                        <small class="text-danger">@GetValidationError(propertyTime, model)</small>
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="Order" Caption="@L.Loc("Order")" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
+                                                    <CellDisplayTemplate Context="StepContext">
+                                                        @{
+                                                            var model = (StepDto)StepContext.DataItem;
+                                                            string propertyOrder = nameof(StepDto.Order);
+                                                            model.Siblings = StepList; // asegura Siblings cada vez que entra en modo edición
+                                                        }
+                                                        <DxSpinEdit CssClass="mlx-form-spinedit" Value="@model.Order" Increment="1" MinValue="1" ValueChanged="@((int order) => OnValueChanged(propertyOrder, order, model))" ValueExpression="@(() => model.Order)" ReadOnly="@(LockedEditingRowId != null && LockedEditingRowId != model.Id)" Mask="n0">
+                                                            <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                        </DxSpinEdit>
+                                                        <small class="text-danger">@GetValidationError(propertyOrder, model)</small>
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="StepInitEnd" Caption="@L.Loc("Step before or after process")" AllowSort="false">
+                                                    <CellDisplayTemplate Context="StepContext">
+                                                        @{
+                                                            var model = (StepDto)StepContext.DataItem;
+                                                            string propertyComboBox = nameof(StepDto.StepInitEnd);
+                                                        }
+                                                        <MlxComboBox CssClass="mlx-form-select"
+                                                                     Data="stepProcessType"
+                                                                     TextFieldName="Text"
+                                                                     style="height: 35px !important"
+                                                                     Value="@model.StepInitEnd"
+                                                                     ValueChanged="@((StepInitEndType? stepInitEnd) => OnValueChanged(propertyComboBox, stepInitEnd, model))"
+                                                                     ValueExpression="@(() => model.StepInitEnd)"
+                                                                     NullText="@L.Loc("Select...")"
+                                                                     ReadOnly="@(LockedEditingRowId != null && LockedEditingRowId != model.Id)" />
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                            }
+                                            else
+                                            {
+                                                @*ReadOnly Case*@
+                                                <DxGridDataColumn FieldName="Name" Caption="@L.Loc("Name")" AllowSort="false" />
+                                                <DxGridDataColumn FieldName="TimeMin" Caption="@L.Loc("Activity time (sec)")" AllowSort="false" TextAlignment="GridTextAlignment.Left">
+                                                    <CellDisplayTemplate>
+                                                        <TimeInput Format="mmss" @bind-Value="@(((StepDto)context.DataItem).TimeMin)" DisplayOnly="true" />
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="Order" Caption="@L.Loc("Order")" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
+                                                    <CellDisplayTemplate Context="StepContext">
+                                                        <div class="text-Right-important">
+                                                            <span>@(((StepDto)StepContext.DataItem).Order)</span>
+                                                        </div>
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                                <DxGridDataColumn FieldName="StepInitEnd" Caption="@L.Loc("Step before or after process")" AllowSort="false">
+                                                    <CellDisplayTemplate Context="StepContext">
+                                                        <span>@L.Loc(GetStepInitEndTypeString(((StepDto)StepContext.DataItem).StepInitEnd))</span>
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                            }
+                                        }
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*------------------------*@
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEvent())">@L.Loc("Save")</button>
+</div>
+
+@code {
+
+    #region Parameters
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public ProcessDto? DesignerDto { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    [Parameter]
+    public Dictionary<string, object>? Metadata { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildCancel { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildSaved { get; set; }
+
+    #endregion
+
+    [Inject] private IDesignerServices _designer { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
+
+    #region Save Button Status
+
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    private bool CanSave => _isDirty && !_hasErrors && IsInReadOnlyMode && CanCommitSteps;
+    private bool IsInReadOnlyMode => !isEditing && !showNewElementForm;
+    private bool CanCommitSteps => !HasLocalChanges || (HasLocalChanges && IsInReadOnlyMode); // si hubo, solo cuando regreso a ReadOnly
+    #endregion
+
+    #region Properties
+
+    private IEnumerable<ParentFlowDto>? ParentFlowItems { get; set; }
+    private List<ProcessDto>? lstProcessType { get; set; }
+    private List<ProcessDto>? lstAllProcessType { get; set; }
+    public CustomProcessDto customProcess { get; set; }
+    public InboundDto inboundDto { get; set; }
+    public LoadingDto loadingDto { get; set; }
+    public PickingDto pickingDto { get; set; }
+    public PutawayDto putawayDto { get; set; }
+    public ShippingDto shippingDto { get; set; }
+    public ReceptionDto receptionDto { get; set; }
+    public ReplenishmentDto replenishmentDto { get; set; }
+    public PackingDto packingDto { get; set; }
+    public StepDto stepDto { get; set; }
+    private List<StepDto> OriginalStepList { get; set; } = new(); // Original list, contain data from BD
+    private List<StepDto> ResetStepList { get; set; } = new(); // Original list, contain data from BD
+    private List<StepDto> StepList { get; set; } = new(); // Modificable list, used to Add, Update, Delete Data from Grid
+    private DxGrid grid;
+    private EditContext editContextSteps;
+    private EditContext editContextProcess;
+    private ValidationMessageStore? messageStore; // Used to manage the display of manual validation messages
+    private List<ComboBoxSelectItem<StepInitEndType>> stepProcessType = new();
+
+    private ProcessType oldProcessType;
+    private bool IsUpdate = true;
+    private bool isFormValid = false;
+    private bool IsVisibleStartProcess = false; // Flag to make StartProcess visible
+
+    private EventCallback<bool?> OnIsOutChanged => EventCallback.Factory.Create<bool?>(this, ToggleIsOut);
+    private EventCallback<bool?> OnIsInChanged => EventCallback.Factory.Create<bool?>(this, ToggleIsIn);
+
+    private EventCallback<bool> OnIsVisibleStartProcess => EventCallback.Factory.Create<bool>(this, ShowStartProcess); // Change of state event
+
+    #region Step DataGrid
+    private bool showReadOnlyButton = false; // Display ReadOnly buttons in Edit mode
+    private bool showSaveButton = false; // Display Save buttons in Edit mode
+    private bool showEditButton = true; // Show the Edit button
+    private bool showDeleteButton = false; // Show the Edit button
+    private bool showAddButton = true; // Show the Add button
+    private bool isEditing = false; // Used to display editable columns in the grid in Edit mode
+    private Guid? LockedEditingRowId = null; // Block all rows except the one being edited
+    private Dictionary<Guid, Dictionary<string, string>> UpdateErrors = new(); // Dictionary that stores errors in DxGrid inputs
+    private readonly Dictionary<Guid, StepDto> EditingBuffer = new(); // Editable copy of the original records
+    private readonly Dictionary<Guid, HashSet<string>> ModifiedFields = new(); // Save changes to modified cells
+
+    private List<StepDto> SelectedRows { get; set; } = new(); // It is the sum of the selected rows
+    private List<StepDto> DeletedStepsBuffer = new(); // List that stores deleted records in memory for later deletion
+
+    private bool HasData() => StepList.Any(); // Check if the DxGrid has records to enable or disable the button
+    private bool IsDirty => ModifiedFields.Count > 0 && UpdateErrors.Count == 0; // Disable the Save button if there are errors in the cells
+    private bool HasLocalChanges => (ModifiedFields.Count > 0 || DeletedStepsBuffer.Count > 0) && UpdateErrors.Count == 0; // Determine any changes made to DxGrid in memory
+
+    private bool showNewElementForm; // Used to show or hide Add controls
+    private bool isAddingStep => showNewElementForm;
+
+    private bool ShowInitProcessToggle { get; set; } // solo Inbound/Outbound
+
+    private DxGrid? packingGrid;
+
+
+    #endregion
+
+    #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstAllProcessType = Enum.GetValues<ProcessType>().Select(pt => new ProcessDto { Type = pt, TypeName = L.Loc(GetProcessTypeString(pt)) }).ToList();
+
+
+        stepProcessType = Enum.GetValues(typeof(StepInitEndType)).Cast<StepInitEndType>().Select(x => new ComboBoxSelectItem<StepInitEndType>(L) { Value = x, Text = x.ToString() }).OrderBy(x =>x.Text).ToList();
+        oldProcessType = (ProcessType)DesignerDto.Type;
+        ParentFlowItems = _designer.GetParentFlows(DesignerDto.AreaDto.LayoutId??Guid.Empty);
+
+        ApplyProcessTypePolicy(DesignerDto.Type);
+
+        if (ShowInitProcessToggle)
+            IsVisibleStartProcess = DesignerDto.IsInitProcess;
+
+        InitTypeProcess();
+
+        if (DesignerDto.IsWarehouseProcess == null || DesignerDto.IsWarehouseProcess)
+        {
+            lstProcessType = lstAllProcessType.Where(x => (x.Type == ProcessType.CustomProcess || x.Type == ProcessType.Replenishment)).ToList();
+        }
+        else
+        {
+            lstProcessType = lstAllProcessType.Where(x => !( x.Type == ProcessType.Replenishment)).ToList();
+        }
+
+        lstProcessType = lstProcessType.OrderBy(x => x.Type.ToString()).ToList();
+
+        InitStepsData();
+        switch (DesignerDto.Type)
+        {
+            case ProcessType.CustomProcess:
+                customProcess = _designer.GetCustomProcessById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Inbound:
+                inboundDto = _designer.GetInboundsById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Loading:
+                loadingDto = _designer.GetLoadingDtoById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Picking:
+                pickingDto = _designer.GetPickingDtoById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Putaway:
+                putawayDto = _designer.GetPutawayDtoById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Shipping:
+                shippingDto = _designer.GetShippingDtoById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Reception:
+                receptionDto = _designer.GetReceptionDtoById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Replenishment:
+                replenishmentDto = _designer.GetReplenishmentDtoById((Guid)DesignerDto.ProcessTypeId);
+                break;
+            case ProcessType.Packing:
+                packingDto = _designer.GetPackingDtoById((Guid)DesignerDto.ProcessTypeId);
+                break;
+        }
+        CaptureBaseline();
+    }
+
+    private void InitTypeProcess()
+    {
+        customProcess = CustomProcessDto.NewDto(DesignerDto);
+        inboundDto = InboundDto.NewDto(DesignerDto);
+        loadingDto = LoadingDto.NewDto(DesignerDto);
+        pickingDto = PickingDto.NewDto(DesignerDto);
+        putawayDto = PutawayDto.NewDto(DesignerDto);
+        shippingDto = ShippingDto.NewDto(DesignerDto);
+        receptionDto = ReceptionDto.NewDto(DesignerDto);
+        replenishmentDto = ReplenishmentDto.NewDto(DesignerDto);
+        packingDto = PackingDto.NewDto(DesignerDto);
+    }
+
+    private void InitStepsData()
+    {
+        editContextProcess = new EditContext(DesignerDto);
+        editContextProcess.OnFieldChanged += HandleProcessFieldChanged;
+        editContextProcess.OnValidationStateChanged += HandleProcessValidationChanged;
+
+        stepDto = StepDto.NewDto();
+        SetupEditContext();
+
+        var list = _designer.GetStepsDtoByProcessIdNoTracking(DesignerDto?.Id ?? Guid.Empty).ToList();
+
+        StepList = list.Select(x => new StepDto
+         {
+             Id = x.Id,
+             Name = x.Name,
+             TimeMin = x.TimeMin,
+             Order = x.Order,
+             InitProcess = x.InitProcess,
+             EndProcess = x.EndProcess,
+             ProcessId = x.ProcessId,
+             ViewPort = x.ViewPort
+         }).ToList();
+
+        OriginalStepList = list.Select(x => new StepDto
+        {
+            Id = x.Id,
+            Name = x.Name,
+            TimeMin = x.TimeMin,
+            Order = x.Order,
+            InitProcess = x.InitProcess,
+            EndProcess = x.EndProcess,
+            ProcessId = x.ProcessId,
+            ViewPort = x.ViewPort
+        }).ToList();
+
+        foreach (var s in StepList)
+            s.Siblings = StepList;
+    }
+
+    public async Task SaveEventInternal()
+    {
+        if (packingGrid != null)
+            await packingGrid.SaveChangesAsync();
+
+        if (DesignerDto == null || editContextProcess == null)
+            return;
+        bool isValid = editContextProcess.Validate() && ValidateGridSteps() && !HasFormValidationErrors();
+        UpdateDirtyFlag();
+        _hasErrors = !isValid;
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        try
+        {
+
+            DesignerDto.Id = DesignerDto.Id == Guid.Empty ? Guid.NewGuid() : DesignerDto.Id;
+            DesignerDto.FlowId = DesignerDto.Flow.Id;
+
+            if (oldProcessType != DesignerDto.Type)
+                await DeleteProcessType();
+
+            switch (DesignerDto.Flow.Type)
+            {
+                case "Outbound":
+                    DesignerDto.IsOut = true;
+                    DesignerDto.IsIn = false;
+                    break;
+                case "Inbound":
+                    DesignerDto.IsIn = true;
+                    DesignerDto.IsOut = false;
+                    break;
+                case "Custom":
+                    DesignerDto.IsIn = false;
+                    DesignerDto.IsOut = false;
+                    break;
+            }
+
+            switch (DesignerDto.Type)
+            {
+                case ProcessType.CustomProcess:
+                    customProcess.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.CustomProcess);
+                    if (IsUpdate)
+                        await _designer.UpdateCustomProcess(customProcess);
+                    else
+                    {
+                        customProcess.Id = Guid.NewGuid();
+                        customProcess.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddCustomProcess(customProcess);
+                    }
+                    break;
+                case ProcessType.Inbound:
+                    inboundDto.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.Inbound);
+                    if (IsUpdate)
+                        await _designer.UpdateInbound(inboundDto);
+                    else
+                    {
+                        inboundDto.Id = Guid.NewGuid();
+                        inboundDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddInbounds(inboundDto);
+                    }
+                    break;
+                case ProcessType.Loading:
+                    loadingDto.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.Loading);
+                    if (IsUpdate)
+                        await _designer.UpdateLoading(loadingDto);
+                    else
+                    {
+                        loadingDto.Id = Guid.NewGuid();
+                        loadingDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddLoading(loadingDto);
+                    }
+                    break;
+                case ProcessType.Picking:
+                    pickingDto.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.Picking);
+                    if (IsUpdate)
+                        await _designer.UpdatePicking(pickingDto);
+                    else
+                    {
+                        pickingDto.Id = Guid.NewGuid();
+                        pickingDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddPicking(pickingDto);
+                    }
+                    break;
+                case ProcessType.Putaway:
+                    putawayDto.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.Putaway);
+                    if (IsUpdate)
+                        await _designer.UpdatePutaway(putawayDto);
+                    else
+                    {
+                        putawayDto.Id = Guid.NewGuid();
+                        putawayDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddPutaway(putawayDto);
+                    }
+                    break;
+                case ProcessType.Shipping:
+                    shippingDto.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.Shipping);
+                    if (IsUpdate)
+                        await _designer.UpdateShipping(shippingDto);
+                    else
+                    {
+                        shippingDto.Id = Guid.NewGuid();
+                        shippingDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddShipping(shippingDto);
+                    }
+                    break;
+                case ProcessType.Reception:
+                    receptionDto.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.Reception);
+                    if (IsUpdate)
+                        await _designer.UpdateReception(receptionDto);
+                    else
+                    {
+                        receptionDto.Id = Guid.NewGuid();
+                        receptionDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddReception(receptionDto);
+                    }
+                    break;
+                case ProcessType.Replenishment:
+                    replenishmentDto.Process = DesignerDto;
+                    DesignerDto.TypeName = GetProcessTypeString(DesignerDto.Type ?? ProcessType.Replenishment);
+                    if (IsUpdate)
+                        await _designer.UpdateReplenishment(replenishmentDto);
+                    else
+                    {
+                        replenishmentDto.Id = Guid.NewGuid();
+                        replenishmentDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddReplenishment(replenishmentDto);
+                    }
+                    break;
+                case ProcessType.Packing:
+                    packingDto.Process = DesignerDto;
+
+                    var packModes = packingDto.PackModes;
+
+                    if (IsUpdate)
+                        await _designer.UpdatePacking(packingDto);
+                    else
+                    {
+                        packingDto.Id = Guid.NewGuid();
+                        packingDto.ProcessId = (Guid)DesignerDto.Id;
+                        await _designer.AddPacking(packingDto);
+                    }
+                    break;
+
+                default:
+                    await _designer.UpdateProcess(DesignerDto);
+                    break;
+            }
+
+            /* Step Save */
+
+            // Records are added to the main list of records
+            foreach(var stepItem in EditingBuffer)
+            {
+                if (!StepList.Any(x => x.Id == stepItem.Key))
+                    StepList.Add(stepItem.Value);
+            }
+
+            var originalById = OriginalStepList.ToDictionary(x => x.Id);
+            var currentById = StepList.ToDictionary(x => x.Id);
+
+            List<StepDto>? newItems = StepList.Where(x => !OriginalStepList.Any(o => o.Id == x.Id)).ToList(); // Searches the collection for items whose Id is not registered (Case New)
+
+            // Searches the collection for items whose Id remains but differs the current record from the original (Update case)
+            List<StepDto>? updatedItems = StepList.Where(x =>
+                originalById.ContainsKey(x.Id) &&
+                (
+                    x.Name != originalById[x.Id].Name ||
+                    x.TimeMin != originalById[x.Id].TimeMin ||
+                    x.Order != originalById[x.Id].Order ||
+                    x.InitProcess != originalById[x.Id].InitProcess ||
+                    x.EndProcess != originalById[x.Id].EndProcess
+                )
+            ).ToList();
+
+            List<StepDto>? deletedItems = OriginalStepList.Where(x => !currentById.ContainsKey(x.Id)).ToList(); // Searches the collection for items that were in the original list but are no longer in the current list (Case Delete)
+
+            if (deletedItems.Any())
+                await _designer.DeleteStepsDtoList(deletedItems);
+
+            if (newItems.Any())
+                await _designer.AddStepDtoList(newItems);
+
+            if (updatedItems.Any())
+                await _designer.UpdateStepDto(updatedItems);
+            /*---------*/
+
+            var listProcess = _designer.GetProcesByType((Guid)DesignerDto.AreaDto.Id);
+            var listProcessDirection = _designer.GetProcessDirectionPropertyDtoByIdLayout((Guid)DesignerDto.AreaDto.LayoutId);
+            List<StepDto> stepList = new();
+            foreach (var process in listProcess)
+            {
+                stepList.AddRange(_designer.GetStepsDtoByProcessIdNoTracking(process.Id ?? Guid.Empty).ToList());
+            }
+
+            var newViewport = _designer.GetVieportsByTypeObject(DesignerDto.AreaId, "Area");
+            await JS.InvokeVoidAsync("drawObjectsOnCanvas", newViewport);
+            await JS.InvokeVoidAsync("SaveOnPostback");
+            DesignerDto = new();
+            customProcess = new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+
+        // Clears listings when saving and resets controls to editable state
+        UpdateErrors.Clear();
+        EditingBuffer.Clear();
+        ModifiedFields.Clear();
+        DeletedStepsBuffer.Clear();
+        SelectedRows.Clear();
+        LockedEditingRowId = null;
+        showNewElementForm = false;
+        CaptureBaseline();
+        oldProcessType = DesignerDto?.Type ?? ProcessType.CustomProcess;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task SaveEvent()
+    {
+        await SaveEventInternal();
+
+        if (OnChildSaved.HasDelegate)
+            await OnChildSaved.InvokeAsync(Metadata);
+    }
+
+    private async Task DeleteProcessType()
+    {
+        IsUpdate = false;
+        switch (oldProcessType)
+        {
+            case (ProcessType.CustomProcess):
+                CustomProcessDto deleteCustomProcessDto = _designer.GetCustomProcessById(customProcess.Id);
+                customProcess = new();
+                await _designer.DeleteCustomProcess(deleteCustomProcessDto ?? new());
+                break;
+            case ProcessType.Inbound:
+                InboundDto deleteInboundDto = _designer.GetInboundsById((Guid)inboundDto.Id);
+                inboundDto = new();
+                await _designer.DeleteInbound(deleteInboundDto ?? new());
+                break;
+            case ProcessType.Loading:
+                LoadingDto deleteLoadingDto = _designer.GetLoadingDtoById((Guid)loadingDto.Id);
+                loadingDto = new();
+                await _designer.DeleteLoading(deleteLoadingDto ?? new());
+                break;
+            case ProcessType.Picking:
+                PickingDto deletePickingDto = _designer.GetPickingDtoById((Guid)pickingDto.Id);
+                pickingDto = new();
+                await _designer.DeletePicking(deletePickingDto ?? new());
+                break;
+            case ProcessType.Putaway:
+                PutawayDto deletePutawayDto = _designer.GetPutawayDtoById((Guid)putawayDto.Id);
+                putawayDto = new();
+                await _designer.DeletePutaway(deletePutawayDto ?? new());
+                break;
+            case ProcessType.Shipping:
+                ShippingDto deleteShippingDto = _designer.GetShippingDtoById((Guid)shippingDto.Id);
+                shippingDto = new();
+                await _designer.DeleteShipping(deleteShippingDto ?? new());
+                break;
+            case ProcessType.Reception:
+                ReceptionDto deleteReceptionDto = _designer.GetReceptionDtoById((Guid)receptionDto.Id);
+                receptionDto = new();
+                await _designer.DeleteReception(deleteReceptionDto ?? new());
+                break;
+            case ProcessType.Replenishment:
+                ReplenishmentDto deleteReplenishmentDto = _designer.GetReplenishmentDtoById((Guid)replenishmentDto.Id);
+                replenishmentDto = new();
+                await _designer.DeleteReplenishment(deleteReplenishmentDto ?? new());
+                break;
+            case ProcessType.Packing:
+                PackingDto deletePackingDto = _designer.GetPackingDtoById((Guid)packingDto.Id);
+                packingDto = new();
+                await _designer.DeletePacking(deletePackingDto ?? new());
+                break;
+        }
+        CaptureBaseline();
+        oldProcessType = DesignerDto?.Type ?? ProcessType.CustomProcess;
+        StateHasChanged();
+    }
+
+    private RenderFragment CreateField(string label, RenderFragment field) => @<div class="col-xl-6 col-sm-12">
+        <label class="mlx-form-label">@label</label>
+    @field
+    </div>;
+
+    private RenderFragment CreateAnchorField(string label, RenderFragment field) => @<div class="col-xl-12 col-sm-12">
+        <label class="mlx-form-label">@label</label>
+    @field
+    </div>;
+
+    private Dictionary<ProcessType, List<RenderFragment>> FieldTemplatesProcess => new()
+    {
+        {
+            ProcessType.CustomProcess, new List<RenderFragment>
+            {
+                CreateField(L.Loc("Process start hour"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" Value="@customProcess.InitHour" ValueChanged="@((double? v) => OnCustomProcessChanged(() => customProcess.InitHour = v))" ValueExpression="@(() => customProcess.InitHour)" Mask="n2"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+                CreateField(L.Loc("Process end hour"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" Value="@customProcess.EndHour" ValueChanged="@((double? v) => OnCustomProcessChanged(() => customProcess.EndHour = v))" ValueExpression="@(() => customProcess.EndHour)" Mask="n2"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+                CreateField(L.Loc("Occurrences per day"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" Value="@customProcess.NumPossibleTimes" ValueChanged="@((double? v) => OnCustomProcessChanged(() => customProcess.NumPossibleTimes = v))" ValueExpression="@(() => customProcess.NumPossibleTimes)" Mask="n2"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+                CreateField(L.Loc("Occurrence probability per day (%)"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" Value="@customProcess.Percentage" ValueChanged="@((double? v) => OnCustomProcessChanged(() => customProcess.Percentage = v))" ValueExpression="@(() => customProcess.Percentage)" Mask="n2"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+            }
+        },
+        {
+            ProcessType.Inbound, new List<RenderFragment>
+           {
+               // CreateField(L.Loc("Incoming stock quantity"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="inboundDto.Quantity" />),
+               // CreateField(L.Loc("Unit of measure"), @<DxTextBox CssClass="mlx-form-textbox" @bind-Text="@inboundDto.UnitOfMeasure" />),
+               // CreateField(L.Loc("Vehicles arriving per hour"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="inboundDto.VehiclePerHour" />),
+               // CreateField(L.Loc("Trucks arriving per day"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="inboundDto.TruckPerDay" />),
+               // CreateField(L.Loc("Minimum dock time"), @<TimeInput Format="hhmm" @bind-Value="inboundDto.MinTimeInBuffer" />),
+               // CreateField(L.Loc("Unloading time (min)"), @<TimeInput Format="mmss" @bind-Value="inboundDto.LoadTime" />),
+               // CreateField(L.Loc("Additional dock time (min)"), @<TimeInput Format="mmss" @bind-Value="inboundDto.AdditionalTimeInBuffer" />),
+           }
+        },
+        {
+
+            ProcessType.Loading, new List<RenderFragment>
+            {                
+                // CreateField(L.Loc("Automatic loading time (min)"), @<TimeInput Format="mmss" @bind-Value="loadingDto.AutomaticLoadingTime"  />),
+                //CreateField(L.Loc("Additional dock time (min)"), @<TimeInput Format="mmss" @bind-Value="loadingDto.AdditionalTimeInBuffer" />)
+            }
+        },
+        {
+            ProcessType.Picking, new List<RenderFragment>
+            {
+                CreateField(L.Loc("Complete picking route time (without picks)"), @<TimeInput Format="mmss" Value="@pickingDto.PickingRoadTime" ValueChanged="@((int? v) => OnCustomProcessChanged(() => pickingDto.PickingRoadTime = v))" />)
+            }
+        },
+        {
+            ProcessType.Putaway, new List<RenderFragment>
+            {
+                // CreateField(L.Loc("Additional storage time (min)"), @<TimeInput Format="mmss" @bind-Value="putawayDto.AdditionTmeToPutaway" />),
+                // CreateField(L.Loc("Min hour"), @<TimeInput Format="mmss" @bind-Value="putawayDto.MinHour" />)
+            }
+        },
+        {
+            ProcessType.Shipping, new List<RenderFragment>
+            {
+                // CreateField(L.Loc("Quantities of goods to dispatch"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="shippingDto.Quantity" />)
+            }
+        },
+        {
+            ProcessType.Reception, new List<RenderFragment>
+            {
+                // CreateField(L.Loc("Breakage factor"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="100" @bind-Value="receptionDto.BreakageFactor" />)
+            }
+        },
+        {
+            ProcessType.Replenishment, new List<RenderFragment>
+            {
+                CreateField(L.Loc("Replenishments over picking (%)"), @<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="100" Value="@replenishmentDto.Percentage" ValueChanged="@((int v) => OnCustomProcessChanged(() => replenishmentDto.Percentage = v))" ValueExpression="@(() => replenishmentDto.Percentage)" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>)
+            }
+        },
+        {
+            ProcessType.Packing, new List<RenderFragment>
+            {
+                CreateAnchorField(L.Loc("PACKINGMODECONFIGURATION"), @<DxGrid @ref="packingGrid"
+                                                            Data="@packingDto.PackModes"
+                                                            KeyFieldName="PackName"
+                                                            CssClass="mlx-grid"
+                                                            EditMode="GridEditMode.EditCell"
+                                                                        EditModelSaving="OnPackModeSaving">
+                                                        <Columns>
+                                                            <DxGridDataColumn FieldName="PackName" Caption="@L.Loc("PACKINGMODE")" ReadOnly="true">
+                                                                <CellDisplayTemplate Context="ctx">
+                                                                    @{
+                                                                    var item = (PackModeDto)ctx.DataItem;
+                                                                    }
+                                                                    <span>@L.Loc(item.PackName.ToString())</span>
+                                                                </CellDisplayTemplate>
+                                                            </DxGridDataColumn>
+
+
+                                                            <DxGridDataColumn FieldName="PackQty" Caption="@L.Loc("PACKINGQUANTITY")">
+                                                            <CellDisplayTemplate>
+                                                                <div class="text-right">
+                                                                    @context.DisplayText
+                                                                </div>
+                                                            </CellDisplayTemplate>
+                                                                <CellEditTemplate Context="ctx">
+                                                                    @{
+                                                                                        var item = (PackModeDto)ctx.EditModel;
+                                                                                        }
+                                                                    <DxSpinEdit @bind-Value="item.PackQty" MinValue="1" />
+                                                                </CellEditTemplate>
+                                                            </DxGridDataColumn>
+                                                        </Columns>
+                                                    </DxGrid>
+                                                    )
+            }
+        }
+
+    };
+
+    void OnPackModeSaving(GridEditModelSavingEventArgs e)
+    {
+        var edited = (PackModeDto)e.EditModel;
+        var original = (PackModeDto)e.DataItem;
+
+        // comprobar si el valor es el mismo
+        if (edited.PackQty == original.PackQty)
+        {
+            e.Cancel = true;     // cancela el guardado
+            return;
+        }
+
+        // aplicar cambios
+        e.CopyChangesToDataItem();
+        UpdateDirtyFlag();
+    }
+
+
+    private async Task CancelButtonClick()
+    {
+        await OnChildCancel.InvokeAsync(Metadata);
+    }
+
+    private Task ToggleIsOut(bool? value)
+    {
+        var checkedValue = value ?? false;
+
+        // Si se activa IsOut, desactiva IsIn
+        if (checkedValue)
+        {
+            DesignerDto.IsOut = true;
+            DesignerDto.IsIn = false;
+        }
+        else
+        {
+            // Si se intenta desmarcar IsOut, se marca IsIn
+            DesignerDto.IsOut = false;
+            DesignerDto.IsIn = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleIsIn(bool? value)
+    {
+        var checkedValue = value ?? false;
+
+        if (checkedValue)
+        {
+            DesignerDto.IsIn = true;
+            DesignerDto.IsOut = false;
+        }
+        else
+        {
+            DesignerDto.IsIn = false;
+            DesignerDto.IsOut = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    // Event that shows or hides the StartProcess control
+    private Task ShowStartProcess(bool isStartProcess)
+    {
+        DesignerDto.IsInitProcess = isStartProcess; // Refreshes Check status
+        IsVisibleStartProcess = isStartProcess; // Refreshes the data true/false
+
+        if (!isStartProcess)
+            DesignerDto.PercentageInitProcess = 0;
+
+        UpdateDirtyFlag();
+        editContextProcess.NotifyValidationStateChanged();
+        UpdateSaveButtonState();
+
+        return Task.CompletedTask;
+    }
+
+    #region Step Section
+
+    #region StepControlSection
+
+    private void AddStep()
+    {
+        stepDto.Siblings = StepList;
+
+        // -------- Validate --------
+        if (!editContextSteps.Validate())
+        {
+            isFormValid = false;
+            StateHasChanged();
+            return;
+        }
+        // -------------------------------           
+
+        // Ensures the logic of exclusion: only one can be true
+        bool isInit = stepDto.StepInitEnd == StepInitEndType.Before;
+        bool isEnd = stepDto.StepInitEnd == StepInitEndType.After;
+
+        // Create a stepDto item
+        var newStep = new StepDto
+            {
+                Id = Guid.NewGuid(),
+                Name = stepDto.Name,
+                TimeMin = stepDto.TimeMin,
+                InitProcess = isInit,
+                EndProcess = isEnd,
+                Order = stepDto.Order,
+                ProcessId = DesignerDto?.Id ?? Guid.Empty
+            };
+
+        if (!EditingBuffer.ContainsKey(newStep.Id))
+            EditingBuffer[newStep.Id] = newStep;
+
+        ModifiedFields[newStep.Id] = new HashSet<string>
+        {
+            nameof(StepDto.Name),
+            nameof(StepDto.TimeMin),
+            nameof(StepDto.Order),
+            nameof(StepDto.StepInitEnd)
+        };
+
+        StepList = StepList.Append(newStep).ToList(); // Forces the loading of the listing
+
+        foreach (var s in StepList)
+            s.Siblings = StepList;
+
+        stepDto = StepDto.NewDto(); // Clear the form
+        SetupEditContext();
+        isFormValid = false;
+        editContextProcess.NotifyValidationStateChanged();
+        StateHasChanged();
+    }
+
+    // Describes when the component is restarted (It is important to avoid duplicate messages)
+    public void Dispose()
+    {
+        if (editContextProcess is not null){
+            editContextProcess.OnFieldChanged -= HandleProcessFieldChanged;
+            editContextProcess.OnValidationStateChanged -= HandleProcessValidationChanged;
+        }
+
+        if (editContextSteps is not null)
+        {
+            editContextSteps.OnValidationRequested -= ValidateForm;
+            editContextSteps.OnFieldChanged -= HandleFieldChanged;
+        }
+
+        messageStore?.Clear();
+    }
+
+    // Validates whether there are errors in the cells being edited in Grid Steps
+    private bool ValidateGridSteps()
+    {
+        // If there are no records, it is valid
+        if (StepList == null || StepList.Count == 0)
+            return true;
+
+        bool isValid = true;
+        // We validate whether the error list contains anything
+        if (UpdateErrors.Count > 0)
+            isValid = false;
+
+        return isValid;
+    }
+
+    // Devuelve todos los mensajes actuales de validación
+    private IEnumerable<string> GetGridErrors()
+    {
+        var ec = grid?.GetEditContext();
+
+        if (ec?.Model is StepDto row)
+            row.Siblings = StepList;
+
+        return ec is null ? Enumerable.Empty<string>() : ec.GetValidationMessages();
+    }
+
+    // Devuelve los mensajes agrupados por campo
+    private Dictionary<string, List<string>> GetGridErrorsByField()
+    {
+        var result = new Dictionary<string, List<string>>();
+
+        var ec = grid?.GetEditContext();
+
+        if (ec is null) 
+            return result;
+
+        if (ec.Model is StepDto row)
+            row.Siblings = StepList;
+
+        // Recorremos las columnas de datos visibles para consultar sus mensajes
+        foreach (var col in grid.GetDataColumns().OfType<DxGridDataColumn>())
+        {
+            if (string.IsNullOrWhiteSpace(col.FieldName)) continue;
+
+            var fi = new FieldIdentifier(ec.Model, col.FieldName);
+            var msgs = ec.GetValidationMessages(fi).ToList();
+            if (msgs.Count > 0)
+                result[col.FieldName] = msgs;
+        }
+        return result;
+    }
+    #endregion
+
+    #region StepsEventGroup
+
+    // Initializes the DTO contexts, initializes the custom validation message, and activates field validation listeners for StepsDto
+    private void SetupEditContext()
+    {
+        if (editContextSteps != null)
+        {
+            editContextSteps.OnValidationRequested -= ValidateForm;
+            editContextSteps.OnFieldChanged -= HandleFieldChanged;
+        }
+
+        editContextSteps = new EditContext(stepDto);
+        messageStore = new ValidationMessageStore(editContextSteps);
+        editContextSteps.OnValidationRequested += ValidateForm;
+        editContextSteps.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        isFormValid = editContextSteps.Validate(); // This validates the whole form each time
+    }
+
+    private void ValidateForm(object sender, ValidationRequestedEventArgs args)
+    {
+        messageStore.Clear();
+        stepDto.Siblings = StepList;
+
+        // Check if the ‘Order’ already exists in another Step
+        bool orderRepetido = StepList.Any(x => x.Order == stepDto.Order);
+
+        if (orderRepetido)
+        {
+            messageStore.Add(() => stepDto.Order, L.Loc("* The order number is already in use."));
+        }
+        isFormValid = !orderRepetido;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleProcessFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        UpdateDirtyFlag();
+        UpdateSaveButtonState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleProcessValidationChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        UpdateSaveButtonState(); // Recalculate _hasErrors
+        InvokeAsync(StateHasChanged);
+    }
+
+    private bool HasFormValidationErrors()
+    {
+        if (editContextProcess is null)
+            return false;
+
+        return editContextProcess.GetValidationMessages().Any(); // If there is an active validation message, the form is not valid.
+    }
+    #endregion
+
+    #endregion
+
+    #region ToolBar Grid
+    private async Task ResetState()
+    {
+        isEditing = false;
+        showEditButton = true;
+        showReadOnlyButton = false;
+        showSaveButton = false;
+        showDeleteButton = false;
+        showNewElementForm = false;
+        showAddButton = true;
+        isFormValid = false;
+
+        stepDto = StepDto.NewDto();
+        messageStore.Clear();
+        EditingBuffer.Clear();
+        ModifiedFields.Clear();
+        SelectedRows.Clear();
+        DeletedStepsBuffer.Clear();
+        UpdateErrors.Clear();
+        LockedEditingRowId = null;
+
+        var sourceList = (ResetStepList != null && ResetStepList.Any()) ? ResetStepList : OriginalStepList;
+        StepList = sourceList.Select(s => s.Clone()).ToList(); // Restore the version from the last point saved in memory
+        UpdateDirtyFlag();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private StepDto CloneStep(StepDto s) => new StepDto
+        {
+            Id = s.Id,
+            Name = s.Name,
+            TimeMin = s.TimeMin,
+            Order = s.Order,
+            InitProcess = s.InitProcess,
+            EndProcess = s.EndProcess,
+            ProcessId = s.ProcessId,
+            ViewPort = s.ViewPort
+        };
+
+    private void OnRowChecked(bool isChecked, StepDto model)
+    {
+        if (isChecked)
+        {
+            if (!SelectedRows.Contains(model))
+                SelectedRows.Add(model);
+        }
+        else
+            SelectedRows.Remove(model);
+
+        if(SelectedRows.Count == 0)
+            ExecuteEditMode();
+        else
+            ShowDeleteButton();
+
+        StateHasChanged();
+    }
+
+    private void ShowDeleteButton()
+    {
+        showAddButton = false;
+        showEditButton = false;
+        showSaveButton = true;
+        showDeleteButton = true;
+        showReadOnlyButton = true;
+    }
+
+    #region ExecuteModes
+
+    private void ExecuteStateAdd()
+    {
+        isEditing = false;
+        showNewElementForm = true;
+        showAddButton = false;
+        showEditButton = false;
+        showDeleteButton = false;
+        showSaveButton = true;
+        showReadOnlyButton = true;
+
+        stepDto = StepDto.NewDto();
+        SetupEditContext();
+    }
+
+    private void ExecuteEditMode()
+    {
+        EditingBuffer.Clear();
+
+        // Create snapshot of all rows
+        foreach (var row in StepList)
+            EditingBuffer[row.Id] = CloneStep(row);
+        isEditing = true;
+        showNewElementForm = false;
+        showAddButton = false;
+        showEditButton = false;
+        showReadOnlyButton = true;
+        showSaveButton = true;
+        showDeleteButton = false;
+        ResetStepList = StepList.Select(s => s.Clone()).ToList();
+        editContextProcess.NotifyValidationStateChanged();
+    }
+
+    private async Task ExecuteDeleteMode()
+    {
+        if (SelectedRows?.Any() != true)
+            return;
+
+        var selectedRowList = SelectedRows.ToList();
+
+        foreach (var step in selectedRowList)
+        {
+            EditingBuffer.Remove(step.Id);
+            UpdateErrors.Remove(step.Id);
+            ModifiedFields.Remove(step.Id);
+            StepList.Remove(step);
+
+            if (OriginalStepList.Any(o => o.Id == step.Id))
+            {
+                DeletedStepsBuffer.Add(step);
+            }
+            else
+            {
+                // If the record was created in memory, it counts as a “local change” to enable the Save button
+                if (!ModifiedFields.ContainsKey(step.Id))
+                    ModifiedFields[step.Id] = new HashSet<string> { nameof(StepDto.Id) };
+            }
+        }
+
+        // Recalculate validations for the “order” after deleting the remaining items
+        foreach (var row in StepList)
+        {
+            UpdateDuplicateOrderErrors(row.Id);
+        }
+
+        SelectedRows.Clear();
+
+        if (!UpdateErrors.Any())
+            LockedEditingRowId = null;
+
+        if (!StepList.Any())
+            ExecuteEditMode();
+
+        StepList = StepList.ToList(); // Recalculate internally to update the grid data internally
+
+        isEditing = true;
+        showNewElementForm = false;
+        showAddButton = false;
+        showEditButton = false;
+        showReadOnlyButton = true;
+        showSaveButton = true;
+        showDeleteButton = false;
+        editContextProcess.NotifyValidationStateChanged();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ExecuteSaveMode()
+    {
+        foreach (var fields in ModifiedFields)
+        {
+            var rowId = fields.Key;
+            if (!EditingBuffer.TryGetValue(rowId, out var bufferRow))
+                continue;
+
+            var targetRow = StepList.FirstOrDefault(r => r.Id == rowId);
+            if (targetRow == null)
+                continue;
+
+            foreach (var prop in fields.Value)
+            {
+                var newValue = bufferRow.GetType().GetProperty(prop)?.GetValue(bufferRow);
+                targetRow.GetType().GetProperty(prop)?.SetValue(targetRow, newValue);
+            }
+        }
+
+        if (DeletedStepsBuffer.Any())
+        {
+            foreach (var deleted in DeletedStepsBuffer)
+            {
+                StepList.RemoveAll(s => s.Id == deleted.Id);
+            }
+        }
+
+        ResetStepList = StepList.Select(s => s.Clone()).ToList(); // Refreshes the data in the ResetStepList memory
+
+        // Cleans buffers and errors
+        EditingBuffer.Clear();
+        ModifiedFields.Clear();
+        DeletedStepsBuffer.Clear();
+        UpdateErrors.Clear();
+        SelectedRows.Clear();
+
+        isEditing = false;
+        showNewElementForm = false;
+        showAddButton = true;
+        showSaveButton = false;
+        showReadOnlyButton = false;
+        showEditButton = true;
+        showDeleteButton = false;
+        UpdateDirtyFlag();
+        editContextProcess.NotifyValidationStateChanged();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region Validation Grid
+    private void OnValueChanged(string propertyName, object? value, StepDto originalRow)
+    {
+        var rowId = originalRow.Id;
+
+        // Check if the row exists in the temporary list
+        if (!EditingBuffer.ContainsKey(rowId))
+            EditingBuffer[rowId] = CloneStep(originalRow);
+
+        var bufferRow = EditingBuffer[rowId];
+
+        // We assign the value of the cell in the temporary list
+        SetPropertyValue(bufferRow, propertyName, value);
+
+        if (propertyName == nameof(StepDto.TimeMin))
+        {
+            double parsed = Convert.ToDouble(value ?? 0);
+            if (parsed <= 0)
+            {
+                if (!UpdateErrors.ContainsKey(rowId))
+                    UpdateErrors[rowId] = new();
+                UpdateErrors[rowId][propertyName] = L.Loc("* Activity time must be greater than 0"); // The message is set because if it is done from the model, the model does not know what values the error list has
+            }
+            else
+            {
+                // Cleaned if there is no error
+                if (UpdateErrors.ContainsKey(rowId))
+                {
+                    UpdateErrors[rowId].Remove(propertyName);
+                    if (UpdateErrors[rowId].Count == 0)
+                        UpdateErrors.Remove(rowId);
+                }
+            }
+        }
+
+        // -- Cell validation section --
+
+        var context = new ValidationContext(bufferRow);
+        var results = new List<ValidationResult>();
+
+        Validator.TryValidateObject(bufferRow, context, results, validateAllProperties: true);
+
+        // We initialize the error list for the row
+        if (!UpdateErrors.ContainsKey(rowId))
+            UpdateErrors[rowId] = new();
+
+        UpdateErrors[rowId].Remove(propertyName); // We clean up the error list
+
+        foreach (var result in results.Where(r => r.MemberNames != null && r.MemberNames.Contains(propertyName)))
+        {
+            UpdateErrors[rowId][propertyName] = result.ErrorMessage ?? L.Loc("* Mandatory field");
+        }
+
+        UpdateDuplicateOrderErrors(rowId);
+
+        // If the error has been corrected, it is removed from the list
+        if (UpdateErrors.TryGetValue(rowId, out var dict) && dict.Count == 0)
+            UpdateErrors.Remove(rowId);
+
+        // --- Evaluate modified fields ---
+        var origVal = originalRow.GetType().GetProperty(propertyName)?.GetValue(originalRow);
+        var newVal = bufferRow.GetType().GetProperty(propertyName)?.GetValue(bufferRow);
+        if (!Equals(origVal, newVal))
+        {
+            if (!ModifiedFields.ContainsKey(rowId))
+                ModifiedFields[rowId] = new HashSet<string>();
+            ModifiedFields[rowId].Add(propertyName);
+        }
+        else if (ModifiedFields.TryGetValue(rowId, out var set))
+        {
+            set.Remove(propertyName);
+            if (set.Count == 0)
+                ModifiedFields.Remove(rowId);
+        }
+
+        // Blocks all rows in the grid except the one being edited
+        if (UpdateErrors.ContainsKey(rowId))
+            LockedEditingRowId = rowId;
+        else
+        {
+            // If the error is corrected, the rows are unlocked in edit mode
+            if (UpdateErrors.Count == 0)
+                LockedEditingRowId = null;
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SetPropertyValue(object target, string propertyName, object? value)
+    {
+        var prop = target.GetType().GetProperty(propertyName);
+        if (prop == null) return;
+
+        var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+        object? converted = null;
+        if (value == null || string.IsNullOrEmpty(value.ToString()))
+            converted = null;
+        else if (targetType == typeof(string))
+            converted = value.ToString();
+        else if (targetType.IsEnum)
+            converted = Enum.Parse(targetType, value.ToString()!);
+        else if (targetType == typeof(Guid))
+            converted = Guid.Parse(value.ToString()!);
+        else
+            converted = Convert.ChangeType(value, targetType);
+
+        prop.SetValue(target, converted);
+    }
+
+    private void UpdateDuplicateOrderErrors(Guid currentRowId)
+    {
+        // We obtain the values of the current row
+        if (!EditingBuffer.TryGetValue(currentRowId, out var currentRow))
+            return;
+
+        var currentOrder = currentRow.Order;
+        bool duplicateExists = EditingBuffer.Where(kvp => kvp.Key != currentRowId).Any(kvp => kvp.Value.Order == currentOrder); // Search if the Order is repeated
+
+        // We initialize the error list in case it does not exist
+        if (!UpdateErrors.ContainsKey(currentRowId))
+            UpdateErrors[currentRowId] = new();
+
+        // If there is a duplicate in the order, the text in the cell is set
+        if (duplicateExists)
+            UpdateErrors[currentRowId]["Order"] = L.Loc("* The order number is already in use.");
+        else
+        {
+            // If there is no error in the order, it is cleared
+            UpdateErrors[currentRowId].Remove("Order");
+            if (UpdateErrors[currentRowId].Count == 0)
+                UpdateErrors.Remove(currentRowId);
+        }
+    }
+
+    // Method that sets error messages in cells
+    private string GetValidationError(string propertyName, object dataItem)
+    {
+        if (dataItem is StepDto stepDto)
+        {
+            return UpdateErrors.TryGetValue(stepDto.Id, out var fieldErrors) && fieldErrors.TryGetValue(propertyName, out var error) ? error : string.Empty;
+        }
+        return string.Empty;
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Button Validate Methods
+
+    public void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+
+    private string BuildFingerprint()
+    {
+        var flowId = DesignerDto?.Flow?.Id ?? DesignerDto?.FlowId ?? Guid.Empty;
+
+        return string.Join("|",
+            DesignerDto?.Name ?? string.Empty,
+            flowId,
+            DesignerDto?.Type ?? 0,
+            DesignerDto?.MinTime ?? 0,
+            DesignerDto?.PreprocessTime ?? 0,
+            DesignerDto?.PostprocessTime ?? 0,
+            DesignerDto?.IsInitProcess ?? false,
+            DesignerDto?.PercentageInitProcess ?? 0,
+            DesignerDto?.IsIn ?? false,
+            DesignerDto?.IsOut ?? false,
+            DesignerDto?.IsWarehouseProcess ?? false,
+
+            // CUSTOM
+            DesignerDto?.Type == ProcessType.CustomProcess ? customProcess?.InitHour ?? 0 : 0,
+            DesignerDto?.Type == ProcessType.CustomProcess ? customProcess?.EndHour ?? 0 : 0,
+            DesignerDto?.Type == ProcessType.CustomProcess ? customProcess?.NumPossibleTimes ?? 0 : 0,
+            DesignerDto?.Type == ProcessType.CustomProcess ? customProcess?.Percentage ?? 0 : 0,
+
+            DesignerDto?.Type == ProcessType.Picking ? pickingDto?.PickingRoadTime ?? 0 : 0,
+            DesignerDto?.Type == ProcessType.Replenishment ? replenishmentDto?.Percentage ?? 0 : 0,
+
+            // PACKING
+            DesignerDto?.Type == ProcessType.Packing
+                ? BuildPackingKey(packingDto?.PackModes)
+                : string.Empty,
+
+            // STEPS
+            BuildStepsKey(StepList)
+        );
+    }
+
+
+    private string BuildPackingKey(IEnumerable<PackModeDto> packModes)
+    {
+        if (packModes == null)
+            return string.Empty;
+
+        return string.Join(";",
+            packModes
+                .OrderBy(p => p.PackName)
+                .Select(p => $"{p.PackName}:{p.PackQty}")
+        );
+    }
+
+
+    public void MarkDirty()
+    {
+        _isDirty = true;
+        UpdateSaveButtonState();
+        StateHasChanged();
+    }
+
+    private void UpdateDirtyFlag()
+    {
+        var current = BuildFingerprint();
+        _isDirty = current != _baselineFingerprint;
+
+        UpdateSaveButtonState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSaveButtonState()
+    {
+        _hasErrors = (editContextProcess?.GetValidationMessages().Any() ?? false) || UpdateErrors.Any() || !ValidateGridSteps();
+    }
+
+    // Builds a deterministic key used to detect committed changes in Steps (avoids expensive JSON or reflection)
+    private string BuildStepsKey(IEnumerable<StepDto> steps)
+    {
+        if (steps == null) return string.Empty;
+
+        // Keep a stable order for comparison purposes (Id is the sorting key)
+        var ordered = steps
+            .OrderBy(s => s.Id)
+            .Select(s =>
+            {
+                var id = s.Id;
+                var name = s.Name ?? string.Empty;
+                var tm = s.TimeMin;
+                var ord = s.Order;
+                var ini = s.InitProcess;
+                var end = s.EndProcess;
+                return $"{id}|{name}|{tm}|{ord}|{ini}|{end}";
+            });
+
+        // Join all rows into a single string; if any record changes (add, update, delete), the key changes
+        return string.Join("||", ordered);
+    }
+
+    #endregion
+
+    private void OnProcessTypeChanged(ProcessType? newValue)
+    {
+        if (DesignerDto.Type == newValue)
+            return;
+
+        DesignerDto.Type = newValue;
+        ApplyProcessTypePolicy(newValue);
+        UpdateDirtyFlag();
+        editContextProcess.NotifyValidationStateChanged();
+        UpdateSaveButtonState();
+    }
+
+    private void OnCustomProcessChanged(Action setter)
+    {
+        setter.Invoke();
+        UpdateDirtyFlag(); // recalculate dirty
+        editContextProcess.NotifyValidationStateChanged();
+        UpdateSaveButtonState();
+    }
+
+    private void ApplyProcessTypePolicy(ProcessType? type)
+    {
+        ShowInitProcessToggle = type.HasValue && type.Value != ProcessType.CustomProcess;
+        if (!ShowInitProcessToggle)
+            ClearInitProcessState();
+    }
+
+    private void ClearInitProcessState()
+    {
+        DesignerDto.IsInitProcess = false;
+        DesignerDto.PercentageInitProcess = 0;
+        IsVisibleStartProcess = false;
+    }
+
+
+    private void OnProcessWarehouseChange(bool value)
+    {
+        DesignerDto.IsWarehouseProcess = value;
+
+        if (value)
+        {
+            lstProcessType = lstAllProcessType
+                .Where(x => x.Type == ProcessType.CustomProcess || x.Type == ProcessType.Replenishment)
+                .ToList();
+        }
+        else
+        {
+            lstProcessType = lstAllProcessType
+                .Where(x => x.Type != ProcessType.Replenishment)
+                .ToList();
+        }
+
+        if (!lstProcessType.Any(x => x.Type == DesignerDto.Type))
+        {
+            OnProcessTypeChanged(null);
+        }
+
+        UpdateDirtyFlag();
+        editContextProcess.NotifyValidationStateChanged();
+    }
+
+
+}
+
+<style>
+    .text-right {
+        text-align: right;
+    }
+</style>

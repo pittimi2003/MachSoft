@@ -1,0 +1,33 @@
+﻿@page "/equipments-operations"
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using  Mss.WorkForce.Code.Models.ModelGantt
+@inherits Mss.WorkForce.Code.Web.Common.GanttOperations
+@attribute [Authorize]
+
+
+<div class="mlx-preview-container">
+	<div class="row flex-grow-0 mt-1 align-items-center">
+		<div class="col-md-6 d-flex align-items-center gap-2">
+			<SitePreview ValueChanged="OnSiteSeleccionadaChanged" />
+		</div>
+		<div class="col-md-6 d-flex justify-content-end">
+			<TopBar gantt="GanttSetup" LastUpdateGantt="@LastUpdateGantt" ActiveButtos="@IsDisabledTopBarButtons" UserFormat="userFormat" />
+		</div>
+	</div>
+	<div class="mlx-preview-section-gantt">
+		<div class="row">
+			<div class="col">
+				<div id="GanttContainer" class="mlx-container-gantt-80">
+					<GanttComponent TModel="LaborEquipmentGantt" GanttSetup="GanttSetup" GanttTasksData="DataSimulation" LoadPanelVisible="LoadPanelVisible" BackgroundShading="BackGroudShading" UserFormat="userFormat" Properties="GanttProperties"></GanttComponent>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+
+}

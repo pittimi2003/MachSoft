@@ -1,0 +1,128 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using Mss.WorkForce.Code.Web.Services
+@inject IJSRuntime JS
+@inject IEventServices _eventServices
+@inject DataAccess dataAccess
+@inject ILocalizationService L
+
+<div class="d-flex align-items-center">
+    <!-- Contenedor de Combo y Botones -->
+    <div class="temporalidad-container container-site">
+        <div class="d-flex align-items-center w-100">
+            <!-- ComboBox personalizado para seleccionar temporalidades -->
+            <DxComboBox Data="@Sites" Value="@SelectedSite"
+            TextFieldName="Name" ValueFieldName="Id"
+            CssClass="mlx-ico-warehouse site-combobox mlx-title-warehouse selected-site-tooltip"
+            ValueChanged="@((SiteModel newValue) => OnValueChanged(newValue))">
+                <ItemTemplate>
+                    <div class="d-flex justify-content-between w-100">
+                        <span>
+                            @((context as SiteModel)?.NameComplete)
+                        </span>
+                    </div>
+                </ItemTemplate>
+            </DxComboBox>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<SiteModel> Sites { get; set; } = new();
+    private SiteModel SelectedSite { get; set; } = new();
+    private string Caption => L.Loc("Warehouse selector");
+    private const string CONTAINER = ".container-site";
+
+    [Parameter]
+    public EventCallback<(SiteModel, bool)> ValueChanged { get; set; }
+
+    [Inject] private IInitialDataService _InitialDataService { get; set; }
+    [Inject] private IUserService UserService { get; set; }
+
+    private const string tooltipjs = "setTooltipForSelectedSite";
+    private bool hasInitialized = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !hasInitialized)
+        {
+            if (_InitialDataService.GetDatauser() == null)
+                await _InitialDataService.GetDataUserLocal();
+
+            LoadSites();
+            hasInitialized = true;
+            StateHasChanged(); // para renderizar los datos cargados
+        }
+        await ApplyComboBoxTooltipAsync();
+    }
+
+    private void LoadSites()
+    {
+        var userData = _InitialDataService.GetDatauser();
+        if (userData == null) 
+        { 
+            Sites = dataAccess.GetWarehouse(dataAccess.GetOrganization().FirstOrDefault().Id)
+            .Select(x =>
+            {
+                var warehouseName = x.Name;
+                var utcValue = x.TimeZone_.Name.Substring(0, 11);
+                var displayName = warehouseName.Length > 20 ? $"{warehouseName.Substring(0, 20)}...{utcValue}" : $"{x.Name} {utcValue}";
+                return new SiteModel
+                    {
+                        Id = x.Id,
+                        Name = displayName,
+                        NameTimeZone = x.TimeZone_.Name,
+                        Offset = x.TimeZone_.OffSet,
+                        NameComplete = $"{x.Name} {utcValue}"
+                    };
+            }).OrderBy(x => x.Name)
+            .ToList();
+
+                SelectedSite = Sites.FirstOrDefault() ?? Sites.FirstOrDefault() ?? new SiteModel();
+                // Notifica al padre con el sitio seleccionado
+                ValueChanged.InvokeAsync((SelectedSite, true));
+        }
+        else 
+        {
+            string code = userData.Code;
+            var user = UserService.GetUserByCode(code);
+            var allowedIds = user.Warehouses.Select(w => w.Id).ToHashSet();
+
+            Sites = dataAccess.GetWarehouse(dataAccess.GetOrganization().FirstOrDefault().Id)
+            .Where(x => allowedIds.Contains(x.Id))
+            .Select(x =>
+            {
+                var warehouseName = x.Name;
+                var utcValue = x.TimeZone_.Name.Substring(0, 11);
+                var displayName = warehouseName.Length > 20 ? $"{warehouseName.Substring(0, 20)}...{utcValue}" : $"{x.Name} {utcValue}";
+                return new SiteModel
+                    {
+                        Id = x.Id,
+                        Name = displayName,
+                        NameTimeZone = x.TimeZone_.Name,
+                        Offset = x.TimeZone_.OffSet,
+                        NameComplete = $"{x.Name} {utcValue}"
+                    };
+            }).OrderBy(x => x.Name)
+            .ToList();
+
+            SelectedSite = Sites.FirstOrDefault(x => x.Id == user.WarehouseDefaultId) ?? Sites.FirstOrDefault() ?? new SiteModel();
+            // Notifica al padre con el sitio seleccionado
+            ValueChanged.InvokeAsync((SelectedSite, true));
+        }
+    }
+
+    private async Task OnValueChanged(SiteModel newSite)
+    {
+        SelectedSite = newSite;
+        await ValueChanged.InvokeAsync((newSite, false));
+    }
+
+    private async Task ApplyComboBoxTooltipAsync()
+    {
+        await JS.InvokeVoidAsync(tooltipjs, Caption, CONTAINER);
+    }
+}
+

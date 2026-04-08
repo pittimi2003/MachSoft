@@ -1,0 +1,896 @@
+﻿@using System.Text.Json
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.DTO.Designer.LocationZones
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@using System.ComponentModel.DataAnnotations
+@using System.Linq.Expressions
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@inject ILocalizationService L
+@implements ITrackChanges
+@implements IChildSaver
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="@editContext">
+        <DataAnnotationsValidator />
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="row">
+
+                <!-- ==================================== -->
+                <!-- CATEGORÍA 1: Basic info station      -->
+                <!-- ==================================== -->
+                <div class="col-xl-12 col-sm-12">
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#idStationBasicInfo"
+                                aria-expanded="true"
+                                aria-controls="idStationBasicInfo">
+                                    <span class="mlx-title-h3">@L.Loc("Common properties")</span>
+                                </button>
+                            </h2>
+                            <div id="idStationBasicInfo" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-xl-6 col-sm-12 control-space-to-validation-message">
+                                            <label class="mlx-form-label">@L.Loc("Name")</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" @bind-Text="@commonProperties.Name" />
+                                            <ValidationMessage class="text-danger" For="@(() => commonProperties.Name)" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Area")</label>
+                                            <DxTextBox Text="@commonProperties.Area.Name" TextExpression="@(() => commonProperties.Area.Name)" Enabled="false" CssClass="mlx-form-textbox width-100" />
+                                        </div>
+
+                                        <div class="col-xl-6 col-sm-12 control-space-to-validation-message">
+                                            <label class="mlx-form-label">@L.Loc("Zone type")</label>
+                                            <MlxComboBox Data="@locationTypesList" CssClass="mlx-form-select width-100" Value="@commonProperties.LocationTypes" ValueChanged="@((LocationTypes v) => OnZoneTypeChanged(v))" ValueExpression="@(() => commonProperties.LocationTypes)" ValueFieldName="Value" TextFieldName="Text" NullText="@L.Loc("Select...")" />
+                                            <ValidationMessage class="text-danger" For="@(() => commonProperties.LocationTypes)" />
+                                        </div>
+
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Max. containers")</label>
+                                            <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="commonProperties.MaxContainers" Mask="n0">
+                                                <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                        </div>
+
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Max. equipment")</label>
+                                            <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="commonProperties.MaxEquipments" Mask="n0">
+                                                <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            @if (haveShelf)
+            {
+                <div class="row">
+                    @*Shelf section*@
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idShelfSection" aria-expanded="true" aria-controls="idShelfSection">
+                                        <span class="mlx-title-h3">@L.Loc("Shelf configuration")</span>
+                                    </button>
+                                </h2>
+                                <div id="idShelfSection" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            @if (DesignerDto != null && FieldTemplatesShelfSection.TryGetValue((LocationTypes)commonProperties.LocationTypes, out var templates))
+                                            {
+                                                @foreach (var template in templates)
+                                                {
+                                                    @template
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (haveAisle)
+            {
+                @*  <div class="row">
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idAisleSection" aria-expanded="true" aria-controls="idAisleSection">
+                                        <span class="mlx-title-h3">@L.Loc("Aisle configuration")</span>
+                                    </button>
+                                </h2>
+                                <div id="idAisleSection" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            @if (DesignerDto != null && FieldTemplatesAisleSection.TryGetValue((LocationTypes)commonProperties.LocationTypes, out var templates))
+                                            {
+                                                @foreach (var template in templates)
+                                                {
+                                                    @template
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> *@
+            }
+            @*------------------------*@
+        </div>
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CloseSideBarButton())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEventInternal())">@L.Loc("Save")</button>
+</div>
+
+@code {
+
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public Object DesignerDto { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    [Parameter]
+    public Dictionary<string, object>? Metadata { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildCancel { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildSaved { get; set; }
+
+    #region Save Button Status
+
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    private bool CanSave => _isDirty && !HasAnyValidationErrors();
+    public Task SaveEvent() => SaveEventInternal();
+
+    #endregion
+
+    private EditContext editContext;
+    private ValidationMessageStore messageStore;
+
+    private EventCallback<bool> OnIsNarrowAisle => EventCallback.Factory.Create<bool>(this, IsNarrowAisle); // Change of state event
+    private EventCallback<bool> OnIsBidirectional => EventCallback.Factory.Create<bool>(this, IsBidirectional); // Change of state event
+
+    private RackDto rackDto { get; set; } = new();
+    private DriveInDto driveInDto { get; set; } = new();
+    private ChaoticStorageDto chaoticStorageDto { get; set; } = new();
+    private AutomaticStorageDto automaticStorageDto { get; set; } = new();
+    private Models.DTO.Designer.ZoneDto zone { get; set; } = new();
+    private LocationTypes LocationTypesComboBox { get; set; } // Used for Sidebar combobox for LocationTypes change event
+    private CommonShelfProperties commonProperties { get; set; } = new();
+    private bool haveShelf { get; set; } = false;
+    private bool haveAisle { get; set; } = false;
+    private bool IsUpdate = true;
+    private bool showMaxPickers = false;
+    private readonly Dictionary<string, string> _localErrors = new();
+
+    [Inject] private IDesignerServices _designer { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
+
+    private LocationTypes oldLocationType { get; set; }
+    private Object oldObject { get; set; }
+    private List<ComboBoxSelectItem<LocationTypes>> locationTypesList = new();
+    private List<ComboBoxSelectItem<OrientationType>> orientationType = new();
+    public sealed class SizeCalcResult
+    {
+        public double width { get; set; }
+        public double height { get; set; }
+        public int numShelves { get; set; }
+        public int numCrossAisles { get; set; }
+        public double left { get; set; }
+        public double top { get; set; }
+    }
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnChildCancel.InvokeAsync(Metadata);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        commonProperties = new();
+        if (DesignerDto is DriveInDto driveIn)
+        {
+            DriveInDto getdriveInDto = driveIn;
+            zone = getdriveInDto.Zone;
+            InitTypeShelf();
+            commonProperties = MapCommonProperties(getdriveInDto, LocationTypes.DriveIn);
+            driveInDto = getdriveInDto;
+            showMaxPickers = driveInDto.NarrowAisle;
+        }
+        else if (DesignerDto is RackDto rack)
+        {
+            RackDto getRackDto = rack;
+            zone = getRackDto.Zone;
+            InitTypeShelf();
+            commonProperties = MapCommonProperties(getRackDto, LocationTypes.Rack);
+            rackDto = getRackDto;
+            showMaxPickers = rackDto.NarrowAisle;
+        }
+        else if (DesignerDto is ChaoticStorageDto chaotic)
+        {
+            ChaoticStorageDto getChaoticStorageDto = chaotic;
+            zone = getChaoticStorageDto.Zone;
+            InitTypeShelf();
+            commonProperties = MapCommonProperties(getChaoticStorageDto, LocationTypes.CaoticStorage);
+            chaoticStorageDto = getChaoticStorageDto;
+        }
+        else if (DesignerDto is AutomaticStorageDto automatic)
+        {
+            AutomaticStorageDto getautomaticStorageDto = automatic;
+            zone = getautomaticStorageDto.Zone;
+            InitTypeShelf();
+            commonProperties = MapCommonProperties(getautomaticStorageDto, LocationTypes.AutomaticStorage);
+            automaticStorageDto = getautomaticStorageDto;
+        }
+
+        editContext = new EditContext(commonProperties);
+        messageStore = new ValidationMessageStore(editContext);
+        editContext.OnFieldChanged += HandleFieldChanged;
+        editContext.OnValidationStateChanged += HandleValidationStateChanged;
+        locationTypesList = Enum.GetValues(typeof(LocationTypes)).Cast<LocationTypes>().Select(x => new ComboBoxSelectItem<LocationTypes>(L) { Value = x, Text = GetStringFromLocationTypes(x) }).OrderBy(x => x.Text).ToList();
+        orientationType = Enum.GetValues(typeof(OrientationType)).Cast<OrientationType>().Where(x => x != OrientationType.None).Select(x => new ComboBoxSelectItem<OrientationType>(L) { Value = x, Text = x.ToString() }).OrderBy(x => x.Text).ToList();
+
+        oldLocationType = commonProperties.LocationTypes;
+        oldObject = DesignerDto;
+        haveShelf = (commonProperties.LocationTypes == LocationTypes.Rack || commonProperties.LocationTypes == LocationTypes.DriveIn);
+        haveAisle = (commonProperties.LocationTypes == LocationTypes.Rack || commonProperties.LocationTypes == LocationTypes.DriveIn);
+        CaptureBaseline();
+        await Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        if (editContext != null)
+        {
+            editContext.OnFieldChanged -= HandleFieldChanged;
+            editContext.OnValidationStateChanged -= HandleValidationStateChanged;
+        }
+    }
+
+    private void InitTypeShelf()
+    {
+        rackDto = RackDto.NewDto(zone);
+        driveInDto = DriveInDto.NewDto(zone);
+        chaoticStorageDto = ChaoticStorageDto.NewDto(zone);
+        automaticStorageDto = AutomaticStorageDto.NewDto(zone);
+    }
+
+    private async Task SaveEventInternal()
+    {
+        if (editContext == null)
+            return;
+        bool isValid = ValidateModels(commonProperties.LocationTypes, out _);
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        _hasErrors = !isValid || HasAnyValidationErrors();
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        try
+        {
+            if (oldLocationType != commonProperties.LocationTypes)
+                await DeleteShelfType();
+
+            zone.ZoneType = GetZoneTypeToLocationType(commonProperties.LocationTypes);
+            switch (commonProperties.LocationTypes)
+            {
+                case LocationTypes.Rack:
+
+                    rackDto.Name = commonProperties.Name;
+                    rackDto.LocationTypes = commonProperties.LocationTypes;
+                    //rackDto.Capacity = commonProperties.Capacity;
+                    var resRack = await JS.InvokeAsync<SizeCalcResult>("wf.calcShelfWHOnSave", rackDto, new
+                    {
+                        BAR_THICKNESS = 20,
+                        BAR_SPACING = 5
+                    });
+                    rackDto.Width = (int)Math.Round(resRack.width);
+                    rackDto.Height = (int)Math.Round(resRack.height);
+                    rackDto.NumShelves = resRack.numShelves;
+                    // rackDto.NumCrossAisles = rackDto.numCrossAisles;
+                    rackDto.X = (int)Math.Round(resRack.left); 
+                    rackDto.Y = (int)Math.Round(resRack.top); 
+
+                    SyncCommonToZone(commonProperties, zone, rackDto.Orientation);
+                    rackDto.Zone = zone;
+                    if (IsUpdate)
+                        await _designer.UpdateRack(rackDto); //Update case
+                    else
+                    {
+                        MapperShelfCoordinates(rackDto, zone);
+                        rackDto.ZoneId = zone.Id ?? Guid.Empty;
+                        rackDto.AreaId = zone.AreaId;
+                        await _designer.AddRack(rackDto);
+                    }
+                    break;
+                case LocationTypes.DriveIn:
+                    driveInDto.Name = commonProperties.Name;
+                    driveInDto.LocationTypes = commonProperties.LocationTypes;
+                    //driveInDto.Capacity = commonProperties.Capacity;
+                    var resDrivein = await JS.InvokeAsync<SizeCalcResult>("wf.calcShelfWHOnSave", driveInDto, new
+                    {
+                        BAR_THICKNESS = 20,
+                        BAR_SPACING = 5
+                    });
+                    driveInDto.Width = (int)Math.Round(resDrivein.width);
+                    driveInDto.Height = (int)Math.Round(resDrivein.height);
+                    driveInDto.NumShelves = resDrivein.numShelves;
+                    // driveInDto.NumCrossAisles = resDrivein.numCrossAisles;
+                    driveInDto.X = (int)Math.Round(resDrivein.left);
+                    driveInDto.Y = (int)Math.Round(resDrivein.top);
+
+                    SyncCommonToZone(commonProperties, zone, driveInDto.Orientation);
+                    driveInDto.Zone = zone;
+                    if (IsUpdate)
+                        await _designer.UpdateDriveIn(driveInDto); //Update case
+                    else
+                    {
+                        MapperShelfCoordinates(driveInDto, zone);
+                        driveInDto.ZoneId = zone.Id ?? Guid.Empty;
+                        driveInDto.AreaId = zone.AreaId;
+                        await _designer.AddDriveIn(driveInDto);
+                    }
+                    break;
+                case LocationTypes.CaoticStorage:
+                    chaoticStorageDto.Name = commonProperties.Name;
+                    chaoticStorageDto.LocationTypes = commonProperties.LocationTypes;
+                    chaoticStorageDto.Orientation = OrientationType.None;
+                    //chaoticStorageDto.Capacity = commonProperties.Capacity;
+
+                    SyncCommonToZone(commonProperties, zone, OrientationType.None);
+                    chaoticStorageDto.Zone = zone;
+                    if (IsUpdate)
+                        await _designer.UpdateChaotic(chaoticStorageDto); //Update case
+                    else
+                    {
+                        MapperShelfCoordinates(chaoticStorageDto, zone);
+                        chaoticStorageDto.ZoneId = zone.Id ?? Guid.Empty;
+                        chaoticStorageDto.AreaId = zone.AreaId;
+                        await _designer.AddChaoticStorage(chaoticStorageDto);
+                    }
+                    break;
+                case LocationTypes.AutomaticStorage:
+                    automaticStorageDto.Name = commonProperties.Name;
+                    automaticStorageDto.LocationTypes = commonProperties.LocationTypes;
+                    automaticStorageDto.Orientation = OrientationType.None;
+                    //automaticStorageDto.Capacity = commonProperties.Capacity;
+
+                    SyncCommonToZone(commonProperties, zone, OrientationType.None);
+                    automaticStorageDto.Zone = zone;
+                    if (IsUpdate)
+                        await _designer.UpdateAutomaticStorage(automaticStorageDto); //Update case
+                    else
+                    {
+                        MapperShelfCoordinates(automaticStorageDto, zone);
+                        automaticStorageDto.ZoneId = zone.Id ?? Guid.Empty;
+                        automaticStorageDto.AreaId = zone.AreaId;
+                        await _designer.AddAutomaticStorage(automaticStorageDto);
+                    }
+                    break;
+                default:
+                    await _designer.UpdateZoneDto(zone);
+                    break;
+            }
+
+            // await _designer.UpdateRack(DesignerDto);
+            List<ShelfDto> shelfList = new();
+            List<StepDto> stepDtoList = new();
+
+            List<RackDto> rackList = _designer.GetRacksDtoByIdAreaNoTracking(zone?.Area?.Id ?? Guid.Empty).ToList();
+            shelfList.AddRange(_designer.MapperRackDtoListToShelfDtoList(rackList));
+
+            List<DriveInDto> driveInList = _designer.GetDriveInsDtoByIdAreaNoTracking(zone?.Area?.Id ?? Guid.Empty).ToList();
+            shelfList.AddRange(_designer.MapperDriveInDtoListToShelfDtoList(driveInList));
+
+            List<ChaoticStorageDto> chaoticStorageList = _designer.GetChaoticStoragesDtoByIdAreaNoTracking(zone?.Area?.Id ?? Guid.Empty).ToList();
+            shelfList.AddRange(_designer.MapperChaoticStorageDtoListToShelfDtoList(chaoticStorageList));
+
+            List<AutomaticStorageDto> AutomaticList = _designer.GetAutomaticStoragesDtoByIdAreaNoTracking(zone?.Area?.Id ?? Guid.Empty).ToList();
+            shelfList.AddRange(_designer.MapperAutomaticStorageDtoListToShelfDtoList(AutomaticList));
+
+            List<ProcessDto> processDtoList = _designer.GetProcesByType(zone?.Area?.Id ?? Guid.Empty).ToList(); // Obtains the processes related to the area
+            foreach (var process in processDtoList)
+            {
+                stepDtoList.AddRange(_designer.GetStepsDtoByProcessIdNoTracking(process.Id ?? Guid.Empty).ToList());
+            }
+
+            var newViewport = _designer.GetVieportsByTypeObject(zone?.AreaId ?? Guid.NewGuid(), "Area");
+            await JS.InvokeVoidAsync("drawObjectsOnCanvas", newViewport);
+            await JS.InvokeVoidAsync("SaveOnPostback");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+        oldLocationType = commonProperties.LocationTypes;
+        oldObject = DesignerDto;
+        CaptureBaseline();
+        await InvokeAsync(StateHasChanged);
+        if (OnChildSaved.HasDelegate)
+            await OnChildSaved.InvokeAsync(Metadata);
+    }
+
+    #region RenderFragment
+
+    private RenderFragment CreateField(string label, RenderFragment field) => @<div class="col-xl-6 col-sm-12">
+        <label class="mlx-form-label">@label</label>
+    @field
+    </div>;
+
+    private Dictionary<LocationTypes, List<RenderFragment>> FieldTemplatesShelfSection => new()
+    {
+        {
+            LocationTypes.Rack, new List<RenderFragment>
+            {
+                CreateField(L.Loc("Shelf quantity"),@<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="rackDto.NumShelves" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+                CreateField(L.Loc("Aisle quantity"),@<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="rackDto.NumCrossAisles" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+                CreateField(L.Loc("Orientation"), @<div><MlxComboBox Data="orientationType" CssClass="mlx-form-select" Value="@rackDto.Orientation" ValueFieldName="Value" TextFieldName="Text" NullText="Select..." ValueChanged="@((OrientationType orientationType) => OnOrientationChanged(orientationType))" ValueExpression="@(() => rackDto.Orientation)" /><ValidationMessage class="text-danger" For="@(() => rackDto.Orientation)" /></div>),
+            }
+        },
+        {
+            LocationTypes.DriveIn, new List<RenderFragment>
+           {
+                CreateField(L.Loc("Shelf quantity"),@<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="driveInDto.NumShelves" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+                CreateField(L.Loc("Aisle quantity"),@<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="driveInDto.NumCrossAisles" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>),
+                CreateField(L.Loc("Orientation"), @<MlxComboBox Data="orientationType" CssClass="mlx-form-select" Value="@driveInDto.Orientation" ValueFieldName="Value" TextFieldName="Text" NullText="Select..." ValueChanged="@((OrientationType orientationType) => OnOrientationChanged(orientationType))" ValueExpression="@(() => driveInDto.Orientation)" />),
+           }
+        }
+    };
+
+    private Dictionary<LocationTypes, List<RenderFragment>> FieldTemplatesAisleSection => new()
+    {
+        {
+            LocationTypes.Rack, new List<RenderFragment>
+            {
+                //CreateField(L.Loc("Max. equipment"),@<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="zone.MaxEquipments" />),
+                CreateField(L.Loc("Bidirectional"),@<DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@rackDto.Bidirectional" CheckedChanged="OnIsBidirectional" CheckedExpression="@(() => rackDto.Bidirectional)" />),
+                CreateField(L.Loc("Narrow aisle"),@<DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@rackDto.NarrowAisle" CheckedChanged="OnIsNarrowAisle" CheckedExpression="@(() => rackDto.NarrowAisle)" />)
+            }.Concat(showMaxPickers ? new[] {
+                CreateField(L.Loc("Max. pickers"), @<div><DxSpinEdit CssClass="mlx-form-spinedit" Value="@rackDto.MaxPickers" ValueChanged="@((int v) => OnSpinEditChanged(v, () => rackDto.MaxPickers, val => rackDto.MaxPickers = val))" ValueExpression="@(() => rackDto.MaxPickers)" MinValue="0" MaxValue="999" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit><ValidationMessage class="text-danger" For="@(() => rackDto.MaxPickers)" /></div>)
+              } : Enumerable.Empty<RenderFragment>()).ToList()
+        },
+        {
+            LocationTypes.DriveIn, new List<RenderFragment>
+           {
+                //CreateField(L.Loc("Max. equipment"),@<DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="zone.MaxEquipments" />),
+                CreateField(L.Loc("Bidirectional"),@<DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@driveInDto.Bidirectional" CheckedChanged="OnIsBidirectional" CheckedExpression="@(() => driveInDto.Bidirectional)" />),
+                CreateField(L.Loc("Narrow aisle"),@<DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@driveInDto.NarrowAisle" CheckedChanged="OnIsNarrowAisle" CheckedExpression="@(() => driveInDto.NarrowAisle)" />)
+           }.Concat(showMaxPickers ? new[] {
+                CreateField(L.Loc("Max. pickers"), @<div><DxSpinEdit CssClass="mlx-form-spinedit" Value="@driveInDto.MaxPickers" ValueChanged="@((int v) => OnSpinEditChanged(v, () => driveInDto.MaxPickers, val => driveInDto.MaxPickers = val))" ValueExpression="@(() => driveInDto.MaxPickers)" MinValue="0" MaxValue="999" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit><ValidationMessage class="text-danger" For="@(() => driveInDto.MaxPickers)" /></div>)
+              } : Enumerable.Empty<RenderFragment>()).ToList()
+        }
+    };
+    #endregion
+
+    private void OnZoneTypeChanged(LocationTypes newType)
+    {
+        if (newType == commonProperties.LocationTypes)
+            return;
+
+        commonProperties.LocationTypes = newType;
+        messageStore?.Clear();
+
+        // Show/Hide accordion depending on whether Rack or DriveIn
+        haveShelf = (commonProperties.LocationTypes == LocationTypes.Rack || commonProperties.LocationTypes == LocationTypes.DriveIn);
+        haveAisle = haveShelf;
+        MarkDirty();
+        StateHasChanged();
+    }
+
+    private void OnOrientationChanged(OrientationType value)
+    {
+        switch (commonProperties.LocationTypes)
+        {
+            case LocationTypes.Rack:
+                rackDto.Orientation = value;
+                rackDto.IsVertical = value == OrientationType.Vertical;
+                break;
+            case LocationTypes.DriveIn:
+                driveInDto.Orientation = value;
+                driveInDto.IsVertical = value == OrientationType.Vertical;
+                break;
+        }
+        MarkDirty();
+    }
+
+    private void CreateNewDtoForNewType(LocationTypes newType)
+    {
+        switch (newType)
+        {
+            case LocationTypes.Rack:
+                rackDto = RackDto.NewDto(zone);
+                break;
+
+            case LocationTypes.DriveIn:
+                driveInDto = DriveInDto.NewDto(zone);
+                break;
+
+            case LocationTypes.CaoticStorage:
+                chaoticStorageDto = ChaoticStorageDto.NewDto(zone);
+                break;
+
+            case LocationTypes.AutomaticStorage:
+                automaticStorageDto = AutomaticStorageDto.NewDto(zone);
+                break;
+        }
+    }
+
+    private async Task DeleteShelfType()
+    {
+        IsUpdate = false;
+
+        if(oldObject is RackDto rack)
+        {
+            Rack deleteRack = _designer.GetRackByIdAsNoTracking(rack.Id ?? Guid.Empty);
+            rackDto = new();
+            await _designer.DeleteRack(deleteRack);
+        }
+        else if (oldObject is DriveInDto driveIn)
+        {
+            DriveIn deleteDriveIn = _designer.GetDriveInByIdAsNoTracking(driveIn.Id ?? Guid.Empty);
+            driveInDto = new();
+            await _designer.DeleteDriveIn(deleteDriveIn);
+        }
+        else if (oldObject is ChaoticStorageDto chaotic)
+        {
+            ChaoticStorage deleteCaoticStorage = _designer.GetChaoticByIdAsNoTracking(chaotic.Id ?? Guid.Empty);
+            chaoticStorageDto = new();
+            await _designer.DeleteChaotic(deleteCaoticStorage);
+        }
+        else if (oldObject is AutomaticStorageDto automatic)
+        {
+            AutomaticStorage deleteautomaticStorage = _designer.GetAutomaticStorageByIdAsNoTracking(automatic.Id ?? Guid.Empty);
+            driveInDto = new();
+            await _designer.DeleteAutomaticStorage(deleteautomaticStorage);
+
+        }
+    }
+
+    #region Validations
+    private bool ValidateModels(LocationTypes type, out List<ValidationResult> validationResults)
+    {
+        validationResults = new();
+
+        var context = new ValidationContext(commonProperties); // Set context to validdate
+        var results = new List<ValidationResult>(); // Initializes the list of validation results
+        bool isCommonValid = Validator.TryValidateObject(commonProperties, context, results, validateAllProperties: false); // Gets the validation of the commonProperties object
+
+        // Depending on the case, search the object for validation results.
+        bool isModelValid = type switch
+        {
+            LocationTypes.Rack =>
+                TryValidateAndShowErrors(rackDto,
+                    showMaxPickers ? new[] { nameof(rackDto.Name), nameof(rackDto.X), nameof(rackDto.Y), nameof(rackDto.Height), nameof(rackDto.Width) }
+                                   : new[] { nameof(rackDto.MaxPickers), nameof(rackDto.Name), nameof(rackDto.X), nameof(rackDto.Y), nameof(rackDto.Height), nameof(rackDto.Width) }, out var _),
+
+            LocationTypes.DriveIn =>
+                TryValidateAndShowErrors(driveInDto,
+                    showMaxPickers ? new[] { nameof(driveInDto.Name), nameof(driveInDto.X), nameof(driveInDto.Y), nameof(driveInDto.Height), nameof(driveInDto.Width) }
+                                   : new[] { nameof(driveInDto.MaxPickers), nameof(driveInDto.Name), nameof(driveInDto.X), nameof(driveInDto.Y), nameof(driveInDto.Height), nameof(driveInDto.Width) }, out var _),
+
+            LocationTypes.CaoticStorage =>
+                TryValidateAndShowErrors(chaoticStorageDto, new[] { nameof(chaoticStorageDto.Name), nameof(chaoticStorageDto.X), nameof(chaoticStorageDto.Y), nameof(chaoticStorageDto.Height), nameof(chaoticStorageDto.Width) }, out var _),
+
+            LocationTypes.AutomaticStorage =>
+                TryValidateAndShowErrors(automaticStorageDto, new[] { nameof(automaticStorageDto.Name), nameof(automaticStorageDto.X), nameof(automaticStorageDto.Y), nameof(automaticStorageDto.Height), nameof(automaticStorageDto.Width) }, out var _),
+            _ => isCommonValid
+        };
+
+        return isCommonValid && isModelValid; // If both are true, the validation is correct.
+    }
+
+    // Validates the model except for properties that do not have controls in the HTML (model, messsageStore, string arrangement of exclude properties, )
+    private bool TryValidateAndShowErrors<T>(T model, string[] excludeProperties, out List<ValidationResult> validationResults)
+    {
+        bool isValid = TryValidate(model, out validationResults, excludeProperties);
+        messageStore?.Clear();
+        _localErrors.Clear();
+        var currentErrorKeys = new HashSet<string>();
+        foreach (var error in validationResults)
+        {
+            foreach (var memberName in error.MemberNames)
+            {
+                currentErrorKeys.Add(memberName);
+                var field = new FieldIdentifier(model, memberName);
+                messageStore?.Add(field, error.ErrorMessage); // Adds in messageStore the properties with their triggered validation texts
+                _localErrors[memberName] = error.ErrorMessage;
+            }
+        }
+        editContext?.NotifyValidationStateChanged();
+        UpdateSaveButtonState();
+        return isValid;
+    }
+
+    // Validates the objects and their elements required to show in the validation list the errors except for the properties to be omitted
+    private bool TryValidate<T>(T model, out List<ValidationResult> results, params string[] excludeProperties)
+    {
+        ValidationContext? context = new ValidationContext(model); // Gets the context of the model validations
+        results = new List<ValidationResult>();
+        var props = typeof(T).GetProperties().Where(p => !excludeProperties.Contains(p.Name) && p.GetCustomAttributes(typeof(ValidationAttribute), true).Any()); // Filters properties with validations that are not required (BaseDesigner)
+
+        bool isValid = true; // Initiates validation as true
+
+        foreach (var prop in props)
+        {
+            var value = prop.GetValue(model);
+            IEnumerable<ValidationAttribute>? attrs = prop.GetCustomAttributes(typeof(ValidationAttribute), true).Cast<ValidationAttribute>();
+            foreach (var attr in attrs)
+            {
+                ValidationResult? result = attr.GetValidationResult(value, new ValidationContext(model) { MemberName = prop.Name }); // Model property name
+                if (result != ValidationResult.Success)
+                {
+                    results.Add(result); // Added to the collection of properties with triggered validations
+                    isValid = false;
+                }
+            }
+        }
+        return isValid;
+    }
+
+    private bool HasAnyValidationErrors()
+    {   
+        if (editContext?.GetValidationMessages().Any() == true)
+            return true;
+
+        return false;
+    }
+
+    private bool MessageStoreHasErrors()
+    {
+        if (messageStore == null || editContext == null)
+            return false;
+
+        return editContext.GetValidationMessages().Any();
+    }
+
+    // Remove validation message from edit context
+    private void ClearValidation<T>(Expression<Func<T>> fieldExpression)
+    {
+        if (editContext == null || messageStore == null)
+            return;
+
+        var field = FieldIdentifier.Create(fieldExpression);
+        messageStore.Clear(field);
+        editContext.NotifyValidationStateChanged();
+    }
+
+    // Validation event for SpinEdits
+    private void OnSpinEditChanged(int value, Expression<Func<object>> fieldExpression, Action<int> assignValue)
+    {
+        var field = FieldIdentifier.Create(fieldExpression); // Create an element identifier
+        var fieldName = field.FieldName;
+
+        messageStore?.Clear(field); // Clears any messages (used to avoid duplicate validations)
+        _localErrors.Remove(fieldName);
+
+        assignValue.Invoke(value); // Assign the value to the property of the int control used
+
+        if (showMaxPickers && value < 1)
+        {
+            string msg = L.Loc("* Must be greater than 0");
+            messageStore?.Add(field, msg);
+            _localErrors[fieldName] = msg;
+            editContext.NotifyValidationStateChanged();
+            UpdateSaveButtonState();
+            return;
+        }
+
+        editContext.NotifyFieldChanged(field); // Register in editContext on change to trigger the message
+        editContext.NotifyValidationStateChanged();
+        MarkDirty();
+        UpdateSaveButtonState();
+    }
+    #endregion
+
+    #region Checkbox events
+    private Task IsNarrowAisle(bool isNarrowAisle)
+    {
+        showMaxPickers = isNarrowAisle;
+        switch (commonProperties.LocationTypes)
+        {
+            case LocationTypes.Rack:
+                rackDto.NarrowAisle = isNarrowAisle;
+                if (!showMaxPickers)
+                {
+                    rackDto.MaxPickers = 0;
+                    ClearValidation(() => rackDto.MaxPickers);
+                }
+                break;
+            case LocationTypes.DriveIn:
+                driveInDto.NarrowAisle = isNarrowAisle;
+                if (!showMaxPickers)
+                {
+                    driveInDto.MaxPickers = 0;
+                    ClearValidation(() => driveInDto.MaxPickers);
+                }
+                break;
+        }
+        MarkDirty();
+        return Task.CompletedTask;
+    }
+
+    private Task IsBidirectional(bool isBidirectional)
+    {
+        switch (commonProperties.LocationTypes)
+        {
+            case LocationTypes.Rack:
+                rackDto.Bidirectional = isBidirectional;
+                break;
+            case LocationTypes.DriveIn:
+                driveInDto.Bidirectional = isBidirectional;
+                break;
+        }
+        MarkDirty();
+        return Task.CompletedTask;
+    }
+    #endregion
+
+    #region MappersRegion
+    private CommonShelfProperties MapCommonProperties(dynamic dto, LocationTypes locationTypes)
+    {
+        return new CommonShelfProperties
+        {
+            Name = dto.Zone.Name,
+            LocationTypes = locationTypes,
+            AreaId = dto.Zone.AreaId,
+            Area = dto.Zone.Area,
+            MaxContainers = dto.Zone.MaxContainers ?? 0,
+            MaxEquipments = dto.Zone.MaxEquipments ?? 0
+        };
+    }
+
+    private void MapperShelfCoordinates<T>(T dto, Models.DTO.Designer.ZoneDto zone) where T : BaseDesignerDto
+    {
+        dto.Id = Guid.NewGuid();
+        dto.X = zone.X;
+        dto.Y = zone.Y;
+        dto.Width = zone.Width;
+        dto.Height = zone.Height;
+    }
+
+    private void SyncCommonToZone(CommonShelfProperties source, Models.DTO.Designer.ZoneDto target, OrientationType orientation = OrientationType.None)
+    {
+        target.Name = source.Name;
+        target.MaxContainers = source.MaxContainers;
+        target.MaxEquipments = source.MaxEquipments;
+        target.Orientation = orientation;
+        target.StatusObject = "StoredInBase";
+    }
+
+    #endregion
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        UpdateDirtyFlag();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        UpdateSaveButtonState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateDirtyFlag()
+    {
+        var current = BuildFingerprint();
+        _isDirty = current != _baselineFingerprint;
+    }
+
+    private void UpdateSaveButtonState()
+    {
+        _hasErrors = (editContext?.GetValidationMessages().Any() ?? false) || _localErrors.Any();
+    }
+
+    public void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+        StateHasChanged();
+    }
+
+    private string BuildFingerprint()
+    {
+        return commonProperties.LocationTypes switch
+        {
+            LocationTypes.Rack => string.Join("|",
+                commonProperties.Name,
+                commonProperties.MaxContainers,
+                commonProperties.MaxEquipments,
+                rackDto?.NumShelves,
+                rackDto?.NumCrossAisles,
+                rackDto?.Orientation,
+                rackDto?.Bidirectional,
+                rackDto?.NarrowAisle,
+                rackDto?.MaxPickers,
+                zone?.X,
+                zone?.Y,
+                zone?.Width,
+                zone?.Height
+            ),
+
+            LocationTypes.DriveIn => string.Join("|",
+                commonProperties.Name,
+                commonProperties.MaxContainers,
+                commonProperties.MaxEquipments,
+                driveInDto?.NumShelves,
+                driveInDto?.NumCrossAisles,
+                driveInDto?.Orientation,
+                driveInDto?.Bidirectional,
+                driveInDto?.NarrowAisle,
+                driveInDto?.MaxPickers,
+                zone?.X,
+                zone?.Y,
+                zone?.Width,
+                zone?.Height
+            ),
+
+            LocationTypes.CaoticStorage => string.Join("|",
+                commonProperties.Name,
+                commonProperties.MaxContainers,
+                commonProperties.MaxEquipments,
+                chaoticStorageDto?.X,
+                chaoticStorageDto?.Y,
+                chaoticStorageDto?.Width,
+                chaoticStorageDto?.Height
+            ),
+
+            LocationTypes.AutomaticStorage => string.Join("|",
+                commonProperties.Name,
+                commonProperties.MaxContainers,
+                commonProperties.MaxEquipments,
+                automaticStorageDto?.X,
+                automaticStorageDto?.Y,
+                automaticStorageDto?.Width,
+                automaticStorageDto?.Height
+            ),
+
+            _ => string.Join("|",
+                commonProperties.Name,
+                commonProperties.MaxContainers,
+                commonProperties.MaxEquipments
+            )
+        };
+    }
+
+    public void MarkDirty()
+    {
+        _isDirty = true;
+        UpdateSaveButtonState();
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,154 @@
+﻿@using DevExpress.Blazor
+
+
+@{
+    string headerHeightTab = usingTab ? "mlx-right-sideBar-header-width-tab" : "mlx-right-sideBar-header-widthout-tab", //mlx-right-sideBar-header height. Change between height 40px and 80px
+            hideTabContainer = usingTab ? "" : "mlx-display-none", //Applies display none. Hides the tab container
+            headerHeightTabContainer = usingTab ? "mlx-height-50" : "mlx-height-100", //Change between height 50% and 100%. When there are no tabs, the container becomes the full height.
+            heightBody = usingTab ? "mlx-right-sideBar-body-height-with-tab" : "mlx-right-sideBar-body-height-without-tab"; //Calculates the thickness of the body container when tabs are present and when not.
+}
+
+<div class="mlx-right-sideBar-header @headerHeightTab">
+    <div class="mlx-right-sideBar-header-title @headerHeightTabContainer">
+        @Title
+    </div>
+    <div class="mlx-right-sideBar-header-tab-container mlx-height-50 @hideTabContainer">
+        <button class="mlx-right-sideBar-header-tab active" onclick="showTab('tabOption1')">Tab1</button>
+        <button class="mlx-right-sideBar-header-tab" onclick="showTab('tabOption2')">Tab2</button>
+    </div>
+</div>
+<div class="mlx-right-sideBar-body @heightBody">
+    @* Section without tabs *@
+    <div hidden="@(usingTab)">
+        <div class="mlx-right-sideBar-body-content-widthout-tab">
+            <div class="row">
+                <div class="col-xl-6 col-sm-12">
+                    <label class="mlx-form-label">Ejemplo 1</label>
+                    <DxTextBox CssClass="mlx-form-textbox" />
+                </div>
+                <div class="col-xl-6 col-sm-12">
+                    <label class="mlx-form-label">Ejemplo 2</label>
+                    <DxSpinEdit MinValue="0" MaxValue="999999" CssClass="mlx-form-spinedit" />
+                </div>
+                <div class="col-xl-12 col-sm-12">
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idBodyLoad" aria-expanded="true" aria-controls="idBodyLoad">
+                                    <span class="mlx-title-h3">Titulo 1</span>
+                                </button>
+                            </h2>
+                            <div id="idBodyLoad" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 1</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 2</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 3</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 4</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*------------------------*@
+
+    @* Tabs section *@
+    <div hidden="@(!usingTab)">
+        <div class="mlx-right-sideBar-body-content-width-tab" id="tabOption1">
+            <div class="row">
+                <div class="col-xl-6 col-sm-12">
+                    <label class="mlx-form-label">Ejemplo 1</label>
+                    <DxTextBox CssClass="mlx-form-textbox" />
+                </div>
+                <div class="col-xl-6 col-sm-12">
+                    <label class="mlx-form-label">Ejemplo 2</label>
+                    <DxSpinEdit MinValue="0" MaxValue="999999" CssClass="mlx-form-spinedit" />
+                </div>
+                <div class="col-xl-12 col-sm-12">
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idBodyLoad" aria-expanded="true" aria-controls="idBodyLoad">
+                                    <span class="mlx-title-h3">Titulo 1</span>
+                                </button>
+                            </h2>
+                            <div id="idBodyLoad" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 1</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 2</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 3</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">Ejemplo 4</label>
+                                            <DxTextBox CssClass="mlx-form-textbox" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mlx-right-sideBar-body-content-width-tab" id="tabOption2" style="display: none;">
+            <div class="row">
+                <div class="col-xl-6 col-sm-12">
+                    <label class="mlx-form-label">Ejemplo 3</label>
+                    <DxTextBox CssClass="mlx-form-textbox" />
+                </div>
+                <div class="col-xl-6 col-sm-12">
+                    <label class="mlx-form-label">Ejemplo 4</label>
+                    <DxSpinEdit MinValue="0" MaxValue="999999" CssClass="mlx-form-spinedit" />
+                </div>
+            </div>
+        </div>
+    </div>
+    @*------------------------*@
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">Cancel</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary">Save</button>
+</div>
+
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    /*Indicate if tabs are being used*/
+    bool usingTab = false;
+
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+
+    // Method for handling the click
+    private async Task CancelButtonClick()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+}

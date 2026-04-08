@@ -1,0 +1,72 @@
+﻿@page "/project-designer"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Components.GridComponent
+@using Mss.WorkForce.Code.Web.Components.ToolBar
+@using Mss.WorkForce.Code.Web.Components.BaseComponent
+@using Mss.WorkForce.Code.Web.Components.Pages.Designer
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Web.Services
+@inherits Mss.WorkForce.Code.Web.Common.PageOperations
+@inject ILocalizationService l
+@inject SendParamService _SendParamService
+@inject NavigationManager Navigation
+@attribute [Authorize]
+
+
+<ConfirmDialog></ConfirmDialog>
+<MlxMainContainer IsLeftSideVisible="!ShowNewView" IsRightSideVisible="@ShowDetail">
+    <LeftSideContent>
+        <ToolbarActions Actions="@Actions" EventListener="@EventListener" SelectMode="@SelectMode"></ToolbarActions>
+    </LeftSideContent>
+    <MiddleSideContent>
+        @if (ShowDesignerView)
+        {
+            <Designer LayoutData="SelectedLayout" IsProjectView="IsProjectView" ClearAction="@ClearView" @key="SelectedLayout?.Id"></Designer>
+        }
+        else{
+            @if (ShowNewView)
+            {
+                <div class="dxbl-modal-body">
+                    <div class="d-flex flex-column" style="background-color: white; height:88vh">
+                        <div class="container-title-panel container-for-image" style="justify-content: space-between;">
+                            <div class="item-title-data">
+                                <span class="data-title">@Loc("DATA")</span>
+                                <span style="border-bottom: 4px solid black; display: block; padding: 0.25rem;"></span>
+                            </div>
+                        </div>
+                        <div class="container-data">
+                            <div class="data">
+                                <BaseComponente @ref="baseComponentLayout" Models="lstSelectedLayout" editMode="true"  newMode=true Container="@BaseComponentContainer" />
+                            </div>
+                        </div>
+
+                        <div class="modal-footer container-buttons">
+                            <button id="btnCancel" type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelEvent">@Loc("Cancel")</button>
+                            <button id="btnSave" type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@savebtn" @onclick="SaveEvent">@Loc("Save")</button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <GridComponent GridParameters="GetLayoutsDto" isExpandGrid="@isExpandGrid" UserFormat="userFormat"></GridComponent>
+            }
+        }
+    </MiddleSideContent>
+    <RightSideContent>
+        @if (SelectedLayout != null)
+        {
+            <DetailsComponent FillGridParameters="GetLayoutsDto"
+                              SelectedIds="SelectedLayoutIds"
+                              IsEditable="IsEditMode"
+                              UserFormat="userFormat"
+                              T="LayoutDto" />
+        }
+    </RightSideContent>
+</MlxMainContainer>
+
+@code{
+
+}

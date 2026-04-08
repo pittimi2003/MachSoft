@@ -1,0 +1,80 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Services
+@inject IMlxDialogService DialogService
+@inject ILocalizationService L
+
+<DxPopup @bind-Visible="@IsDialogVisible"
+CssClass="mlx-modal"
+ShowFooter="true"
+HeaderText="@Title"
+CloseOnOutsideClick="false"
+CloseOnEscape="false"
+ShowCloseButton="false"
+Width="40%">
+<BodyContentTemplate>
+        <label class="mlx-modal-label">@Message</label>
+</BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        @if (ViewCancel)
+        {
+            <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="(() => HandleDialogClose(false))">@CancelBtnText</button>
+        }
+        @if (ViewAcept)
+        {
+            <button type="button" class="btn-mlx btn-mlx-blue-primary" @onclick="(() => HandleDialogClose(true))">@AceptBtnText</button>
+        }
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    private string CANCEL_TXT => L.Loc("No");
+    private string ACEPT_TXT => L.Loc("Yes");
+    private string _title = string.Empty;
+    private string _message = string.Empty;
+
+    private bool IsDialogVisible { get; set; }
+    private string? Message { get; set; }
+    private string? Title { get; set; }
+
+    private bool ViewCancel { get; set; }
+    private string? CancelBtnText { get; set; }
+
+    private bool ViewAcept { get; set; }
+    private string? AceptBtnText { get; set; }
+
+    protected override void OnInitialized()
+    {
+        DialogService.OnShowDialog += ShowDialog;
+        DialogService.OnCloseDialog += CloseDialog;
+    }
+
+    private void ShowDialog(string title, string message, bool viewCancel = true, string cancelBtnText = "", bool viewAcept = true, string aceptBtnText = "")
+    {
+        Title = title;
+        Message = message;
+        IsDialogVisible = true;
+        ViewCancel = viewCancel;
+        CancelBtnText = string.IsNullOrWhiteSpace(cancelBtnText) ? CANCEL_TXT : cancelBtnText;
+        AceptBtnText = string.IsNullOrWhiteSpace(aceptBtnText) ? ACEPT_TXT : aceptBtnText; ;
+        ViewAcept = viewAcept;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseDialog()
+    {
+        IsDialogVisible = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleDialogClose(bool result)
+    {
+        DialogService.CloseDialog(result);
+        CloseDialog();
+    }
+
+    public void Dispose()
+    {
+        DialogService.OnShowDialog -= ShowDialog;
+        DialogService.OnCloseDialog -= CloseDialog;
+    }
+}

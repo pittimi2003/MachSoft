@@ -1,0 +1,99 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Models.Enums
+@inject ILocalizationService L
+
+@if (IsEditing)
+{
+    <div class="mlx-row-header">
+        <div class="row">
+
+            <div class="col-md-@(12 / Columns)">
+                <label for="idSelectWarehouse" class="mlx-form-label">@S_Severity</label>
+                <div class="col-md-6 d-flex gap-2">
+                    @foreach (var tipo in Enum.GetValues(typeof(AlertSeverity)).Cast<AlertSeverity>())
+                    {
+                        <button @onclick="() => ActivarSeverity(tipo)" class="@(ModelConfiguration.Severity == tipo ? "button-hide" : "") button-severity w-100" title="@L.Loc(tipo.ToString())">
+                            <span class="@GetIconTextDisabled((tipo.ToString()))"></span>
+                        </button>
+                        <button class="@(ModelConfiguration.Severity == tipo ? "" : "button-hide") button-severity  w-100" title="@L.Loc(tipo.ToString())">
+                            <span class="@GetIconText((tipo.ToString()))"></span>
+                        </button>
+                    }
+                </div>
+
+            </div>
+
+            <div class="col-md-@(12 / Columns)">
+                <label for="idSelectWarehouse" class="mlx-form-label">@S_Type</label>
+                <MlxComboBox Data="@Types"
+                            CssClass="mlx-form-select"
+                            TextFieldName="Text"
+                            ValueFieldName="Value"
+                            Value="@ModelConfiguration.Type"
+                            ValueChanged="@( (AlertType? value) => OnTypeChanged(value) )"
+                            ValueExpression="() => ModelConfiguration.Type"
+                            NullText="@S_SelectType">
+                </MlxComboBox>
+
+
+            </div>
+
+            <div class="col-auto icon-add-align-center">
+                <DxButton IconCssClass="mlx-btn-action mlx-ico-add"
+                CssClass="@(EnableAddNewButton ? "mlx-btn-action-enabled" : "mlx-btn-action-disabled")"
+                Enabled="@EnableAddNewButton"
+                Click="AddAlertConfiguration" />
+            </div>
+        </div>
+    </div>
+}
+
+<DxGrid Data="@AlertConfigurations"
+CssClass="mlx-grid"
+SelectionMode="GridSelectionMode.Single">
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(AlertConfigurationDto.Severity)" Caption="@S_Severity">
+            <CellDisplayTemplate Context="ModelContext">
+                <span class="@GetSeverityIcon(ModelContext.Value)"></span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="@nameof(AlertConfigurationDto.Type)" Caption="@S_Type">
+            <CellDisplayTemplate Context="ModelContext">
+                @if (ModelContext.Value is AlertType alertType)
+                {
+                    <span>@L.Loc(EnumHelper.GetItemDescription(alertType))</span>
+                }
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        @if (IsEditing)
+        {
+            <DxGridDataColumn FieldName="@S_Actions" Width="80px" Context="contextItem" TextAlignment="GridTextAlignment.Center">
+                <CellDisplayTemplate><span class="mlx-ico-trash mlx-button-trash" @onclick="() => RemoveAlertConfiguration(((AlertConfigurationDto)contextItem.DataItem).Id)"></span></CellDisplayTemplate>
+            </DxGridDataColumn>
+        }
+    </Columns>
+</DxGrid>
+
+<style>
+    .mlx-ico-greater-than::before,
+    .mlx-ico-less-than::before,
+    .mlx-ico-equal::before,
+    .mlx-ico-distinct::before,
+    .mlx-ico-greater-than-or-equal-to::before,
+    .mlx-ico-less-than-or-equal-to::before {
+    font-size: 16px !important;
+    }
+
+    .dxbl-text-edit > .dxbl-text-edit-template:not(:first-child) {
+    padding-top: 7px;
+    padding-left: 25px;
+    }
+</style>
+
+@code {
+ 
+}

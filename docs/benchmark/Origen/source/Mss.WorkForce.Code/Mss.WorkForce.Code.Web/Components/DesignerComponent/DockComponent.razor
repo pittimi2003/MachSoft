@@ -1,0 +1,509 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+@implements ITrackChanges
+@implements IChildSaver
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="editContext">
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                <div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 1: Basic info zone      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#idStationBasicInfo"
+                                    aria-expanded="true"
+                                    aria-controls="idStationBasicInfo">
+                                        <span class="mlx-title-h3">@L.Loc("Common properties")</span>
+                                    </button>
+                                </h2>
+                                <div id="idStationBasicInfo" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <!-- Nombre de la estación -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Name")</label>
+                                                <DxTextBox CssClass="mlx-form-text" Text="@DesignerDto.Zone.Name" TextChanged="@((string name) => OnNameEvent(name))" TextExpression="@(() => DesignerDto.Zone.Name)" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.Zone.Name)" />
+                                            </div>
+    
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Area")</label>
+                                                <DxTextBox Text="@DesignerDto?.Zone?.Area?.Name" TextExpression="@(() => DesignerDto.Zone.Area.Name)" Enabled="false" CssClass="mlx-form-textbox width-100" />
+                                            </div>
+    
+                                            <!-- Máx. stock a reservar -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max. containers")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" 
+                                                Mask="n0"
+                                                MinValue="0" MaxValue="999999"
+                                                Value="@DesignerDto.Zone.MaxContainers" ValueChanged="@((int v) => OnZoneChanged(v))" ValueExpression="@(() => DesignerDto.Zone.MaxContainers)">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max. equipment")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                MinValue="0" MaxValue="999999"
+                                                @bind-Value="@DesignerDto.Zone.MaxEquipments" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Máx. stock a reservar -->
+                                            @*<div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">Max stock to book</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.Zone.MaxStockToBook" />
+                                            </div>
+    
+                                            <!-- Stock inicial a reservar -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">Init stock to book</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.Zone.InitStockToBook" />
+                                            </div>
+    
+                                            <!-- Máx. stock permitido -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">Max stock</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.Zone.MaxStock" />
+                                            </div>
+    
+                                            <!-- Activar límite de stock (true/false) -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">Has stock limit?</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                                @bind-Checked="@DesignerDto.Zone.IsLimitStock">
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 2: Capacity and stock        -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idDockCapacity"
+                                            aria-expanded="false"
+                                            aria-controls="idDockCapacity">
+                                        <span class="mlx-title-h3">Detailed properties</span>
+                                    </button>
+                                </h2>
+                                <div id="idDockCapacity" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <!-- Cantidad máxima de equipos en el Dock -->
+    
+                                            <!-- Máximo Stock para Crossdocking -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">Max stock crossdocking</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.MaxStockCrossdocking" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+    
+                <!-- ====================================== -->
+                <!-- CATEGORÍA 3: Flow and behavior          -->
+                <!-- ====================================== -->
+                <div class="col-xl-12 col-sm-12">
+                    <div class="accordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#idDockFlow"
+                                aria-expanded="false"
+                                aria-controls="idDockFlow">
+                                    <span class="mlx-title-h3">@L.Loc("Flow and behavior properties")</span>
+                                </button>
+                            </h2>
+                            <div id="idDockFlow" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <!-- El Dock opera desde Buffer (true/false) -->
+                                        @*<div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Operates from buffer")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                                @bind-Checked="@DesignerDto.OperatesFromBuffer">
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>
+                                            <!-- Sobrecarga permitida (porcentaje, factor, etc.) -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Overload handling")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            Increment="0.1"
+                                                            @bind-Value="@DesignerDto.OverloadHandling" />
+                                            </div>*@
+                                        <!-- Rango de inbound -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Inbound priority order")</label>
+                                            <DxSpinEdit CssClass="mlx-form-spinedit"
+                                            MinValue="0" MaxValue="999999"
+                                            @bind-Value="@DesignerDto.InboundRange" Mask="n0">
+                                                <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                        </div>
+                                        <!-- Rango de outbound -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Outbound priority order")</label>
+                                            <DxSpinEdit CssClass="mlx-form-spinedit"
+                                            MinValue="0" MaxValue="999999"
+                                            @bind-Value="@DesignerDto.OutboundRange" Mask="n0">
+                                                <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                        </div>
+                                        <!-- Permitir inbound (true/false) -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Allow inbound")</label>
+                                            <div class="mlx-checkbox-container">
+                                                @* <DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@DesignerDto.AllowInbound" CheckedExpression="@(() => DesignerDto.AllowInbound)" CheckedChanged="EventCallback.Factory.Create<bool>(this, value => ToggleInbound(value))"></DxCheckBox> *@
+                                                <DxCheckBox CssClass="mlx-check-box align-items-center" @bind-Checked="@DesignerDto.AllowInbound"></DxCheckBox>
+                                            </div>
+                                        </div>
+                                        <!-- Permitir outbound (true/false) -->
+                                        <div class="col-xl-6 col-sm-12">
+                                            <label class="mlx-form-label">@L.Loc("Allow outbound")</label>
+                                            <div class="mlx-checkbox-container">
+                                                @* <DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@DesignerDto.AllowOutbound" CheckedExpression="@(() => DesignerDto.AllowOutbound)" CheckedChanged="EventCallback.Factory.Create<bool>(this, value => ToggleOutbound(value))"></DxCheckBox> *@
+                                                <DxCheckBox CssClass="mlx-check-box align-items-center" @bind-Checked="@DesignerDto.AllowOutbound"></DxCheckBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEventInternal())">@L.Loc("Save")</button>
+</div>
+
+@code {
+
+    #region Parameters
+
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public DockDto DesignerDto { get; set; }
+
+    [Parameter] public UserFormatOptions UserFormat { get; set; } = new();
+
+    [Parameter]
+    public Dictionary<string, object>? Metadata { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildCancel { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildSaved { get; set; }
+    #endregion
+
+    #region Properties
+
+    [Inject] private IDesignerServices _designer { get; set; }
+
+    [Inject] private IJSRuntime JS { get; set; }
+    #endregion
+
+    #region Save Button Status
+
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    private bool CanSave => _isDirty && !_hasErrors;
+    public Task SaveEvent() => SaveEventInternal();
+
+    #endregion
+
+    private EditContext editContext;
+    private ValidationMessageStore? messageStore;
+
+    private string jsonResult = string.Empty;
+    private IEnumerable<ZoneType> _filteredZoneTypes = Enum.GetValues(typeof(ZoneType)).Cast<ZoneType>().Where(x => x != ZoneType.Unknown);
+
+    // Method for handling the click
+    private async Task CancelButtonClick()
+    {
+        await OnChildCancel.InvokeAsync(Metadata);
+    }
+
+    /*Combo box*/
+    private IEnumerable<AreaDto>? AreaItems { get; set; }
+    private List<DockDto>? UploadingOption { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Inicializar datos manuales
+        editContext = new EditContext(DesignerDto);
+        messageStore = new ValidationMessageStore(editContext);
+        editContext.OnFieldChanged += HandleFieldChanged;
+        editContext.OnValidationStateChanged += HandleValidationStateChanged;
+        UploadingOption = new();
+        FillComboBox();
+        CaptureBaseline();
+        await Task.CompletedTask;
+    }
+
+    private void FillComboBox()
+    {
+        List<AreaDto>? areas = _designer.GetAreasDtoByLayout(DesignerDto?.Zone?.Area?.LayoutId ?? Guid.Empty)?.ToList() ?? new List<AreaDto>();
+        AreaItems = areas.Any() && DesignerDto?.Zone?.Area != null ? areas.Where(i => i.Id != DesignerDto.Id).ToList() : new List<AreaDto>();
+    }
+
+    private async Task SaveEventInternal()
+    {
+        if (editContext == null || DesignerDto?.Zone == null)
+            return;
+        bool isValid = ValidateSideBar();
+        MarkDirty();
+        _hasErrors = !isValid;
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        try
+        {
+            //Update case
+            await _designer.UpdateDock(DesignerDto);
+            List<Models.DTO.Designer.ZoneDto> zoneList = new();
+            IEnumerable<Zone> zoneEnumerable = _designer.GetZonesByAreaNoTracking(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty);
+
+            foreach (var zone in zoneEnumerable)
+            {
+                if (null != zone && zone.Id != Guid.Empty)
+                    zoneList.Add(_designer.GetZoneDtoById(zone.Id));
+            }
+
+            List<StepDto> stepDtoList = new();
+            List<ProcessDto> processDtoList = _designer.GetProcesByType(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty).ToList(); // Obtains the processes related to the area
+
+            foreach (var process in processDtoList)
+            {
+                stepDtoList.AddRange(_designer.GetStepsDtoByProcessIdNoTracking(process.Id ?? Guid.Empty).ToList());
+            }
+
+            var newViewport = _designer.GetVieportsByTypeObject(DesignerDto?.Zone?.Area?.Id ?? Guid.NewGuid(), "Area");
+            await JS.InvokeVoidAsync("drawObjectsOnCanvas", newViewport);
+            await JS.InvokeVoidAsync("SaveOnPostback");
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+        CaptureBaseline();
+        await InvokeAsync(StateHasChanged);
+        if (OnChildSaved.HasDelegate)
+            await OnChildSaved.InvokeAsync(Metadata);
+    }
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+
+    private Task ToggleOutbound(bool? value)
+    {
+        var checkedValue = value ?? false;
+
+        // If Outbound is enabled, disable Inbound
+        if (checkedValue)
+        {
+            DesignerDto.AllowOutbound = true;
+            DesignerDto.AllowInbound = false;
+        }
+        else
+        {
+            // If an attempt is made to uncheck Outbound, Inbound is checked.
+            DesignerDto.AllowOutbound = false;
+            DesignerDto.AllowInbound = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleInbound(bool? value)
+    {
+        var checkedValue = value ?? false;
+
+        if (checkedValue)
+        {
+            DesignerDto.AllowInbound = true;
+            DesignerDto.AllowOutbound = false;
+        }
+        else
+        {
+            DesignerDto.AllowInbound = false;
+            DesignerDto.AllowOutbound = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    #region Validations
+
+    // Event Save
+    private bool ValidateSideBar()
+    {
+        messageStore?.Clear(); // Clears previous validations
+        bool isValid = editContext.Validate(); // Validates the decorators of the attributes of the model assigned in the editContext
+        var field = FieldIdentifier.Create(() => DesignerDto.Zone.Name);
+
+        // Validate required field
+        if (string.IsNullOrWhiteSpace(DesignerDto.Zone?.Name))
+        {
+            messageStore?.Add(field, L.Loc("* Mandatory field"));
+            isValid = false;
+        }
+        else
+        {
+            var (itsUnique, suggestions) = _designer.CalculateNameToValidations(DesignerDto.Zone.Name, DesignerDto.Zone.AreaId, DesignerDto.Zone.Id); // Validate duplicates and suggest names
+            if (!itsUnique)
+            {
+                var mensaje = L.Loc("The name is already in use. Suggestions: {0}", string.Join(", ", suggestions));
+                messageStore?.Add(field, mensaje);
+                isValid = false;
+            }
+        }
+        editContext.NotifyValidationStateChanged(); // Updates the editContext with the messages of manual validations
+        return isValid;
+    }
+
+    // Name OnBlur Event
+    private void OnNameEvent(string? name)
+    {
+        DesignerDto.Zone.Name = name;
+        var field = FieldIdentifier.Create(() => DesignerDto.Zone.Name);
+        messageStore?.Clear(field);
+
+        // Required
+        if (string.IsNullOrWhiteSpace(DesignerDto.Zone?.Name))
+        {
+            messageStore?.Add(field, L.Loc("* Mandatory field"));
+            _hasErrors = true;
+            editContext.NotifyValidationStateChanged();
+            MarkDirty();
+            InvokeAsync(StateHasChanged);
+            return;
+        }
+        var (itsUnique, suggestions) = _designer.CalculateNameToValidations(DesignerDto.Zone.Name, DesignerDto.Zone.AreaId, DesignerDto.Zone.Id); // Unique
+        if (!itsUnique)
+        {
+            messageStore?.Add(field, L.Loc("The name is already in use. Suggestions: {0}", string.Join(", ", suggestions)));
+            _hasErrors = true;
+        }
+        else
+            _hasErrors = !string.IsNullOrEmpty(editContext.GetValidationMessages(field).FirstOrDefault()); // Clears errors ONLY if there are no longer any validation messages in the context
+
+        editContext.NotifyValidationStateChanged();
+        MarkDirty();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnZoneChanged(int value)
+    {
+        DesignerDto.Zone.MaxContainers = value;
+        var field = FieldIdentifier.Create(() => DesignerDto.Zone.MaxContainers);
+        messageStore?.Clear(field);
+        editContext.NotifyFieldChanged(field);
+        MarkDirty();
+        InvokeAsync(StateHasChanged);
+    }
+    #endregion
+
+    #region ValidationBack
+
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        MarkDirty();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        _hasErrors = editContext.GetValidationMessages().Any();
+        InvokeAsync(StateHasChanged);
+    }
+    #endregion
+
+    #region Save Button Status
+
+    public void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+
+    public void MarkDirty()
+    {
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+    }
+
+    private string BuildFingerprint()
+    {
+        return string.Join("|",
+            DesignerDto?.Id,
+            DesignerDto?.Zone?.Id,
+            DesignerDto?.Zone?.Name,
+            DesignerDto?.Zone?.MaxContainers,
+            DesignerDto?.Zone?.MaxEquipments,
+            DesignerDto?.InboundRange,
+            DesignerDto?.OutboundRange,
+            DesignerDto?.AllowInbound,
+            DesignerDto?.AllowOutbound,
+            DesignerDto?.Zone?.AreaId
+        );
+    }
+
+    #endregion
+}

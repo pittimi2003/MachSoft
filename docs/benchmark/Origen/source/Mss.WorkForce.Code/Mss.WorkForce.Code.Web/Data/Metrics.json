@@ -1,0 +1,39 @@
+{
+  "Actors": [
+    {
+      "Id": "ALFKI",
+      "TaskName": "case-pick",
+      "Count": "8"
+    },
+    {
+      "Id": "ANATR",
+      "TaskName": "layer-pick",
+      "Count": "1.1"
+    },
+    {
+      "Id": "ANTON",
+      "TaskName": "ul pick",
+      "Count": "6"
+    },
+    {
+      "Id": "AROUT",
+      "TaskName": "load",
+      "Count": "2.3"
+    },
+    {
+      "Id": "BERGS",
+      "TaskName": "unload",
+      "Count": ".3"
+    },
+    {
+      "Id": "BLAUS",
+      "TaskName": "putaway",
+      "Count": ".8"
+    },
+    {
+      "Id": "BLONP",
+      "TaskName": "move trailer",
+      "Count": ".5"
+    }
+  ]
+}

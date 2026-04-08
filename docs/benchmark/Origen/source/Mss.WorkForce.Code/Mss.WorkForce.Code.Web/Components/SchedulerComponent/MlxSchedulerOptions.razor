@@ -1,0 +1,265 @@
+﻿@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Web.Helper
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.Common
+@inject IEventServices eventServices
+@inject ILocalizationService l
+
+<div id="pivotBar" class="top-bar" style="display: flex;">
+	<div style="display: flex">
+		<button class="top-bar-button top-bar-button-show" title="@l.Loc("Reload")" @onclick="OnReloadClick">
+			<span class="mlx-ico-reload"></span>
+		</button>
+		@if (LastUpdateScheduler != DateTimeOffset.MinValue)
+		{
+			<span class="mlx-last-update-gantt-info">@l.Loc("Update: {0}", LastUpdateScheduler.ToString(userFormat.HourFormat, System.Globalization.CultureInfo.InvariantCulture))</span>
+		}
+	</div>
+
+	<div class="today-container">
+		<div class="btnPriority">
+			<div class="gridSize-selected">
+				<div class="content1 dropdown">
+					<button type="button"
+					class="styled-button dropdown-toggle"
+					data-bs-toggle="dropdown"
+					aria-expanded="false">
+						<div class="div1">
+							<span class="@GetIconClass()"></span>
+							<ol class="textGridfault">@l.Loc(resourceGroupSelected.ToString())</ol>
+							<span class="mlx-ico-chevron-down"></span>
+						</div>
+					</button>
+
+					<ul class="dropdown-menu addLayer" style="width: 100px; min-width: 100px;">
+						<li class="dropdown-item px-4 d-flex flex-row @(resourceGroupSelected == YardResourceType.Docks ? "active" : "")" @onclick='() => HandleResourceSelection(YardResourceType.Docks)'>
+							<span class="label-export">@l.Loc("Docks")</span>
+						</li>
+						<li class="dropdown-item px-4 d-flex flex-row @(resourceGroupSelected == YardResourceType.Stages ? "active" : "")" @onclick='() => HandleResourceSelection(YardResourceType.Stages)'>
+							<span class="label-export">@l.Loc("Stages")</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div style="display: flex; align-items: center;">
+		<button id="btnExpand" class="top-bar-button top-bar-button-show @(ExistsAnyChild ? "" : "top-bar-button-block")" title="@(IsExpanded ? l.Loc("Collapsed") : l.Loc("Expanded"))" @onclick="@(() => OnCollapsedExpandedClick())" disabled="@(!ExistsAnyChild)">
+			<span class="@(ExpandContractClass())"></span>
+		</button>
+	</div>
+
+	<span class="separator"></span>
+
+	<div style="display: flex; align-items: center;">
+		<button id="btnZoomOut" class="top-bar-button top-bar-button-show @(ZoomLevel == 20 ? "top-bar-button-block" : "")" title="@l.Loc("Zoom out")" @onclick="ZoomOut" disabled="@(ZoomLevel == 20)">
+			<span class="mlx-ico-zoom-out"></span>
+		</button>
+		<button id="btnZoomIn" class="top-bar-button top-bar-button-show @(ZoomLevel == 60 ? "top-bar-button-block" : "")" title="@l.Loc("Zoom in")" @onclick="ZoomIn" disabled="@(ZoomLevel == 60)">
+			<span class="mlx-ico-zoom-in"></span>
+		</button>
+	</div>
+	<span class="separator"></span>
+
+	<div style="display: flex; align-items: center;">
+		<button class="top-bar-button top-bar-button-show" title="@l.Loc("Go to now")" @onclick="GotoNow">
+			<span class="mlx-ico-now"></span>
+		</button>
+	</div>
+
+
+	<div class="today-container">
+		<div class="btnHourInterval">
+			<div class="gridSize-selected">
+				<div class="content1 dropdown">
+					<button type="button"
+					class="styled-button dropdown-toggle"
+					data-bs-toggle="dropdown"
+					aria-expanded="false">
+						<div class="div1">
+							<span class="mlx-ico-planification"></span>
+							<ol class="textGridfault">@(hoursFilterCalendar + " h.")</ol>
+							<span class="mlx-ico-chevron-down"></span>
+						</div>
+					</button>
+
+					<ul class="dropdown-menu addLayer" style="width: 90px; min-width: 90px;">
+						<li class="dropdown-item px-4 d-flex flex-row @(hoursFilterCalendar == 8 ? "active" : "")" @onclick='() => FilterHourCalendar(8)'>
+							<span class="label-export">8 h.</span>
+						</li>
+						<li class="dropdown-item px-4 d-flex flex-row @(hoursFilterCalendar == 12 ? "active" : "")" @onclick='() => FilterHourCalendar(12)'>
+							<span class="label-export">12 h.</span>
+						</li>
+						<li class="dropdown-item px-4 d-flex flex-row @(hoursFilterCalendar == 16 ? "active" : "")" @onclick='() => FilterHourCalendar(16)'>
+							<span class="label-export">16 h.</span>
+						</li>
+						<li class="dropdown-item px-4 d-flex flex-row @(hoursFilterCalendar == 24 ? "active" : "")" @onclick='() => FilterHourCalendar(24)'>
+							<span class="label-export">24 h.</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<span class="separator"></span>
+	<div style="display: flex; align-items: center;">
+		<button id="BtndropdownExport" type="button" data-bs-toggle="dropdown" aria-expanded="false" class="top-bar-button top-bar-button-show" title="@l.Loc("Export")">
+			<span class="mlx-ico-export"></span>
+		</button>
+		<ul id="dropdownExport" class="dropdown-menu">
+			<li class="dropdown-item px-4 d-flex flex-row" @onclick="OnExportPdfClick">
+				<span class="mlx-ico-doc-pdf"></span>
+				<label class="label-export">@l.Loc("Export to PDF")</label>
+			</li>
+
+			<li class="dropdown-item px-4 d-flex flex-row" @onclick="OnExportExcelClick">
+				<span class="mlx-ico-doc-xml"></span>
+				<label class="label-export">@l.Loc("Export to Excel")</label>
+			</li>
+			<li class="dropdown-item px-4 d-flex flex-row" @onclick="OnPrintClick">
+				<span class="mlx-ico-print"></span>
+				<label class="label-export">@l.Loc("Print")</label>
+			</li>
+		</ul>
+	</div>
+</div>
+@code {
+	[Parameter] public EventCallback<int> HoursToShowChanged { get; set; }
+	private int hoursFilterCalendar = 24;
+	[Parameter]
+	public UserFormatOptions userFormat { get; set; } = new();
+
+	private YardResourceType resourceGroupSelected = YardResourceType.Docks;
+	[Parameter]
+	public Int16 ZoomLevel { get; set; }
+
+	[Parameter] public EventCallback OnReloadClicked { get; set; }
+
+	[Parameter]
+	public DateTimeOffset LastUpdateScheduler { get; set; }
+
+	[Parameter]
+	public EventCallback<Int16> ZoomLevelChanged { get; set; }
+
+	[Parameter]
+	public EventCallback<YardResourceType> OnResourceGroupChanged { get; set; }
+
+	[Parameter]
+	public bool ExistsAnyChild { get; set; }
+
+	@inject IJSRuntime JS
+
+	private string GetIconClass() => resourceGroupSelected == YardResourceType.Docks ? "mlx-ico-dock" : "mlx-ico-stage";
+
+	private bool IsExpanded = false;
+
+	private bool _pendingGotoNow;
+
+	private string ExpandContractClass() => IsExpanded ? "mlx-ico-contract-vrt" : "mlx-ico-expand-vrt";	
+
+	protected override void OnParametersSet()
+	{
+		IsExpanded = false;
+		base.OnParametersSet();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await HoursToShowChanged.InvokeAsync(hoursFilterCalendar);
+			await Task.Delay(100);
+			await GotoNow();
+		}	
+		
+		if (_pendingGotoNow)
+		{
+			_pendingGotoNow = false;
+			await Task.Delay(50);
+			await GotoNow();
+		}
+	}
+
+	private async Task FilterHourCalendar(int hours)
+	{
+		if (hours == hoursFilterCalendar) return;
+		
+		hoursFilterCalendar = hours;		
+		await HoursToShowChanged.InvokeAsync(hours);
+		_pendingGotoNow = true;
+	}
+
+	private async Task HandleResourceSelection(YardResourceType resourceGroupType)
+	{
+		resourceGroupSelected = resourceGroupType;
+		await OnResourceGroupChanged.InvokeAsync(resourceGroupType);
+	}
+
+	private async Task ZoomIn()
+	{
+		await JS.InvokeVoidAsync("saveSchedulerScroll", "YardCalendarId");
+
+		if (ZoomLevel == 20)
+		{
+			ZoomLevel = 30;
+			await ZoomLevelChanged.InvokeAsync(ZoomLevel);
+		}
+		else if (ZoomLevel == 30)
+		{
+			ZoomLevel = 60;
+			await ZoomLevelChanged.InvokeAsync(ZoomLevel);
+		}	
+		
+		await JS.InvokeVoidAsync("restoreSchedulerScroll", "YardCalendarId");
+	}
+
+	private async Task ZoomOut()
+	{
+		await JS.InvokeVoidAsync("saveSchedulerScroll", "YardCalendarId");
+
+		if(ZoomLevel == 60)
+		{
+			ZoomLevel = 30;
+			await ZoomLevelChanged.InvokeAsync(ZoomLevel);
+		}
+		else if (ZoomLevel == 30)
+		{
+			ZoomLevel = 20;
+			await ZoomLevelChanged.InvokeAsync(ZoomLevel);
+		}
+
+		await JS.InvokeVoidAsync("restoreSchedulerScroll", "YardCalendarId");
+	}
+
+	private async Task OnReloadClick()
+	{
+		if (OnReloadClicked.HasDelegate)
+			await OnReloadClicked.InvokeAsync();
+	}
+
+	private async Task GotoNow() => await JS.CallJs(ConstantComponents.scheduler, eGanttMethods.GoToNow.ToString());
+
+	private async Task OnCollapsedExpandedClick()
+	{
+		IsExpanded = !IsExpanded;
+		eventServices.Publish(nameof(MlxSchedulerOptions), new EventArguments(nameof(MlxSchedulerOptions), EventActions.CollapsedExpandedScheduler, IsExpanded));
+	}	
+
+	private async Task OnExportPdfClick()
+	{
+		await eventServices.PublishAsync(nameof(MlxSchedulerOptions), new EventArguments(nameof(MlxSchedulerOptions), EventActions.ExportServicePDF, ""));
+	}
+
+	private async Task OnExportExcelClick()
+	{
+		await eventServices.PublishAsync(nameof(MlxSchedulerOptions), new EventArguments(nameof(MlxSchedulerOptions), EventActions.ExportServiceExcel, ""));
+	}
+
+	private async Task OnPrintClick()
+	{
+		await eventServices.PublishAsync(nameof(MlxSchedulerOptions), new EventArguments(nameof(MlxSchedulerOptions), EventActions.ExportServicePrint, ""));
+	}
+}

@@ -1,0 +1,58 @@
+﻿@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Web.Services
+@using System.Globalization
+@inject ISimulationLogicService SimulationLogicService
+@inject IInitialDataService initialDataService
+@inject ILocalizationService L
+
+@if (_slaValue is not null)
+{
+    <div class="sla-badge @ColorClass me-1" title="@Caption">
+        <span class="@IconClass"></span>
+        <span class="label">SLA</span>
+        <span class="value">@(Convert.ToDouble(_planningSLA).ToUserNumber(UserFormat))%</span>
+
+    </div>
+}
+
+@code {
+    [Parameter] public Guid WarehouseId { get; set; }
+    [Parameter] public string Code { get; set; }
+    [Parameter] public Guid CurrentPlanning { get; set; }
+    [Parameter] public bool HasPlanningId { get; set; } = true;
+    [Parameter] public UserFormatOptions UserFormat { get; set; } = new();
+
+    private SLAConfigDto? _slaValue;
+    private double? _planningSLA { get; set; }
+    private string ColorClass => _planningSLA >= _slaValue?.Value ? "green" : "red";
+    private string IconClass => _planningSLA >= _slaValue?.Value ? "mlx-ico-arrow-up-bg-solid" : "mlx-ico-arrow-down-bg-solid";
+    private string Caption => L.Loc("Service Level Agreement actual");
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        LoadSLAConfig();
+    }
+
+    private void LoadSLAConfig()
+    {
+        if (WarehouseId != Guid.Empty && !string.IsNullOrWhiteSpace(Code) && CurrentPlanning != Guid.Empty)
+        {
+            _slaValue = SimulationLogicService
+                    .GetSLAConfigs()
+                    .FirstOrDefault(x => x.WarehouseId == WarehouseId && x.Code == Code);
+
+            if (!HasPlanningId)
+            {
+                _planningSLA = SimulationLogicService.GetLastPlanning(WarehouseId);
+            }
+            else
+            {
+                _planningSLA = SimulationLogicService.GetPlanning(CurrentPlanning, WarehouseId);
+            }
+        }             
+    }
+}
+

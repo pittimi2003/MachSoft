@@ -1,0 +1,632 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.DTO.Designer.LocationZones
+@using Mss.WorkForce.Code.Web.Components.DesignerComponent
+@inject IJSRuntime JSRuntime
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@inject IInitialDataService _InitialDataService
+
+@if (showUnsavedChangesModal)
+{
+    <DialogComponent Title="@L.Loc("Unsaved modifications")" CloseButtonClicked="@CloseUnsavedChangesModal">
+        <BodyContent>
+            <p class="margin-none">@L.Loc("Do you want to save the changes before exiting?")</p>
+        </BodyContent>
+        <FooterContent>
+            <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="DiscardAndContinue">@L.Loc("No")</button>
+            <button type="button" class="btn-mlx btn-mlx-blue-primary" @onclick="SaveAndContinue">@L.Loc("Yes")</button>
+        </FooterContent>
+    </DialogComponent>
+}
+
+<div id="designerRightSideContent" class="mlx-right-sideBar-background">
+    @{
+        bool shouldShowBackButton = ShouldShowBackButton();
+        string tabStyleHeader = shouldShowBackButton ? "mlx-right-sideBar-header-width-tab gap-11" : "mlx-right-sideBar-header-widthout-tab";
+    }
+
+    <div class="mlx-right-sideBar-header-with-button display-flex-flex-flow-column @tabStyleHeader">
+        @if (shouldShowBackButton)
+        {
+            <div class="mlx-right-sideBar-header-title mlx-height-100 gap-8">
+                <div class="display-flex-flex-flow-row">
+                    <button class="mlx-back-row-content" title="@L.Loc("Back")" @onclick="BackUniversal">
+                        <span class="mlx-ico-arrow-left"></span>
+                        <div class="mlx-back-row-text">@GetHeaderLabel()</div>
+                    </button>
+                </div>
+            </div>
+            <div class="mlx-back-row-text">@GetTextBackButton()</div>
+        }
+        else
+        {
+            <div class="mlx-right-sideBar-header-title mlx-height-100">
+                @GetHeaderLabel()
+            </div>
+        }
+    </div>
+
+    @RenderComponent()
+
+</div>
+
+@code{
+    [Parameter] public ObjectTypes OnClickObjectType { get; set; } = ObjectTypes.None;
+    [Parameter] public object ObjectDto { get; set; } = default!;
+    [Parameter] public EventCallback CloseSideBar { get; set; }
+    [Parameter] public LayoutDto? Dto { get; set; }
+    [Parameter] public Dictionary<string, object>? Metadata { get; set; }
+
+    private Dictionary<string, object> CurrentMetadata => Metadata ?? new();
+    private bool showUnsavedChangesModal = false;
+    private bool continueAfterModal = false;
+    private bool _currentNavigationBlockedByErrors = false;
+    public UserFormatOptions userFormat { get; set; } = new();
+    private object? CurrentObject => ObjectDto;
+
+    private Stack<(ObjectTypes type, object dto, Dictionary<string, object> meta)> _history = new(); // browsing history
+    private (ObjectTypes pendingType, object pendingDto, Dictionary<string, object> pendingMeta)? _pendingNavigation = null;
+
+    private ITrackChanges? _activeTrackable = null!;
+
+    private bool FromDesignerComponent => Metadata?.TryGetValue("FromDesignerComponent", out var o) == true && o is bool b && b;
+    private bool FromTabs => Metadata?.TryGetValue("FromTabs", out var t) == true && t is bool tb && tb;
+    private bool FromBrother => Metadata?.TryGetValue("FromBrother", out var b) == true && b is bool bb && bb;
+
+    // Method used for communication in navigation between siblings
+    private async Task NavigateChild((ObjectTypes type, object dto, Dictionary<string, object> metadata) ctx)
+    {
+        // Fixes possible double invocation of the modal
+        if (showUnsavedChangesModal)
+            return;
+
+        var (requestedType, requestedDto, newMetadata) = ctx; // Extract the navigation information sent by the child component
+
+        if (requestedType == OnClickObjectType) // If the child is just notifying an update of the CURRENT component, we only refresh the data
+        {
+            ObjectDto = requestedDto; // Update the current object shown in the sidebar
+
+            // Also update the object stored in the navigation history (if any)
+            if (_history.Count > 0)
+            {
+                var top = _history.Pop();
+                _history.Push((top.type, requestedDto, top.meta));
+            }
+
+            StateHasChanged();
+            return;
+        }
+        // Case: Navigation between siblings (FromBrother = true) This case ALWAYS displays a modal if there are changes, BUT NEVER navigates to a new sibling.
+        if (newMetadata.TryGetValue("FromBrother", out var fb) && fb is bool isBrother && isBrother)
+        {
+            bool hasErrors = _activeTrackable?.HasErrors == true;
+            bool isDirty = _activeTrackable?.IsSidebarDirty == true;
+
+            if (hasErrors)
+            {
+                if (_history.Count == 0)
+                {
+                    // We are in the original child, with errors, trying to open a sibling for the first time. Rule: DO NOT navigate; both Yes and No only close the modal.
+                    _pendingNavigation = null;
+                    _currentNavigationBlockedByErrors = true;   // Block navigation to sibling components
+                }
+                else
+                {
+                    // General case: we are already navigating between siblings. Here, we DO want the “No” button to return to the previous page.
+                    var previous = _history.Peek();
+                    _pendingNavigation = (previous.type, previous.dto, previous.meta);
+                    _currentNavigationBlockedByErrors = false;
+                }
+
+                showUnsavedChangesModal = true;
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+
+            if (isDirty)
+            {
+                // Dirty without errors: modal allows saving/discarding and then navigating to the sibling.
+                _pendingNavigation = ctx;
+                _currentNavigationBlockedByErrors = false;
+                showUnsavedChangesModal = true;
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+
+            // Navegation
+            DoNavigation(ctx);
+            return;
+        }
+
+        // Check if the navigation comes directly from the main Designer (canvas), these navigations should NOT show the Unsaved Changes modal
+        bool fromParent = newMetadata.TryGetValue("FromDesignerComponent", out var fromParentObj) && fromParentObj is bool fromParentFlag && fromParentFlag;
+
+        // If it comes from the main Designer, navigate immediately
+        if (fromParent)
+        {
+            DoNavigation(ctx);
+            return;
+        }
+
+        // Check if the current component has unsaved changes
+        bool isDirtyGeneral = _activeTrackable?.IsSidebarDirty == true;
+        bool hasErrorsGeneral = _activeTrackable?.HasErrors == true;
+        if (hasErrorsGeneral)
+        {
+            // Generic with errors: block navigation, both Yes and No only close the modal
+            _pendingNavigation = null;
+            _currentNavigationBlockedByErrors = true;
+            showUnsavedChangesModal = true;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        if (isDirtyGeneral)
+        {
+            // Generic dirty without errors: allow save/discard and then navigate
+            _pendingNavigation = ctx;
+            _currentNavigationBlockedByErrors = false;
+            showUnsavedChangesModal = true;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        DoNavigation(ctx); // If there are no unsaved changes, navigate normally
+    }
+
+    private void DoNavigation((ObjectTypes type, object dto, Dictionary<string, object> metadata) ctx)
+    {
+        var (newType, newDto, newMetadata) = ctx; // Take the data of the requested navigation
+
+        _history.Push((OnClickObjectType, ObjectDto, CurrentMetadata)); // Store the current state in the navigation history
+
+        // Switch the sidebar to the new object and its type
+        OnClickObjectType = ctx.type;
+        ObjectDto = ctx.dto;
+        Metadata = ctx.metadata;
+
+        StateHasChanged();
+    }
+
+    private bool ShouldShowBackButton()
+    {
+        // If this view comes directly from the main Designer, do not show Back
+        if (CurrentMetadata.TryGetValue("FromDesignerComponent", out var fromP1) && fromP1 is bool isP1 && isP1)
+            return false;
+
+        // If there is navigation history, the user can go back
+        if (_history.Count > 0)
+            return true;
+
+        // If it was opened from another component (brother), the user can go back
+        if (CurrentMetadata.ContainsKey("SourceComponent"))
+            return true;
+
+        return BelongsToArea(CurrentObject); // Default behaviour: show Back only if the object belongs to an Area
+    }
+
+    // Checks if the current object is logically linked to an Area
+    private bool BelongsToArea(object? dto) => dto switch
+    {
+        ProcessDto p => p.AreaDto != null,
+        RouteDto r => r.OutboundArea != null,
+        DockDto d => d.Zone?.Area != null,
+        AisleDto a => a.Zone?.Area != null,
+        BufferDto b => b.Zone?.Area != null,
+        StageDto s => s.Zone?.Area != null,
+        RackDto r => r.Zone?.Area != null,
+        DriveInDto dr => dr.Zone?.Area != null,
+        AutomaticStorageDto au => au.Zone?.Area != null,
+        ChaoticStorageDto ch => ch.Zone?.Area != null,
+        _ => false
+    };
+
+    private object GetCurrentDtoFromActiveComponent()
+    {
+        return _activeTrackable switch
+        {
+            AreaComponent ac => ac.DesignerDto!,
+            BufferComponent bc => bc.DesignerDto!,
+            DockComponent dc => dc.DesignerDto!,
+            StageComponent sc => sc.DesignerDto!,
+            EquipmentComponent ec => ec.DesignerDto!,
+            ProcessComponent pc => pc.DesignerDto!,
+            ShelfComponent sc => sc.DesignerDto!,
+            _ => ObjectDto!
+        };
+    }
+
+    private async Task BackUniversal()
+    {
+        // If the modal is already open, do nothing (prevents duplicates)
+        if (showUnsavedChangesModal)
+            return;
+
+        // If the current view comes directly from the main Designer, just close it
+        if (FromDesignerComponent)
+        {
+            await CloseSideBar.InvokeAsync();
+            return;
+        }
+
+        // Check if the current component has unsaved changes
+        bool isDirty = _activeTrackable?.IsSidebarDirty == true;
+        bool hasErrors = _activeTrackable?.HasErrors == true;
+
+        // Case with ERRORS — Show modal, but DO NOT navigate with “Yes”
+        if (hasErrors)
+        {
+            return;
+        }
+
+        // DIRTY case without errors — can be saved or discarded
+        if (isDirty)
+        {
+            // Prepare where we would go after handling the modal
+            if (_history.Count > 0)
+            {
+                var previous = _history.Peek();
+                _pendingNavigation = (previous.type, previous.dto, previous.meta);
+            }
+            else
+            {
+                _pendingNavigation = null; // If there is no history, the action will be to close
+            }
+
+            showUnsavedChangesModal = true; // Ask the user what to do with unsaved changes
+            StateHasChanged();
+            return;
+        }
+
+        // If there are no changes and there is history, go back to previous view
+        if (_history.Count > 0)
+        {
+            var previous = _history.Pop();
+            OnClickObjectType = previous.type;
+            ObjectDto = previous.dto;
+            Metadata = previous.meta;
+            StateHasChanged();
+            return;
+        }
+
+        await CloseSideBar.InvokeAsync(); // If there is no history, simply close the sidebar
+    }
+
+    private string GetHeaderLabel()
+    {
+        // If it comes from the main Designer, only show the object type
+        if (FromDesignerComponent)
+            return L.Loc(GetObjectTypeString(OnClickObjectType));
+
+        // If it comes from a Tab, show: Type "Name"
+        if (FromTabs)
+            return $"{L.Loc(GetObjectTypeString(OnClickObjectType))} \"{GetDtoName(CurrentObject) ?? L.Loc("Unnamed")}\"";
+
+        // If it comes from a brother component, show the previous element as reference
+        if (FromBrother && _history.Count > 0)
+        {
+            var previous = _history.Peek();
+            return $"{L.Loc(GetObjectTypeString(previous.type))} \"{GetDtoName(previous.dto) ?? L.Loc("Unnamed")}\"";
+        }
+
+        // If there is navigation history, use the last visited element as context
+        if (_history.Count > 0)
+        {
+            var prev = _history.Peek();
+            return $"{L.Loc(GetObjectTypeString(prev.type))} \"{GetDtoName(prev.dto) ?? L.Loc("Unnamed")}\"";
+        }
+
+        return L.Loc(GetObjectTypeString(OnClickObjectType)); // Default: show only the current object type
+    }
+
+    private string GetTextBackButton()
+    {
+        return $"{L.Loc(GetObjectTypeString(OnClickObjectType))} {GetDtoName(CurrentObject)}"; // This is the text that appears next to the Back arrow
+    }
+
+    private void CloseUnsavedChangesModal()
+    {
+        showUnsavedChangesModal = false; // Simply hide the modal without doing anything else
+    }
+
+    private async Task DiscardAndContinue()
+    {
+        showUnsavedChangesModal = false; // Close the modal
+
+        if (_currentNavigationBlockedByErrors)
+        {
+            _currentNavigationBlockedByErrors = false;
+            return;  // Close the modal
+        }
+
+        // If we were trying to navigate somewhere, go there now
+        if (_pendingNavigation is not null)
+        {
+            var pn = _pendingNavigation.Value;
+            _pendingNavigation = null;
+
+            // Restore the original data in the component if possible
+            if (_activeTrackable is IRestorable restorable)
+                restorable.RestoreOriginalState();
+
+            ObjectDto = GetCurrentDtoFromActiveComponent();
+            DoNavigation((pn.pendingType, pn.pendingDto, pn.pendingMeta));
+            return;
+        }
+
+        // If there is navigation history, go back
+        if (_history.Count > 0)
+        {
+            var previous = _history.Pop();
+            OnClickObjectType = previous.type;
+            ObjectDto = previous.dto;
+            Metadata = previous.meta;
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        await CloseSideBar.InvokeAsync(); // Otherwise, just close the sidebar
+    }
+
+    private async Task SaveAndContinue()
+    {
+        showUnsavedChangesModal = false; // Close the modal
+
+        // Navigation from original child with errors
+        if (_currentNavigationBlockedByErrors)
+        {
+            _currentNavigationBlockedByErrors = false;
+            _pendingNavigation = null;
+            return;   // Close the modal
+        }
+
+        bool hasErrors = _activeTrackable?.HasErrors == true;
+
+        if (hasErrors)
+        {
+            // Stay in the same component. Just exit.
+            _pendingNavigation = null;
+            return;
+        }
+
+        if (_activeTrackable is IModalAware modalAware) // Mark the next Save as coming from a modal
+            modalAware.IsModalSave = true;
+
+        if (_activeTrackable is IChildSaver saver) // Trigger the Save logic in the current component
+            await saver.SaveEvent();
+
+        if (_activeTrackable is IModalAware modalAware2) // Reset modal save flag
+            modalAware2.IsModalSave = false;
+
+        if (_pendingNavigation != null) // After saving, continue with the pending navigation
+        {
+            var ctx = _pendingNavigation.Value;
+            _pendingNavigation = null;
+            DoNavigation(ctx);
+        }
+    }
+
+    private async Task CloseSideBarComponent()
+    {
+        if (FromTabs) // If this view was opened from Tabs, behave like Back
+        {
+            await BackUniversal();
+            return;
+        }
+
+        if (FromDesignerComponent) // If it comes directly from the main Designer, just close
+        {
+            await CloseSideBar.InvokeAsync();
+            return;
+        }
+
+        if (FromBrother) // If it comes from a brother component, close as well
+        {
+            await CloseSideBar.InvokeAsync();
+            return;
+        }
+
+        if (_history.Count > 0) // If there is history, use the Back logic
+        {
+            await BackUniversal();
+            return;
+        }
+
+        await CloseSideBar.InvokeAsync(); // Default: close
+    }
+
+    protected override void OnInitialized()
+    {
+        userFormat = _InitialDataService.GetUserFormat(); // Get the user’s decimal, time and culture format
+    }
+
+    private async Task InjectCssAsync()
+    {
+        var cssContent = await JSRuntime.InvokeAsync<string>("fetchCss", "css/Designer/DesignerRightSideContent.css"); // Lee el archivo CSS desde wwwroot
+        await JSRuntime.InvokeVoidAsync("injectStyles", cssContent, "designer-right-side-styles"); // Inyecta los estilos en el documento
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) // Only load the CSS once, at the first render
+        {
+            await InjectCssAsync();
+        }
+    }
+
+    private string GetComponentName(ObjectTypes type) => type switch
+    {
+        ObjectTypes.Area => nameof(AreaComponent),
+        ObjectTypes.Process => nameof(ProcessComponent),
+        ObjectTypes.Flow => nameof(FlowComponent),
+        ObjectTypes.Dock => nameof(DockComponent),
+        ObjectTypes.Stage => nameof(StageComponent),
+        ObjectTypes.Shelf => nameof(ShelfComponent),
+        _ => type.ToString()
+    };
+
+    private static string? GetDtoName(object? dto)
+    {
+        // Returns the name of the object depending on its type
+        return dto switch
+        {
+            AreaDto x => x.Name,
+            ProcessDto x => x.Name,
+            FlowDto x => x.Name,
+            EquipmentDesignerDto x => x.Name,
+            BufferDto x => x.Zone?.Name,
+            DockDto x => x.Zone?.Name,
+            AisleDto x => x.Zone?.Name,
+            StageDto x => x.Zone?.Name,
+            RackDto x => x.Zone?.Name,
+            DriveInDto x => x.Zone?.Name,
+            ChaoticStorageDto x => x.Zone?.Name,
+            AutomaticStorageDto x => x.Zone?.Name,
+            RouteDto x => x.OutboundArea?.Name,
+            _ => null
+        };
+    }
+
+    private string? GetAreaName()
+    {
+        // Returns the name of the related Area according to the object type
+        return CurrentObject switch
+        {
+            ProcessDto dto => dto.AreaDto?.Name,
+            RouteDto dto => dto.OutboundArea?.Name,
+            DockDto dto => dto.Zone?.Area?.Name,
+            EquipmentDesignerDto dto => dto.Area?.Name,
+            BufferDto dto => dto.Zone?.Area?.Name,
+            AisleDto dto => dto.Zone?.Area?.Name,
+            AreaDto dto => dto.Name,
+            RackDto dto => dto.Zone?.Area?.Name,
+            DriveInDto dto => dto.Zone?.Area?.Name,
+            AutomaticStorageDto dto => dto.Zone?.Area?.Name,
+            ChaoticStorageDto dto => dto.Zone?.Area?.Name,
+            _ => null
+        };
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (FromDesignerComponent) // If navigation starts from the main Designer, clear the history
+            _history.Clear();
+    }
+
+    #region Navegación
+
+    public async Task HandleChildCancel(Dictionary<string, object>? metadata)
+    {
+        // If navigation starts from the main Designer, clear the history
+        if (showUnsavedChangesModal)
+            return;
+
+        // If it comes from the main Designer, just close
+        if (metadata != null && metadata.TryGetValue("FromDesignerComponent", out var fromP1Obj) && fromP1Obj is bool fromP1 && fromP1)
+        {
+            await CloseSideBar.InvokeAsync();
+            return;
+        }
+
+        bool isDirty = _activeTrackable?.IsSidebarDirty == true; // Check if there are unsaved changes
+        bool hasErrors = _activeTrackable?.HasErrors == true;
+        // Case HAS ERRORS — modal should appear, but it does NOT navigate with Yes
+        if (hasErrors)
+        {
+            if (_activeTrackable is IRestorable restorable)
+                restorable.RestoreOriginalState();
+
+            if (_history.Count > 0) // Prepare navigation target
+            {
+                var previous = _history.Pop();
+                OnClickObjectType = previous.type;
+                ObjectDto = previous.dto;
+                Metadata = previous.meta;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+                await CloseSideBar.InvokeAsync();
+            return;
+        }
+
+        // B) CASO DIRTY sin errores — modal con guardar/descartar
+        if (isDirty)
+        {
+            if (_history.Count > 0)
+            {
+                var previous = _history.Peek();     // NO pop
+                _pendingNavigation = (previous.type, previous.dto, previous.meta);
+            }
+            else
+                _pendingNavigation = null;
+
+            showUnsavedChangesModal = true;
+            StateHasChanged();
+            return;
+        }
+
+        if (metadata != null && metadata.TryGetValue("FromBrother", out var fromBrotherObj) && fromBrotherObj is bool fromBrother && fromBrother)
+        {
+            if (_activeTrackable is IRestorable restorable)
+                restorable.RestoreOriginalState();
+
+            if (_history.Count > 0)
+            {
+                var previous = _history.Pop();
+                OnClickObjectType = previous.type;
+                ObjectDto = previous.dto;
+                Metadata = previous.meta;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+                await CloseSideBar.InvokeAsync();
+            return;
+        }
+
+        await CloseSideBar.InvokeAsync(); // Default: close
+    }
+
+    private async Task HandleChildSaved()
+    {
+        // If we have history, go back to the previous element
+        if (_history.Count > 0)
+        {
+            var previous = _history.Pop();
+            OnClickObjectType = previous.type;
+            ObjectDto = previous.dto;
+            Metadata = previous.meta;
+
+            StateHasChanged();
+            return;
+        }
+
+        await CloseSideBar.InvokeAsync(); // If not, close the sidebar
+    }
+
+    #endregion
+
+    #region RenderComponent
+
+    private RenderFragment RenderComponent() => OnClickObjectType switch
+    {
+        ObjectTypes.Aisle => @<AisleComponent DesignerDto="(AisleDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" Metadata="Metadata" OnChildCancel="HandleChildCancel" OnChildSaved="HandleChildSaved" />,
+        ObjectTypes.Area => @<AreaComponent @ref="_activeTrackable" DesignerDto="(AreaDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" Metadata="Metadata" OnNavigateChild="NavigateChild" />,
+        ObjectTypes.CheckConfiguration => @<DesignerTabCheckConfiguration ShouldReload="false" OnClickSideBar="CloseSideBarComponent" Dto="Dto" />,
+        ObjectTypes.Dock => @<DockComponent @ref="_activeTrackable" DesignerDto="(DockDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" Metadata="Metadata" OnChildCancel="HandleChildCancel" OnChildSaved="HandleChildSaved" />,
+        ObjectTypes.Equipment => @<EquipmentComponent @ref="_activeTrackable" DesignerDto="(EquipmentDesignerDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" Metadata="Metadata" OnChildCancel="HandleChildCancel" OnChildSaved="HandleChildSaved" />,
+        ObjectTypes.Route => @<RouteComponent DesignerDto="(RouteDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" />,
+        ObjectTypes.Buffer => @<BufferComponent @ref="_activeTrackable" DesignerDto="(BufferDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" Metadata="Metadata" OnChildCancel="HandleChildCancel" OnChildSaved="HandleChildSaved" />,
+        ObjectTypes.ProcessDirectionProperty => @<ProcessDirectionPropertyComponent DesignerDto="(ProcessDirectionPropertyDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat"/>,
+        ObjectTypes.Process => @<ProcessComponent @ref="_activeTrackable" DesignerDto="(ProcessDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" Metadata="Metadata" OnChildCancel="HandleChildCancel" OnChildSaved="HandleChildSaved" />,
+        ObjectTypes.Flow => @<FlowComponent DesignerDto="(FlowDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" />,
+        ObjectTypes.Stage => @<StageComponent @ref="_activeTrackable" DesignerDto="(StageDto)ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" Metadata="Metadata" OnChildCancel="HandleChildCancel" OnChildSaved="HandleChildSaved" />,
+        ObjectTypes.Shelf or ObjectTypes.Rack or ObjectTypes.DriveIn or ObjectTypes.CaoticStorage or ObjectTypes.AutomaticStorage => @<ShelfComponent @ref="_activeTrackable" DesignerDto="ObjectDto" OnClickSideBar="CloseSideBarComponent" UserFormat="userFormat" Metadata="Metadata" OnChildCancel="HandleChildCancel" OnChildSaved="HandleChildSaved" />,
+        _ => @<div></div>
+    };
+
+    #endregion
+}

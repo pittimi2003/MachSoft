@@ -1,0 +1,70 @@
+﻿
+.container-for-image {
+    display: flex;
+}
+
+.url-list {
+   color:#005098;
+   font-size:14px;
+   font-family: 'Segoe UI';
+   cursor:pointer;
+}
+
+.url-list:hover {
+    cursor: pointer;
+}
+
+.url-container {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gl-color-smoke-300);
+}
+
+.img-control {
+    padding: var(--gl-spacing-3) var(--sp-padding-2);
+    width: 100%;   
+    margin: 0.1rem 0rem 0rem 0rem;
+    resize: vertical;
+    text-align: left;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.img-control-heigth {
+    height: 100px !important; /*Tamaño del contenedor para ajustar a un mismo tamaño en logo*/
+}
+
+.input-control {
+    font-size: 12px;
+    color: var(--sp-color-content-default);
+    font-family: Helvetica Neue, Segoe UI, helvetica, verdana, sans-serif;
+    line-height: 1.35715;
+}
+
+.mlx-ico-upload-light::before, .mlx-ico-trash::before {
+    color: white;
+}
+
+.ico-upload {
+    background-color: #005098;  
+    margin-bottom: 4px;
+}
+
+.ico-trash {
+    background-color: #eb5160;
+    padding-top: 2px;
+}
+
+.container-icon {
+    border-radius: 9999px;
+    height: 25px;
+    width: 25px;
+    padding-left: 5px;
+    cursor: pointer;
+}
+
+.accordion-item-middle {
+    width: 50%;
+}
+
+

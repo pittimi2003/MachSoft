@@ -1,0 +1,102 @@
+﻿@using System.Linq.Expressions
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Model
+@typeparam TItem
+@typeparam TValue
+
+<DxComboBox TData="TItem"
+            TValue="TValue"
+            Data="Data"
+            SearchMode="SearchMode"
+            AllowUserInput="AllowUserInput"
+            TextFieldName="@TextFieldName"
+            ValueFieldName="@ValueFieldName"
+            Value="Value"
+            ValueChanged="@(EventCallback.Factory.Create<TValue>(this, OnValueChangedInternal))"
+            ValueExpression="ValueExpression"
+            CssClass="@CssClass"
+            NullText="@NullText"
+            TextChanged="OnTextChangedInternal"
+            ItemTemplate="@ItemTemplate"
+            TextExpression="TextExpression"
+            Enabled="Enabled"
+            InputId="@InputId"
+            ClearButtonDisplayMode="ClearButtonDisplayMode"
+            ReadOnly="ReadOnly"
+            ShowClearButton="ShowClearButton"
+            style="@Style">
+
+
+</DxComboBox>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public IEnumerable<TItem> Data { get; set; } = Enumerable.Empty<TItem>();
+
+    [Parameter, EditorRequired]
+    public string TextFieldName { get; set; }
+
+    [Parameter, EditorRequired]
+    public string ValueFieldName { get; set; }
+
+
+    [Parameter]
+    public TValue? Value { get; set; }
+
+    [Parameter]
+    public Expression<Func<TValue?>>? ValueExpression { get; set; }
+
+    [Parameter]
+    public EventCallback<string> TextChanged { get; set; }
+
+    [Parameter]
+    public ListSearchMode SearchMode { get; set; } = ListSearchMode.AutoSearch;
+
+    [Parameter]
+    public bool AllowUserInput { get; set; } = true;
+
+    [Parameter]
+    public bool ShowClearButton { get; set; } = true;
+
+    [Parameter]
+    public string? NullText { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; } = "mlx-form-select";
+
+    [Parameter]
+    public EventCallback<TValue> ValueChanged { get; set; }
+
+    private async Task OnValueChangedInternal(TValue newValue)
+    {
+        await ValueChanged.InvokeAsync(newValue);
+    }
+
+    private async Task OnTextChangedInternal(string text)
+    {
+        if (TextChanged.HasDelegate)
+            await TextChanged.InvokeAsync(text);
+    }
+
+    [Parameter]
+    public RenderFragment<TItem> ItemTemplate { get; set; }
+
+    [Parameter]
+    public Expression<Func<string>> TextExpression { get; set; }
+
+    [Parameter]
+    public bool Enabled { get; set; } = true;
+
+    [Parameter]
+    public string InputId { get; set; }
+
+    [Parameter]
+    public DataEditorClearButtonDisplayMode ClearButtonDisplayMode { get; set; }
+
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool ReadOnly { get; set; }
+}

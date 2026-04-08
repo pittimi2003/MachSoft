@@ -1,0 +1,547 @@
+﻿@using System.Globalization
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.Common
+@inject ILocalizationService l
+@implements IAsyncDisposable
+
+<div class="roller-timepicker-wrapper" id="@WrapperId">
+    <!-- Input y boton activador -->
+    <div class="roller-input-wrapper">
+        <div class="roller-input-container @(Disabled ? "roller-input-container-background-disabled" :  "roller-input-container-background")">
+
+            <input id="@InputId"
+            type="text" 
+            @bind-value="@InputValue"
+            @oninput="OnInputChanged"
+            class="roller-input" 
+            disabled="@Disabled" />
+            <button @onclick="TogglePicker" class="roller-button" style="outline: none;" disabled="@Disabled">
+                <span class="mlx-ico-clock-2"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Roller Time Picker -->
+    @if (IsPickerVisible)
+    {
+        <div id="@PickerId" class="roller-timepicker">
+            <!-- Header -->
+            <div class="roller-header">
+                <div class="roller-title">@l.Loc("Choose time")</div>
+            </div>
+
+            <div class="container-fluid roller-container">
+                <div class="row">
+                    <div class="@(Is12HourFormat ? "col-md-4" : "col-md-6")">
+                        <div class="roller-column-header">@l.Loc("Hour")</div>
+                    </div>
+                    <div class="@(Is12HourFormat ? "col-md-4" : "col-md-6")">
+                        <div class="roller-column-header">@l.Loc("Minute")</div>
+                    </div>
+                    @*  <div class="col-md-3">
+                        <div class="roller-column-header">Second</div>
+                    </div> *@
+                    @if (Is12HourFormat)
+                    {
+                        <div class="col-md-4">
+                            <div class="roller-column-header">AM/PM</div>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="row">
+                    <div class="@(Is12HourFormat ? "col-md-4" : "col-md-6")">
+                        <!-- Selector de horas -->
+                        <div class="roller-column" @onwheel="OnScrollHours">
+                            <div class="roller-list" >
+                                @foreach (var hour in VisibleHours)
+                                {
+                                    <div class="roller-item @(hour == SelectedHour ? "selected" : "")" @onclick="() => SetHour(hour)">
+                                        @hour.ToString("D2")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="@(Is12HourFormat ? "col-md-4" : "col-md-6")">
+                        <!-- Selector de minutos -->
+                        <div class="roller-column" @onwheel="OnScrollMinutes">
+                            <div class="roller-list" >
+                                @foreach (var minute in VisibleMinutes)
+                                {
+                                    <div class="roller-item @(minute == SelectedMinute ? "selected" : "")" @onclick="() => SetMinute(minute)">
+                                        @minute.ToString("D2")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    @* <div class="col-md-3">
+                        <!-- Selector de minutos -->
+                        <div class="roller-column" @onwheel="OnScrollSeconds">
+                            <div class="roller-list">
+                                @foreach (var second in VisibleSeconds)
+                                {
+                                    <div class="roller-item @(second == SelectedSecond ? "selected" : "")" @onclick="() => SetSecond(second)">
+                                        @second.ToString("D2")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div> *@
+                    @if (Is12HourFormat)
+                    {
+                        <div class="col-md-4">
+                            <!-- Selector de AM/PM -->
+                            <div class="roller-column" @onwheel="OnScrollAmPm">
+                                <div class="roller-list">
+                                    @foreach (var meridian in Meriadians)
+                                    {
+                                        <div class="roller-item @(meridian == SelectedMeridian ? "selected" : "")" @onclick="() => SetMeridian(meridian)">
+                                            @meridian
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>                
+            </div>
+
+            @* <!-- Botones de accion -->
+            <div class="roller-buttons">
+                <button type="button" @onclick="Cancel" class="btn-mlx btn-mlx-white-primary">Cancel</button>
+                <button type="button" @onclick="Save" class="btn-mlx btn-mlx-blue-primary">Save</button>
+            </div> *@
+        </div>
+    }
+</div>
+
+<style>
+
+
+</style>
+
+@code {
+    private bool Is12HourFormat => userFormat.HourFormat.Contains("tt", StringComparison.OrdinalIgnoreCase);
+    private List<int> Hours => Is12HourFormat ? Enumerable.Range(1, 12).ToList(): Enumerable.Range(0, 24).ToList();
+
+
+    private List<int> Minutes { get; set; } = Enumerable.Range(0, 60).ToList();
+    private List<int> Seconds { get; set; } = Enumerable.Range(0, 60).ToList();
+    private List<string> Meriadians { get; set; } = new List<string>{ "AM","PM"};
+
+
+    private int SelectedHour { get; set; }
+    private int SelectedMinute { get; set; }
+    private int SelectedSecond { get; set; }
+    private string SelectedMeridian { get; set; }
+
+    private bool IsPickerVisible { get; set; } = false;
+    private DotNetObjectReference<MlxTimePicker> _objectReference;
+
+    private string _inputValue;
+
+    private string InputValue
+    {
+        get => _inputValue;
+        set
+        {
+            if (_inputValue != value && !string.IsNullOrEmpty(value) && !ShowTodayDate)
+            {
+                // Filtra solo números y el símbolo ':'
+                var validInput = new string(value.Where(c => char.IsDigit(c) || c == ':').ToArray());
+
+                // Completa el formato si falta un dígito
+                if (validInput.Length < 8)
+                {
+                    var parts = validInput.Split(':');
+
+                    // Rellenar horas y minutos según la longitud actual
+                    var hours = parts.Length > 0 && parts[0].Length > 0 ? parts[0].PadLeft(2, '0') : "00";
+                    var minutes = parts.Length > 1 && parts[1].Length > 0 ? parts[1].PadLeft(2, '0') : "00";
+                    var seconds = parts.Length > 2 && parts[2].Length > 0 ? parts[2].PadLeft(2, '0') : "00";
+
+                    validInput = $"{hours}:{minutes}:{seconds}";
+                }
+                else
+                    validInput = "00:00:00";
+
+                // Si el valor ya es válido, actualiza el campo y el estado
+                if (validInput.Length == 8 && validInput != _inputValue)
+                {
+                    _inputValue = validInput;
+                    ParseTime(validInput);
+
+                    // Llama a UpdateTime para sincronizar Time
+                    UpdateTime();
+                }
+            } 
+            else if (ShowTodayDate)
+            {
+                ParseTime24Hours(value);                UpdateTime();            }
+        }
+    }
+
+    [Inject] IJSRuntime JSRuntime { get; set; }
+
+    [Inject] private NavigationManager NavManager { get; set; }
+
+    [Parameter] public EventCallback<(int hour, int minute, int second, string meridian)> OnTimeSelected { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    [Parameter] public TimeSpan Time { get; set; } = TimeSpan.Zero;
+    [Parameter] public EventCallback<TimeSpan> TimeChanged { get; set; }
+
+    [Parameter] public string InputId { get; set; }
+    [Parameter] public string ScrollContainerSelector { get; set; } = "window";
+
+    [Parameter] public bool Disabled { get; set; } = false;
+
+    [Parameter] public bool ShowTodayDate { get; set; }
+
+    private string WrapperId { get; set; }
+
+    private string PickerId { get; set; }
+
+    private Timer _InputDelay;
+
+    [Parameter] public UserFormatOptions userFormat { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        WrapperId = $"roller-{Guid.NewGuid().ToString("N")}";
+        PickerId = $"picker-{Guid.NewGuid():N}";
+
+        if (string.IsNullOrWhiteSpace(InputId))
+        {
+            InputId = $"input-{Guid.NewGuid():N}";
+        }
+        LoadValue();
+    }
+
+    protected override void OnParametersSet()
+    {
+        LoadValue();
+    }
+
+    private void LoadValue()
+    {   
+        if (Is12HourFormat)
+        {
+            SelectedHour = Time.Hours % 12 == 0 ? 12 : Time.Hours % 12;
+            SelectedMeridian = Time.Hours >= 12 ? "PM" : "AM";
+        }
+        else
+        {
+            SelectedHour = Time.Hours;
+            SelectedMeridian = string.Empty; // No aplica
+        }
+        SelectedMinute = Time.Minutes;
+        SelectedSecond = Time.Seconds;
+        UpdateInputValue();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objectReference = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("applyNumberAndColonRestrictionToInputs");
+        }
+
+        if (IsPickerVisible)
+        {
+            await JSRuntime.InvokeVoidAsync("positionPicker", WrapperId, PickerId);
+            await JSRuntime.InvokeVoidAsync("detectOutsideClick", _objectReference, WrapperId, PickerId);
+            await JSRuntime.InvokeVoidAsync("attachScrollListener", _objectReference, WrapperId, ScrollContainerSelector);
+        }
+    }
+
+    private async Task SetHour(int hour)
+    {
+        if (Is12HourFormat)
+            SelectedHour = hour == 0 ? 12 : hour;
+        else
+            SelectedHour = hour;
+        
+        UpdateInputValue();
+        await UpdateTime();
+    }
+
+    private async Task SetMinute(int minute)
+    {
+        SelectedMinute = minute;
+        UpdateInputValue();
+        await UpdateTime();
+    }
+
+    private async Task SetSecond(int second)
+    {
+        SelectedSecond = second;
+        UpdateInputValue();
+        await UpdateTime();
+    }
+
+    private async Task SetMeridian(string meridian)
+    {
+        SelectedMeridian = meridian;
+        UpdateInputValue();
+        await UpdateTime();
+    }
+
+    private async Task UpdateTime()
+    {
+        var hourconvert = Is12HourFormat ? ConvertTo24HourFormat(SelectedHour, SelectedMeridian) : SelectedHour;
+        Time = new TimeSpan(hourconvert, SelectedMinute, SelectedSecond);
+        UpdateInputValue();
+        await TimeChanged.InvokeAsync(Time);
+    }
+
+    private void UpdateInputValue()
+    {
+        string time = GetFormattedTime();
+        string date = ShowTodayDate ? DateTime.Now.ToString(userFormat.DateFormat) : string.Empty;
+
+        if (Is12HourFormat)
+        {
+            time = $"{time} {SelectedMeridian}";
+        }
+
+        _inputValue = ShowTodayDate ? $"{date} {time}" : time;
+    }
+
+    private string GetFormattedTime()
+    {
+        string timeFormat = userFormat.HourFormat;
+
+        timeFormat = timeFormat
+            .Replace("tt", "")
+            .Replace(":ss", "")
+            .Replace(".ss", "")
+            .Trim();
+
+        int hour = SelectedHour;
+
+        if (!Is12HourFormat)
+        {
+            if (SelectedMeridian.Equals("PM", StringComparison.OrdinalIgnoreCase) && hour < 12)
+            {
+                hour += 12;
+            }
+            else if (SelectedMeridian.Equals("AM", StringComparison.OrdinalIgnoreCase) && hour == 12)
+            {
+                hour = 0;
+            }
+        }
+        DateTime tempDate = DateTime.Today
+            .AddHours(hour)
+            .AddMinutes(SelectedMinute);
+
+        return tempDate.ToString(timeFormat);
+    }
+
+    private int ConvertTo24HourFormat(int hour, string meridian)
+    {
+        if (meridian == "AM")
+            return hour == 12 ? 0 : hour;
+        else
+            return hour == 12 ? 12 : hour + 12;
+    }
+
+    private void Save()
+    {
+        IsPickerVisible = false;
+        OnTimeSelected.InvokeAsync((SelectedHour, SelectedMinute, SelectedSecond, SelectedMeridian));
+    }
+
+    private void Cancel()
+    {
+        IsPickerVisible = false;
+        OnCancel.InvokeAsync();
+    }
+
+    private void TogglePicker()
+    {
+        IsPickerVisible = !IsPickerVisible;
+
+        if (IsPickerVisible)
+        {
+            EnableOutsideClickListener();
+        }
+        else
+        {
+            DisableOutsideClickListener();
+        }
+
+        StateHasChanged();
+    }
+
+    //Metodo invocable desde JS mediante dotNetObjectRef
+    [JSInvokable]
+    public void HidePicker()
+    {
+        IsPickerVisible = false;
+        StateHasChanged();
+    }
+
+    private void OnInputChanged(ChangeEventArgs e)
+    {
+        var _pendingValue = e.Value?.ToString() ?? string.Empty;
+        
+        _InputDelay?.Dispose();
+        _InputDelay = new Timer(async _ =>
+        {
+            await InvokeAsync(async () =>
+            {
+                InputValue = _pendingValue;
+                StateHasChanged();
+            });
+        }, null, 500, Timeout.Infinite);
+    }
+
+    public void EnableOutsideClickListener()
+    {
+        JSRuntime.InvokeVoidAsync("detectOutsideClick", _objectReference, WrapperId, PickerId);
+    }
+
+    public void DisableOutsideClickListener()
+    {
+        JSRuntime.InvokeVoidAsync("removeOutsideClickListener", WrapperId);
+        JSRuntime.InvokeVoidAsync("removeScrollListener", WrapperId);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("removeOutsideClickListener", WrapperId);
+        await JSRuntime.InvokeVoidAsync("removeScrollListener", WrapperId);
+        await JSRuntime.InvokeVoidAsync("removeAllPickers");
+        _objectReference?.Dispose();
+    }
+
+    private void OnScrollHours(WheelEventArgs e)
+    {
+        if (e.DeltaY > 12) // Scroll hacia abajo
+        {
+            SetHour((SelectedHour + 1) % Hours.Count);
+        }
+        else if (e.DeltaY < 12) // Scroll hacia arriba
+        {
+            SetHour((SelectedHour - 1 + Hours.Count) % Hours.Count);
+        }
+        StateHasChanged();
+    }
+
+    private void OnScrollMinutes(WheelEventArgs e)
+    {
+        if (e.DeltaY > 0) // Scroll hacia abajo
+        {
+            SetMinute((SelectedMinute + 1) % Minutes.Count);
+        }
+        else if (e.DeltaY < 0) // Scroll hacia arriba
+        {
+            SetMinute((SelectedMinute - 1 + Minutes.Count) % Minutes.Count);
+        }
+        StateHasChanged();
+    }
+
+    private void OnScrollSeconds(WheelEventArgs e)
+    {
+        if (e.DeltaY > 0) // Scroll hacia abajo
+        {
+            SetSecond((SelectedSecond + 1) % Seconds.Count);
+        }
+        else if (e.DeltaY < 0) // Scroll hacia arriba
+        {
+            SetSecond((SelectedSecond - 1 + Seconds.Count) % Seconds.Count);
+        }
+        StateHasChanged();
+    }
+
+    private async Task OnScrollAmPm(WheelEventArgs e)
+    {
+        SelectedMeridian = SelectedMeridian == "AM" ? "PM" : "AM";
+        UpdateInputValue();
+        await UpdateTime();
+    }
+
+    private IEnumerable<int> VisibleHours
+    {
+        get
+        {
+            var rangeSize = 5;
+            var halfRange = rangeSize / 2;
+            var start = SelectedHour - halfRange;
+            int totalHours = Is12HourFormat ? 12 : 24;
+            return Enumerable.Range(start, rangeSize).Select(i => Is12HourFormat ? ((i - 1 + totalHours) % totalHours) + 1: (i + totalHours) % totalHours);
+        }
+    }
+
+    private IEnumerable<int> VisibleMinutes
+    {
+        get
+        {
+            return Enumerable.Range(SelectedMinute - 2, 5)
+                             .Select(i => (i + Minutes.Count) % Minutes.Count);
+        }
+    }
+
+    private IEnumerable<int> VisibleSeconds
+    {
+        get
+        {
+            return Enumerable.Range(SelectedSecond - 2, 5)
+                             .Select(i => (i + Seconds.Count) % Seconds.Count);
+        }
+    }    
+
+    private void ParseTime(string time)
+    {
+        if (time.Length == 8 && time.Contains(":"))
+        {
+            var parts = time.Split(':');
+            if (int.TryParse(parts[0], out var hour))
+            {
+                SelectedHour = Math.Clamp(hour, 0, 23);
+            }
+            if (int.TryParse(parts[1], out var minute))
+            {
+                SelectedMinute = Math.Clamp(minute, 0, 59);
+            }
+            if (int.TryParse(parts[2], out var second))
+            {
+                SelectedSecond = Math.Clamp(second, 0, 59);
+            }
+
+            // Actualiza InputValue para reflejar las horas y minutos corregidos en el input
+            InputValue = $"{SelectedHour:D2}:{SelectedMinute:D2}";
+        }
+      
+    }
+    
+    private void ParseTime24Hours(string date)
+    {
+        const string format = "yyyy-MM-dd hh:mm tt";
+
+        if (DateTime.TryParseExact(date, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedTime))
+        {
+            SelectedHour = parsedTime.Hour % 12 == 0 ? 12 : parsedTime.Hour % 12;
+            SelectedMinute = parsedTime.Minute;
+            SelectedSecond = parsedTime.Second;
+            SelectedMeridian = parsedTime.Hour >= 12 ? "PM" : "AM";
+        }
+    }
+
+    private bool isDisabled(int disable)
+    {
+        if (disable == 0)
+            return true;
+        else
+            return false;
+    }
+
+}

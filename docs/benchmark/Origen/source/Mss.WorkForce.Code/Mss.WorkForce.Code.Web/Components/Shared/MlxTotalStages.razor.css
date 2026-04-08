@@ -1,0 +1,73 @@
+﻿.top-bar {
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    background-color: var( --sp-color-bg-soft);
+    border-radius: 30px;
+    padding: 3px 5px;
+    display: flex;
+    width: fit-content;
+    height: 35px;
+}
+
+.switch-bar {
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 30px;
+    padding: 3px 5px;
+    display: flex;
+    width: fit-content;
+    margin-right: 10px;
+}
+
+
+.separator {
+    width: 1px;
+    height: 20px;
+    background-color: var(--sp-color-border-disabled);
+    margin: 0 5px;
+}
+
+.switch-label {
+    white-space: nowrap;
+    text-align: center;
+    font-family: "Segoe UI";
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 125%;
+    padding-left: 10px;
+    text-transform: uppercase;
+}
+
+.pocentlabel {
+    text-align: center;
+    font-family: "Segoe UI";
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 125%;
+    padding: 0 5px;
+    color: var(--gl-color-neutral-500);
+}
+
+.status-box {
+    align-items: center;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    justify-content: space-between;
+}
+
+.Low {
+    background: var(--sp-color-info-medium);
+}
+.Mid {
+    background: var(--sp-color-warning-medium);
+}
+.Hide {
+    background: var(--sp-color-error-medium);
+}

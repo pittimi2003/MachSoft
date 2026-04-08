@@ -1,0 +1,88 @@
+﻿@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Components.DesignerComponent
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+
+<MlxMainContainer IsLeftSideVisible="false" IsRightSideVisible="@IsDetailsVisible" ShowCentertOverlay="@IsDetailsVisible">
+	<MiddleSideContent>
+		@if (IsSwitchOn)
+		{
+			<DesignerComponent @ref="_designerComponent" IsSwitchOn="IsSwitchOn" IsSwitchOnChanged="SwitchCanvas" OnClickSideBar="ToggleDrawer" OnActionClick="HandleDataChanged" OnActionObject="HandleActionObject" Dto="LayoutData" ShowBackButton="IsProjectView" OnClickClear="ActionClickClear"></DesignerComponent>
+		}
+		else
+		{
+			<DesignerDataGrid IsSwitchOn=IsSwitchOn IsSwitchOnChanged=SwitchCanvas LayoutId=LayoutData.Id></DesignerDataGrid>
+		}
+	</MiddleSideContent>
+	<RightSideContent>
+		<DesignerRightSideContent Dto="LayoutData" ObjectDto="@objectDto" OnClickObjectType="@objectType" CloseSideBar="ToggleDrawer" Metadata="@metadata" />
+	</RightSideContent>
+</MlxMainContainer>
+
+@code {
+	[Parameter]
+	public LayoutDto LayoutData { get; set; }
+	[Parameter]
+	public bool IsProjectView { get; set; } = false;
+	[Parameter]
+	public EventCallback ClearAction { get; set; }
+
+
+	[Inject] IDesignerServices _designer { get; set; }
+	private bool IsDetailsVisible { get; set; } = false;
+	private ObjectTypes objectType { get; set; }
+
+	private object? objectDto { get; set; }
+	private Dictionary<string, object> metadata = new();
+	private DesignerComponent? _designerComponent;
+
+	protected override void OnInitialized()
+	{
+		LayoutData.Viewport = _designer.GetViewportsByLayoutId(LayoutData.Id, LayoutData.LayoutWarehouseDto.Id ?? Guid.Empty);
+	}
+
+	// Function to toggle Drawer status
+	private void ToggleDrawer()
+	{
+		IsDetailsVisible = !IsDetailsVisible;
+	}
+
+    // Function to toggle Drawer status
+	private void HandleActionObject((ObjectTypes objectType, object dataObject, Dictionary<string, object> meta) data)
+	{
+		objectType = data.objectType;
+		objectDto = data.dataObject;
+		metadata = data.meta;
+		StateHasChanged();
+	}
+
+	private void HandleDataChanged(ObjectTypes dataType)
+	{
+		objectType = dataType;
+	}
+
+	private async void ActionClickClear()
+	{
+		await ClearAction.InvokeAsync();
+	}
+
+	public bool IsSwitchOn { get; set; } = true;
+	private async Task SwitchCanvas(bool state)
+	{
+		if (IsSwitchOn != state)
+		{
+			if (IsSwitchOn == true && state == false)
+			{
+				// Canvas -> Data
+				_designerComponent?.CaptureUiStateBeforeLeave();
+			}
+			IsSwitchOn = state;
+			StateHasChanged();
+			LayoutData.Viewport = _designer.GetViewportsByLayoutId(LayoutData.Id, LayoutData.LayoutWarehouseDto.Id ?? Guid.Empty);
+		}
+	}
+
+}

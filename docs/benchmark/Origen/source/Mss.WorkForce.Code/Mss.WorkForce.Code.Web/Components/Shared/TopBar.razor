@@ -1,0 +1,198 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Enums
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.Common
+@inject IJSRuntime JS
+@inject IEventServices eventServices
+@inject ISimulateService simulateService
+@inject GanttJsService GanttService
+@inject IInitialDataService initialDataService
+@inject ILocalizationService l
+
+<div class="toolbar-container">
+    <div class="toolbar-wrapper">   
+        <div id="toolBar" class="top-bar" style="@(IsSwitchOn ? "display: none;" : "display: flex;")">
+            <div style="display: flex">
+                <button class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionReload" @onclick='() => OnGanttEventClick(EventActions.Update, gantt)'>
+                    <span class="mlx-ico-reload"></span>
+                </button>
+                @if (LastUpdateGantt != DateTimeOffset.MinValue)
+                {
+                    <span class="mlx-last-update-gantt-info">@l.Loc("Update: {0}", @LastUpdateGantt.ToUserTime(UserFormat.HourFormat))</span>
+                }
+            </div>
+            <span class="separator"></span>
+
+            <div class="today-container">
+                @if (ShowPrioritySecction)
+                {
+                    <div class="btnPriority" id="divprioirtyToSelectionButton">
+                        <div class="gridSize-selected" id="gridSelectedSize">
+                            <div class="content1" title="@CaptionSelector">
+                                <button type="button" id="dropdownPriorityContainer" data-bs-toggle="dropdown" aria-expanded="false" class="styled-button">
+                                    <div class="div1">
+                                        <span class="mlx-ico-order-by"></span>
+                                        <ol id="textPriority" class="textGridfault">
+                                          @viewSelector
+                                        </ol>
+                                        <span class="mlx-ico-chevron-down"></span>
+                                    </div>
+                                </button>
+                                <ul id="dropdownPriorityContainer" class="dropdown-menu addLayer">
+                                    <li class="dropdown-item px-4 d-flex flex-row">
+                                        <label class="label-export" @onclick='() => OnGanttEventClick(EventActions.ChangeView, EnumViewPlanning.Order)'>@CaptionOrder</label>
+                                    </li>
+                                    <li class="dropdown-item px-4 d-flex flex-row">
+                                        <label class="label-export" @onclick='() => OnGanttEventClick(EventActions.ChangeView, EnumViewPlanning.Priority)'>@CaptionPriority</label>
+                                    </li>
+                                    <li class="dropdown-item px-4 d-flex flex-row">
+                                        <label class="label-export" @onclick='() => OnGanttEventClick(EventActions.ChangeView, EnumViewPlanning.Trailer)'>@CaptionTrailer</label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                }
+                @* <button class="top-bar-button top-bar-button-show" title="Settings" @onclick="OnParametersClick">
+                <span class="mlx-ico-configuration"></span>
+                </button> *@
+                <button class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionColumnselector" @onclick='() => OnGanttEventClick(EventActions.ChooseColumns, gantt.ColumnChooseProperties)'>
+                    <span class="mlx-ico-column-chooser"></span>
+                </button>
+                <button class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionRevertColumns" @onclick='() => OnGanttEventClick(EventActions.RevertColumns, ColumnChooseProperties)'>
+                    <span class="mlx-ico-revertir"></span>
+                </button>
+                <button id="btnCollapsed" class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionCollapsed" @onclick='() => OnGanttEventClick(EventActions.CollapsedExpanded, true)'>
+                    <span class="mlx-ico-contract-vrt"></span>
+                </button>
+                <button id="btnExpand" class="top-bar-button top-bar-button-hide" disabled="@IsButtonActive" title="@CaptionExpanded" @onclick='() => OnGanttEventClick(EventActions.CollapsedExpanded, false)'>
+                    <span class="mlx-ico-expand-vrt"></span>
+                </button>
+            </div>
+            <span class="separator"></span>
+
+            <div style="display: flex; align-items: center;">
+                <button id="btnZoomOut" class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionZoomOut" @onclick='() => OnGanttEventClick(EventActions.ZoomOutZoomIn, false)'>
+                    <span class="mlx-ico-zoom-out"></span>
+                </button>
+                <button id="btnZoomIn" class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionZoomIn" @onclick='() => OnGanttEventClick(EventActions.ZoomOutZoomIn, true)'>
+                    <span class="mlx-ico-zoom-in"></span>
+                </button>
+            </div>
+            <span class="separator"></span>
+            <div style="display: flex; align-items: center;">
+                <button class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionGotoNow" @onclick='() => OnGanttEventClick(EventActions.ToNow, "")'>
+                    <span class="mlx-ico-now"></span>
+                </button>
+                @if (AddIntervalTime)
+                {
+                    <button class="top-bar-button top-bar-button-show" disabled="@IsButtonActive" title="@CaptionTimeInterval" @onclick="ShowTimeIntervalModal">
+                        <span class="mlx-ico-time-interval"></span>
+                    </button>
+                }
+            </div>
+            <span class="separator"></span>
+            <div style="display: flex; align-items: center;">
+                <button id="BtndropdownExport" type="button" data-bs-toggle="dropdown" disabled="@IsButtonActive" aria-expanded="false" class="top-bar-button top-bar-button-show" title="@CaptionExport">
+                    <span class="mlx-ico-export"></span>
+                </button>
+                <ul id="dropdownExport" class="dropdown-menu">
+                    <li class="dropdown-item px-4 d-flex flex-row" @onclick='() => OnGanttEventClick(EventActions.ExportPDF, "")'>
+                        <span class="mlx-ico-doc-pdf"></span>
+                        <label class="label-export">@l.Loc("Export to PDF")</label>
+                    </li>
+
+                    <li class="dropdown-item px-4 d-flex flex-row" @onclick='() => OnGanttEventClick(EventActions.ExportCSV, "")'>
+                        <span class="mlx-ico-doc-xml"></span>
+                        <label class="label-export">@l.Loc("Export to Excel")</label>
+                    </li>
+                    <li class="dropdown-item px-4 d-flex flex-row" @onclick='() => OnGanttEventClick(EventActions.Print, "")'>
+                        <span class="mlx-ico-print"></span>
+                        <label class="label-export">@l.Loc("Print")</label>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div id="pivotBar" class="top-bar" style="@(IsSwitchOn ? "display: flex;" : "display: none;")">
+
+            <div style="display: flex">
+                <button id="btnReloadPivot" class="top-bar-button top-bar-button-show" title="@CaptionReload" @onclick='() => OnPivotEventClick(EventActions.UpdateScheduleGrid, "")'>
+                    <span class="mlx-ico-reload"></span>
+                </button>
+                @if (LastUpdateGrid != DateTimeOffset.MinValue)
+                {
+                    <span class="mlx-last-update-gantt-info">@l.Loc("Update: {0}", @LastUpdateGrid.ToUserTime(UserFormat.HourFormat))</span>
+                }
+            </div>
+
+            <span class="separator"></span>
+            <div style="display: flex align-items: center;">
+                <button id="BtndropdownExportPivot" tyoe="button" data-bs-toggle="dropdown" aria-expanded="false" class="top-bar-button top-bar-button-show" title="@CaptionExport">
+                    <span class="mlx-ico-export"></span>
+                </button>
+                <ul id="dropdownExportPivot" class="dropdown-menu">
+                    <li class="dropdown-item px-4 d-flex flex-row" @onclick='() => OnPivotEventClick(EventActions.ExportCSV, "")'>
+                        <span class="mlx-ico-doc-xml"></span>
+                        <label class="label-export">@l.Loc("Export to Excel")</label>
+                    </li>
+                </ul>
+            </div>
+            
+            <span class="separator"></span>
+            <div class="today-container">
+                <button id="btnShowChart" class="top-bar-button @(chartVisible ? "top-bar-button-show" : "top-bar-button-hide")" title="@CaptionHideChart" @onclick="ToggleChart">
+                    <span class="mlx-ico-graph-hide"></span>
+                </button>
+                <button id="btnHideChart" class="top-bar-button  @(chartVisible ? "top-bar-button-hide" : "top-bar-button-show")" title="@CaptionShowChart" @onclick="ToggleChart">
+                    <span class="mlx-ico-graph-show"></span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<MlxColumnChooserPopup Visible="@showColumnChoose"
+                       VisibleChanged="@((bool value) => showColumnChoose = value)"
+                       ColumnChooseProperties="@ColumnChooseProperties"
+                       OnSave="@UpdateColumnChoose"
+                       OnCancel="@CancelColumnChoose"
+                       OnClose="@CancelColumnChoose" />
+
+<DxPopup CssClass="mlx-modal"
+HeaderText="@l.Loc("Time interval")"
+@bind-Visible="@isTimeIntervalModalVisible"
+CloseOnEscape="false"
+CloseOnOutsideClick="false"
+CloseButtonClick="OnCloseTimeIntervalModal"
+ShowFooter="true"
+Width="60%"
+Scrollable="true">
+    <BodyContentTemplate>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <label for="idSelectSchedule" class="mlx-form-label">@l.Loc("Reference")</label>
+                <MlxComboBox Data="@dateFieldFilters" TextFieldName="Text" ValueFieldName="Value" @bind-Value="@TimeIntervalModel.Reference"
+                            CssClass="mlx-form-select" InputId="idSelectSchedule" NullText="Select..." />
+            </div>
+            <div class="col-md-6">
+                <label for="idInputTimeUntil" class="mlx-form-label">@l.Loc("To next (hours)")</label>
+                <MlxHourPicker @bind-Time="@TimeIntervalModel.TimeUntil" InputId="idInputTimeUntil"></MlxHourPicker>
+            </div>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="OnCloseTimeIntervalModal">@l.Loc("Cancel")</button>
+        <button type="button" class=" btn-mlx btn-mlx-blue-primary" @onclick="TimeIntervalApplyFilter">@l.Loc("Apply")</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+
+@code {
+   
+}

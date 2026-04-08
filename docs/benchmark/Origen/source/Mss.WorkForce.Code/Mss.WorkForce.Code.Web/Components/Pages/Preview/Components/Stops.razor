@@ -1,0 +1,323 @@
+﻿@using Mss.WorkForce.Code.Models.DTO.Preview
+@using DevExpress.Blazor
+@using DevExpress.Data
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.Common
+@inject ILocalizationService l
+
+<div class="row mb-2">
+    <!-- LEFT SIDE: STOP DETAILS -->
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5 class="mlx-title-h4 mb-3">@l.Loc("STOPS")</h5>
+
+            <!-- ComboBox to select existing stop -->
+            <label for="idSelectStop" class="mlx-form-label">@l.Loc("Select Stop")</label>
+            <div class="d-flex align-items-center mb-3">
+                <div class="flex-grow-1 me-2">
+                    <MlxComboBox Data="@AllStops"
+                                TextFieldName="CompleteName"
+                                ValueFieldName="id"
+                                Value="@SelectedStopId"
+                                ValueChanged="@((Guid? id) => OnStopSelected(id))"
+                                CssClass="mlx-form-select"
+                                InputId="idSelectStop"
+                                NullText="@l.Loc("Select a stop")"
+                                Enabled="@( !IsAddingNewStop && !IsUpdatingExistingStop )">
+                        <ItemTemplate>
+                            <div class="d-flex justify-content-between align-items-center w-100">
+                                <span class="flex-grow-1">
+                                    @((context as StopDto)?.CompleteName)
+                                </span>
+                                <span class="d-flex" style="gap: 8px;">
+                                    <span class="mlx-ico-edit" @onclick="() => OpenEdit(context as StopDto)"></span>
+                                    <span class="mlx-ico-trash" @onclick="() => DeleteStop(context as StopDto)"></span>
+                                </span>
+                            </div>
+                        </ItemTemplate>
+                    </MlxComboBox>
+                </div>
+
+                <button type="button" class="btn-mlx-blue-primary mlx-btn-action-enabled" @onclick="ShowNewStopForm">
+                    <span class="mlx-ico-add"></span>
+                </button>
+            </div>
+
+            @if (IsAddingNewStop || IsUpdatingExistingStop)
+            {
+                <!-- Form to add new stop -->
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <label class="mlx-form-label">@l.Loc("Name")</label>
+                        <input class="form-control" @bind="NewStop.name" />
+                        @if (string.IsNullOrWhiteSpace(NewStop.name))
+                        {
+                            <small class="text-danger">@MessageMandatoryField</small>
+                        }
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="mlx-form-label">@l.Loc("Start stop")</label>
+                        <MlxTimePicker Time="NewStop.initHour" TimeChanged="@(t => NewStop.initHour = t)" userFormat="userFormat"></MlxTimePicker>
+                        @if (NewStop.initHour > NewStop.endHour)
+                        {
+                            <small class="text-danger">@MessageErrorHour</small>
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        <label class="mlx-form-label">@l.Loc("End stop")</label>
+                        <MlxTimePicker Time="NewStop.endHour" TimeChanged="@(t => NewStop.endHour = t)" userFormat="userFormat"></MlxTimePicker>
+                        @if (NewStop.initHour > NewStop.endHour)
+                        {
+                            <small class="text-danger">@MessageErrorHour</small>
+                        }
+                    </div>
+                    <div class="col-md-1 aligned">
+                        <button type="button" class="btn-mlx-blue-primary mlx-btn-action-enabled" @onclick="ConfirmAddStop" disabled="@(!CanConfirmAdd)">
+                            <span class="mlx-ico-count-white"></span>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: WORKERS TABLE -->
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5 class="mlx-title-h4 mb-3">@l.Loc("WORKERS")</h5>
+
+            <DxGrid Data="@OrderedWorkersForSelectedStop"
+                    CssClass="mlx-grid"
+                    PageSize="10"
+                    PagerPosition="GridPagerPosition.Bottom"
+                    ShowFilterRow="true"
+                    SelectionMode="GridSelectionMode.Multiple"
+                    SelectedDataItems="@SelectedStop?.workerStops"
+                    SelectedDataItemsChanged="OnWorkerSelectionChanged">
+                <Columns>
+                    <DxGridSelectionColumn Width="40px" />
+                    <DxGridDataColumn FieldName="workerName" Caption="@l.Loc("Name")" TextAlignment="GridTextAlignment.Left" AllowSort="true" />
+                    <DxGridDataColumn FieldName="workerNumber" Caption="@l.Loc("Number")" TextAlignment="GridTextAlignment.Left" AllowSort="true" />
+                    <DxGridDataColumn FieldName="shiftName" Caption="@l.Loc("Shift")" TextAlignment="GridTextAlignment.Left" AllowSort="true" />
+                </Columns>
+            </DxGrid>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public List<StopDto> AllStops { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<List<StopDto>> StopsChanged { get; set; }
+
+    [Parameter]
+    public List<WorkerStops> AllWorkers { get; set; } = new();
+
+    [Parameter] 
+    public UserFormatOptions userFormat { get; set; } = new();
+
+    public List<WorkerStops> AvailableWorkers { get; set; } = new();
+
+    private Guid? SelectedStopId { get; set; }
+    private StopDto SelectedStop { get; set; }
+
+    // NEW
+    private bool IsAddingNewStop { get; set; } = false;
+    private StopDto NewStop { get; set; } = new StopDto();
+
+    private bool IsUpdatingExistingStop { get; set; } = false;
+    private string MessageErrorHour = "* Start cannot be greater than End";
+    private string MessageMandatoryField = "* Mandatory field";
+
+    // Show form
+    private void ShowNewStopForm()
+    {
+
+
+        NewStop = new StopDto
+            {
+                id = Guid.NewGuid(),
+                name = "",
+                initHour = default,
+                endHour = default,
+                workerStops = new List<WorkerStops>()
+            };
+
+        IsAddingNewStop = true;
+    }
+
+    // Can confirm?
+    private bool CanConfirmAdd =>
+        !string.IsNullOrWhiteSpace(NewStop.name) &&
+        NewStop.initHour <= NewStop.endHour;
+
+    // Confirm add
+    // private async Task ConfirmAddStop()
+    // {
+    //     if (IsUpdatingExistingStop)
+    //     {
+    //         AllStops.RemoveAll(x => x.id == NewStop.id);
+    //     }
+
+    //     AllStops.Add(NewStop);
+    //     SelectedStopId = NewStop.id;
+    //     SelectedStop = NewStop;
+
+    //     IsUpdatingExistingStop = false;
+    //     IsAddingNewStop = false;
+
+    //     RestoreWorkers(NewStop.id);
+
+    //     await StopsChanged.InvokeAsync(AllStops);
+    // }
+
+    private async Task ConfirmAddStop()
+    {
+        if (IsUpdatingExistingStop)
+        {
+            AllStops.RemoveAll(x => x.id == NewStop.id);
+
+            // 🔁 Crea una copia nueva del objeto editado para evitar problemas de referencia
+            var updatedStop = new StopDto
+                {
+                    id = NewStop.id,
+                    name = NewStop.name,
+                    initHour = NewStop.initHour,
+                    endHour = NewStop.endHour,
+                    workerStops = NewStop.workerStops?.ToList() ?? new List<WorkerStops>()
+                };
+
+            AllStops.Add(updatedStop);
+
+            SelectedStopId = updatedStop.id;
+            SelectedStop = updatedStop;
+
+            RestoreWorkers(updatedStop.id);
+        }
+        else
+        {
+            AllStops.Add(NewStop);
+            SelectedStopId = NewStop.id;
+            SelectedStop = NewStop;
+
+            RestoreWorkers(NewStop.id);
+        }
+
+        IsUpdatingExistingStop = false;
+        IsAddingNewStop = false;
+
+        await StopsChanged.InvokeAsync(AllStops);
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    private void RestoreWorkers(Guid? stopId)
+    {
+        AvailableWorkers = CouldBeInTime(AllWorkers, SelectedStop);
+        StateHasChanged();
+    }
+
+    // Select stop from ComboBox
+    private async Task OnStopSelected(Guid? stopId)
+    {
+        SelectedStopId = stopId;
+        SelectedStop = AllStops.FirstOrDefault(s => s.id == stopId);
+
+        AvailableWorkers = CouldBeInTime(AllWorkers, SelectedStop);
+
+        if (SelectedStop != null)
+        {
+            if (SelectedStop.workerStops == null)
+            {
+                SelectedStop.workerStops = new List<WorkerStops>();
+            }
+            else
+            {
+                // Normaliza las referencias: usa las instancias de AllWorkers
+                var workerIds = SelectedStop.workerStops.Select(w => w.workerId).ToHashSet();
+                SelectedStop.workerStops = AvailableWorkers
+                    .Where(w => workerIds.Contains(w.workerId))
+                    .ToList();
+            }
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    // Handle workers selection
+    private async Task OnWorkerSelectionChanged(IEnumerable<object> selectedItems)
+    {
+        if (SelectedStop != null)
+        {
+            SelectedStop.workerStops = selectedItems.Cast<WorkerStops>().ToList();
+            await StopsChanged.InvokeAsync(AllStops);
+        }
+    }
+
+    // Ordered workers for grid
+    private IEnumerable<WorkerStops> OrderedWorkersForSelectedStop
+    {
+        get
+        {
+            if (AvailableWorkers == null) return Enumerable.Empty<WorkerStops>();
+
+            if (SelectedStop == null || SelectedStop.workerStops == null || !SelectedStop.workerStops.Any())
+            {
+                return AvailableWorkers.OrderBy(w => w.workerName);
+            }
+
+            var selectedIds = new HashSet<Guid>(SelectedStop.workerStops.Select(w => w.workerId));
+
+            return AvailableWorkers
+                .OrderByDescending(w => selectedIds.Contains(w.workerId))
+                .ThenBy(w => w.workerName);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        AvailableWorkers = AllWorkers;
+        MessageErrorHour = l.Loc("* Start cannot be greater than End");
+        MessageMandatoryField = l.Loc("* Mandatory field");
+    }
+
+    public List<WorkerStops> CouldBeInTime(List<WorkerStops> workers, StopDto stop)
+    {
+        return workers
+       .Where(w =>
+           w.init < stop.endHour &&
+           w.end > stop.initHour
+       )
+       .ToList();
+    }
+
+    private async void OpenEdit(StopDto stop)
+    {
+        NewStop = stop;
+        IsAddingNewStop = false;
+        IsUpdatingExistingStop = true;
+        StateHasChanged();
+    }
+
+    private async void DeleteStop(StopDto stop)
+    {
+        AllStops.Remove(stop);
+        await StopsChanged.InvokeAsync(AllStops);
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,197 @@
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.Models
+@using System.Text.Json
+@inherits Mss.WorkForce.Code.Web.Common.PageOperations
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Web.Common
+@inject ILocalizationService L
+
+<EditForm EditContext="editContext" class="mlx-right-sideBar-body-height-form">
+    <DataAnnotationsValidator />
+    @* Section without tabs *@
+
+    @if (ShowTabs)
+    {
+        <div class="mlx-right-sideBar-body-form-height">
+            <div id="area-tab-id" class="mlx-right-sideBar-body-content-widthout-tab">
+                <DxTabs CssClass="mlx-tabs mlx-tabs-for-details gap-10 flex-flow-column" ActiveTabIndex="@currentIndex" ActiveTabIndexChanged="OnTabChanged">
+
+                    <DxTabPage Text="@L.Loc("Area")">
+                        <div class="@AnimationClass">
+                            @RenderAreaTab()
+                        </div>
+                    </DxTabPage>
+
+                    @if (RelatedProcesses.Count() > 0)
+                    {
+                        <DxTabPage Text="@L.Loc("Processes")">
+                            <div class="@AnimationClass">
+                                @RenderProcessTab()
+                            </div>
+                        </DxTabPage>
+                    }
+
+                    @if (RelatedZones.Count() > 0)
+                    {
+                        <DxTabPage Text="@L.Loc("Stations")">
+                            <div class="@AnimationClass">
+                                @RenderStationTab()
+                            </div>
+                        </DxTabPage>
+                    }
+
+                    @if (RelatedEquipment.Count() > 0)
+                    {
+                        <DxTabPage Text="@L.Loc("Equipments")">
+                            <div class="@AnimationClass">
+                                @RenderEquipmentTab()
+                            </div>
+                        </DxTabPage>
+                    }
+                 </DxTabs>
+             </div>
+         </div>
+     }
+     else
+     {
+         <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            @RenderAreaTab()
+         </div>
+     }
+        @*------------------------*@
+    <div class="mlx-right-sideBar-footer">
+        <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEvent())">@L.Loc("Save")</button>
+    </div>
+</EditForm>
+
+@code{
+    int currentIndex = 0;
+    int previousIndex = 0;
+
+    string AnimationClass => currentIndex > previousIndex ? "slide-left" : "slide-right";
+
+    private bool HasPendingValidationConflicts()
+    {
+        var hasFrameworkErrors = editContext?.GetValidationMessages()?.Any() == true;
+        return _hasErrors || hasFrameworkErrors;
+    }
+
+    void OnTabChanged(int newIndex)
+    {
+        if (HasPendingValidationConflicts())
+        {
+            StateHasChanged();
+            return;
+        }
+        previousIndex = currentIndex;
+        currentIndex = newIndex;
+    }
+
+    private IEnumerable<ComboBoxSelectItem<AreaType>> LocalizedAreaTypes => 
+    Enum.GetValues<AreaType>().Select(type => new ComboBoxSelectItem<AreaType>(L)
+    {
+        Value = type,
+        Text = type.ToString()
+    });
+
+    private RenderFragment RenderAreaTab() => __builder =>
+    {
+        <div class="row">
+            <div class="col-xl-6 col-sm-12">
+                <label class="mlx-form-label">@L.Loc("Name")</label>
+                <DxTextBox @bind-Text="DesignerDto.Name" CssClass="mlx-form-textbox" />
+                <ValidationMessage class="text-danger" For="@(() => DesignerDto.Name)" />
+            </div>
+
+            @*Type section*@
+            <div class="col-xl-6 col-sm-12">
+                @*Tooltip Section*@
+                @if (_tooltipData is not null)
+                {
+                    <label class="mlx-form-label">@L.Loc("Type")</label>
+                    <TooltipComponent CssClass="btn-modal-info-button mlx-ico-info-bg-solid margin-left-6px" Position="FlyoutPosition.Bottom">
+                        <div class="custom-tooltip">
+                            <span><b>@_tooltipData.Value.Name:</b> @_tooltipData.Value.Description</span>
+                        </div>
+                    </TooltipComponent>
+                }
+                <div class="title-details left-side-content height-33px width-100">
+                    <DxTextBox Text="@areaTypeName" TextExpression="@(() => areaTypeName)" Enabled="false" CssClass="mlx-form-textbox width-100" />
+                </div>
+            </div>
+        </div>
+    };
+
+    private RenderFragment RenderProcessTab() => __builder =>
+    {
+        <DxGrid Data="@RelatedProcesses" CssClass="mlx-grid">
+            <Columns>
+                <DxGridDataColumn FieldName="Name" Caption="@L.Loc("Name")" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" />
+                <DxGridDataColumn FieldName="Type" Caption="@L.Loc("Type")">
+                    <CellDisplayTemplate Context="ProcessContext">
+                        <span>@L.Loc(GetProcessTypeString(((ProcessDto)ProcessContext.DataItem).Type ?? ProcessType.CustomProcess))</span>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="Configuration" Caption="@L.Loc("Configuration")" Width="80px" Context="contextItem">
+                    <CellDisplayTemplate>
+                        <div class="center-elements-in-content cursor-pointer" @onclick="() => NavigateToChild(ObjectTypes.Process, (ProcessDto)contextItem.DataItem)">
+                            <span class="mlx-ico-configuration"></span>
+                        </div>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+            </Columns>
+        </DxGrid>
+    };
+    
+    private RenderFragment RenderStationTab() => __builder =>
+    {
+        <DxGrid Data="@RelatedZones" CssClass="mlx-grid">
+            <Columns>
+                <DxGridDataColumn FieldName="Name" Caption="@L.Loc("Name")" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" />
+                <DxGridDataColumn FieldName="ZoneType" Caption="@L.Loc("Type")">
+                    <CellDisplayTemplate Context="StationContext">
+                            <span>@L.Loc(ZoneTypeGetMethods.GetZoneTypeString(((Models.DTO.Designer.ZoneDto)StationContext.DataItem).ZoneType))</span>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="Configuration" Caption="@L.Loc("Configuration")" Width="80px" Context="contextItem">
+                    <CellDisplayTemplate>
+                        <div class="center-elements-in-content cursor-pointer" @onclick="() => NavigateToChild(GetObjectTypeToZoneType(((Models.DTO.Designer.ZoneDto)contextItem.DataItem).ZoneType), CastObjectTypeZones(GetObjectTypeToZoneType(((Models.DTO.Designer.ZoneDto)contextItem.DataItem).ZoneType), contextItem.DataItem))">
+                            <span class="mlx-ico-configuration"></span>
+                        </div>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+            </Columns>
+        </DxGrid>
+    };
+    
+    private RenderFragment RenderEquipmentTab() => __builder =>
+    {
+        <DxGrid Data="@RelatedEquipment" CssClass="mlx-grid">
+            <Columns>
+                <DxGridDataColumn FieldName="NameTypeEquipment" Caption="@L.Loc("Equipment")" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" />
+                <DxGridDataColumn FieldName="NEquipment" Caption="@L.Loc("Quantity")" >
+                    <CellDisplayTemplate Context="ModelContext">
+                        @{
+                            var value = ModelContext.Value;
+                        }
+                        <div class="text-Right-important">
+                            @value
+                        </div>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="Configuration" Caption="@L.Loc("Configuration")" Width="80px" Context="contextItem">
+                    <CellDisplayTemplate>
+                        <div class="center-elements-in-content cursor-pointer" @onclick="() => NavigateToChild(ObjectTypes.Equipment, ((EquipmentDesignerDto)contextItem.DataItem))">
+                            <span class="mlx-ico-configuration"></span>
+                        </div>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+            </Columns>
+        </DxGrid>
+    };
+}

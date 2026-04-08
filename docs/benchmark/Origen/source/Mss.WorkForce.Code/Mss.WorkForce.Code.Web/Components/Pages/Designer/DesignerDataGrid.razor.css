@@ -1,0 +1,780 @@
+﻿/* Border detail style */
+#designer-root ::deep .mlx-grid .dxbl-grid-table > tbody > tr > .dxbl-grid-detail-cell {
+    border-top: 2px solid var(--gl-color-blue-300) !important;
+    border-bottom: 0px solid transparent !important;
+    padding: 16px 40px 32px 80px !important;
+}
+
+/* Group text style */
+#designer-root ::deep .wl-tab-scroll .dxbl-grid-group-panel-container > .dxbl-text {
+    font-family: "Segoe UI";
+    color: var(--sp-color-content-soft) !important;
+    font-style: normal;
+    margin: 0;
+}
+
+/* Group column container style */
+#designer-root ::deep .wl-tab-scroll .dxbl-grid-group-panel-container {
+    background-color: var(--gl-color-smoke-100) !important;
+    border-radius: 6px !important;
+    line-height: 0.2 !important;
+    min-height: unset !important;
+    display: flex;
+    height: 40px;
+    padding: 0px 16px;
+    align-items: center;
+    justify-content: start;
+    flex: 1 0 0;
+    gap: 8px;
+}
+
+/* ===== Layout general ===== */
+/* View style */
+.wl-component-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* View header section */
+.wl-header-bar {
+    display: flex;
+    align-items: center;
+    padding: 18px 12px 6px 22px;
+    background: var(--gl-color-brand-400);
+    position: relative;
+}
+
+/* Sizes of the wl-header-bar container sections */
+.wl-header-bar > div {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+/* Remove the margin from the MlxSwitchBar component */
+.wl-component-container > .wl-header-bar ::deep .toolbar-container > .toolbar-wrapper > .switch-bar {
+    margin: 0px;
+}
+
+/* Style of header left position */
+.wl-left {
+    justify-content: left;
+    width: 100%;
+}
+
+/* Style of header position message */
+.wl-center {
+    white-space: nowrap;
+}
+
+/* Style of header right position */
+.wl-right {
+    justify-content: right;
+    width: 100%;
+}
+
+/* Style of tab content */
+.wl-tab-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 8px 0;
+    min-height: 0;
+    overflow: auto;
+}
+
+/* Standard text size for messages */
+.wl-status {
+    font-size: 12px;
+}
+
+/* Edit message text style */
+.wl-status-pending {
+    color: var(--gl-color-smoke-900, #2E4052);
+    font-family: "Segoe UI";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+/* Sticky */
+/* Toolbar position */
+.wl-sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: #fafafa;
+}
+
+/* Toolbar detail grid position */
+.wl-sticky-sub {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fafafa;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Position button cancel/save footer */
+.wl-sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+}
+
+/* Style of the Area and Process grid pager */
+.wl-sticky-pager,
+.wl-pager-static {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    padding: 6px 8px;
+}
+
+/* Density */
+#designer-root ::deep .mlx-grid.dxbl-grid .dxbl-datacell,
+#designer-root ::deep .mlx-grid.dxbl-grid .dxbl-headercell {
+    padding: 6px 8px;
+}
+
+/* Toolbar style */
+.mlx-panel-header {
+    display: flex;
+    align-items: center;
+    padding: 0px 8px;
+    border-bottom: 0px solid;
+    background: var(--sp-color-bg-default);
+    margin: 0;
+}
+
+/* Tab size */
+.mlx-tab-height {
+    height: 40px !important;
+}
+
+/* Separation and alignment of the toolbar */
+.mlx-panel-bar-action {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Subgrid tooltip button style */
+#designer-root ::deep .mlx-panel-header.wl-sticky-sub > .mlx-panel-bar-action {
+    padding: 0;
+    border-radius: 999px;
+}
+
+/* Apply padding above the Add button within an internal tab of a detail */
+#designer-root ::deep .wl-subtab-scroll {
+    padding-top: 16px;
+}
+
+/* Toolbar button style active */
+.mlx-panel-bar-action > button {
+    border: 0;
+    background: transparent;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+/* Toolbar button style disabled */
+.mlx-panel-bar-action > button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+/* Footer style of the view */
+.mlx-right-sideBar-footer {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid #ddd;
+    background: #f9f9f9;
+}
+
+/* Grid pagination format */
+.mlx-pager-pager-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 6px;
+}
+
+/* Spacing between grid pagination elements */
+.mlx-pager-left-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Spacing of the div containing selected records */
+.mlx-pager-right-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 0;
+}
+
+/* Page counter text style */
+.mlx-pager-records {
+    font-size: 12px;
+    color: #666;
+    width: 100%;
+}
+
+/* Active style of the selected records counter */
+.btn-mlx-grid-select {
+    border: 1px solid var(--gl-color-blue-500);
+    background: var(--gl-color-blue-500);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+}
+
+/* Hover style of the selected records counter */
+.btn-mlx-grid-select:hover {
+    border-color: var(--gl-color-blue-400);
+    background: var(--gl-color-blue-400);
+}
+
+/* Record selector element separator */
+.mlx-separator {
+    display: inline-block;
+    width: 6px;
+}
+
+/* Style cells read only */
+#designer-root ::deep .mlx-grid .dxbl-grid-table > tbody > tr > td.wl-cell-readonly {
+    font-style: italic !important;
+    color: var(--sp-color-content-secondary) !important;
+}
+
+/*.wl-cell-readonly .dxbl-editor {
+    pointer-events: none;
+}*/
+
+/* New registration green style */
+#designer-root ::deep .wl-row-new,
+#designer-root ::deep .dxbl-grid-selected-row.wl-row-new {
+    background-color: rgba(76,175,80,.10) !important;
+}
+
+/* Background color of edited rows */
+#designer-root ::deep .wl-row-modified {
+    background: rgba(33,150,243,.08);
+}
+
+/* Background color of deleted rows */
+#designer-root ::deep .wl-row-deleted {
+    background: rgba(244,67,54,.10);
+    text-decoration: line-through;
+    opacity: .8;
+}
+
+/* Cell style for TimeInputs in the grid */
+.mlx-timeinput {
+    display: inline-block;
+    min-width: 120px;
+}
+
+/* Cancel/confirm button styles */
+.btn-mlx {
+    font-family: Segoe UI, Helvetica Neue, Arial;
+    font-weight: 600;
+    padding: 0 32px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 999px;
+}
+
+/* Cancel button colors */
+.btn-mlx-white-primary {
+    background-color: var(--sp-color-bg-default);
+    border: 2px solid var(--gl-color-blue-500);
+    color: var(--gl-color-blue-500);
+}
+
+/* Hover cancel button colors */
+.btn-mlx-white-primary:hover {
+    border-color: var(--gl-color-blue-400);
+    color: var(--gl-color-blue-400);
+}
+
+/* Confirm button colors */
+.btn-mlx-blue-primary {
+    background-color: var(--gl-color-blue-500);
+    border: 2px solid var(--gl-color-blue-500);
+    color: #fff;
+}
+
+/* Disabled confirm button colors */
+.btn-mlx-blue-primary:disabled, .btn-mlx-white-primary:disabled {
+    color: var(--sp-color-content-disabled);
+    background-color: var(--sp-color-bg-soft);
+    border-color: var(--sp-color-bg-soft);
+    cursor: default;
+}
+
+/* Hover confirm button colors */
+.btn-mlx-blue-primary:hover {
+    border-color: var(--gl-color-blue-400);
+    background-color: var(--gl-color-blue-400);
+}
+
+/* List support within the body of the reusable modal */
+.wl-modal-list {
+    margin: 8px 0 0;
+    padding-left: 30px;
+    max-height: 180px;
+    overflow: auto;
+}
+
+/* Style warning text in modal delete */
+.wl-modal-hint {
+    margin-top: 10px;
+    color: #d86470;
+    font-size: 12px;
+    font-weight: bolder;
+}
+
+/* Content of the modal delete body */
+.wl-modal-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* Text of deleted element */
+.wl-modal-group-header {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* Text size of delete element */
+.wl-modal-group-title {
+    font-size: 16px;
+}
+
+/* Text size of delete element count */
+.wl-modal-group-count {
+    color: #666;
+    font-size: 16px;
+}
+
+/* Calculated size of table content (The only way to push the pagination to the desired height of the footer) */
+#designer-root ::deep .grid-host .mlx-grid:not(.dxbl-grid-detail) > .dxbl-scroll-viewer {
+    height: calc(100vh - 328px);
+}
+
+/* Calculated size of table content within another table (height is limited) */
+#designer-root ::deep .mlx-grid.dxbl-grid-detail > .dxbl-scroll-viewer {
+    height: 100%;
+    min-height: calc(100vh - 889px);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Applies to all columns except those containing the time format */
+#designer-root ::deep .dxbl-align-right.wl-num-cell:not(:has(.mlx-timeinput)) {
+    align-items: center;
+    text-align: right;
+}
+
+
+/* Applies to all numeric columns that have the time format */
+#designer-root ::deep .dxbl-align-right.wl-num-cell:has(.mlx-timeinput) {
+    align-items: center;
+    text-align: left;
+}
+
+/* Text size listed in the deletion modal */
+.wl-modal-groups > .wl-modal-group > ul.wl-modal-list > li {
+    font-size: 14px;
+}
+
+/* --------------- Styles section for the grouping panel --------------- */
+
+/* Delete border bottom from toolbar */
+#designer-root ::deep .dxbl-grid > .dxbl-grid-toolbar-container,
+#designer-root ::deep .dxbl-grid > .dxbl-grid-top-panel {
+    border-bottom: 0;
+}
+
+/* Selection filter container style */
+#designer-root ::deep .dxbl-grid-group-panel-container {
+    background-color: var(--gl-color-smoke-100);
+    display: flex;
+    height: 40px;
+    padding: 0px 16px;
+    align-items: center;
+    justify-content: start;
+    flex: 1 0 0;
+    gap: 8px;
+}
+
+/* Remove the top filling from the cells */
+#designer-root ::deep .dxbl-grid .dxbl-grid-table > thead > tr.dxbl-grid-filter-row > td {
+    padding: 0 var(--dxbl-grid-editor-cell-padding-x);
+}
+
+/* Row size grid */
+#designer-root ::deep .dxbl-grid-filter-row.dxbl-grid-editor-inplace-container,
+#designer-root ::deep .mlx-grid .dxbl-grid-table > thead > .dxbl-grid-header-row,
+#designer-root ::deep .dxbl-grid .dxbl-grid-table > tbody > tr:not(.dxbl-grid-empty-row) > td,
+#designer-root ::deep .dxbl-grid .dxbl-grid-table > tfoot > tr,
+#designer-root ::deep .dxbl-grid .dxbl-grid-table > thead > tr {
+    height: 40px;
+}
+
+/* Remove the margin from the rectangular elements to be filtered */
+#designer-root ::deep .dxbl-grid-group-panel-container > .dxbl-grid-header.dxbl-grid-action {
+    margin: 0;
+}
+
+/* ----------------------------------------------------------------------------- */
+
+/* Delete margin to mlx-grid and aply 8px space between selector filter and Grid */
+#designer-root ::deep .mlx-grid:not(.dxbl-grid-detail) {
+    margin: 0;
+    gap: 8px;
+}
+
+/* ------------------ Tab styles ------------------ */
+.wl-component-container .dxbl-tabs-header {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: none;
+}
+
+/* Base tab */
+.wl-component-container .dxbl-tabs-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center;
+    height: 38.14px;
+    padding: 0 16px !important;
+    cursor: pointer !important;
+    user-select: none;
+    font-family: Segoe UI !important;
+    font-size: 12px !important;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--gl-color-smoke-900) !important;
+    background: transparent !important;
+    border: 3px solid transparent !important;
+    border-right: 0px !important;
+    border-left: 0px !important;
+    text-transform: uppercase;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+    /* Hover */
+    .wl-component-container .dxbl-tabs-item:hover,
+    .wl-component-container .dxbl-tabs-item.dxbl-active:hover, /* Active hover */
+    .wl-component-container .dxbl-tabs-item:before {
+        background: transparent !important;
+    }
+
+    /* Active tab */
+    .wl-component-container .dxbl-tabs-item.dxbl-active {
+        background: transparent !important;
+        border-bottom: 3px solid var(--gl-color-smoke-900) !important
+    }
+
+    .wl-component-container .dxbl-tabs-header::after,
+    .wl-component-container .dxbl-tabs-item::after {
+        display: none;
+    }
+
+/* ----------------------------------------------------------- */
+
+/* Height right line size*/
+#designer-root ::deep .mlx-grid .dxbl-grid-table > thead:nth-child(2) > tr:first-child > th:not(.dxbl-grid-selection-cell) ::after {
+    height: 24px !important;
+}
+
+/* Hover over the grid row */
+#designer-root ::deep .mlx-grid .dxbl-grid-table > tbody > tr > td:before {
+    background-color: var(--gl-color-blue-000) !important;
+    opacity: 1;
+}
+
+/* Style from grids pending color */
+#designer-root ::deep .mlx-grid .dxbl-grid-table > tbody > tr > td.wl-cell-pending {
+    background-color: var(--gl-color-orange-100) !important;
+}
+
+/* Footer buttons format */
+#designer-root ::deep .mlx-right-sideBar-footer.wl-sticky-footer {
+    background-color: var(--gl-color-brand-400);
+    border-top: 0px;
+}
+
+/* Stile in filters with time-input-container */
+#designer-root ::deep .mlx-grid .dxbl-grid-filter-row td > .time-input-container {
+    position: relative;
+    width: 100%;
+    align-items: center;
+    display: flex;
+}
+
+    /* Style transparent to not see border and content in TimeMinComponent filter */
+    #designer-root ::deep .mlx-grid .dxbl-grid-filter-row td > .time-input-container > .mlx-form-text.dxbl-text-edit {
+        border: 0;
+        background: transparent;
+    }
+
+/* Height in control TimeMin Filter grid */
+#designer-root ::deep .mlx-grid .dxbl-grid-filter-row td:has(.time-input-container) > .mlx-form-text.dxbl-text-edit > input {
+    height: 100%
+}
+
+/* Container format pendient changes */
+.warning-container {
+    display: flex;
+    height: 100%;
+    padding: 0 16px;
+    flex-flow: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--gl-color-orange-100);
+    border-radius: 8px;
+}
+
+/* Icon size pendient message */
+.warning-container > i:before {
+    font-size: 24px;
+}
+
+/* Lowline style when a cell is selected in the grid */
+#designer-root ::deep .mlx-grid .dxbl-grid-table tbody tr:not(.dxbl-grid-filter-row) > td:not(.dxbl-grid-selection-cell):has(.dxbl-text-edit) {
+    background: transparent !important;
+    border-bottom: 2px solid var(--gl-color-blue-300);
+    outline: none;
+}
+
+/* Lowline style when selecting a cell in the grid filters */
+#designer-root ::deep .mlx-grid .dxbl-grid-table > thead > tr.dxbl-grid-editor-inplace-container > td:not(.dxbl-grid-command-cell):not(.dxbl-grid-selection-cell):focus-within {
+    background: transparent !important;
+    border-bottom: 2px solid var(--gl-color-blue-400) !important;
+    outline: none !important;
+}
+
+/* Success Mesage */
+.success-container {
+    display: flex;
+    align-items: center;
+    flex-flow: row;
+    height: 100%;
+    gap: 8px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: var(--gl-color-green-100);
+}
+
+/* Icon sstyles message */
+.success-container > i {
+    display: flex;
+    font-size: 20px;
+    justify-content: center;
+}
+
+/* Save changes message text style */
+.wl-status-success {
+    font-family: "Segoe UI";
+    color: var(--gl-color-smoke-900, #2E4052);
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 16px;
+}
+/* -------------- */
+
+/* ------------------ Column Flow Styles ------------------ */
+
+/* Container Style */
+.wl-flow-badge {
+    display: flex;
+    height: 30px;
+    padding: 0 16px;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    border-radius: 4px;
+    font-family: "Segoe UI";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 125%;
+    width: fit-content;
+}
+
+/* Icon Size*/
+.wl-flow-badge i {
+    font-size: 16px;
+}
+
+/* Color Icon Inbound Case */
+.wl-flow-badge.wl-inbound i:before {
+    color: var(--gl-color-green-900) !important;
+}
+
+/* Colors Inbound Case */
+.wl-flow-badge.wl-inbound {
+    color: var(--gl-color-green-900);
+    background: var(--gl-color-green-100);
+}
+
+/* Color of the outbound icon in the flow column */
+.wl-flow-badge.wl-outbound i:before {
+    color: var(--gl-color-brand-100) !important;
+}
+
+/* Colors Outbound Case */
+.wl-flow-badge.wl-outbound {
+    color: var(--gl-color-brand-100);
+    background: var(--gl-color-blue-000);
+}
+
+/* Color of the custom container in the flow column */
+.wl-flow-badge.wl-custom {
+    background: rgba(140, 140, 140, 0.14);
+}
+/* -------------------------------------------------------- */
+
+/* Remove the left border of the grid in the drop-down select box with details display. */
+#designer-root ::deep .dxbl-grid .dxbl-grid-table > thead > tr.dxbl-grid-filter-row > td.dxbl-align-center {
+    border-left: none;
+}
+
+/* Remove SVG in view */
+#designer-root ::deep dxbl-grid .dxbl-grid-table > thead .dxbl-edit-btn-clear > svg.dxbl-image,
+#designer-root ::deep dxbl-grid .dxbl-grid-table > thead .filter-editor-container .time-input-container .time-clear-btn > i {
+    display: none !important;
+}
+
+/* Apply Trash icon in view */
+#designer-root ::deep dxbl-grid .dxbl-grid-table > thead .dxbl-edit-btn-clear::before,
+#designer-root ::deep dxbl-grid .dxbl-grid-table > thead .filter-editor-container .time-input-container .time-clear-btn::before {
+    content: var(--mlx-ico-trash);
+    font-family: 'mlx_icons';
+    font-size: 20px;
+    z-index: 100;
+    color: var(--gl-color-red-500);
+    padding-left: 2px;
+}
+
+/* Padding mlx-panel-header */
+#designer-root ::deep .mlx-panel-header .mlx-panel-bar-action {
+    padding: 0px;
+    height: 32px;
+    min-width: 32px;
+    justify-content: center;
+}
+
+/* Applies if the toolbar has more than one button */
+#designer-root ::deep .mlx-panel-header .mlx-panel-bar-action:has(button + button) {
+    padding: 0px 8px;
+}
+
+/* Standard size of toolbar containers and hovers */
+#designer-root ::deep .mlx-panel-header.wl-sticky-sub > .mlx-panel-bar-action,
+#designer-root .mlx-panel-header .mlx-panel-bar-action > button,
+#designer-root .mlx-panel-header .mlx-panel-bar-action > button:hover:not(:disabled) {
+    height: 32px;
+    width: 32px;
+}
+
+/* Size of toolbar icons */
+#designer-root .mlx-panel-header .mlx-panel-bar-action > button > i::before {
+    font-size: 20px;
+}
+
+#designer-root ::deep .mlx-tabs {
+    padding: 0 12px 0 22px;
+}
+
+/* Edit color */
+#designer-root ::deep .mlx-grid tbody > tr > td.wl-cell-edited,
+#designer-root ::deep .mlx-grid tbody > tr > td.wl-cell-edited:before {
+    background-color: var(--gl-color-orange-100) !important;
+}
+
+/* The margin of the mlx-grid style is removed from the detail grids */
+#designer-root ::deep .mlx-grid .dxbl-grid-table > tbody > tr > .dxbl-grid-detail-cell > .mlx-tabs {
+    padding: 0;
+}
+
+/* Remove margin in tabs and subtabs */
+#designer-root ::deep .mlx-tabs,
+#designer-root ::deep .mlx-grid .dxbl-grid-table > tbody > tr > .dxbl-grid-detail-cell > .mlx-tabs {
+    margin: 0;
+}
+
+/* ------------------ Checkbox styles ------------------ */
+
+/* Eliminate svg from checkbox */
+#designer-root ::deep .dxbl-checkbox.dxbl-checkbox-display-view-checked > div > svg {
+    display: none;
+}
+
+/* Shared checkbox box size */
+#designer-root ::deep .dxbl-checkbox > div,
+#designer-root ::deep .dxbl-checkbox > div::before {
+    height: 16px;
+    width: 16px;
+    min-height: 16px;
+    min-width: 16px;
+}
+
+/* Shared pseudo-element layout (center + shape) */
+#designer-root ::deep .dxbl-checkbox > div::before {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
+
+/* Checked/Indeterminate icon + colors */
+#designer-root ::deep .dxbl-checkbox.dxbl-checkbox-display-view-checked > div {
+    background-color: transparent;
+}
+
+#designer-root ::deep .dxbl-checkbox.dxbl-checkbox-display-view-checked > div::before,
+#designer-root ::deep .dxbl-checkbox.dxbl-checkbox-display-view-indeterminate > div::before {
+    background: var(--gl-color-brand-100);
+    content: var(--mlx-ico-check);
+    font-family: 'mlx_icons';
+    color: var(--gl-color-brand-400);
+    opacity: 1;
+    border: 0px solid transparent;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* Unchecked background */
+#designer-root ::deep .dxbl-checkbox.dxbl-checkbox-display-view-unchecked > div {
+    background-color: var(--gl-color-brand-400);
+}
+/* ----------------------------------------------------- */

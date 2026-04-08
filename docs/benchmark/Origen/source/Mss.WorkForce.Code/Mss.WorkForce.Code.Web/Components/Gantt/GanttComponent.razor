@@ -1,0 +1,20 @@
+﻿@typeparam TModel
+@inject IJSRuntime JS
+@inject ISimulateService _simulateService
+@inject IEventServices _eventServices
+@inject GanttJsService GanttService
+@inject ILocalizationService L
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Services
+
+
+<DxLoadingPanel Visible="LoadPanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="BackgroundShading"
+                IndicatorAreaVisible="!BackgroundShading"
+                Text=@L.Loc("Loading data...")>
+    <div>
+        <div id="GanttComponent" />
+    </div>
+
+</DxLoadingPanel>

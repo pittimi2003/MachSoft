@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mss-workforce-code-databasemanager
+  labels:
+    app: mss-workforce-code-databasemanager
+spec:
+  minReadySeconds: 60
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mss-workforce-code-databasemanager
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mss-workforce-code-databasemanager
+    spec:
+      containers:
+      - name: mss-workforce-code-databasemanager
+        image: mssharborcore.mecalux.com/wfm-projects/mss-workforce-code-databasemanager:latest
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+        envFrom:
+        - configMapRef:
+            name: mss-workforce-code-databasemanager-env
+      terminationGracePeriodSeconds: 180

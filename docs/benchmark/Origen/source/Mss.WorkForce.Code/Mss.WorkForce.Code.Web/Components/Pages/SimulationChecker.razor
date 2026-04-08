@@ -1,0 +1,98 @@
+﻿@page "/log"
+@using Mss.WorkForce.Code.Models.DTO.Preview
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Models.DataAccess
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.ModelUpdate
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using Mss.WorkForce.Code.Web.Services
+@inject DataAccess dataAccess
+@attribute [Authorize]
+<Mss.WorkForce.Code.Web.Components.Pages.Preview.SitePreview ValueChanged="OnClick" ></Mss.WorkForce.Code.Web.Components.Pages.Preview.SitePreview>
+
+@if (isLoading)
+{
+    <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-3">Loading...</p>
+    </div>
+}
+else
+{
+    <DxGrid Data="@logChecks"
+    VirtualScrollingEnabled="true"
+    CssClass="mlx-grid no-top">
+        <Columns>
+            @* <DxGridDataColumn FieldName="SimulationResult" Caption="SimulationResult"></DxGridDataColumn> *@
+            <DxGridDataColumn FieldName="Log" Caption="Log"></DxGridDataColumn>
+        </Columns>
+    </DxGrid>
+}
+
+@code {
+    public List<SimulationLogCheck> logChecks { get; set; }
+    public SiteModel site { get; set; }
+    [Inject] public ISimulateService simulateService { get; set; }
+    TemporalidadModel tmp = new TemporalidadModel();
+    public bool isLoading = false;
+
+    private async Task OnClick((SiteModel newSite, bool changeColumns) args)
+    {
+        isLoading = true;
+        Guid siteId = args.newSite.Id;
+        var originalWorkers = dataAccess.GetWorkersByShiftAndRol(siteId);
+
+        var shifts = originalWorkers.Select(x => new ShiftRolDto
+            {
+                endHour = x.endHour,
+                id = x.id,
+                initHour = x.initHour,
+                IsNew = x.IsNew,
+                ModifiedFields = new(),
+                name = x.name,
+                workersInRol = x.workersInRol.Select(y => new WorkersInRolDto
+                {
+                    id = y.id,
+                    name = y.name,
+                    Workers = y.Workers,
+                }).ToList(),
+            }).ToList();
+
+        var originalLoadInput = ProcessLoadService.Process(dataAccess.GetInboundLoad(siteId, GetCurrentConfig()), false);
+        var originalLoadOutput = ProcessLoadService.Process(dataAccess.GetOutboundLoad(siteId, GetCurrentConfig()), true);
+
+        var tmp = new TemporalidadModel();
+        PreviewDto pdto = new PreviewDto()
+            {
+                Loadinput = originalLoadInput,
+                LoadOutput = originalLoadOutput,
+                ShiftRolDto = shifts,
+                Temporalidad = tmp,
+            };
+
+        logChecks = await simulateService.GetSimulateDataLog(siteId, tmp, originalLoadInput, originalLoadOutput, shifts);
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private Guid GetCurrentConfig()
+    {
+        try
+        {
+            Guid configGui = Guid.Empty;
+            if (tmp is TemporalidadModel temporalidad && temporalidad.Nombre != "DEFAULT")
+                configGui = temporalidad.Id;
+
+            return configGui;
+        }
+        catch
+        {
+            return Guid.Empty;
+        }
+    }
+}
+
+
+

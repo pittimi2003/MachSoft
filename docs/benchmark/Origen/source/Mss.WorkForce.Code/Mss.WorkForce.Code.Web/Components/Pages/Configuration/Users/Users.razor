@@ -1,0 +1,97 @@
+﻿@page "/users"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Components.GridComponent
+@using Mss.WorkForce.Code.Web.Components.ToolBar
+@using Mss.WorkForce.Code.Web.Components.BaseComponent
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Services
+@inherits Mss.WorkForce.Code.Web.Common.PageOperations
+@attribute [Authorize]
+
+<ConfirmDialog></ConfirmDialog>
+<MlxMainContainer IsLeftSideVisible="!IsNewMode" IsRightSideVisible="@IsDetailsVisible" IsRightSideVisibleChanged="@OnRightSideVisibilityChanged" ShowDetailsMobile="@IsDetailsVisible" OnClearSelection="@CloseRightPanel">
+    <LeftSideContent>
+        <ToolbarActions Actions="@Actions" EventListener="@EventListener" SelectMode="@SelectMode"></ToolbarActions>
+    </LeftSideContent>
+
+    <MiddleSideContent>
+        @if (IsNewMode)
+        {
+            <div class="dxbl-modal-body">
+                <div class="d-flex flex-column" style="background-color: white; height:88vh">
+                    <div class="container-title-panel container-for-image" style="justify-content: space-between;">
+                        <div class="item-title-data">
+                            <span class="data-title">@Loc("DATA")</span>
+                            <span style="border-bottom: 4px solid black; display: block; padding: 0.25rem;"></span>
+                        </div>
+                    </div>
+                    <div class="container-data">
+                        <div class="data">
+                            <BaseComponente @ref="baseComponentRef" Models="lstSelectedUsers" editMode="true" Container="@EmiterContainer" newMode="true"/>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer container-buttons">
+                        <button id="btnCancel" type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelEvent">@Loc("Cancel")</button>
+                        <button id="btnSave" type="button" disabled="@savebtn" class="btn-mlx btn-mlx-blue-primary" @onclick="SaveEvent">@Loc("Save")</button>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <GridComponent GridParameters="GetParametersDto" isExpandGrid="@isExpandGrid" UserFormat="userFormat"></GridComponent>
+        }
+    </MiddleSideContent>
+    <RightSideContent>
+        @if (SelectedUser != null)
+        {
+            <DetailsComponent FillGridParameters="GetParametersDto"
+                              SelectedIds="SelectedUserIds"
+                              IsEditable="IsEditMode"
+                              T="UserDto" />
+        }
+    </RightSideContent>
+</MlxMainContainer>
+
+<DxPopup CssClass="mlx-modal"
+         HeaderText="@Loc("Change password")"
+         @bind-Visible="@showChangePassword"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="true"
+         Scrollable="true">
+    <BodyContentTemplate>
+        <MlxInputPassword Password="@UserPassword" RequestConfirm="true" ValidationChanged="(error) => HandleValidationError(error)" PasswordChanged="(newValue) => UpdatePassword(newValue)"></MlxInputPassword>
+        <small class="text-danger">@PasswordErrorMessage</small>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelChangePassword">@Loc("Cancel")</button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(PasswordErrorMessage != string.Empty ? true : false)" @onclick="ChangePassword">@Loc("Save")</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+<style>
+    .toggle-button {
+        margin: 10px;
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .toggle-button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+@code {
+
+
+}

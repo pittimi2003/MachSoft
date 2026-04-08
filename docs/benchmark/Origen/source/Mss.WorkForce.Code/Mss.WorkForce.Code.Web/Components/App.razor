@@ -1,0 +1,121 @@
+@inject GanttJsService GanttService
+@inject EnvironmentService EnvironmentService
+@using System.Globalization
+@using Microsoft.AspNetCore.Localization
+@using Mss.WorkForce.Code.Web.Services
+@using DevExpress.Blazor
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css" />
+    <link href="_content/DevExpress.Blazor.Themes/bootstrap-external.bs5.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="lib/devextreme/css/dx-diagram.css" />
+    <link rel="stylesheet" href="lib/devextreme/css/dx-gantt.css" />
+    <link rel="stylesheet" href="css/mlx-icons.css" />
+    <link href="_content/DevExpress.Blazor.Dashboard/ace.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-dreamweaver.css" rel="stylesheet" />
+
+    <link href="_content/DevExpress.Blazor.Dashboard/ace-theme-ambiance.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor.Dashboard/dx.light.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.common.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor.Dashboard/dx-analytics.light.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor.Dashboard/dx-querybuilder.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor.Dashboard/dx-dashboard.light.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/site.css" />
+    <link rel="stylesheet" href="css/nav-@(EnvironmentService.GetEnvironment().ToString().ToLower()).css" />
+
+    <link rel="stylesheet" href="js/Gantt/mlx-gantt.js" />
+    <link rel="stylesheet" href="js/Gantt/mlx-gantt-progress.js" />
+    <link rel="stylesheet" href="js/Gantt/mlx-gantt-tooltip.js" />
+    <link rel="stylesheet" href="css/Gantt/mlx-Tasks.css" />
+    <link rel="stylesheet" href="css/Gantt/mlx-PivotGrid.css" />
+    <link rel="stylesheet" href="css/global-fonts.css" />
+    <link rel="stylesheet" href="css/CssGlobals/dashboard-globals.css" />
+    <link rel="stylesheet" href="css/CssGlobals/temporalidad-globals.css" />
+    <link rel="stylesheet" href="Mss.WorkForce.Code.Web.styles.css" />
+    <link rel="stylesheet" href="lib/ruler-js/ruler.min.css" />
+    <link rel="stylesheet" href="css/scrollbars.css" />
+
+    <link rel="icon" type="image/svg" href="/img/mecalux-symbol-blue.svg" />
+
+    <link href="_content/Radzen.Blazor/css/default.css" rel="stylesheet" />
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
+
+    <script src="_content/DevExpress.Blazor.Resources/js/analytics-core/jquery.min.js"></script>
+    <script src="_content/DevExpress.Blazor.Resources/js/analytics-core/knockout-latest.js"></script>
+    <script src="_content/DevExpress.Blazor.Resources/js/analytics-core/ace.js"></script>
+    <script src="_content/DevExpress.Blazor.Resources/js/analytics-core/ext-language_tools.js"></script>
+
+    <script type="text/javascript" src="lib/devextreme/js/dx-gantt.min.js"></script>
+    <script src="_content/DevExpress.Blazor.Resources/js/devextreme/dx.all.js"></script>
+
+    <script src="_content/DevExpress.Blazor.Resources/js/analytics-core/dx-analytics-core.min.js"></script>
+    <script src="_content/DevExpress.Blazor.Resources/js/analytics-core/dx-querybuilder.min.js"></script>
+    <script type="text/javascript" src="_content/DevExpress.Blazor.Dashboard/dx-dashboard.min.js"></script>
+
+    <script type="text/javascript" src="lib/bootstrap/js/popper.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/site.js"></script>
+    <script type="text/javascript" src="js/Designer/designer.js"></script>
+    <script type="text/javascript" src="js/Designer/styles-injector.js"></script>
+    <script type="text/javascript" src="js/Designer/DesignerGridRows.js"></script>
+    <script type="text/javascript" src="lib/fabric/fabric.js"></script>
+    <script type="text/javascript" src="lib/fabric/fabric.min.js"></script>
+    <script type="text/javascript" src="lib/ruler-js/ruler.js"></script>
+    <script type="text/javascript" src="js/Canvas/CanvasFabric.js"></script>
+    <script type="text/javascript" src="js/Canvas/CanvasEvents.js"></script>
+    <script type="text/javascript" src="js/Canvas/DrawObjects.js"></script>
+    <script type="text/javascript" src="js/Canvas/CanvasTools.js"></script>
+    <script type="text/javascript" src="js/Canvas/CanvasPolyline.js"></script>
+    <script type="text/javascript" src="js/Canvas/CanvasScrollBars.js"></script>
+    <script type="text/javascript" src="js/TimeInput/TimeInput.js"></script>
+    <script type="text/javascript" src="lib/devextreme/js/jspdf.umd.min.js"></script>
+    <script type="text/javascript" src="lib/devextreme/js/jspdf.plugin.autotable.min.js"></script>
+    <script type="text/javascript" src="lib/devextreme/js/html2canvas.min.js"></script>
+    <script type="text/javascript" src="lib/devextreme/js/exceljs.min.js"></script>
+    <script type="text/javascript" src="lib/devextreme/js/FileSaver.min.js"></script>
+
+
+    @DxResourceManager.RegisterScripts((config) =>
+            {
+                config.Unregister(CommonResources.JQueryJS);
+                config.Unregister(CommonResources.DevExtremeJS);
+                config.Unregister(CommonResources.KnockoutJS);
+                config.Unregister(CommonResources.AnalyticsJS);
+            })
+
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <div id="global-timepicker-container"></div>
+    <script type="module" src="js/dispatcher/index.js"></script>
+    <script type="text/javascript" src="js/Drag/drag.js"></script>
+    <script src="js/mlx-localization.js"></script>
+    <script src="_framework/blazor.web.js"></script>
+</body>
+
+</html>
+
+@code {
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    protected override void OnInitialized()
+    {
+        HttpContext?.Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(
+                new RequestCulture(
+                    CultureInfo.CurrentCulture,
+                    CultureInfo.CurrentUICulture)));
+    }
+
+}
+

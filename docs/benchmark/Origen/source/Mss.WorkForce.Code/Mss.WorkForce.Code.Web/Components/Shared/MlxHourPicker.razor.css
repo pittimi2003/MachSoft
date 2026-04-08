@@ -1,0 +1,109 @@
+﻿.roller-timepicker-wrapper {
+    position: relative;
+}
+
+.roller-input-wrapper {
+    position: relative;
+}
+
+.roller-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    height: 35px;
+    padding: 0 6px;
+}
+
+.roller-input-container-background {
+    background-color: var(--sp-color-bg-default) !important;
+    border: solid 1px var(--sp-color-border-default) !important;
+}
+
+.roller-input-container-background-disabled {
+    background-color: var(--gl-color-smoke-100);
+    opacity: 0.6;
+    border: solid 1px var(--gl-color-smoke-300);
+}
+
+.roller-input-container:has(:hover) {
+    border: solid 1px var(--gl-color-blue-300) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+.roller-input {
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    font-family: 'Segoe UI' !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    line-height: 17.5px !important;
+    color: var(--sp-color-content-default) !important;
+}
+
+    .roller-input:disabled {
+        color: var(--sp-color-content-default);
+        opacity: 0.8;
+    }
+
+.spin-buttons {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    bottom: 4px;
+    width: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.spin-btn {
+    border: none;
+    height: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+    .spin-btn:hover {
+        background-color: #f0f0f0;
+    }
+
+    .spin-btn.up::after,
+    .spin-btn.down::after {
+        content: "";
+        display: block;
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+    }
+
+    .spin-btn.up::after {
+        border-bottom: 6px solid #9aa7b1;
+    }
+
+    .spin-btn.down::after {
+        border-top: 6px solid #9aa7b1;
+    }
+
+    .spin-btn:hover.up::after {
+        border-bottom-color: #6f7c8a;
+    }
+
+    .spin-btn:hover.down::after {
+        border-top-color: #6f7c8a;
+    }

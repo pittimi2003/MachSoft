@@ -1,0 +1,382 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="editContext">
+        <DataAnnotationsValidator />
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                <div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 1: Basic info zone      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idStationBasicInfo"
+                                            aria-expanded="true"
+                                            aria-controls="idStationBasicInfo">
+                                        <span class="mlx-title-h3">@L.Loc("Common properties")</span>
+                                    </button>
+                                </h2>
+                                <div id="idStationBasicInfo" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">                                   
+                                        <div class="row">
+                                            <!-- Nombre de la estación -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Name")</label>
+                                                <DxTextBox CssClass="mlx-form-text" @bind-Text="@DesignerDto.Zone.Name" />
+                                            </div>
+    
+                                            <!-- Máx. stock a reservar -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max stock to book")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.Zone.MaxStockToBook" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Stock inicial a reservar -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Init stock to book")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.Zone.InitStockToBook" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>                                       
+    
+                                            <!-- Máx. stock permitido -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max stock")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.Zone.MaxStock" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <div class="row">
+                                                <!-- Max MHE para el pasillo -->
+                                                <div class="col-xl-6 col-sm-12">
+                                                    <label class="mlx-form-label">@L.Loc("Max. equipment")</label>
+                                                    <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999"
+                                                                @bind-Value="@DesignerDto.Zone.MaxEquipments" Mask="n0">
+                                                        <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                    </DxSpinEdit>
+                                                </div>
+    
+                                            <!-- Activar límite de stock (true/false) -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Has stock limit?")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                                @bind-Checked="@DesignerDto.Zone.IsLimitStock">
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 2: Capacity and Stock      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idAisleCapacity"
+                                            aria-expanded="false"
+                                            aria-controls="idAisleCapacity">
+                                            <span class="mlx-title-h3">@L.Loc("Detailed properties")</span>
+                                    </button>
+                                </h2>
+                                <div id="idAisleCapacity" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+    
+                                            <!-- Máx. equipos MHE para picking o putaway -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max MHE (Pick / Putaway)")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.MaxMHEPickOrPutaway" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Máx. movimiento permitido en el pasillo -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max movement")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.MaxMovement" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Número máximo de tareas simultáneas -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max tasks")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.MaxTasks" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Número máximo de pickers permitidos -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max pickers")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.MaxPickers" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Control de reabastecimiento (true/false) -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Replenishment control")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                                @bind-Checked="@DesignerDto.ReplenishmentControl">
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- ============================================ -->
+                    <!-- CATEGORÍA 3: Time and Productivity           -->
+                    <!-- ============================================ -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idAisleTime"
+                                            aria-expanded="false"
+                                            aria-controls="idAisleTime">
+                                        <span class="mlx-title-h3">@L.Loc("Time and productivity")</span>
+                                    </button>
+                                </h2>
+                                <div id="idAisleTime" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <!-- Tiempo adicional por unidad al entrar -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Time per unit entry (sec)")</label>
+                                                <TimeInput Format="mmss"
+                                                            @bind-Value="@DesignerDto.AdditionalTimePerUnitEntry" />
+                                            </div>
+    
+                                            <!-- Tiempo adicional por unidad al salir -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Time per unit exit (sec)")</label>
+                                                <TimeInput Format="mmss"
+                                                            @bind-Value="@DesignerDto.AdditionalTimePerUnitExit" />
+                                            </div>
+    
+                                            <!-- Tiempo de cambio de pasillo -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Aisle change time (sec)")</label>
+                                                <TimeInput Format="mmss"
+                                                            @bind-Value="@DesignerDto.AisleChangeTime" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- =========================================== -->
+                    <!-- CATEGORÍA 4: Flow                           -->
+                    <!-- =========================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idAisleLayout"
+                                            aria-expanded="false"
+                                            aria-controls="idAisleLayout">
+                                        <span class="mlx-title-h3">@L.Loc("Flow")</span>
+                                    </button>
+                                </h2>
+                                <div id="idAisleLayout" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <!-- Pasillo angosto (true/false) -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Narrow aisle")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                                @bind-Checked="@DesignerDto.NarrowAisle">
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>
+    
+                                            <!-- Finaliza picking aquí (true/false) -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("End picking")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                                @bind-Checked="@DesignerDto.EndPicking">
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>
+    
+                                            <!-- Bidireccional (true/false) -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Bidirectional")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center"
+                                                                @bind-Checked="@DesignerDto.Bidirectional">
+                                                    </DxCheckBox>
+                                                </div>
+                                            </div>
+    
+                                            <!-- Ancho por dirección en un pasillo bidireccional -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Width per direction")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.WidthPerDirection" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>          
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" onclick="@(() => SaveEvent())">@L.Loc("Save")</button>
+</div>
+
+@code {
+    #region Parameters
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public AisleDto? DesignerDto { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    [Parameter]
+    public Dictionary<string, object>? Metadata { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildCancel { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildSaved { get; set; }
+    #endregion
+
+    #region Properties
+    [Inject] private IDesignerServices _designer { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
+    #endregion
+
+    private EditContext editContext;
+
+    private string jsonResult = string.Empty;
+
+    private IEnumerable<ZoneType> _filteredZoneTypes = Enum.GetValues(typeof(ZoneType)).Cast<ZoneType>().Where(x => x != ZoneType.Unknown);
+
+    // Method for handling the click
+    private async Task CancelButtonClick()
+    {
+        await OnChildCancel.InvokeAsync(Metadata);
+    }
+
+    // Combo box
+    private IEnumerable<AreaDto>? AreaItems { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(DesignerDto);
+        FillComboBox();
+    }
+
+    private void FillComboBox()
+    {
+        List<AreaDto>? areas = _designer.GetAreasDtoByLayout(DesignerDto?.Zone?.Area?.LayoutId ?? Guid.Empty)?.ToList() ?? new List<AreaDto>();
+        AreaItems = areas.Any() && DesignerDto?.Zone?.Area != null ? areas.Where(i => i.Id != DesignerDto.Id).ToList() : new List<AreaDto>();
+    }
+
+    private async Task SaveEvent()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("SaveOnPostback");
+            if (!editContext.Validate())
+            {
+                StateHasChanged();
+                return;
+            }
+
+            //Update case
+            await _designer.UpdateAisle(DesignerDto);
+
+            List<Models.DTO.Designer.ZoneDto> zoneList = new();
+            IEnumerable<Zone> zoneEnumerable = _designer.GetZonesByAreaNoTracking(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty);
+
+            foreach (var zone in zoneEnumerable)
+            {
+                if (null != zone && zone.Id != Guid.Empty)
+                    zoneList.Add(_designer.GetZoneDtoById(zone.Id));
+            }
+
+            List<StepDto> stepDtoList = new();
+            List<ProcessDto> processDtoList = _designer.GetProcesByType(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty).ToList(); // Obtains the processes related to the area
+
+            foreach(var process in processDtoList)
+            {
+                stepDtoList.AddRange(_designer.GetStepsDtoByProcessIdNoTracking(process.Id ?? Guid.Empty).ToList());
+            }
+
+            var newViewport = _designer.GetVieportsByTypeObject(DesignerDto?.Zone.AreaId ?? Guid.NewGuid(), "Area");
+            await JS.InvokeVoidAsync("drawObjectsOnCanvas", newViewport);
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+        StateHasChanged();
+
+        if (OnChildSaved.HasDelegate)
+            await OnChildSaved.InvokeAsync();
+    }
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+}

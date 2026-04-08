@@ -1,0 +1,254 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@inject ILocalizationService L
+@implements ITrackChanges
+@implements IChildSaver
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <div class="col-xl-12 col-sm-12">
+        <EditForm EditContext="@editContext">
+            <DataAnnotationsValidator />
+            <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+                <div class="mlx-right-sideBar-body mlx-right-sideBar-body-height-without-tab">
+                    @* Section without tabs *@
+                    <div class="mlx-right-sideBar-body-content-widthout-tab">
+                        <div class="row">
+                            <div class="col-xl-6 col-sm-12">
+                                <label class="mlx-form-label">@L.Loc("Name")</label>
+                                <DxTextBox CssClass="mlx-form-textbox" @bind-Text="DesignerDto.Name" />
+                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.Name)" />
+                            </div>
+
+                            <div class="col-xl-6 col-sm-12">
+                                <label class="mlx-form-label">@L.Loc("Number of equipment")</label>
+                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="99" @bind-Value="DesignerDto.NEquipment" Mask="n0">
+                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                </DxSpinEdit>
+                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.NEquipment)" />
+                            </div>
+
+                            <div class="col-xl-6 col-sm-12">
+                                <label class="mlx-form-label">@L.Loc("Area")</label>
+                                <MlxComboBox Data="@AreaDtoList" CssClass="mlx-form-select" Value="@DesignerDto.Area" ValueFieldName="Id" TextFieldName="@nameof(DesignerDto.Area.Name)" NullText="@L.Loc("Select...")" ValueChanged="@((AreaDto areaDto) => OnValueChangedArea(areaDto))" ValueExpression="@(() => DesignerDto.Area)" TextExpression="@(() => DesignerDto.Area.Name)" />
+                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.AreaId)" />
+                            </div>
+
+                            <div class="col-xl-6 col-sm-12">
+                                <label class="mlx-form-label">@L.Loc("Type")</label>
+                                <MlxComboBox Data="@TypeEquipmentList"
+                                    CssClass="mlx-form-select"
+                                    Value="@DesignerDto.TypeEquipment"
+                                    ValueFieldName="Id" 
+                                    TextFieldName="@nameof(DesignerDto.TypeEquipment.Name)" 
+                                    NullText="@L.Loc("Select...")" 
+                                    ValueChanged="@((TypeEquipment typeEquipment) => OnValueChangedTypeEquipment(typeEquipment))" 
+                                    ValueExpression="@(() => DesignerDto.TypeEquipment)" 
+                                    TextExpression="@(() => DesignerDto.TypeEquipment.Name)" />
+                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.TypeEquipmentId)" />
+                            </div>
+                        </div>
+                    </div>
+                    @*------------------------*@
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CloseSideBarButton())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEventInternal())">@L.Loc("Save")</button>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public EquipmentDesignerDto DesignerDto { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    [Parameter]
+    public Dictionary<string, object>? Metadata { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildCancel { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildSaved { get; set; }
+
+    [Inject] private IDesignerServices _designer { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
+
+    #region Save Button Status
+
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    private bool CanSave => _isDirty && !_hasErrors;
+    public Task SaveEvent() => SaveEventInternal();
+
+    #endregion
+
+    private EditContext editContext;
+
+    public List<TypeEquipment>? TypeEquipmentList { get; set; } = new();
+    public List<AreaDto>? AreaDtoList { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(DesignerDto); // Set Model EquipmentDesignerDto to validate
+        DesignerDto.TypeEquipment = DesignerDto.TypeEquipment ?? new()
+		{
+            Name = string.Empty,
+			Warehouse = new()
+			{
+                Code = string.Empty,
+                Name = string.Empty,
+                MeasureSystem = string.Empty
+			}
+        };
+
+        DesignerDto.Area ??= new();
+        FillComboBox(DesignerDto.Area.LayoutId ?? Guid.Empty);
+        CaptureBaseline();
+        editContext.OnFieldChanged += HandleFieldChanged;
+        editContext.OnValidationStateChanged += HandleValidationStateChanged;
+    }
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnChildCancel.InvokeAsync(Metadata);
+    }
+
+    private void FillComboBox(Guid layoutId)
+    {
+        List<AreaDto>? areas = _designer.GetAreasDtoByLayout(layoutId).ToList();
+        List<TypeEquipment> type = _designer.GetTypeEquipmentByWarehouseIdNoTracking(layoutId).ToList();
+
+        AreaDtoList = new List<AreaDto>(areas);
+        TypeEquipmentList = new List<TypeEquipment>(type);
+    }
+
+    public async Task SaveEventInternal()
+    {
+        if (editContext == null)
+            return;
+        bool isValid = editContext.Validate();
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        _hasErrors = !isValid;
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        try
+        {
+            DesignerDto.Id = DesignerDto.Id == Guid.Empty ? Guid.NewGuid() : DesignerDto.Id;
+            await _designer.UpdateEquipmentDesignerDto(DesignerDto); //Update case
+
+            var newViewport = _designer.GetVieportsByTypeObject(DesignerDto?.Area?.Id ?? Guid.NewGuid(), "Area");
+            await JS.InvokeVoidAsync("drawObjectsOnCanvas", newViewport);
+            await JS.InvokeVoidAsync("SaveOnPostback");
+
+            // Después de guardar, resetear baseline
+            CaptureBaseline();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+
+        await InvokeAsync(StateHasChanged);
+        if (OnChildSaved.HasDelegate)
+            await OnChildSaved.InvokeAsync(Metadata);
+    }
+
+    #region OnChangeValue
+
+    //NEquipment change event
+    // private void OnNEquipmentChanged(int nEquipment)
+    // {
+    //     DesignerDto.NEquipment = nEquipment;
+    //     editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.NEquipment)));
+    // }
+
+    //Area ComboBox change event
+    private async Task OnValueChangedArea(AreaDto areaDto)
+    {
+        if (null != areaDto)
+        {
+            DesignerDto.AreaId = areaDto.Id ?? Guid.Empty;
+            DesignerDto.Area = _designer.GetAreasById(areaDto.Id ?? Guid.Empty);
+            editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.AreaId))); //Validates the change of data in the ComboBox
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    //TypeEquipment ComboBox change event
+    private async Task OnValueChangedTypeEquipment(TypeEquipment typeEquipment)
+    {
+        if (null != typeEquipment)
+        {
+            DesignerDto.TypeEquipmentId = typeEquipment.Id;
+            DesignerDto.TypeEquipment = typeEquipment;
+            DesignerDto.NameTypeEquipment = typeEquipment.Name;
+            editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.TypeEquipmentId))); //Validates the change of data in the ComboBox
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    #endregion
+
+    #region Save Button Status
+
+    public void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+
+    private string BuildFingerprint()
+    {
+        return string.Join("|",
+            DesignerDto?.Id,
+            DesignerDto?.Name,
+            DesignerDto?.NEquipment,
+            DesignerDto?.AreaId,
+            DesignerDto?.TypeEquipmentId
+        );
+    }
+
+    private void UpdateDirtyFlag()
+    {
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        _hasErrors = editContext.GetValidationMessages().Any();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        UpdateDirtyFlag();
+    }
+
+    private void HandleValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        _hasErrors = editContext.GetValidationMessages().Any();
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void MarkDirty()
+    {
+        _isDirty = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+}

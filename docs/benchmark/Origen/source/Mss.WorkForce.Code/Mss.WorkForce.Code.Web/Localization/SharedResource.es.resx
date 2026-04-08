@@ -1,0 +1,2931 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WELCOME" xml:space="preserve">
+    <value>BIENVENIDO</value>
+  </data>
+  <data name="WORKINGPLANNING" xml:space="preserve">
+    <value>Planificación de trabajo</value>
+  </data>
+  <data name="USER" xml:space="preserve">
+    <value>Usuario</value>
+  </data>
+  <data name="PASSWORD" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="CLEAR" xml:space="preserve">
+    <value>Limpiar</value>
+  </data>
+  <data name="ACCEPT" xml:space="preserve">
+    <value>Aceptar</value>
+  </data>
+  <data name="LIVESCHEDULE" xml:space="preserve">
+    <value>Planificación en tiempo real</value>
+  </data>
+  <data name="SCENARIOSPLANNER" xml:space="preserve">
+    <value>Planificador de escenarios</value>
+  </data>
+  <data name="WORKERSOPERATIONS" xml:space="preserve">
+    <value>Operaciones de operarios</value>
+  </data>
+  <data name="EQUIPMENTOPERATIONS" xml:space="preserve">
+    <value>Operaciones de equipamiento</value>
+  </data>
+  <data name="YARDOPERATIONS" xml:space="preserve">
+    <value>Operaciones del patio</value>
+  </data>
+  <data name="MASTERDATA" xml:space="preserve">
+    <value>Datos maestros</value>
+  </data>
+  <data name="ORGANIZATION" xml:space="preserve">
+    <value>Organización</value>
+  </data>
+  <data name="WAREHOUSES" xml:space="preserve">
+    <value>Almacenes</value>
+  </data>
+  <data name="USERS" xml:space="preserve">
+    <value>Usuarios</value>
+  </data>
+  <data name="MANAGEMENT" xml:space="preserve">
+    <value>Gestión</value>
+  </data>
+  <data name="PROJECTDESIGNER" xml:space="preserve">
+    <value>Diseñador de proyectos</value>
+  </data>
+  <data name="WORKPROFILES" xml:space="preserve">
+    <value>Perfiles de trabajo</value>
+  </data>
+  <data name="BASEPROFILES" xml:space="preserve">
+    <value>Perfiles base</value>
+  </data>
+  <data name="OPERATORSPROFILES" xml:space="preserve">
+    <value>Perfiles de operarios</value>
+  </data>
+  <data name="EQUIPMENTPROFILES" xml:space="preserve">
+    <value>Perfiles de equipamiento</value>
+  </data>
+  <data name="LOGISTICSPROFILES" xml:space="preserve">
+    <value>Perfiles logísticos</value>
+  </data>
+  <data name="ORDERPROFILES" xml:space="preserve">
+    <value>Perfiles de orden</value>
+  </data>
+  <data name="LOADPROFILES" xml:space="preserve">
+    <value>Perfiles de carga</value>
+  </data>
+  <data name="ALERTS" xml:space="preserve">
+    <value>Alertas</value>
+  </data>
+  <data name="PARAMETERS" xml:space="preserve">
+    <value>Parámetros</value>
+  </data>
+  <data name="MAXIMIZE" xml:space="preserve">
+    <value>Maximizar</value>
+  </data>
+  <data name="NOTIFICATIONS" xml:space="preserve">
+    <value>Notificaciones</value>
+  </data>
+  <data name="ABOUT" xml:space="preserve">
+    <value>Acerca de</value>
+  </data>
+  <data name="CHANGESESSION" xml:space="preserve">
+    <value>Cerrar sesión</value>
+  </data>
+  <data name="ERRORS" xml:space="preserve">
+    <value>Errores</value>
+  </data>
+  <data name="WARNINGS" xml:space="preserve">
+    <value>Advertencias</value>
+  </data>
+  <data name="INFORMATION" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="COLUMNCHOOSER" xml:space="preserve">
+    <value>Selector de columnas</value>
+  </data>
+  <data name="CHANGEPASSWORD" xml:space="preserve">
+    <value>Cambiar contraseña</value>
+  </data>
+  <data name="FITCOLUMNSTOGRID" xml:space="preserve">
+    <value>Ajustar columnas a la tabla</value>
+  </data>
+  <data name="FITCOLUMNSTOCONTENT" xml:space="preserve">
+    <value>Ajustar columnas al contenido</value>
+  </data>
+  <data name="RESETCOLUMNS" xml:space="preserve">
+    <value>Restablecer columnas</value>
+  </data>
+  <data name="REFRESH" xml:space="preserve">
+    <value>Actualizar</value>
+  </data>
+  <data name="COLLAPSEGRID" xml:space="preserve">
+    <value>Contraer tabla</value>
+  </data>
+  <data name="EXPANDGRID" xml:space="preserve">
+    <value>Expandir tabla</value>
+  </data>
+  <data name="OPEN" xml:space="preserve">
+    <value>Abrir</value>
+  </data>
+  <data name="CLOSE" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="SELECTED" xml:space="preserve">
+    <value>Seleccionado</value>
+  </data>
+  <data name="NEW" xml:space="preserve">
+    <value>Nuevo</value>
+  </data>
+  <data name="CODE" xml:space="preserve">
+    <value>Código</value>
+  </data>
+  <data name="NAME" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="LASTNAME" xml:space="preserve">
+    <value>Apellidos</value>
+  </data>
+  <data name="ENABLED" xml:space="preserve">
+    <value>Habilitado</value>
+  </data>
+  <data name="DECIMALSEPARATOR" xml:space="preserve">
+    <value>Separador decimal</value>
+  </data>
+  <data name="THOUSANDSSEPARATOR" xml:space="preserve">
+    <value>Separador de miles</value>
+  </data>
+  <data name="DATEFORMAT" xml:space="preserve">
+    <value>Formato de fecha</value>
+  </data>
+  <data name="LANGUAGE" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="EDIT" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="DELETE" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="DELETE_SUPR_" xml:space="preserve">
+    <value>Eliminar (Supr)</value>
+  </data>
+  <data name="DISABLE" xml:space="preserve">
+    <value>Deshabilitar</value>
+  </data>
+  <data name="DATA" xml:space="preserve">
+    <value>Datos</value>
+  </data>
+  <data name="YOUMUSTSELECTADEFAULTWAREHOUSE" xml:space="preserve">
+    <value>Debe seleccionar un almacén como predeterminado.</value>
+  </data>
+  <data name="WAREHOUSE" xml:space="preserve">
+    <value>Almacén</value>
+  </data>
+  <data name="DEFAULT" xml:space="preserve">
+    <value>Predeterminado</value>
+  </data>
+  <data name="CANCEL" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="SAVE" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="CONFIRMPASSWORD" xml:space="preserve">
+    <value>Confirmar contraseña</value>
+  </data>
+  <data name="SELECTAWAREHOUSE" xml:space="preserve">
+    <value>Seleccione un almacén</value>
+  </data>
+  <data name="ACTIONS" xml:space="preserve">
+    <value>Acciones</value>
+  </data>
+  <data name="JS.PRODUCTIVITY" xml:space="preserve">
+    <value>Productividad</value>
+  </data>
+  <data name="JS.COMMITTED" xml:space="preserve">
+    <value>Compromiso</value>
+  </data>
+  <data name="JS.WORKEDTIME" xml:space="preserve">
+    <value>Tiempo trabajado</value>
+  </data>
+  <data name="JS.PROCESSES" xml:space="preserve">
+    <value>Procesos</value>
+  </data>
+  <data name="JS.ROLE" xml:space="preserve">
+    <value>Rol</value>
+  </data>
+  <data name="JS.TEAM" xml:space="preserve">
+    <value>Equipo</value>
+  </data>
+  <data name="JS.SHIFT" xml:space="preserve">
+    <value>Turno</value>
+  </data>
+  <data name="JS.EFFICIENCY" xml:space="preserve">
+    <value>Eficiencia</value>
+  </data>
+  <data name="JS.START" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="JS.CLOSEDORDERS" xml:space="preserve">
+    <value>Órdenes cerradas</value>
+  </data>
+  <data name="JS.END" xml:space="preserve">
+    <value>Fin</value>
+  </data>
+  <data name="JS.BREAKS" xml:space="preserve">
+    <value>Pausas</value>
+  </data>
+  <data name="JS.INBOUND" xml:space="preserve">
+    <value>Entrada</value>
+  </data>
+  <data name="JS.PUTAWAY" xml:space="preserve">
+    <value>Ubicación</value>
+  </data>
+  <data name="WORKERNAME" xml:space="preserve">
+    <value>Nombre del operario</value>
+  </data>
+  <data name="FLOW" xml:space="preserve">
+    <value>Flujo</value>
+  </data>
+  <data name="ACTIVITY" xml:space="preserve">
+    <value>Tipo de proceso</value>
+  </data>
+  <data name="STARTDATE" xml:space="preserve">
+    <value>Fecha de inicio</value>
+  </data>
+  <data name="BREAKS" xml:space="preserve">
+    <value>Pausas</value>
+  </data>
+  <data name="CLOSEDACTIVITIES" xml:space="preserve">
+    <value>Actividades cerradas</value>
+  </data>
+  <data name="CLOSEDORDERS" xml:space="preserve">
+    <value>Órdenes cerradas</value>
+  </data>
+  <data name="COMMITTEDTIME" xml:space="preserve">
+    <value>Fecha de compromiso</value>
+  </data>
+  <data name="ENDDATE" xml:space="preserve">
+    <value>Fecha de fin</value>
+  </data>
+  <data name="ROLENAME" xml:space="preserve">
+    <value>Nombre del rol</value>
+  </data>
+  <data name="SHIFTENDHOUR" xml:space="preserve">
+    <value>Hora de fin de turno</value>
+  </data>
+  <data name="SHIFTINITHOUR" xml:space="preserve">
+    <value>Hora de inicio de turno</value>
+  </data>
+  <data name="SHIFTNAME" xml:space="preserve">
+    <value>Nombre de turno</value>
+  </data>
+  <data name="TEAM" xml:space="preserve">
+    <value>Equipo</value>
+  </data>
+  <data name="TOTALACTIVITIES" xml:space="preserve">
+    <value>Total de actividades</value>
+  </data>
+  <data name="TOTALORDERS" xml:space="preserve">
+    <value>Total de órdenes</value>
+  </data>
+  <data name="WMSCODE" xml:space="preserve">
+    <value>Código SGA</value>
+  </data>
+  <data name="PRIORITY" xml:space="preserve">
+    <value>Prioridad</value>
+  </data>
+  <data name="STATUS" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="CARRIER" xml:space="preserve">
+    <value>Agencia de transporte</value>
+  </data>
+  <data name="CREATIONTIME" xml:space="preserve">
+    <value>Hora de creación</value>
+  </data>
+  <data name="CUSTOMER" xml:space="preserve">
+    <value>Cliente</value>
+  </data>
+  <data name="DOCK" xml:space="preserve">
+    <value>Muelle</value>
+  </data>
+  <data name="LOCKED" xml:space="preserve">
+    <value>Bloqueado</value>
+  </data>
+  <data name="LOCKEDTIME" xml:space="preserve">
+    <value>Fecha de bloqueo</value>
+  </data>
+  <data name="RELEASETIME" xml:space="preserve">
+    <value>Hora de liberación</value>
+  </data>
+  <data name="RESOURCE" xml:space="preserve">
+    <value>Operario</value>
+  </data>
+  <data name="SHIFT" xml:space="preserve">
+    <value>Turno</value>
+  </data>
+  <data name="SLAMET" xml:space="preserve">
+    <value>SLA alcanzado</value>
+  </data>
+  <data name="SLATARGETTIME" xml:space="preserve">
+    <value>Tiempo objetivo del SLA</value>
+  </data>
+  <data name="SUPPLIER" xml:space="preserve">
+    <value>Proveedor</value>
+  </data>
+  <data name="TRAILER" xml:space="preserve">
+    <value>Tráiler</value>
+  </data>
+  <data name="JS.EQUIPMENTS" xml:space="preserve">
+    <value>Equipamientos</value>
+  </data>
+  <data name="JS.USAGE" xml:space="preserve">
+    <value>Utilización</value>
+  </data>
+  <data name="DESCRIPTION" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="LOGO" xml:space="preserve">
+    <value>Logo</value>
+  </data>
+  <data name="SYSTEMOFMEASUREMENT" xml:space="preserve">
+    <value>Sistema de medida</value>
+  </data>
+  <data name="DEFAULTLANGUAGE" xml:space="preserve">
+    <value>Idioma predeterminado</value>
+  </data>
+  <data name="THOUSANDSEPARATOR" xml:space="preserve">
+    <value>Separador de miles</value>
+  </data>
+  <data name="DEFAULTDATEFORMAT" xml:space="preserve">
+    <value>Formato de fecha predeterminado</value>
+  </data>
+  <data name="ADDRESS" xml:space="preserve">
+    <value>Dirección</value>
+  </data>
+  <data name="ADDRESSLINE" xml:space="preserve">
+    <value>Dirección completa</value>
+  </data>
+  <data name="ZIPCODE" xml:space="preserve">
+    <value>Código postal</value>
+  </data>
+  <data name="CITY" xml:space="preserve">
+    <value>Ciudad</value>
+  </data>
+  <data name="STATE" xml:space="preserve">
+    <value>Estado/provincia</value>
+  </data>
+  <data name="COUNTRY" xml:space="preserve">
+    <value>País</value>
+  </data>
+  <data name="ADDRESSCOMMENT" xml:space="preserve">
+    <value>Comentario de dirección</value>
+  </data>
+  <data name="CONTACT" xml:space="preserve">
+    <value>Contacto</value>
+  </data>
+  <data name="CONTACTNAME" xml:space="preserve">
+    <value>Nombre de contacto</value>
+  </data>
+  <data name="TELEPHONE" xml:space="preserve">
+    <value>Teléfono</value>
+  </data>
+  <data name="EXTENSION" xml:space="preserve">
+    <value>Extensión</value>
+  </data>
+  <data name="FAX" xml:space="preserve">
+    <value>Fax</value>
+  </data>
+  <data name="EMAIL" xml:space="preserve">
+    <value>Correo electrónico</value>
+  </data>
+  <data name="CONTACTCOMMENT" xml:space="preserve">
+    <value>Comentario de contacto</value>
+  </data>
+  <data name="TIMEZONE" xml:space="preserve">
+    <value>Zona horaria</value>
+  </data>
+  <data name="NOTIFICATION" xml:space="preserve">
+    <value>NOTIFICACIÓN</value>
+  </data>
+  <data name="NO" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="YES" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="MULTIPLEVALUES" xml:space="preserve">
+    <value>&lt;Múltiples valores&gt;</value>
+  </data>
+  <data name="HEIGHT" xml:space="preserve">
+    <value>Altura</value>
+  </data>
+  <data name="WIDTH" xml:space="preserve">
+    <value>Ancho</value>
+  </data>
+  <data name="CREATIONDATE" xml:space="preserve">
+    <value>Fecha de creación</value>
+  </data>
+  <data name="TOCONTINUEYOUMUSTCOMPLETETHEINFORMATIONINTHEBASEPROFILESSECTION" xml:space="preserve">
+    <value>Para continuar debe completar la información en el apartado Perfiles base.</value>
+  </data>
+  <data name="INBOUND" xml:space="preserve">
+    <value>Entrada</value>
+  </data>
+  <data name="OUTBOUND" xml:space="preserve">
+    <value>Salida</value>
+  </data>
+  <data name="TEAMS" xml:space="preserve">
+    <value>Equipos</value>
+  </data>
+  <data name="SHIFTS" xml:space="preserve">
+    <value>Turnos</value>
+  </data>
+  <data name="START" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="END" xml:space="preserve">
+    <value>Fin</value>
+  </data>
+  <data name="BREAKPROFILE" xml:space="preserve">
+    <value>Perfil de pausa</value>
+  </data>
+  <data name="PAID" xml:space="preserve">
+    <value>Pagada</value>
+  </data>
+  <data name="REQUIRED" xml:space="preserve">
+    <value>Requerido</value>
+  </data>
+  <data name="WORKROLES" xml:space="preserve">
+    <value>Roles de trabajo</value>
+  </data>
+  <data name="PROCESS" xml:space="preserve">
+    <value>Proceso</value>
+  </data>
+  <data name="WORKERNUMBER" xml:space="preserve">
+    <value>Número de operario</value>
+  </data>
+  <data name="ROLE" xml:space="preserve">
+    <value>Rol</value>
+  </data>
+  <data name="BREAK" xml:space="preserve">
+    <value>Pausa</value>
+  </data>
+  <data name="AVAILABLE" xml:space="preserve">
+    <value>Disponible</value>
+  </data>
+  <data name="CAPACITY" xml:space="preserve">
+    <value>Capacidad</value>
+  </data>
+  <data name="LOADINGWAITTIME" xml:space="preserve">
+    <value>Tiempo de espera de carga</value>
+  </data>
+  <data name="EQUIPMENTS" xml:space="preserve">
+    <value>Equipamientos</value>
+  </data>
+  <data name="AREA" xml:space="preserve">
+    <value>Área</value>
+  </data>
+  <data name="PACKAGINGPROFILE" xml:space="preserve">
+    <value>Perfil de empaquetado</value>
+  </data>
+  <data name="TYPE" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="VEHICLEPROFILE" xml:space="preserve">
+    <value>Perfil de vehículo</value>
+  </data>
+  <data name="TIMESTORAGEPROFILE" xml:space="preserve">
+    <value>Perfil de tiempo de almacenaje</value>
+  </data>
+  <data name="STORAGETIME" xml:space="preserve">
+    <value>Tiempo de almacenamiento</value>
+  </data>
+  <data name="LOAD" xml:space="preserve">
+    <value>Carga</value>
+  </data>
+  <data name="VEHICLE" xml:space="preserve">
+    <value>Vehículo</value>
+  </data>
+  <data name="INITHOUR" xml:space="preserve">
+    <value>Hora de inicio</value>
+  </data>
+  <data name="ENDHOUR" xml:space="preserve">
+    <value>Hora de fin</value>
+  </data>
+  <data name="ORDERTYPE" xml:space="preserve">
+    <value>Tipo de orden</value>
+  </data>
+  <data name="PACKAGING" xml:space="preserve">
+    <value>Empaquetado</value>
+  </data>
+  <data name="LOADBYVEHICLE" xml:space="preserve">
+    <value>Cargar por vehículo</value>
+  </data>
+  <data name="ORDERBYLOAD" xml:space="preserve">
+    <value>Paquetes por orden</value>
+  </data>
+  <data name="SELECTWAREHOUSE" xml:space="preserve">
+    <value>Seleccionar almacén</value>
+  </data>
+  <data name="ELEMENT" xml:space="preserve">
+    <value>Elemento</value>
+  </data>
+  <data name="NOTICE" xml:space="preserve">
+    <value>Aviso</value>
+  </data>
+  <data name="CONDITION" xml:space="preserve">
+    <value>Condición</value>
+  </data>
+  <data name="FIELD" xml:space="preserve">
+    <value>Campo</value>
+  </data>
+  <data name="OPERATOR" xml:space="preserve">
+    <value>Operario</value>
+  </data>
+  <data name="REFERENCE" xml:space="preserve">
+    <value>Referencia</value>
+  </data>
+  <data name="REFERENCEFIXEDVALUE" xml:space="preserve">
+    <value>Valor fijo de referencia</value>
+  </data>
+  <data name="FIXED" xml:space="preserve">
+    <value>Fijo</value>
+  </data>
+  <data name="FILTERS" xml:space="preserve">
+    <value>Filtros</value>
+  </data>
+  <data name="ALERTINFORMATION" xml:space="preserve">
+    <value>Información de la alerta</value>
+  </data>
+  <data name="ALERT" xml:space="preserve">
+    <value>Alerta</value>
+  </data>
+  <data name="SEVERITY" xml:space="preserve">
+    <value>Severidad</value>
+  </data>
+  <data name="TRUE" xml:space="preserve">
+    <value>Cierto</value>
+  </data>
+  <data name="FALSE" xml:space="preserve">
+    <value>Falso</value>
+  </data>
+  <data name="ISFIXED" xml:space="preserve">
+    <value>Es fijo</value>
+  </data>
+  <data name="ISESTIMATED" xml:space="preserve">
+    <value>Estimado</value>
+  </data>
+  <data name="ISONTIME" xml:space="preserve">
+    <value>Está en tiempo</value>
+  </data>
+  <data name="ISOUTBOUND" xml:space="preserve">
+    <value>Es de salida</value>
+  </data>
+  <data name="ISSTARTED" xml:space="preserve">
+    <value>Iniciado</value>
+  </data>
+  <data name="ISSTORED" xml:space="preserve">
+    <value>Almacenado</value>
+  </data>
+  <data name="WORKTIME" xml:space="preserve">
+    <value>Tiempo de trabajo</value>
+  </data>
+  <data name="PRIORITYOFEXECUTION" xml:space="preserve">
+    <value>Prioridad de ejecución</value>
+  </data>
+  <data name="SLA" xml:space="preserve">
+    <value>SLA</value>
+  </data>
+  <data name="AVAILABLECRITERIA" xml:space="preserve">
+    <value>Criterios disponibles</value>
+  </data>
+  <data name="APPLIEDCRITERIA" xml:space="preserve">
+    <value>Criterios aplicados</value>
+  </data>
+  <data name="GLOBAL" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="URGENT" xml:space="preserve">
+    <value>Urgente</value>
+  </data>
+  <data name="HIGH" xml:space="preserve">
+    <value>Alto</value>
+  </data>
+  <data name="NORMAL" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="LOW" xml:space="preserve">
+    <value>Baja</value>
+  </data>
+  <data name="VERYLOW" xml:space="preserve">
+    <value>Muy baja</value>
+  </data>
+  <data name="NEWBREAKPROFILE" xml:space="preserve">
+    <value>Nuevo perfil de pausa</value>
+  </data>
+  <data name="EDITBREAKPROFILE" xml:space="preserve">
+    <value>Editar perfil de pausa</value>
+  </data>
+  <data name="JS.TIMEPERIOD" xml:space="preserve">
+    <value>Periodo de tiempo</value>
+  </data>
+  <data name="JS.RESOURCE" xml:space="preserve">
+    <value>Recurso</value>
+  </data>
+  <data name="JS.CUSTOMER" xml:space="preserve">
+    <value>Cliente</value>
+  </data>
+  <data name="JS.DOCK" xml:space="preserve">
+    <value>Muelle</value>
+  </data>
+  <data name="JS.TYPE" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="JS.GROUP" xml:space="preserve">
+    <value>Grupo</value>
+  </data>
+  <data name="JS.TOTALACTIVITIES" xml:space="preserve">
+    <value>Total de actividades</value>
+  </data>
+  <data name="JS.PROGRESS" xml:space="preserve">
+    <value>Progreso</value>
+  </data>
+  <data name="JS.CLOSEDACTIVITIES" xml:space="preserve">
+    <value>Actividades cerradas</value>
+  </data>
+  <data name="JS.ACTIVITIES" xml:space="preserve">
+    <value>Actividades</value>
+  </data>
+  <data name="EQUIPMENTGROUP" xml:space="preserve">
+    <value>Grupo de equipamiento</value>
+  </data>
+  <data name="EQUIPMENTGROUPS" xml:space="preserve">
+    <value>Grupos de equipamiento</value>
+  </data>
+  <data name="JS.TOTAL" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="DOCKNAME" xml:space="preserve">
+    <value>Nombre del muelle</value>
+  </data>
+  <data name="PROCESSTYPE" xml:space="preserve">
+    <value>Tipo de proceso</value>
+  </data>
+  <data name="VEHICLETYPE" xml:space="preserve">
+    <value>Tipo de vehículo</value>
+  </data>
+  <data name="ARRIVAL" xml:space="preserve">
+    <value>Llegada</value>
+  </data>
+  <data name="APPOINTMENTCODE" xml:space="preserve">
+    <value>Código de la cita</value>
+  </data>
+  <data name="LICENSE" xml:space="preserve">
+    <value>Licencia</value>
+  </data>
+  <data name="ATTENDEDAPPOINTMENTS" xml:space="preserve">
+    <value>Citas atendidas</value>
+  </data>
+  <data name="COMPLETEDORDERS" xml:space="preserve">
+    <value>Órdenes completadas</value>
+  </data>
+  <data name="TOTALAPPOINTMENTS" xml:space="preserve">
+    <value>Total de citas</value>
+  </data>
+  <data name="YARDCODE" xml:space="preserve">
+    <value>Código del patio</value>
+  </data>
+  <data name="RELOAD" xml:space="preserve">
+    <value>Recarga</value>
+  </data>
+  <data name="VIEWSELECTOR" xml:space="preserve">
+    <value>Selector de vista</value>
+  </data>
+  <data name="ORDER" xml:space="preserve">
+    <value>Orden</value>
+  </data>
+  <data name="REVERTCOLUMNS" xml:space="preserve">
+    <value>Revertir columnas</value>
+  </data>
+  <data name="COLLAPSED" xml:space="preserve">
+    <value>Colapsado</value>
+  </data>
+  <data name="EXPANDED" xml:space="preserve">
+    <value>Expandido</value>
+  </data>
+  <data name="ZOOMOUT" xml:space="preserve">
+    <value>Alejar</value>
+  </data>
+  <data name="ZOOMIN" xml:space="preserve">
+    <value>Acercar</value>
+  </data>
+  <data name="GOTONOW" xml:space="preserve">
+    <value>Ir a ahora</value>
+  </data>
+  <data name="TIMEINTERVAL" xml:space="preserve">
+    <value>Intervalo de tiempo</value>
+  </data>
+  <data name="EXPORTTOPDF" xml:space="preserve">
+    <value>Exportar como PDF</value>
+  </data>
+  <data name="EXPORTTOEXCEL" xml:space="preserve">
+    <value>Exportar a Excel</value>
+  </data>
+  <data name="PRINT" xml:space="preserve">
+    <value>Imprimir</value>
+  </data>
+  <data name="REVERT" xml:space="preserve">
+    <value>Revertir</value>
+  </data>
+  <data name="EXPORT" xml:space="preserve">
+    <value>Exportar</value>
+  </data>
+  <data name="HIDECHART" xml:space="preserve">
+    <value>Ocultar gráfica</value>
+  </data>
+  <data name="SHOWCHART" xml:space="preserve">
+    <value>Mostrar gráfico</value>
+  </data>
+  <data name="CHART" xml:space="preserve">
+    <value>Gráfico</value>
+  </data>
+  <data name="BAR" xml:space="preserve">
+    <value>Barra</value>
+  </data>
+  <data name="SCATTER" xml:space="preserve">
+    <value>Dispersión</value>
+  </data>
+  <data name="LINE" xml:space="preserve">
+    <value>Línea</value>
+  </data>
+  <data name="SPLINE" xml:space="preserve">
+    <value>Curva spline</value>
+  </data>
+  <data name="JS.SHIPPING" xml:space="preserve">
+    <value>Expedición</value>
+  </data>
+  <data name="VERSION__0_" xml:space="preserve">
+    <value>Versión - {0}</value>
+  </data>
+  <data name="CALENDAR" xml:space="preserve">
+    <value>Calendario</value>
+  </data>
+  <data name="_0_VIEW" xml:space="preserve">
+    <value>Vista {0}</value>
+  </data>
+  <data name="UPDATE__0_" xml:space="preserve">
+    <value>Actualización: {0}</value>
+  </data>
+  <data name="TOTALDOCKS" xml:space="preserve">
+    <value>Total muelles</value>
+  </data>
+  <data name="T_S_" xml:space="preserve">
+    <value>ST</value>
+  </data>
+  <data name="TOTALSATURATION_" xml:space="preserve">
+    <value>Saturación Total (%)</value>
+  </data>
+  <data name="ACTUALUTILIZATION_" xml:space="preserve">
+    <value>Utilización Real (%)</value>
+  </data>
+  <data name="PLANNEDUTILIZATION_" xml:space="preserve">
+    <value>Utilización Planificada (%)</value>
+  </data>
+  <data name="TOTALCAPACITY_" xml:space="preserve">
+    <value>Capacidad Total (%)</value>
+  </data>
+  <data name="DOCKS" xml:space="preserve">
+    <value>Muelles</value>
+  </data>
+  <data name="STAGES" xml:space="preserve">
+    <value>Pulmones</value>
+  </data>
+  <data name="TS" xml:space="preserve">
+    <value>ST</value>
+  </data>
+  <data name="AU" xml:space="preserve">
+    <value>UA</value>
+  </data>
+  <data name="PU" xml:space="preserve">
+    <value>UP</value>
+  </data>
+  <data name="TC" xml:space="preserve">
+    <value>CT</value>
+  </data>
+  <data name="WAREHOUSESELECTOR" xml:space="preserve">
+    <value>Selector de almacén</value>
+  </data>
+  <data name="CURRENTSLA" xml:space="preserve">
+    <value>SLA actual</value>
+  </data>
+  <data name="JS.TOTALORDERS" xml:space="preserve">
+    <value>Total de órdenes</value>
+  </data>
+  <data name="LOADINGDATA___" xml:space="preserve">
+    <value>Cargando datos...</value>
+  </data>
+  <data name="ALLFIELDS" xml:space="preserve">
+    <value>Todos los campos</value>
+  </data>
+  <data name="COLUMNFIELDS" xml:space="preserve">
+    <value>Campos</value>
+  </data>
+  <data name="DATAFIELDS" xml:space="preserve">
+    <value>Campos</value>
+  </data>
+  <data name="ROWFIELDS" xml:space="preserve">
+    <value>Campos de fila</value>
+  </data>
+  <data name="FILTERFIELDS" xml:space="preserve">
+    <value>Campos de filtro</value>
+  </data>
+  <data name="DROPFILTERFIELDSHERE" xml:space="preserve">
+    <value>Suelte aquí los campos de filtro</value>
+  </data>
+  <data name="SHOWFIELDCHOOSER" xml:space="preserve">
+    <value>Mostrar selector de campos</value>
+  </data>
+  <data name="FIELDCHOOSER" xml:space="preserve">
+    <value>Selector de campos</value>
+  </data>
+  <data name="GRANDTOTAL" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="LOCKEDSTATUS" xml:space="preserve">
+    <value>Estado de bloqueo</value>
+  </data>
+  <data name="ORDERCOMMITTEDTIME" xml:space="preserve">
+    <value>Hora de compromiso de la orden</value>
+  </data>
+  <data name="ORDERENDDATE" xml:space="preserve">
+    <value>Fecha de finalización del orden</value>
+  </data>
+  <data name="ORDERPROGRESS___" xml:space="preserve">
+    <value>Progreso de la orden (%)</value>
+  </data>
+  <data name="ORDERSTARTDATE" xml:space="preserve">
+    <value>Fecha de inicio de la orden</value>
+  </data>
+  <data name="ORDERSTATUS" xml:space="preserve">
+    <value>Estado de la orden</value>
+  </data>
+  <data name="PROGRESS___" xml:space="preserve">
+    <value>Progreso (%)</value>
+  </data>
+  <data name="ORDERDELAY_MIN_" xml:space="preserve">
+    <value>Retraso de la orden (min)</value>
+  </data>
+  <data name="ACTUALWORKTIME_MIN_" xml:space="preserve">
+    <value>Tiempo real de trabajo (min)</value>
+  </data>
+  <data name="SHIPPING" xml:space="preserve">
+    <value>Expedición </value>
+  </data>
+  <data name="NOTDELAYEDORDER" xml:space="preserve">
+    <value>Órdenes no retrasadas</value>
+  </data>
+  <data name="OUTPUTPROFILE" xml:space="preserve">
+    <value>Perfil de salida</value>
+  </data>
+  <data name="CLOSED" xml:space="preserve">
+    <value>Cerrada</value>
+  </data>
+  <data name="LOADING" xml:space="preserve">
+    <value>Cargando</value>
+  </data>
+  <data name="INPUTPROFILE" xml:space="preserve">
+    <value>Perfil de entrada</value>
+  </data>
+  <data name="PUTAWAY" xml:space="preserve">
+    <value>Ubicación</value>
+  </data>
+  <data name="RELEASED" xml:space="preserve">
+    <value>Liberado</value>
+  </data>
+  <data name="WAITING" xml:space="preserve">
+    <value>En espera</value>
+  </data>
+  <data name="DELAYEDORDER" xml:space="preserve">
+    <value>Orden retrasada</value>
+  </data>
+  <data name="HOURFORMAT" xml:space="preserve">
+    <value>Formato de hora</value>
+  </data>
+  <data name="JS.LOCKEDORDERS" xml:space="preserve">
+    <value>Órdenes bloqueadas</value>
+  </data>
+  <data name="_MANDATORYFIELD" xml:space="preserve">
+    <value>* Campo obligatorio.</value>
+  </data>
+  <data name="DEFAULTHOURFORMAT" xml:space="preserve">
+    <value>Formato de hora predeterminado</value>
+  </data>
+  <data name="TELEPHONE2" xml:space="preserve">
+    <value>Teléfono 2</value>
+  </data>
+  <data name="SELECT___" xml:space="preserve">
+    <value>Seleccionar</value>
+  </data>
+  <data name="ISREQUIRED_" xml:space="preserve">
+    <value>Es obligatorio</value>
+  </data>
+  <data name="DECIMALSEPARATORMUSTBEDIFFERENTFROMTHOUSANDSSEPARATOR_" xml:space="preserve">
+    <value>El separador decimal debe ser diferente del separador de miles.</value>
+  </data>
+  <data name="INVALIDEMAILFORMAT" xml:space="preserve">
+    <value>* Formato de correo electrónico no válido.</value>
+  </data>
+  <data name="_YOUMUSTSELECTADEFAULTWAREHOUSE" xml:space="preserve">
+    <value>* Debe seleccionar un almacén predeterminado.</value>
+  </data>
+  <data name="_MULTIPLEVALUES_" xml:space="preserve">
+    <value>&lt;Múltiples valores&gt;</value>
+  </data>
+  <data name="PAGE_0_OF_1___2_ITEMS" xml:space="preserve">
+    <value>Página {0} de {1}, {2} elementos</value>
+  </data>
+  <data name="UNABLETODELETECURRENTWAREHOUSE_" xml:space="preserve">
+    <value>¡No es posible eliminar el almacén predeterminado!</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETE_0__" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar {0}?</value>
+  </data>
+  <data name="UNABLETODELETECURRENTUSER_" xml:space="preserve">
+    <value>¡No se puede eliminar al usuario con la sesión iniciada!</value>
+  </data>
+  <data name="PASSWORDSDONOTMATCH_" xml:space="preserve">
+    <value>* Las contraseñas no coinciden.</value>
+  </data>
+  <data name="PASSWORDCANNOTBEEMPTY_" xml:space="preserve">
+    <value>* La contraseña no puede estar vacía.</value>
+  </data>
+  <data name="_TOCONTINUE_YOUMUSTCOMPLETETHEINFORMATIONINTHEBASEPROFILESSECTION_" xml:space="preserve">
+    <value>* Para continuar, debe completar la información en la sección Perfiles base.</value>
+  </data>
+  <data name="ITISNOTPOSSIBLETODELETETHISPROFILE_ITISLINKEDTOANOTHERREGISTRY_" xml:space="preserve">
+    <value>No es posible eliminar este perfil, está vinculado a otro registro.</value>
+  </data>
+  <data name="YOUHAVEUNSAVEDCHANGES_AREYOUSUREYOUWANTTOLEAVEANDDISCARDTHEM_" xml:space="preserve">
+    <value>Tiene cambios sin guardar. ¿Está seguro que desea salir y descartarlos?</value>
+  </data>
+  <data name="NUMBEROFVEHICLES" xml:space="preserve">
+    <value>Número de vehículos</value>
+  </data>
+  <data name="SELECTTYPE___" xml:space="preserve">
+    <value>Seleccionar el tipo</value>
+  </data>
+  <data name="SELECTFIELD___" xml:space="preserve">
+    <value>Seleccionar campo</value>
+  </data>
+  <data name="SELECTREFERENCE___" xml:space="preserve">
+    <value>Seleccionar referencia</value>
+  </data>
+  <data name="PROGRESS" xml:space="preserve">
+    <value>Progreso</value>
+  </data>
+  <data name="PRODUCTIVITY___" xml:space="preserve">
+    <value>Productividad (%)</value>
+  </data>
+  <data name="EFFICIENCY___" xml:space="preserve">
+    <value>Eficiencia (%)</value>
+  </data>
+  <data name="TOTALPRODUCTIVITY___" xml:space="preserve">
+    <value>Productividad total (%)</value>
+  </data>
+  <data name="UTILITY___" xml:space="preserve">
+    <value>Utilización (%)</value>
+  </data>
+  <data name="WORKTIME_HR_" xml:space="preserve">
+    <value>Tiempo de trabajo (horas)</value>
+  </data>
+  <data name="JS.LOADING" xml:space="preserve">
+    <value>Cargando</value>
+  </data>
+  <data name="LOCKORDER" xml:space="preserve">
+    <value>Bloquear orden</value>
+  </data>
+  <data name="CANCELORDER" xml:space="preserve">
+    <value>Cancelar orden</value>
+  </data>
+  <data name="CHANGEPRIORITY" xml:space="preserve">
+    <value>Cambiar prioridad</value>
+  </data>
+  <data name="_STARTCANNOTBEGREATERTHANEND" xml:space="preserve">
+    <value>* El inicio no puede ser mayor que el fin.</value>
+  </data>
+  <data name="SIMULATE" xml:space="preserve">
+    <value>Simular</value>
+  </data>
+  <data name="NUMBER" xml:space="preserve">
+    <value>Número</value>
+  </data>
+  <data name="STARTSHIFT" xml:space="preserve">
+    <value>Inicio de turno</value>
+  </data>
+  <data name="ENDSHIFT" xml:space="preserve">
+    <value>Fin de turno</value>
+  </data>
+  <data name="WORKHOURS" xml:space="preserve">
+    <value>Horas de trabajo</value>
+  </data>
+  <data name="WORKERS" xml:space="preserve">
+    <value>Operarios</value>
+  </data>
+  <data name="SCHEDULE" xml:space="preserve">
+    <value>Calendario</value>
+  </data>
+  <data name="RESOURCES" xml:space="preserve">
+    <value>Recursos</value>
+  </data>
+  <data name="WORKERSMANAGEMENT" xml:space="preserve">
+    <value>Gestión de trabajadores</value>
+  </data>
+  <data name="SHIFTMANAGEMENT" xml:space="preserve">
+    <value>Gestión de turnos</value>
+  </data>
+  <data name="CONFIGURATIONSELECTOR" xml:space="preserve">
+    <value>Selector de configuración</value>
+  </data>
+  <data name="TOTALUTILITY___" xml:space="preserve">
+    <value>Utilización Total (%)</value>
+  </data>
+  <data name="PROCESSESUSEDSTATUS" xml:space="preserve">
+    <value>Estado de los procesos utilizados</value>
+  </data>
+  <data name="PROCESSINTERLEAVING" xml:space="preserve">
+    <value>Combinación de procesos</value>
+  </data>
+  <data name="INBOUNDTIME" xml:space="preserve">
+    <value>Tiempo de entrada</value>
+  </data>
+  <data name="OUTBOUNDTIME" xml:space="preserve">
+    <value>Tiempo de salida</value>
+  </data>
+  <data name="INTERLEAVINGTIME" xml:space="preserve">
+    <value>Tiempo de intercalado</value>
+  </data>
+  <data name="INACTIVETIME" xml:space="preserve">
+    <value>Tiempo inactivo</value>
+  </data>
+  <data name="RESOURCESNEEDEDBYPROCESSES" xml:space="preserve">
+    <value>Recursos necesarios por procesos</value>
+  </data>
+  <data name="RESOURCESBYPROCESSES" xml:space="preserve">
+    <value>Muestra la cantidad de recursos necesarios para cada proceso (por ejemplo entrada o envío), lo que ayuda a planificar y asignar recursos de manera eficiente.</value>
+  </data>
+  <data name="RESOURCESUSAGE" xml:space="preserve">
+    <value>Uso de recursos</value>
+  </data>
+  <data name="USEDRESOURCES" xml:space="preserve">
+    <value>Recursos utilizados</value>
+  </data>
+  <data name="UNUSEDRESOURCES" xml:space="preserve">
+    <value>Recursos no utilizados</value>
+  </data>
+  <data name="RESOURCESUTILIZATION___" xml:space="preserve">
+    <value>Utilización de recursos (%)</value>
+  </data>
+  <data name="RESOURCESUTILIZATION" xml:space="preserve">
+    <value>Representa el porcentaje de recursos disponibles que son utilizados. Refleja la eficiencia y ayuda a detectar si los recursos están sobreutilizados o infrautilizados.</value>
+  </data>
+  <data name="UTILIZATIONTIME___" xml:space="preserve">
+    <value>Tiempo de utilización (%)</value>
+  </data>
+  <data name="NON_UTILIZATIONTIME___" xml:space="preserve">
+    <value>Tiempo de no utilización (%)</value>
+  </data>
+  <data name="AREAUTILIZATION___" xml:space="preserve">
+    <value>Utilización del área (%)</value>
+  </data>
+  <data name="AREAUTILIZATION" xml:space="preserve">
+    <value>Muestra el porcentaje de espacio utilizado en diferentes áreas del almacén, lo que ayuda a maximizar la eficiencia y prevenir la congestión.</value>
+  </data>
+  <data name="STOPS" xml:space="preserve">
+    <value>Pausas</value>
+  </data>
+  <data name="SELECTSTOP" xml:space="preserve">
+    <value>Select stop</value>
+  </data>
+  <data name="SELECTASTOP" xml:space="preserve">
+    <value>Selecciona una pausa</value>
+  </data>
+  <data name="STARTSTOP" xml:space="preserve">
+    <value>Inicio de pausa</value>
+  </data>
+  <data name="ENDSTOP" xml:space="preserve">
+    <value>Fin de pausa</value>
+  </data>
+  <data name="WORKTIME_MIN_BYWORKERANDPROCESS" xml:space="preserve">
+    <value>Tiempo de trabajo (min) por trabajador y proceso</value>
+  </data>
+  <data name="WFMLABORWORKERPERPROCESSDESC" xml:space="preserve">
+    <value>Muestra el tiempo (en minutos) que cada trabajador dedica a diferentes procesos, lo que permite comparar la distribución de la carga de trabajo y facilita identificar dónde se invierte el tiempo en las tareas.</value>
+  </data>
+  <data name="KPI___BYTEAMANDWORKER" xml:space="preserve">
+    <value>KPI (%) por equipo y trabajador</value>
+  </data>
+  <data name="PRODUCTIVITY" xml:space="preserve">
+    <value>Productividad</value>
+  </data>
+  <data name="UTILITY" xml:space="preserve">
+    <value>Utilización</value>
+  </data>
+  <data name="EFFICIENCY" xml:space="preserve">
+    <value>Eficiencia</value>
+  </data>
+  <data name="FORMATRULE1" xml:space="preserve">
+    <value>Regla de formato 1</value>
+  </data>
+  <data name="TOP10WORKERSWITHLESSWORKTIME_MIN_" xml:space="preserve">
+    <value>10 principales trabajadores con menos tiempo de trabajo (min)</value>
+  </data>
+  <data name="WORKFORCEVSAVAILABILITY___BYROLEANDHOUR" xml:space="preserve">
+    <value>Fuerza laboral frente a disponibilidad (%) por rol y hora</value>
+  </data>
+  <data name="WORKFORCEVSAVAILABILITYDESC" xml:space="preserve">
+    <value>Muestra la utilización de la fuerza laboral frente a la disponibilidad por rol y hora, destacando periodos de sobreutilización o infrautilización.</value>
+  </data>
+  <data name="APPLY" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="SATURATION___" xml:space="preserve">
+    <value>Saturación (%)</value>
+  </data>
+  <data name="UTILIZATION___" xml:space="preserve">
+    <value>Utilización (%)</value>
+  </data>
+  <data name="JS.VEHICLETYPE" xml:space="preserve">
+    <value>Tipo de vehículo</value>
+  </data>
+  <data name="JS.LICENCE" xml:space="preserve">
+    <value>Licencia</value>
+  </data>
+  <data name="JS.ORDERSNUMBERS" xml:space="preserve">
+    <value>Números de órdenes</value>
+  </data>
+  <data name="JS.YARD" xml:space="preserve">
+    <value>Patio</value>
+  </data>
+  <data name="SELECTOPERATOR___" xml:space="preserve">
+    <value>Seleccionar operario</value>
+  </data>
+  <data name="INCORRECTUSERORPASSWORD" xml:space="preserve">
+    <value>Usuario o contraseña incorrectos</value>
+  </data>
+  <data name="CLONE" xml:space="preserve">
+    <value>Clonar</value>
+  </data>
+  <data name="DESIGN" xml:space="preserve">
+    <value>Diseñar</value>
+  </data>
+  <data name="PROCESSESUSEDSTATUSWIDGETS" xml:space="preserve">
+    <value>Enumera la hora de inicio y fin de cada proceso, así como su tipo. Esto permite un seguimiento detallado de la ejecución de los procesos y facilita el análisis del rendimiento.</value>
+  </data>
+  <data name="PROCESSINTERLEAVINGS" xml:space="preserve">
+    <value>Muestra la distribución del tiempo entre las actividades (entrada, salida, combinación e inactividad), destacando cómo se invierte el tiempo en los procesos y las posibles ineficiencias.</value>
+  </data>
+  <data name="RESOURCESUSAGES" xml:space="preserve">
+    <value>Muestra la cantidad actual de recursos en uso, brindando una descripción general rápida de la participación de la fuerza laboral o del equipo en un momento determinado.</value>
+  </data>
+  <data name="WFMLABORWORKERDESC" xml:space="preserve">
+    <value>Muestra los indicadores clave de rendimiento (Eficiencia, Productividad y Utilización) de cada equipo y trabajador, ofreciendo una visión rápida del rendimiento en relación con las expectativas.</value>
+  </data>
+  <data name="JS.OPERATORS" xml:space="preserve">
+    <value>Operarios</value>
+  </data>
+  <data name="JS.RESOURCES" xml:space="preserve">
+    <value>Recursos</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETE_0_ITEMS_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar {0} elementos?</value>
+  </data>
+  <data name="CONFIGURATION" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="YOUCANNOTCREATETWOCONFIGURATIONSWITHOVERLAPPINGDATES_" xml:space="preserve">
+    <value>No es posible crear dos configuraciones con fechas que se solapen.</value>
+  </data>
+  <data name="EDITCONFIGURATION" xml:space="preserve">
+    <value>Editar configuración</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETECONFIGURATION__0__" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar la configuración: {0}?</value>
+  </data>
+  <data name="ROLES" xml:space="preserve">
+    <value>Roles</value>
+  </data>
+  <data name="OPERATORS" xml:space="preserve">
+    <value>Operarios</value>
+  </data>
+  <data name="MODIFYSTARTSHIFT" xml:space="preserve">
+    <value>Modificar inicio de turno</value>
+  </data>
+  <data name="MODIFYENDSHIFT" xml:space="preserve">
+    <value>Modificar fin de turno</value>
+  </data>
+  <data name="LOCK" xml:space="preserve">
+    <value>Bloquear</value>
+  </data>
+  <data name="CHOOSETIME" xml:space="preserve">
+    <value>Elegir hora</value>
+  </data>
+  <data name="HOUR" xml:space="preserve">
+    <value>Hora</value>
+  </data>
+  <data name="MINUTE" xml:space="preserve">
+    <value>Minuto</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTOCANCEL" xml:space="preserve">
+    <value>¿Está seguro que desea cancelar?</value>
+  </data>
+  <data name="THEORDERWILLBEREMOVEDFROMTHEPLANNING_" xml:space="preserve">
+    <value>La orden será eliminada de la planificación.</value>
+  </data>
+  <data name="TONEXT_HOURS_" xml:space="preserve">
+    <value>Hasta las siguientes (horas)</value>
+  </data>
+  <data name="FROM" xml:space="preserve">
+    <value>desde</value>
+  </data>
+  <data name="TONEXT" xml:space="preserve">
+    <value>Siguiente</value>
+  </data>
+  <data name="HOURS" xml:space="preserve">
+    <value>Horas</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETETHEFILTER_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar el filtro?</value>
+  </data>
+  <data name="EXPORTTOIMAGE" xml:space="preserve">
+    <value>Exportar como imagen</value>
+  </data>
+  <data name="TO" xml:space="preserve">
+    <value>para</value>
+  </data>
+  <data name="THE_0_CAN_TBELESSTHAN_1__" xml:space="preserve">
+    <value>El {0} no puede ser menor que {1}.</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETE" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar?</value>
+  </data>
+  <data name="ITEMS" xml:space="preserve">
+    <value>elementos</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETETHEBREAKPROFILE__0___" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar el perfil de pausa {0}?</value>
+  </data>
+  <data name="_THE_0_MUSTBEUNIQUE_" xml:space="preserve">
+    <value>* El {0} debe ser único.</value>
+  </data>
+  <data name="BELL" xml:space="preserve">
+    <value>Campana</value>
+  </data>
+  <data name="GENERALINDICATOR" xml:space="preserve">
+    <value>Indicador general</value>
+  </data>
+  <data name="SPECIFICINDICATOR" xml:space="preserve">
+    <value>Indicador específico</value>
+  </data>
+  <data name="ORDER_WMSCODE_GENERATEDANALERTWITHTHECONDITIONS_FIELD__OPERATOR__REFERENCE_" xml:space="preserve">
+    <value>La orden [WMSCode] generó una alerta con las condiciones [Field] [Operator] [Reference].</value>
+  </data>
+  <data name="COMMITEDHOUR" xml:space="preserve">
+    <value>Hora de compromiso</value>
+  </data>
+  <data name="STARTHOUR" xml:space="preserve">
+    <value>Hora de inicio</value>
+  </data>
+  <data name="JS.EXPANDSUBTASK" xml:space="preserve">
+    <value>Expandir subtarea</value>
+  </data>
+  <data name="JS.LOCK" xml:space="preserve">
+    <value>Bloquear</value>
+  </data>
+  <data name="JS.CHANGEPRIORITY" xml:space="preserve">
+    <value>Cambiar prioridad</value>
+  </data>
+  <data name="JS.CANCELORDER" xml:space="preserve">
+    <value>Cancelar orden</value>
+  </data>
+  <data name="JS.COLLAPSESUBTASK" xml:space="preserve">
+    <value>Contraer subtarea</value>
+  </data>
+  <data name="ITISNOTPOSSIBLETOSELECTASTARTHOURPREVIOUSTHANNOW_" xml:space="preserve">
+    <value>No es posible seleccionar una hora de inicio previa a la actual.</value>
+  </data>
+  <data name="TOTALSTAGES" xml:space="preserve">
+    <value>Total pulmones</value>
+  </data>
+  <data name="ERROR" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETE_0_ALERT_1__" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar {0} alerta{1}?</value>
+  </data>
+  <data name="ENTERPASSWORD" xml:space="preserve">
+    <value>Introduzca la contraseña</value>
+  </data>
+  <data name="SELECTWAREHOUSE___" xml:space="preserve">
+    <value>Seleccionar almacén</value>
+  </data>
+  <data name="WARNING" xml:space="preserve">
+    <value>Advertencia</value>
+  </data>
+  <data name="BREAKPROFILE__0__CREATEDSUCCESSFULLY_" xml:space="preserve">
+    <value>Perfil de pausa "{0}" creado con éxito.</value>
+  </data>
+  <data name="UNABLETODISABLECURRENTUSER_" xml:space="preserve">
+    <value>¡No se puede deshabilitar al usuario con la sesión iniciada!</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODISABLEUSER_" xml:space="preserve">
+    <value>¿Está seguro que desea deshabilitar al usuario?</value>
+  </data>
+  <data name="ENABLE" xml:space="preserve">
+    <value>Habilitar</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTOENABLEUSER_" xml:space="preserve">
+    <value>¿Está seguro que desea habilitar al usuario?</value>
+  </data>
+  <data name="BREAKPROFILE__0__UPDATEDSUCCESSFULLY_" xml:space="preserve">
+    <value>Perfil de pausa "{0}" actualizado con éxito.</value>
+  </data>
+  <data name="BREAKPROFILE__0__DELETEDSUCCESSFULLY_" xml:space="preserve">
+    <value>Perfil de pausa "{0}" eliminado con éxito.</value>
+  </data>
+  <data name="TOTALSATURATION" xml:space="preserve">
+    <value>Saturación Total</value>
+  </data>
+  <data name="ACTUALUTILIZATION" xml:space="preserve">
+    <value>Utilización Real</value>
+  </data>
+  <data name="PLANNEDUTILIZATION" xml:space="preserve">
+    <value>Utilización Planificada</value>
+  </data>
+  <data name="TOTALCAPACITY" xml:space="preserve">
+    <value>Capacidad total</value>
+  </data>
+  <data name="GANTT" xml:space="preserve">
+    <value>Gantt</value>
+  </data>
+  <data name="GRID" xml:space="preserve">
+    <value>Tabla</value>
+  </data>
+  <data name="MULTISELECT" xml:space="preserve">
+    <value>Selección múltiple</value>
+  </data>
+  <data name="THEORDERWILLBEREMOVEDFROMTHEPLANNING_THISACTIONISIRREVERSIBLE_" xml:space="preserve">
+    <value>La orden será eliminada de la planificación. Esta acción es irreversible.</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTOREMOVETHENEXTORDERSFROMTHEPLANNING__" xml:space="preserve">
+    <value>¿Esta seguro que desea excluir las órdenes de la planificación? </value>
+  </data>
+  <data name="DOYOUWANTLOCKTHENEXTORDERS_" xml:space="preserve">
+    <value>¿Desea bloquear las siguientes órdenes?</value>
+  </data>
+  <data name="ORDERS" xml:space="preserve">
+    <value>Órdenes</value>
+  </data>
+  <data name="BLOCKED" xml:space="preserve">
+    <value>Bloqueado</value>
+  </data>
+  <data name="CANCELLED" xml:space="preserve">
+    <value>Cancelado</value>
+  </data>
+  <data name="BACK" xml:space="preserve">
+    <value>Atrás</value>
+  </data>
+  <data name="DESIGNER" xml:space="preserve">
+    <value>Diseñador</value>
+  </data>
+  <data name="VISUALIZATION" xml:space="preserve">
+    <value>Visualización</value>
+  </data>
+  <data name="SELECT" xml:space="preserve">
+    <value>Seleccionar (V)</value>
+  </data>
+  <data name="MOVE" xml:space="preserve">
+    <value>Mover (H)</value>
+  </data>
+  <data name="COPY" xml:space="preserve">
+    <value>Copiar (Ctrl + C)</value>
+  </data>
+  <data name="PASTE" xml:space="preserve">
+    <value>Pegar (Ctrl + V)</value>
+  </data>
+  <data name="TRASH" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="ALIGN" xml:space="preserve">
+    <value>Alinear</value>
+  </data>
+  <data name="ALIGNLEFT" xml:space="preserve">
+    <value>Alinear a la izquierda (Ctrl + Shift + L)</value>
+  </data>
+  <data name="ALIGNHORIZONTALCENTER" xml:space="preserve">
+    <value>Alinear horizontalmente al centro (Ctrl + Shift + C)</value>
+  </data>
+  <data name="ALIGNRIGHT" xml:space="preserve">
+    <value>Alinear a la derecha (Ctrl + Shift + R)</value>
+  </data>
+  <data name="ALIGNTOP" xml:space="preserve">
+    <value>Alinear arriba (Ctrl + Alt + T)</value>
+  </data>
+  <data name="ALIGNVERTICALCENTER" xml:space="preserve">
+    <value>Alinear verticalmente al centro (Ctrl + Shift + M)</value>
+  </data>
+  <data name="ALIGNBOTTOM" xml:space="preserve">
+    <value>Alinear abajo (Ctrl + Shift + B)</value>
+  </data>
+  <data name="DISTRIBUTEHORIZONTAL" xml:space="preserve">
+    <value>Distribuir horizontalmente</value>
+  </data>
+  <data name="DISTRIBUTEVERTICAL" xml:space="preserve">
+    <value>Distribuir verticalmente</value>
+  </data>
+  <data name="LAYERS" xml:space="preserve">
+    <value>Capas</value>
+  </data>
+  <data name="LAYER1" xml:space="preserve">
+    <value>Capa 1</value>
+  </data>
+  <data name="ZOOMTOFIT" xml:space="preserve">
+    <value>Ampliar para ajustar (Ctrl + 1)</value>
+  </data>
+  <data name="ZOOMTO100_" xml:space="preserve">
+    <value>Ampliar al 100% (Ctrl + 0)</value>
+  </data>
+  <data name="ZOOMTOSELECTION" xml:space="preserve">
+    <value>Ampliar a la selección (Ctrl + 2)</value>
+  </data>
+  <data name="CHECKCONFIGURATION" xml:space="preserve">
+    <value>Comprobar configuración</value>
+  </data>
+  <data name="REVERTCHANGES" xml:space="preserve">
+    <value>Revertir cambios</value>
+  </data>
+  <data name="TEXT" xml:space="preserve">
+    <value>Texto</value>
+  </data>
+  <data name="LINESTRAIGHT" xml:space="preserve">
+    <value>Línea recta</value>
+  </data>
+  <data name="SQUARE" xml:space="preserve">
+    <value>Cuadrado</value>
+  </data>
+  <data name="LOCATIONZONE" xml:space="preserve">
+    <value>Zona de ubicación</value>
+  </data>
+  <data name="BUFFER" xml:space="preserve">
+    <value>Buffer</value>
+  </data>
+  <data name="STAGE" xml:space="preserve">
+    <value>Pulmón</value>
+  </data>
+  <data name="EQUIPMENT" xml:space="preserve">
+    <value>Equipamiento</value>
+  </data>
+  <data name="ROUTE" xml:space="preserve">
+    <value>Ruta</value>
+  </data>
+  <data name="PROCESSDIRECTION" xml:space="preserve">
+    <value>Itinerario de proceso</value>
+  </data>
+  <data name="CREATEBENDPOINT" xml:space="preserve">
+    <value>Crear punto de inflexión</value>
+  </data>
+  <data name="DELETEBENDPOINT" xml:space="preserve">
+    <value>Eliminar punto de inflexión</value>
+  </data>
+  <data name="ROUTES" xml:space="preserve">
+    <value>Rutas</value>
+  </data>
+  <data name="ALL" xml:space="preserve">
+    <value>Todo</value>
+  </data>
+  <data name="CHECKINGCONFIGURATION___" xml:space="preserve">
+    <value>Comprobando configuración...</value>
+  </data>
+  <data name="SHOW_HIDEALL" xml:space="preserve">
+    <value>Mostrar/Ocultar todo</value>
+  </data>
+  <data name="AREAS" xml:space="preserve">
+    <value>Áreas</value>
+  </data>
+  <data name="ZONES" xml:space="preserve">
+    <value>Zonas</value>
+  </data>
+  <data name="FLOWS" xml:space="preserve">
+    <value>Flujos</value>
+  </data>
+  <data name="PROCESSES" xml:space="preserve">
+    <value>Procesos</value>
+  </data>
+  <data name="SELECTIONTYPEDOCK" xml:space="preserve">
+    <value>Selección de tipo de muelle</value>
+  </data>
+  <data name="AVERAGEITEMSPERORDER" xml:space="preserve">
+    <value>Promedio de artículos por orden</value>
+  </data>
+  <data name="AVERAGENUMBEROFLINESPERORDER" xml:space="preserve">
+    <value>Promedio de líneas por orden</value>
+  </data>
+  <data name="VEHICLEMAX_TIMEINDOCK_MIN_" xml:space="preserve">
+    <value>Tiempo máximo del vehículo en muelle (min)</value>
+  </data>
+  <data name="CUSTOM" xml:space="preserve">
+    <value>Personalizado</value>
+  </data>
+  <data name="CREATEADIRECTIONPROCESS" xml:space="preserve">
+    <value>Crear itinerario de proceso</value>
+  </data>
+  <data name="TOCREATEAPROCESSDIRECTION_YOUMUSTFIRSTCREATEAPROCESS_" xml:space="preserve">
+    <value>Para crear un itinerario de proceso, primero debe crear un proceso.</value>
+  </data>
+  <data name="INITPROCESS" xml:space="preserve">
+    <value>Proceso inicial</value>
+  </data>
+  <data name="ENDPROCESS" xml:space="preserve">
+    <value>Proceso final</value>
+  </data>
+  <data name="CREATEBUFFER" xml:space="preserve">
+    <value>Crear buffer</value>
+  </data>
+  <data name="TOCREATEAZONE_YOUMUSTFIRSTCREATEANAREA_" xml:space="preserve">
+    <value>Para crear una zona, primero debe crear un área.</value>
+  </data>
+  <data name="BUFFERNAME" xml:space="preserve">
+    <value>Nombre del buffer</value>
+  </data>
+  <data name="QUANTITY" xml:space="preserve">
+    <value>Cantidad</value>
+  </data>
+  <data name="BUFFERTYPE" xml:space="preserve">
+    <value>Tipo de buffer</value>
+  </data>
+  <data name="SHELFCONFIGURATION" xml:space="preserve">
+    <value>Configuración de estantería</value>
+  </data>
+  <data name="NUMBEROFSHELVES" xml:space="preserve">
+    <value>Número de estanterias</value>
+  </data>
+  <data name="NUMBEROFCROSSAISLES" xml:space="preserve">
+    <value>Número de pasillos transversales</value>
+  </data>
+  <data name="ORIENTATION" xml:space="preserve">
+    <value>Orientación</value>
+  </data>
+  <data name="NEWBUFFERAREA" xml:space="preserve">
+    <value>Nueva área de buffer</value>
+  </data>
+  <data name="AREANAME" xml:space="preserve">
+    <value>Nombre del área</value>
+  </data>
+  <data name="HORIZONTAL" xml:space="preserve">
+    <value>Horizontal</value>
+  </data>
+  <data name="VERTICAL" xml:space="preserve">
+    <value>Vertical</value>
+  </data>
+  <data name="INPUT" xml:space="preserve">
+    <value>Entrada</value>
+  </data>
+  <data name="OUTPUT" xml:space="preserve">
+    <value>Salida</value>
+  </data>
+  <data name="PRODUCTION" xml:space="preserve">
+    <value>Producción</value>
+  </data>
+  <data name="CREATELOCATIONZONE" xml:space="preserve">
+    <value>Crear zona de ubicación</value>
+  </data>
+  <data name="TOCREATEALOCATIONZONES_SELECTANAREA_IFONEISN_TCREATED_YOUMUSTCREATEONE_" xml:space="preserve">
+    <value>Para crear una zona de ubicación, seleccione un área. Si no existe, primero debe crear una.</value>
+  </data>
+  <data name="LOCATIONZONESNAME" xml:space="preserve">
+    <value>Nombre de la zona de ubicación</value>
+  </data>
+  <data name="LOCATIONZONETYPE" xml:space="preserve">
+    <value>Tipo de zona de ubicación</value>
+  </data>
+  <data name="NEWSTORAGEAREA" xml:space="preserve">
+    <value>Nueva área de almacenamiento</value>
+  </data>
+  <data name="RACK" xml:space="preserve">
+    <value>Estantería</value>
+  </data>
+  <data name="DRIVEIN" xml:space="preserve">
+    <value>Drive In</value>
+  </data>
+  <data name="CHAOTICZONE" xml:space="preserve">
+    <value>Zona caótica</value>
+  </data>
+  <data name="CHAOTICSTORAGE" xml:space="preserve">
+    <value>Almacenamiento caótico</value>
+  </data>
+  <data name="AUTOMATIC" xml:space="preserve">
+    <value>Automático</value>
+  </data>
+  <data name="CREATEAZONE__0_" xml:space="preserve">
+    <value>Crear una zona: {0}</value>
+  </data>
+  <data name="CREATEDOCK" xml:space="preserve">
+    <value>Crear muelle</value>
+  </data>
+  <data name="_0_NAME" xml:space="preserve">
+    <value>{0} Nombre</value>
+  </data>
+  <data name="CREATESTAGE" xml:space="preserve">
+    <value>Crear pulmón</value>
+  </data>
+  <data name="STAGENAME" xml:space="preserve">
+    <value>Nombre del pulmón</value>
+  </data>
+  <data name="NEWSTAGEAREA" xml:space="preserve">
+    <value>Nueva área de pulmón</value>
+  </data>
+  <data name="CREATEEQUIPMENT" xml:space="preserve">
+    <value>Crear equipamiento</value>
+  </data>
+  <data name="TOCREATEAEQUIPMENT_YOUMUSTFIRSTCREATEANAREA_" xml:space="preserve">
+    <value>Para crear un equipamiento, primero debe crear un área.</value>
+  </data>
+  <data name="AREATYPE" xml:space="preserve">
+    <value>Tipo de área</value>
+  </data>
+  <data name="STORAGE" xml:space="preserve">
+    <value>Almacenamiento</value>
+  </data>
+  <data name="CREATEROUTE" xml:space="preserve">
+    <value>Crear ruta</value>
+  </data>
+  <data name="TOCREATEAROUTE_YOUMUSTFIRSTCREATEANAREA_" xml:space="preserve">
+    <value>Para crear una ruta, primero debe crear un área.</value>
+  </data>
+  <data name="ROUTENAME" xml:space="preserve">
+    <value>Nombre de la ruta</value>
+  </data>
+  <data name="OUTBOUNDAREA" xml:space="preserve">
+    <value>Área de salida</value>
+  </data>
+  <data name="INBOUNDAREA" xml:space="preserve">
+    <value>Área de entrada</value>
+  </data>
+  <data name="CREATEFLOW" xml:space="preserve">
+    <value>Crear flujo</value>
+  </data>
+  <data name="CREATEPROCESS" xml:space="preserve">
+    <value>Crear proceso</value>
+  </data>
+  <data name="CONFIRMDELETE" xml:space="preserve">
+    <value>Confirmar eliminación</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETETHESELECTEDOBJECT_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar el elemento seleccionado?</value>
+  </data>
+  <data name="CHANGESSAVEDSUCCESSFULLY" xml:space="preserve">
+    <value>Cambios guardados con éxito</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTOREVERTTHECHANGESTOTHELASTSAVEDPOINT_" xml:space="preserve">
+    <value>¿Está seguro que desea revertir los cambios al último punto guardado?</value>
+  </data>
+  <data name="NEWDOCKAREA" xml:space="preserve">
+    <value>Nueva área de muelle</value>
+  </data>
+  <data name="TYPES" xml:space="preserve">
+    <value>Tipos</value>
+  </data>
+  <data name="COORDINATESANDDIMENSIONS" xml:space="preserve">
+    <value>Coordenadas y dimensiones</value>
+  </data>
+  <data name="X" xml:space="preserve">
+    <value>X</value>
+  </data>
+  <data name="Y" xml:space="preserve">
+    <value>Y</value>
+  </data>
+  <data name="HEIGHT_METERS_" xml:space="preserve">
+    <value>Altura (metros)</value>
+  </data>
+  <data name="WIDTH_METERS_" xml:space="preserve">
+    <value>Ancho (metros)</value>
+  </data>
+  <data name="ALTERNATIVEAREA" xml:space="preserve">
+    <value>Área alternativa</value>
+  </data>
+  <data name="DELAYTIMEPERUNIT" xml:space="preserve">
+    <value>Tiempo de retraso por unidad</value>
+  </data>
+  <data name="NEWAREA" xml:space="preserve">
+    <value>Nueva área</value>
+  </data>
+  <data name="ZONEBASICINFORMATION" xml:space="preserve">
+    <value>Información básica de la zona</value>
+  </data>
+  <data name="CAPACITYANDSTOCK" xml:space="preserve">
+    <value>Capacidad y existencias</value>
+  </data>
+  <data name="FLOWANDBEHAVIOR" xml:space="preserve">
+    <value>Flujo y comportamiento</value>
+  </data>
+  <data name="OPERATESFROMBUFFER" xml:space="preserve">
+    <value>Opera desde buffer</value>
+  </data>
+  <data name="OVERLOADHANDLING" xml:space="preserve">
+    <value>Manejo de sobrecarga</value>
+  </data>
+  <data name="INBOUNDRANGE" xml:space="preserve">
+    <value>Rango de entrada</value>
+  </data>
+  <data name="OUTBOUNDRANGE" xml:space="preserve">
+    <value>Rango de salida</value>
+  </data>
+  <data name="ALLOWINBOUND" xml:space="preserve">
+    <value>Permite entradas</value>
+  </data>
+  <data name="ALLOWOUTBOUND" xml:space="preserve">
+    <value>Permite salidas</value>
+  </data>
+  <data name="STATIONS" xml:space="preserve">
+    <value>Estaciones</value>
+  </data>
+  <data name="CAOTICSTORAGE" xml:space="preserve">
+    <value>Almacenamiento caótico</value>
+  </data>
+  <data name="ZONETYPE" xml:space="preserve">
+    <value>Tipo de zona</value>
+  </data>
+  <data name="MAX_CONTAINERS" xml:space="preserve">
+    <value>Máximo de contenedores</value>
+  </data>
+  <data name="AUTOMATICSTORAGE" xml:space="preserve">
+    <value>Almacenamiento automático</value>
+  </data>
+  <data name="MAXCONTAINERS" xml:space="preserve">
+    <value>Máximo de contenedores</value>
+  </data>
+  <data name="ENTRYCAPACITY" xml:space="preserve">
+    <value>Capacidad de entrada</value>
+  </data>
+  <data name="EXITCAPACITY" xml:space="preserve">
+    <value>Capacidad de salida</value>
+  </data>
+  <data name="AVAILABILITYSETTINGS" xml:space="preserve">
+    <value>Configuración de disponibilidad</value>
+  </data>
+  <data name="MIXCARRIERS" xml:space="preserve">
+    <value>Múltiples paqueterías</value>
+  </data>
+  <data name="AVAILABLEDOCKS" xml:space="preserve">
+    <value>Muelles disponibles</value>
+  </data>
+  <data name="ACTION" xml:space="preserve">
+    <value>Acción</value>
+  </data>
+  <data name="SHELFQUANTITY" xml:space="preserve">
+    <value>Cantidad de estanterías</value>
+  </data>
+  <data name="AISLEQUANTITY" xml:space="preserve">
+    <value>Cantidad de pasillos</value>
+  </data>
+  <data name="AISLECONFIGURATION" xml:space="preserve">
+    <value>Configuración de pasillos</value>
+  </data>
+  <data name="MAX_EQUIPMENT" xml:space="preserve">
+    <value>Máximo de equipamientos</value>
+  </data>
+  <data name="BIDIRECTIONAL" xml:space="preserve">
+    <value>Bidireccional</value>
+  </data>
+  <data name="NARROWAISLE" xml:space="preserve">
+    <value>Pasillo estrecho</value>
+  </data>
+  <data name="MAX_PICKERS" xml:space="preserve">
+    <value>Máximo de operarios de picking.</value>
+  </data>
+  <data name="TIME_SEC_" xml:space="preserve">
+    <value>Tiempo (seg)</value>
+  </data>
+  <data name="COMMONPROPERTIES" xml:space="preserve">
+    <value>Propiedades comunes</value>
+  </data>
+  <data name="PROCESSINGTIME_MIN_" xml:space="preserve">
+    <value>Tiempo de proceso (mm:ss)</value>
+  </data>
+  <data name="POSTPROCESSTIME_MIN_" xml:space="preserve">
+    <value>Tiempo de postprocesado (min)</value>
+  </data>
+  <data name="PREPROCESSTIME_MIN_" xml:space="preserve">
+    <value>Tiempo de preprocesado (min)</value>
+  </data>
+  <data name="ISITSTARTPROCESS_" xml:space="preserve">
+    <value>¿Es el proceso inicial?</value>
+  </data>
+  <data name="DETAILEDPROPERTIES" xml:space="preserve">
+    <value>Propiedades específicas</value>
+  </data>
+  <data name="PROCESSSTARTHOUR" xml:space="preserve">
+    <value>Hora inicio del proceso</value>
+  </data>
+  <data name="PROCESSENDHOUR" xml:space="preserve">
+    <value>Hora fin del proceso</value>
+  </data>
+  <data name="OCCURRENCESPERDAY" xml:space="preserve">
+    <value>Eventos por día</value>
+  </data>
+  <data name="OCCURRENCEPROBABILITYPERDAY___" xml:space="preserve">
+    <value>Probabilidad de que ocurra al día (%)</value>
+  </data>
+  <data name="INCOMINGSTOCKQUANTITY" xml:space="preserve">
+    <value>Cantidad de stock entrante</value>
+  </data>
+  <data name="UNITOFMEASURE" xml:space="preserve">
+    <value>Unidad de medida</value>
+  </data>
+  <data name="VEHICLESARRIVINGPERHOUR" xml:space="preserve">
+    <value>Vehículos que llegan por hora</value>
+  </data>
+  <data name="TRUCKSARRIVINGPERDAY" xml:space="preserve">
+    <value>Camiones que llegan al día</value>
+  </data>
+  <data name="MINIMUMDOCKTIME" xml:space="preserve">
+    <value>Tiempo mínimo en muelle</value>
+  </data>
+  <data name="UNLOADINGTIME_MIN_" xml:space="preserve">
+    <value>Tiempo de descarga (min)</value>
+  </data>
+  <data name="ADDITIONALDOCKTIME_MIN_" xml:space="preserve">
+    <value>Tiempo adicional en muelle (min)</value>
+  </data>
+  <data name="AUTOMATICLOADINGTIME_MIN_" xml:space="preserve">
+    <value>Tiempo de carga automática (min)</value>
+  </data>
+  <data name="PICKINGTRAVELTIME_MIN_" xml:space="preserve">
+    <value>Tiempo de desplazamiento en picking. (min)</value>
+  </data>
+  <data name="ADDITIONALSTORAGETIME_MIN_" xml:space="preserve">
+    <value>Tiempo adicional de almacenamiento (min)</value>
+  </data>
+  <data name="MINHOUR" xml:space="preserve">
+    <value>Tiempo mínimo</value>
+  </data>
+  <data name="QUANTITIESOFGOODSTODISPATCH" xml:space="preserve">
+    <value>Cantidad de órdenes a despachar</value>
+  </data>
+  <data name="BREAKAGEFACTOR" xml:space="preserve">
+    <value>Factor de rotura</value>
+  </data>
+  <data name="REPLENISHMENTONPICKING___" xml:space="preserve">
+    <value>Reabastecimiento en picking (%)</value>
+  </data>
+  <data name="STEPS" xml:space="preserve">
+    <value>Etapas</value>
+  </data>
+  <data name="ACTIVITYTIME_MIN_" xml:space="preserve">
+    <value>Tiempo de actividad (min)</value>
+  </data>
+  <data name="STEPBEFOREORAFTERPROCESS" xml:space="preserve">
+    <value>Paso antes o después del proceso</value>
+  </data>
+  <data name="INIT" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="CUSTOMPROCESS" xml:space="preserve">
+    <value>Proceso personalizado</value>
+  </data>
+  <data name="PICKING" xml:space="preserve">
+    <value>Picking</value>
+  </data>
+  <data name="RECEPTION" xml:space="preserve">
+    <value>Recepción</value>
+  </data>
+  <data name="REPLENISHMENT" xml:space="preserve">
+    <value>Reposición</value>
+  </data>
+  <data name="TOTALTIMEORDERDELAY" xml:space="preserve">
+    <value>Retraso total de la orden</value>
+  </data>
+  <data name="TOTALACTUALWORKTIME" xml:space="preserve">
+    <value>Tiempo real total de trabajo</value>
+  </data>
+  <data name="PLANNING" xml:space="preserve">
+    <value>Planificación</value>
+  </data>
+  <data name="WAREHOUSEPROCESS" xml:space="preserve">
+    <value>Proceso de almacén</value>
+  </data>
+  <data name="ESTIMATEDWORKLOAD" xml:space="preserve">
+    <value>Carga de trabajo estimada</value>
+  </data>
+  <data name="INBOUNDWORK" xml:space="preserve">
+    <value>Trabajo de entrada</value>
+  </data>
+  <data name="OUTBOUNDWORK" xml:space="preserve">
+    <value>Trabajo de salida</value>
+  </data>
+  <data name="OUTOFTIME" xml:space="preserve">
+    <value>Fuera de tiempo</value>
+  </data>
+  <data name="ONTIME" xml:space="preserve">
+    <value>En tiempo</value>
+  </data>
+  <data name="ORDER_0_CANNOTBEREPRIORITIZEDBECAUSEITHASALREADYBEENSTARTED_COMPLETEDORBLOCKED_" xml:space="preserve">
+    <value>La orden {0} no puede cambiar de prioridad porque ya ha sido iniciada, completada o bloqueada.</value>
+  </data>
+  <data name="DOYOUWANTTOREPRIORITIZETHEOTHERSELECTEDORDERS_0__" xml:space="preserve">
+    <value>¿Desea cambiar la prioridad de las demás órdenes seleccionadas {0}?</value>
+  </data>
+  <data name="ORDER_0_CANNOTBECANCELEDBECAUSEITHASALREADYBEENSTARTED_COMPLETEDORBLOCKED_" xml:space="preserve">
+    <value>La orden {0} no se puede cancelar porque ya ha sido iniciada, completada o bloqueada.</value>
+  </data>
+  <data name="DOYOUWANTTOCANCELTHEOTHERSELECTEDORDERS_0__" xml:space="preserve">
+    <value>¿Desea cancelar las otras órdenes seleccionadas {0}?</value>
+  </data>
+  <data name="ORDERS_0_CANNOTBEBLOCKEDBECAUSETHEYHAVEALREADYBEENSTARTEDORCOMPLETED_" xml:space="preserve">
+    <value>Las órdenes {0} no se pueden bloquear porque ya han sido iniciadas o completadas.</value>
+  </data>
+  <data name="DOYOUWANTTOBLOCKTHEOTHERSELECTEDORDERS_0__" xml:space="preserve">
+    <value>¿Desea bloquear las otras órdenes seleccionadas {0}?</value>
+  </data>
+  <data name="ORDERS_0_CANNOTBEREPRIORITIZEDBECAUSETHEYHAVEALREADYBEENSTARTED_COMPLETEDORBLOCKED_" xml:space="preserve">
+    <value>Las órdenes {0} no pueden cambiar de prioridad porque ya fueron iniciadas, completadas o bloqueadas.</value>
+  </data>
+  <data name="DOYOUWANTTOREPRIORITIZETHEOTHERSELECTEDORDER_0__" xml:space="preserve">
+    <value>¿Desea cambiar la prioridad de la otra orden seleccionada {0}?</value>
+  </data>
+  <data name="ORDER_0_CANNOTBEBLOCKEDBECAUSEITHASALREADYBEENSTARTEDORCOMPLETED_" xml:space="preserve">
+    <value>La orden {0} no se puede bloquear porque ya ha sido iniciada o completada.</value>
+  </data>
+  <data name="DOYOUWANTTOBLOCKTHEOTHERSELECTEDORDER_0__" xml:space="preserve">
+    <value>¿Desea bloquear la otra orden seleccionada {0}?</value>
+  </data>
+  <data name="DOYOUWANTTOCANCELTHEOTHERSELECTEDORDER_0__" xml:space="preserve">
+    <value>¿Desea cancelar la otra orden seleccionada {0}?</value>
+  </data>
+  <data name="ORDERS_0_CANNOTBECANCELEDBECAUSETHEYHAVEALREADYBEENSTARTED_COMPLETEDORBLOCKED_" xml:space="preserve">
+    <value>Las órdenes {0} no se pueden cancelar porque ya han sido iniciadas, completadas o bloqueadas.</value>
+  </data>
+  <data name="SERVICELEVELAGREEMENTACTUAL" xml:space="preserve">
+    <value>Acuerdo actual de Nivel de Servicio</value>
+  </data>
+  <data name="JS.UNLOCK" xml:space="preserve">
+    <value>Desbloquear</value>
+  </data>
+  <data name="UNLOCKORDER" xml:space="preserve">
+    <value>Desbloquear orden</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTOUNLOCKTHEORDERS_0__" xml:space="preserve">
+    <value>¿Esta seguro que desea desbloquear las órdenes {0} ?</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTOUNLOCKTHEORDER_0__" xml:space="preserve">
+    <value>¿Esta seguro que desea desbloquear la orden {0} ?</value>
+  </data>
+  <data name="UNSAVEDMODIFICATIONS" xml:space="preserve">
+    <value>Cambios sin guardar</value>
+  </data>
+  <data name="DOYOUWANTTOSAVETHECHANGESBEFOREEXITING_" xml:space="preserve">
+    <value>¿Desea guardar los cambios antes de salir?</value>
+  </data>
+  <data name="JS.ZOOMTO100_" xml:space="preserve">
+    <value>Zoom al 100%</value>
+  </data>
+  <data name="JS.ZOOMTOFIT" xml:space="preserve">
+    <value>Ampliar para ajustar</value>
+  </data>
+  <data name="JS.ZOOMSELECTION" xml:space="preserve">
+    <value>Selección de zoom</value>
+  </data>
+  <data name="INBOUNDORDER" xml:space="preserve">
+    <value>Orden entrada</value>
+  </data>
+  <data name="OUTBOUNDORDER" xml:space="preserve">
+    <value>Orden salida</value>
+  </data>
+  <data name="PROBABILITYOFSTARTPROCESS___" xml:space="preserve">
+    <value>Probabilidad de inicio del proceso (%)</value>
+  </data>
+  <data name="ROLES_NO_FOR_PROCESS" xml:space="preserve">
+    <value>No hay roles asignados para ejecutar el proceso {0}. Los roles deben ser configurados en Perfiles de trabajo &gt;  Perfiles base.</value>
+  </data>
+  <data name="WORKERS_NOT_CONFIGURED" xml:space="preserve">
+    <value>No hay trabajadores configurados para el almacén. Los trabajadores deben ser configurados en Perfiles de trabajo &gt; Perfiles de operarios.</value>
+  </data>
+  <data name="EQUIPMENTS_TYPE_NOT_CONFIGURED" xml:space="preserve">
+    <value>No hay equipamientos configurados. Los tipos de equipamientos deben ser configurados en Perfiles de trabajo &gt; Perfiles de equipamientos. </value>
+  </data>
+  <data name="FLOW_NO_ORDER_SCHEDULES" xml:space="preserve">
+    <value>No hay programaciones de pedidos configurados. La propiedad debe configurarse en Perfiles logísticos &gt; Perfiles de órdenes.</value>
+  </data>
+  <data name="PROCESS_NO_ENDING" xml:space="preserve">
+    <value>No hay procesos finales configurados para terminar la simulación. La propiedad de fin debe ser configurado en las propiedades de dirección del proceso.</value>
+  </data>
+  <data name="PROCESS_NO_TIME" xml:space="preserve">
+    <value>El proceso {0} no tiene configurado tiempo de preproceso, procesamiento y posprocesamiento. El tiempo debe ser configurado en las propiedades del proceso.</value>
+  </data>
+  <data name="PROCESS_NO_LOAD_PROFILE" xml:space="preserve">
+    <value>No hay perfiles de carga configurados. Los perfiles de carga deben ser configurados  en Perfiles logísticos &gt; Perfiles de carga.</value>
+  </data>
+  <data name="ZONE_NO_CONTAINERS_CAPACITY" xml:space="preserve">
+    <value>La zona {0} no tiene configurado la capacidad máxima de contenedores. La propiedad de máximo de contenedores de la zona debe ser mayor a 0 y debe ser configurada en las propiedades de la zona.</value>
+  </data>
+  <data name="BUFFER_ZERO_CAPACITY" xml:space="preserve">
+    <value>El buffer {0} está configurado con capacidad de equipamiento 0. La propiedad de capacidad de equipamiento en la zona de buffer debe ser mayor a 0 y debe ser configurada en las propiedades de la zona.</value>
+  </data>
+  <data name="DOCK_ZERO_CAPACITY" xml:space="preserve">
+    <value>El muelle {0} está configurado con capacidad de equipamiento 0. La propiedad de capacidad de equipamiento debe ser mayor a 0 y debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="AREA_NO_ZONES" xml:space="preserve">
+    <value>El área {0} no tiene zonas configuradas. Las zonas deben ser creadas en el diseñador.</value>
+  </data>
+  <data name="ROUTE_NOT_FOUND" xml:space="preserve">
+    <value>No existe ruta desde el área {0} al área {1}. La ruta debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="AREAS_NOT_CREATED" xml:space="preserve">
+    <value>No existen áreas creadas para este almacén. Las áreas deben ser creadas en el diseñador.</value>
+  </data>
+  <data name="ROUTES_NOT_CONFIGURED" xml:space="preserve">
+    <value>No existen rutas configuradas entre áreas. Las rutas deben ser configurada en el diseñador.</value>
+  </data>
+  <data name="DOCKS_NO_OUTBOUND" xml:space="preserve">
+    <value>No es posible asignar muelles de salida para el proceso {0}. La propiedad de salida para los muelles debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="DOCKS_NO_INBOUND" xml:space="preserve">
+    <value>No es posible asignar muelles de entrada para el proceso {0}. La propiedad de entrada para los muelles debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="DOCKS_NO_INBOUND_RANGES" xml:space="preserve">
+    <value>No hay rangos configurados para los muelles de entrada. El rango para la propiedad de entrada en los muelles debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="DOCKS_DUPLICATE_INBOUND_RANGES" xml:space="preserve">
+    <value>Existen rangos repetidos para los muelles de entrada. La propiedad de intervalo en los muelles no debe repetirse y debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="DOCKS_NO_OUTBOUND_RANGES" xml:space="preserve">
+    <value>No hay rangos configurados para los muelles de salida. El rango para la propiedad de salida en los muelles debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="DOCKS_DUPLICATE_OUTBOUND_RANGES" xml:space="preserve">
+    <value>Existen rangos repetidos para los muelles de salida. La propiedad de intervalo en los muelles no debe repetirse y debe ser configurada en el diseñador.</value>
+  </data>
+  <data name="DOCKS_NO_SELECTION_STRATEGY" xml:space="preserve">
+    <value>No existe estrategia de selección en muelles disponibles para el flujo de entrada o flujo de salida. La de selección de tipo de muelle debe ser configurada en las propiedades del flujo.</value>
+  </data>
+  <data name="AISLE_ZERO_CAPACITY" xml:space="preserve">
+    <value>El pasillo {0} está configurado con capacidad 0. La propiedad de capacidad en pasillos debe ser mayor a 0 y  debe configurarse en las propiedades de la zona.</value>
+  </data>
+  <data name="NARROW_AISLE_ZERO_PICKERS" xml:space="preserve">
+    <value>El pasillo estrecho {0} está configurado con capacidad 0. La propiedad de capacidad del pasillo estrecho debe ser mayor a 0 y debe configurarse en las propiedades de la zona.</value>
+  </data>
+  <data name="AUTO_STORAGE_ZERO_CAPACITY" xml:space="preserve">
+    <value>La zona almacenamiento automático {0} está configurado con capacidad 0. La propiedad de capacidad para la zona de almacenamiento automático debe ser mayor a 0 y debe configurarse en las propiedades de la zona.</value>
+  </data>
+  <data name="CHAOTIC_STORAGE_ZERO_CAPACITY" xml:space="preserve">
+    <value>La zona de almacenamiento caótica  {0} está configurada con capacidad 0. La propiedad de capacidad en la zona de almacenamiento caótica debe ser mayor a 0 y debe ser configurada en las propiedades de la zona.</value>
+  </data>
+  <data name="DRIVEIN_ZERO_CAPACITY" xml:space="preserve">
+    <value>La zona de almacenamiento drive in {0} está configurada con capacidad 0. La propiedad de capacidad en la zona de almacenamiento drive in debe ser mayor a 0 y debe ser configurada en las propiedades de la zona.</value>
+  </data>
+  <data name="RACK_ZERO_CAPACITY" xml:space="preserve">
+    <value>La zona de almacenamiento de estanterías {0} está configurada con capacidad 0. La propiedad de capacidad en la zona de almacenamiento de estanterías debe ser mayor a 0 y debe ser configurada en las propiedades de la zona.</value>
+  </data>
+  <data name="FLOW_NO_INBOUND_GRAPH" xml:space="preserve">
+    <value>No existe un flujo de entrada configurado. El flujo debe ser configurado en el diseñador.</value>
+  </data>
+  <data name="FLOW_INBOUND_NO_MAX_TIME" xml:space="preserve">
+    <value>El flujo de entrada {0} no tiene configurado el tiempo máximo de vehículos en el muelle. La propiedad de tiempo máximo por vehículo para el flujo debe ser configurado en el diseñador.</value>
+  </data>
+  <data name="FLOW_INBOUND_NO_STRATEGY" xml:space="preserve">
+    <value>El flujo de entrada {0} no tiene muelles con una estrategia asignada para este flujo. La propiedad "Permite entradas" para el muelle en el flujo de entrada debe ser configurado en el diseñador.</value>
+  </data>
+  <data name="FLOW_INBOUND_NO_AVERAGE_LINES" xml:space="preserve">
+    <value>No hay líneas promedio por orden configuradas para el flujo de entrada {0}. La propiedad del promedio de líneas por orden debe ser configurado en las propiedades del flujo.</value>
+  </data>
+  <data name="FLOW_NO_OUTBOUND_GRAPH" xml:space="preserve">
+    <value>No existe un flujo de salida configurado. El flujo debe ser configurado en el diseñador.</value>
+  </data>
+  <data name="FLOW_OUTBOUND_NO_MAX_TIME" xml:space="preserve">
+    <value>El flujo de salida {0} no tiene configurado el tiempo máximo de vehículos en el muelle. La propiedad de tiempo máximo por vehículo para el flujo debe ser configurado en el diseñador.</value>
+  </data>
+  <data name="FLOW_OUTBOUND_NO_STRATEGY" xml:space="preserve">
+    <value>El flujo de salida {0} no tiene muelles con una estrategia asignada para este flujo. La propiedad. La de selección de tipo de muelle debe ser configurada en las propiedades del flujo.</value>
+  </data>
+  <data name="FLOW_OUTBOUND_NO_AVERAGE_LINES" xml:space="preserve">
+    <value>No hay líneas promedio por orden configuradas para el flujo de salida {0}. La propiedad del promedio de líneas por orden debe ser configurado en las propiedades del flujo.</value>
+  </data>
+  <data name="FLOW_NO_PROCESS_PRIORITIES" xml:space="preserve">
+    <value>No hay roles asignados a los procesos. Los roles deben ser configurados en Perfiles de trabajo &gt;  Perfiles base.</value>
+  </data>
+  <data name="PROCESS_NO_INITIAL" xml:space="preserve">
+    <value>No hay procesos iniciales configurados para comenzar la simulación. La propiedad de inicio debe ser configurado  en las propiedades del proceso.</value>
+  </data>
+  <data name="PROCESS_INIT_PERCENTAGE_INVALID" xml:space="preserve">
+    <value>El porcentaje del proceso inicial  {0} debe ser mayor que 0. El porcentaje debe ser configurado en las propiedades del proceso.</value>
+  </data>
+  <data name="PROCESS_DIRECTION_PERCENTAGE_INVALID" xml:space="preserve">
+    <value>El porcentaje de probabilidad de ejecución de {0} debe ser mayor a 0. El porcentaje de ejecución debe ser  configurado en las propiedades de dirección del proceso.</value>
+  </data>
+  <data name="PROCESS_INIT_NO_PATHS" xml:space="preserve">
+    <value>El proceso inicial {0} no tiene rutas asignadas. Las rutas para el flujo de procesos debe ser configurado en el diseñador.</value>
+  </data>
+  <data name="PROCESS_PATH_NO_END" xml:space="preserve">
+    <value>El proceso {0}  no tiene rutas configuradas al proceso {1}. Las rutas deben ser configurada en el diseñador.</value>
+  </data>
+  <data name="PROCESS_NO_VEHICLE_PROFILE" xml:space="preserve">
+    <value>No hay perfiles de vehículos configurados. Los perfiles de vehículo deben configurarse en Perfiles logísticos &gt; Perfiles carga.</value>
+  </data>
+  <data name="PROCESS_NO_ORDER_LOAD_RATIOS" xml:space="preserve">
+    <value>No hay perfiles de carga de pedidos configurados. Los perfiles de carga de pedidos debe ser configurado en Perfiles logísticos &gt; Perfiles de órdenes.</value>
+  </data>
+  <data name="PROCESS_SAME_DIRECTIONPROPERTY" xml:space="preserve">
+    <value>El proceso {0} tiene al menos una dirección de proceso hacia sí mismo. Estas direcciones tienen que ser eliminadas.</value>
+  </data>
+  <data name="WORKERS_NO_ROLES_FOR_PROCESS" xml:space="preserve">
+    <value>No hay trabajadores con roles asignados para ejecutar el proceso {0}. Los trabajadores deben ser configurados en Perfiles de trabajo &gt; Perfiles de operarios.</value>
+  </data>
+  <data name="EQUIPMENTS_NOT_IN_AREA" xml:space="preserve">
+    <value>No hay equipos asignados al área {0}. Los equipamientos deben ser configurados en Perfiles de trabajo &gt; Perfiles de equipamientos. </value>
+  </data>
+  <data name="EQUIPMENTS_GROUP_EMPTY" xml:space="preserve">
+    <value>El grupo de equipamientos {0} tiene 0 equipos asignados. Los grupos de equipamientos deben ser configurados en Perfiles de trabajo &gt; Perfiles de equipamientos. </value>
+  </data>
+  <data name="JS.WAITING" xml:space="preserve">
+    <value>En espera</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_PAGER_FIRSTPAGE" xml:space="preserve">
+    <value>PrimeraPágina</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_PAGER_PREVIOUSPAGE" xml:space="preserve">
+    <value>PáginaAnterior</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_PAGER_CURRENTPAGE" xml:space="preserve">
+    <value>PáginaActual</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_PAGER_PAGEOFLABEL" xml:space="preserve">
+    <value>Pager_PageOfLabel</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_PAGER_NEXTPAGE" xml:space="preserve">
+    <value>PáginaSiguiente</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_PAGER_LASTPAGE" xml:space="preserve">
+    <value>UltimaPágina</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_STATUS" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_EDITOR_DROPDOWNBUTTON" xml:space="preserve">
+    <value>Opciones de visualización</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_HEADERSELECTIONCELL" xml:space="preserve">
+    <value>HeaderSelectionCell</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_SELECTIONCOLUMN_SELECTALL" xml:space="preserve">
+    <value>SelectionColumn_SelectAll</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_FILTERMENU_NOTAPPLIED_POSTFIX" xml:space="preserve">
+    <value>FilterMenu_NotApplied_Postfix</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_FILTERMENU" xml:space="preserve">
+    <value>FilterMenu</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_FILTERMENU_VALUESHEADERTEXT" xml:space="preserve">
+    <value>ValuesHeaderText</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_FILTERMENU_CANCELBUTTON" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_FILTERMENU_APPLYBUTTON" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_FILTERMENU_BLANKSITEM" xml:space="preserve">
+    <value>(Vacíos)</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_FILTERMENU_SEARCHBOXNULLTEXT" xml:space="preserve">
+    <value>Buscar valor</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_FILTERMENU_SELECTALL" xml:space="preserve">
+    <value>Seleccionar todo</value>
+  </data>
+  <data name="ENGLISH" xml:space="preserve">
+    <value>Inglés</value>
+  </data>
+  <data name="SPANISH" xml:space="preserve">
+    <value>Español</value>
+  </data>
+  <data name="SELECTLANGUAGE" xml:space="preserve">
+    <value>Seleccionar lenguaje</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_TABS_HEADERBUTTONPREV" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Tabs_HeaderButtonPrev</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_TABS_HEADERBUTTONNEXT" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Tabs_HeaderButtonNext</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_PAGESIZESELECTOR_CAPTION" xml:space="preserve">
+    <value>* DxBlazorStringId.Grid_PageSizeSelector_Caption</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_EMPTYDATAROW" xml:space="preserve">
+    <value>* DxBlazorStringId.Grid_EmptyDataRow</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_CHECKBOXSETTINGS_UNCHECKEDDISPLAYTEXT" xml:space="preserve">
+    <value>❌</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_CHECKBOXSETTINGS_CHECKEDDISPLAYTEXT" xml:space="preserve">
+    <value>✔</value>
+  </data>
+  <data name="LAPSE" xml:space="preserve">
+    <value>Lapso</value>
+  </data>
+  <data name="_LAPSE" xml:space="preserve">
+    <value>* * Lapse</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_SPINEDIT_UPBUTTON" xml:space="preserve">
+    <value>Aumentar valor</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_SPINEDIT_DOWNBUTTON" xml:space="preserve">
+    <value>Disminuir valor</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_FILTERMENU_APPLIED_POSTFIX" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Grid_FilterMenu_Applied_Postfix</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_FILTERMENU_CLEARBUTTON" xml:space="preserve">
+    <value>* DxBlazorStringId.Grid_FilterMenu_ClearButton</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_POPUP_CLOSEBUTTON" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Popup_CloseButton</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_LISTBOX_EMPTYDATAAREA" xml:space="preserve">
+    <value>No hay datos para mostrar</value>
+  </data>
+  <data name="LOADINGTIME" xml:space="preserve">
+    <value>Tiempo de carga</value>
+  </data>
+  <data name="JS.CANCEL" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="JS.APPLY" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="JS.SEARCHVALUE" xml:space="preserve">
+    <value>Buscar valor</value>
+  </data>
+  <data name="JS.BLANKS" xml:space="preserve">
+    <value>(Vacías)</value>
+  </data>
+  <data name="TIME" xml:space="preserve">
+    <value>Tiempo</value>
+  </data>
+  <data name="ACTIVITYTIME" xml:space="preserve">
+    <value>Tiempo de actividad</value>
+  </data>
+  <data name="PREPROCESSTIME" xml:space="preserve">
+    <value>Tiempo de preprocesado</value>
+  </data>
+  <data name="POSTPROCESSTIME" xml:space="preserve">
+    <value>Tiempo de posprocesado</value>
+  </data>
+  <data name="COMPLETEPICKINGROUTETIME_WITHOUTPICKS_" xml:space="preserve">
+    <value>Tiempo completo de ruta de picking (sin picks)</value>
+  </data>
+  <data name="REPLENISHMENTSOVERPICKING___" xml:space="preserve">
+    <value>Reposiciones sobre picking (%)</value>
+  </data>
+  <data name="ACTIVITYTIME_SEC_" xml:space="preserve">
+    <value>Tiempo de actividad  (seg)</value>
+  </data>
+  <data name="INBOUNDPRIORITYORDER" xml:space="preserve">
+    <value>Prioridad de entrada</value>
+  </data>
+  <data name="OUTBOUNDPRIORITYORDER" xml:space="preserve">
+    <value>Prioridad de salida</value>
+  </data>
+  <data name="VEHICLEMAX_TIMEINDOCK" xml:space="preserve">
+    <value>Tiempo máximo del vehículo en el muelle</value>
+  </data>
+  <data name="JS.TRUE" xml:space="preserve">
+    <value>Verdadero</value>
+  </data>
+  <data name="JS.FALSE" xml:space="preserve">
+    <value>Falso</value>
+  </data>
+  <data name="_THE_0_CANNOTBELESSTHAN1" xml:space="preserve">
+    <value>* {0} no puede ser menor que 1.</value>
+  </data>
+  <data name="RECTANGLE" xml:space="preserve">
+    <value>Rectángulo</value>
+  </data>
+  <data name="AREAWHEREGOODSARERECEIVEDORSHIPPED_USUALLYLINKEDTOINBOUNDOROUTBOUNDFLOWS_" xml:space="preserve">
+    <value>Área donde se reciben o despachan mercancías, normalmente vinculada a flujos de entrada o salida.</value>
+  </data>
+  <data name="AREAUSEDTOSTOREPRODUCTSORMATERIALSFORMEDIUMORLONG_TERMPERIODS_" xml:space="preserve">
+    <value>Área utilizada para almacenar productos o materiales durante periodos medios o largos.</value>
+  </data>
+  <data name="TEMPORARYHOLDINGAREAUSEDTOMANAGEFLOWIMBALANCESBETWEENPROCESSES_" xml:space="preserve">
+    <value>Área de retención temporal utilizada para gestionar desbalances de flujo entre procesos.</value>
+  </data>
+  <data name="PREPARATIONAREAWHEREGOODSAREORGANIZEDBEFORETHENEXTPROCESSSTEP_E_G__PACKING_LOADING__" xml:space="preserve">
+    <value>Área de preparación donde las mercancías se organizan antes del siguiente paso del proceso (por ejemplo, empaque o carga).</value>
+  </data>
+  <data name="_THEORDERNUMBERISALREADYINUSE" xml:space="preserve">
+    <value>* El número de ordenamiento ya está en uso.</value>
+  </data>
+  <data name="BEFORE" xml:space="preserve">
+    <value>Antes</value>
+  </data>
+  <data name="AFTER" xml:space="preserve">
+    <value>Después</value>
+  </data>
+  <data name="ISTHISFINALPROCESSDIRECTION_" xml:space="preserve">
+    <value>¿Es el final del proceso de dirección?</value>
+  </data>
+  <data name="DOCKTYPE" xml:space="preserve">
+    <value>Tipo de muelle</value>
+  </data>
+  <data name="BOTH" xml:space="preserve">
+    <value>Ambos</value>
+  </data>
+  <data name="FORMATANDLANGUAGESETTINGS" xml:space="preserve">
+    <value>Configuración de formato y lenguaje</value>
+  </data>
+  <data name="DISABLEDUSER" xml:space="preserve">
+    <value>Usuario deshabilitado</value>
+  </data>
+  <data name="EQUIPMENTTYPES" xml:space="preserve">
+    <value>Tipos de equipamiento</value>
+  </data>
+  <data name="EQUIPMENTTYPE" xml:space="preserve">
+    <value>Tipo de equipamiento</value>
+  </data>
+  <data name="MANUAL" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="NODATATODISPLAY" xml:space="preserve">
+    <value>No hay datos para mostrar</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_SELECTIONCOLUMN_DESELECTALL" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Grid_SelectionColumn_DeselectAll</value>
+  </data>
+  <data name="ROUTES_NOT_CREATED" xml:space="preserve">
+    <value>No se han creado rutas para este almacén. Las rutas deben crearse en el diseñador.</value>
+  </data>
+  <data name="ZONES_NOT_CREATED" xml:space="preserve">
+    <value>No se han creado zonas para este almacén. Las zonas deben crearse en el diseñador.</value>
+  </data>
+  <data name="DOCKS_NOT_CREATED" xml:space="preserve">
+    <value>No se han creado muelles para este almacén. Los muelles deben crearse en el diseñador.</value>
+  </data>
+  <data name="ZONE_NO_EQUIPMENTS_CAPACITY" xml:space="preserve">
+    <value>La zona {0} está configurada con un número máximo de equipamientos igual a 0. La propiedad máximo de equipamientos debe ser mayor que 0 y debe configurarse en las propiedades de la zona.</value>
+  </data>
+  <data name="STAGE_NO_DOCKS" xml:space="preserve">
+    <value>La zona {0} no tiene muelles asociados. Los pulmones deben tener al menos un muelle asociado. Los muelles de los pulmones deben asociarse en el diseñador.</value>
+  </data>
+  <data name="STAGE_NO_FLOWS" xml:space="preserve">
+    <value>La zona {0} no tiene un flujo activo. Los pulmones deben tener al menos un flujo activo. Los flujos de los pulmones deben activarse en el diseñador.</value>
+  </data>
+  <data name="OUTBOUND_NO_GRAPH" xml:space="preserve">
+    <value>No se ha creado un flujo de salida mientras existe una carga de trabajo de salida. Los flujos deben crearse en el diseñador y deben ser únicos.</value>
+  </data>
+  <data name="INBOUND_NO_GRAPH" xml:space="preserve">
+    <value>No se ha creado un flujo de entrada mientras existe una carga de trabajo de entrada. Los flujos deben crearse en el diseñador y deben ser únicos.</value>
+  </data>
+  <data name="OUTBOUNDFLOW_NOT_UNIQUE" xml:space="preserve">
+    <value>Se ha creado más de un flujo de salida. Los flujos deben ser únicos. Los flujos deben eliminarse en el diseñador.</value>
+  </data>
+  <data name="INBOUNDFLOW_NOT_UNIQUE" xml:space="preserve">
+    <value>Se ha creado más de un flujo de entrada. Los flujos deben ser únicos. Los flujos deben eliminarse en el diseñador.</value>
+  </data>
+  <data name="FLOWANDBEHAVIORPROPERTIES" xml:space="preserve">
+    <value>Propiedades de flujo y comportamiento</value>
+  </data>
+  <data name="INBOUNDCONTAINERCAPACITY" xml:space="preserve">
+    <value>Capacidad contenedor de entrada</value>
+  </data>
+  <data name="OUTBOUNDCONTAINERCAPACITY" xml:space="preserve">
+    <value>Capacidad contenedor de salida</value>
+  </data>
+  <data name="THENAMEISALREADYINUSE_SUGGESTIONS__0_" xml:space="preserve">
+    <value>El nombre ya se encuentra en uso. Sugerencias: {0}</value>
+  </data>
+  <data name="PICKTIME" xml:space="preserve">
+    <value>Tiempo de pick</value>
+  </data>
+  <data name="LOADINBOUND" xml:space="preserve">
+    <value>Descarga</value>
+  </data>
+  <data name="_TOCONTINUE_YOUMUSTCREATEPROCESSESINTHEDESIGNERFORTHISWAREHOUSE_" xml:space="preserve">
+    <value>* Para continuar, debe crear procesos en el diseñador para este almacén.</value>
+  </data>
+  <data name="_TOCONTINUE_YOUMUSTCREATEAREASINTHEDESIGNERFORTHISWAREHOUSE_" xml:space="preserve">
+    <value>* Para continuar, debe crear áreas en el diseñador para este almacén..</value>
+  </data>
+  <data name="JS.NOW" xml:space="preserve">
+    <value>Ahora</value>
+  </data>
+  <data name="ARRIVALDATE" xml:space="preserve">
+    <value>Fecha de llegada</value>
+  </data>
+  <data name="COMMITTEDDATE" xml:space="preserve">
+    <value>Fecha de compromiso</value>
+  </data>
+  <data name="ZOOMOUTDESIGNER" xml:space="preserve">
+    <value>Alejar (Ctrl + -)</value>
+  </data>
+  <data name="ZOOMINDESIGNER" xml:space="preserve">
+    <value>Acercar (Ctrl + +)</value>
+  </data>
+  <data name="ZOOMTOFITINI" xml:space="preserve">
+    <value>Ampliar para ajustar</value>
+  </data>
+  <data name="NUMBEROFEQUIPMENT" xml:space="preserve">
+    <value>Número de equipamientos</value>
+  </data>
+  <data name="PROCESSDIRECTIONPROPERTY" xml:space="preserve">
+    <value>Propiedad de itinerario de proceso</value>
+  </data>
+  <data name="PROBABILITYOFEXECUTION___" xml:space="preserve">
+    <value>Probabilidad de ejecución (%)</value>
+  </data>
+  <data name="__COMMA_" xml:space="preserve">
+    <value>, (coma)</value>
+  </data>
+  <data name="__PERIOD_" xml:space="preserve">
+    <value>. (punto)</value>
+  </data>
+  <data name="INTERNATIONALSYSTEM" xml:space="preserve">
+    <value>Sistema internacional</value>
+  </data>
+  <data name="USCUSTOMARYSYSTEM" xml:space="preserve">
+    <value>Sistema anglosajón</value>
+  </data>
+  <data name="Grid_GroupPanel" xml:space="preserve">
+    <value>Arrastra las columnas aquí para agruparlas</value>
+  </data>
+  <data name="DISCARD" xml:space="preserve">
+    <value>Descartar</value>
+  </data>
+  <data name="JS.NODATA" xml:space="preserve">
+    <value>Sin datos</value>
+  </data>
+  <data name="GROUPEQUIPMENT" xml:space="preserve">
+    <value>Grupos de equipamiento</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETEANORDERPROFILE_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar un perfil de orden?</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETE_0_ORDERPROFILES_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar {0} perfiles de orden?</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETEALOADPROFILE_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar un perfil de carga?</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETE_0_LOADPROFILES_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar {0} perfiles de carga?</value>
+  </data>
+  <data name="DELETESELECTED" xml:space="preserve">
+    <value>Eliminar selección</value>
+  </data>
+  <data name="CREATENEW" xml:space="preserve">
+    <value>Crear nuevo</value>
+  </data>
+  <data name="SHIFTSTART" xml:space="preserve">
+    <value>Inicio de turno</value>
+  </data>
+  <data name="WORKLOAD" xml:space="preserve">
+    <value>Carga de trabajo</value>
+  </data>
+  <data name="SCHEDULE_PREVIEW" xml:space="preserve">
+    <value>Capacidad operativa</value>
+  </data>
+  <data name="N_VEHICLES" xml:space="preserve">
+    <value>N° vehículos</value>
+  </data>
+  <data name="THEORETICALDEPARTURE" xml:space="preserve">
+    <value>Salida teórica</value>
+  </data>
+  <data name="THEORETICALDWELL" xml:space="preserve">
+    <value>Estancia teórica</value>
+  </data>
+  <data name="DEPARTURE" xml:space="preserve">
+    <value>Salida simulada</value>
+  </data>
+  <data name="OTIF" xml:space="preserve">
+    <value>OTIF</value>
+  </data>
+  <data name="DELAY" xml:space="preserve">
+    <value>Retraso</value>
+  </data>
+  <data name="SLACK" xml:space="preserve">
+    <value>Holgura</value>
+  </data>
+  <data name="ITISNOTPOSSIBLETODELETETHE_0_FLOWBECAUSEITHASLINKEDPROCESSES_" xml:space="preserve">
+    <value>No es posible eliminar el flujo {0} porque tiene procesos vinculados.</value>
+  </data>
+  <data name="AREYOUSUREYOUWANTTODELETETHE_0_FLOW_" xml:space="preserve">
+    <value>¿Está seguro que desea eliminar el flujo {0}?</value>
+  </data>
+  <data name="NOORDERINCIDENTS_TITLE" xml:space="preserve">
+    <value>Sin incidencias</value>
+  </data>
+  <data name="NOORDERINCIDENTS_DESCRIPTION" xml:space="preserve">
+    <value>No hay incidencias para la planificacion actual</value>
+  </data>
+  <data name="CHANGESSAVED" xml:space="preserve">
+    <value>Cambios guardados</value>
+  </data>
+  <data name="FILTER_UNKNOWN" xml:space="preserve">
+    <value>Desconocido</value>
+  </data>
+  <data name="PAUSED" xml:space="preserve">
+    <value>Pausado</value>
+  </data>
+  <data name="TIME_MINUTES_" xml:space="preserve">
+    <value>Tiempo (minutos)</value>
+  </data>
+  <data name="SIMULATION_TRIGGER_MESSAGE" xml:space="preserve">
+    <value>Esta acción lanzará una simulación que puede tardar varios segundos</value>
+  </data>
+  <data name="CANVAS" xml:space="preserve">
+    <value>Canvas</value>
+  </data>
+  <data name="SHOW_HIDEGROUPPANEL" xml:space="preserve">
+    <value>Mostrar/Ocultar panel de grupo</value>
+  </data>
+  <data name="ADD" xml:space="preserve">
+    <value>Agregar</value>
+  </data>
+  <data name="ISSTARTPROCESS" xml:space="preserve">
+    <value>Es proceso de inicio</value>
+  </data>
+  <data name="PROCESSINGTIME" xml:space="preserve">
+    <value>Tiempo de procesamiento</value>
+  </data>
+  <data name="FILTER_ALL" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="FILTER_EQUALS" xml:space="preserve">
+    <value>Igual</value>
+  </data>
+  <data name="FILTER_NOTEQUALS" xml:space="preserve">
+    <value>No es igual a</value>
+  </data>
+  <data name="FILTER_STARTSWITH" xml:space="preserve">
+    <value>Comienza con</value>
+  </data>
+  <data name="FILTER_ENDSWITH" xml:space="preserve">
+    <value>Termina con</value>
+  </data>
+  <data name="FILTER_CONTAINS" xml:space="preserve">
+    <value>Contiene</value>
+  </data>
+  <data name="FILTER_LESSTHAN" xml:space="preserve">
+    <value>Menor que</value>
+  </data>
+  <data name="FILTER_LESSOREQUAL" xml:space="preserve">
+    <value>Menor o igual</value>
+  </data>
+  <data name="FILTER_GREATERTHAN" xml:space="preserve">
+    <value>Mayor que</value>
+  </data>
+  <data name="FILTER_GREATEROREQUAL" xml:space="preserve">
+    <value>Mayor o igual</value>
+  </data>
+  <data name="DESTINATIONPROCESS" xml:space="preserve">
+    <value>Proceso de destino</value>
+  </data>
+  <data name="PERCENTAGE" xml:space="preserve">
+    <value>Porcentaje</value>
+  </data>
+  <data name="ISEND" xml:space="preserve">
+    <value>Es el final</value>
+  </data>
+  <data name="TOTALDIRECTIONS" xml:space="preserve">
+    <value>Direcciones totales</value>
+  </data>
+  <data name="TOTALZONES" xml:space="preserve">
+    <value>Zonas totales</value>
+  </data>
+  <data name="TOTALROUTES" xml:space="preserve">
+    <value>Rutas totales</value>
+  </data>
+  <data name="TOTALEQUIPMENTS" xml:space="preserve">
+    <value>Total de equipamientos</value>
+  </data>
+  <data name="MAXEQUIPMENTS" xml:space="preserve">
+    <value>Equipamientos máximos</value>
+  </data>
+  <data name="ARRIVALAREA" xml:space="preserve">
+    <value>Área de llegada</value>
+  </data>
+  <data name="TIMEDURATION" xml:space="preserve">
+    <value>Tiempo de duración</value>
+  </data>
+  <data name="THEREARE_0_UNSAVEDCHANGES" xml:space="preserve">
+    <value>Hay {0} cambios sin guardar</value>
+  </data>
+  <data name="YOUAREABOUTTOREMOVE_0_SELECTEDITEMS_" xml:space="preserve">
+    <value>Estás a punto de eliminar {0} elementos seleccionados.</value>
+  </data>
+  <data name="CHANGESAREPENDING_CONFIRMTHEMUSINGTHESAVEBUTTON_" xml:space="preserve">
+    <value>Los cambios están pendientes. Confírmelos utilizando el botón guardar.</value>
+  </data>
+  <data name="DIRECTIONS" xml:space="preserve">
+    <value>Direcciones</value>
+  </data>
+  <data name="WHATIF_MODAL_APPLYSUGGESTION" xml:space="preserve">
+    <value>Aplicar recomendación</value>
+  </data>
+  <data name="WHATIF" xml:space="preserve">
+    <value>What if</value>
+  </data>
+  <data name="WHATIF_MODAL_BANNER" xml:space="preserve">
+    <value>La simulación de carga de trabajo&amp;nbsp;&lt;strong&gt;muestra desajustes.&lt;/strong&gt;</value>
+  </data>
+  <data name="RECOMMENDEDOPERATORS" xml:space="preserve">
+    <value>Operarios recomendados</value>
+  </data>
+  <data name="WHATIF_MODAL_CANCEL" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="WHATIF_MODAL_TITLE" xml:space="preserve">
+    <value>Cambio sugerido</value>
+  </data>
+  <data name="WHATIF_MODAL_OPERATOR_NAME" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="WHATIF_MODAL_SHIFT_START" xml:space="preserve">
+    <value>Inicio del turno</value>
+  </data>
+  <data name="WHATIF_MODAL_SHIFT_END" xml:space="preserve">
+    <value>Fin del turno</value>
+  </data>
+  <data name="WHATIS_MODAL_ROLE" xml:space="preserve">
+    <value>Rol</value>
+  </data>
+  <data name="WHATIF_MODAL_OPERATORS_COUNT" xml:space="preserve">
+    <value>Operarios</value>
+  </data>
+  <data name="WHATIF_MODAL_OPERATORS_RECOMMENDED_COUNT" xml:space="preserve">
+    <value>Operarios recomendados</value>
+  </data>
+  <data name="WHATIF_MODAL_NO_CHANGES_NOTIFICATION" xml:space="preserve">
+    <value>La simulación de carga de trabajo&amp;nbsp;&lt;strong&gt;no muestra ningún desajuste.&lt;/strong&gt;</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_GRID_GROUPPANEL" xml:space="preserve">
+    <value>Arrastre una columna aquí para agrupar</value>
+  </data>
+  <data name="MODAL_DISTRIBUTION_TITLE" xml:space="preserve">
+    <value>DISTRIBUCION DE TRABAJADORES</value>
+  </data>
+  <data name="MODAL_DISTRIBUTION_BUTTON" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="TRANSACTIONLOG" xml:space="preserve">
+    <value>Trazabilidad de comunicaciones</value>
+  </data>
+  <data name="SENDER" xml:space="preserve">
+    <value>Remitente</value>
+  </data>
+  <data name="RECIPIENT" xml:space="preserve">
+    <value>Destinatario</value>
+  </data>
+  <data name="FAILUREMESSAGE" xml:space="preserve">
+    <value>Mensaje de error</value>
+  </data>
+  <data name="CONTENT" xml:space="preserve">
+    <value>Contenido</value>
+  </data>
+  <data name="MESSAGE" xml:space="preserve">
+    <value>Mensaje</value>
+  </data>
+  <data name="CONDITIONOPERATOR" xml:space="preserve">
+    <value>Operador</value>
+  </data>
+  <data name="WHATIF_MODAL_CLOSE" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="WHATIF_TITLE_TOOLTIP" xml:space="preserve">
+    <value>Recomendación</value>
+  </data>
+  <data name="CREATEAREA" xml:space="preserve">
+    <value>Crear área</value>
+  </data>
+  <data name="_MUSTBEGREATERTHAN0" xml:space="preserve">
+    <value>Debe ser mayor que 0</value>
+  </data>
+  <data name="IS_WAREHOUSE_PROCESS" xml:space="preserve">
+    <value>Proceso de almacen</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_DATAEDITOR_CLEARBUTTON" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_DataEditor_ClearButton</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_DATAEDITOR_CLEARBUTTON_SHORTCUT" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_DataEditor_ClearButton_Shortcut</value>
+  </data>
+  <data name="ORDERISSUES" xml:space="preserve">
+    <value>Asuntos de la orden</value>
+  </data>
+  <data name="SIMULATEDDEPARTURE" xml:space="preserve">
+    <value>Salida simulada</value>
+  </data>
+  <data name="LOADTIME" xml:space="preserve">
+    <value>Tiempo de carga</value>
+  </data>
+  <data name="INCOMPLETEORDERS" xml:space="preserve">
+    <value>Ordenes incompletas</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_CHART" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Chart</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_LOADING_PANEL_TEXT" xml:space="preserve">
+    <value>* DxBlazorStringId.Loading_Panel_Text</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_SELECTEDROWSCOUNT" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Grid_SelectedRowsCount</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_TIMEEDIT_DROPDOWNNAME" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_TimeEdit_DropDownName</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_EXPANDBUTTON" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Grid_ExpandButton</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_DETAILCELL" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Grid_DetailCell</value>
+  </data>
+  <data name="ORDERCODE" xml:space="preserve">
+    <value>Código de orden</value>
+  </data>
+  <data name="DXBLAZORSTRINGID_A11Y_GRID_COLLAPSEBUTTON" xml:space="preserve">
+    <value>* DxBlazorStringId.A11y_Grid_CollapseButton</value>
+  </data>
+  <data name="WORKER_NAME_DISTRIBUTION" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="ROL_DISTRIBUTION" xml:space="preserve">
+    <value>Rol</value>
+  </data>
+  <data name="START_DISTRIBUTION" xml:space="preserve">
+    <value>Inicio del trabajo</value>
+  </data>
+  <data name="SHIFTEND" xml:space="preserve">
+    <value>Fin de turno</value>
+  </data>
+  <data name="END_DISTRIBUTION" xml:space="preserve">
+    <value>Fin del trabajo</value>
+  </data>
+  <data name="DAYS_DIFFERENCE_DISTRIBUTION" xml:space="preserve">
+    <value>Diferencia de días</value>
+  </data>
+  <data name="UTILIZATION_DISTRIBUTION" xml:space="preserve">
+    <value>Utilización</value>
+  </data>
+  <data name="CREATEANAREA" xml:space="preserve">
+    <value>Crear área</value>
+  </data>
+  <data name="SHIFT_NAME_DISTRIBUTION" xml:space="preserve">
+    <value>Turno</value>
+  </data>
+  <data name="LOADINGOUTBOUND" xml:space="preserve">
+    <value>Carga</value>
+  </data>
+  <data name="PACKINGTYPE" xml:space="preserve">
+    <value>Empaquetado</value>
+  </data>
+  <data name="PACKINGQUANTITY" xml:space="preserve">
+    <value>Número de paquetes</value>
+  </data>
+  <data name="PACKINGMODE" xml:space="preserve">
+    <value>Modo de empaquetado</value>
+  </data>
+  <data name="OnePackage" xml:space="preserve">
+    <value>Un paquete</value>
+  </data>
+  <data name="ChooseNumPackages" xml:space="preserve">
+    <value>Escoger número de packetes</value>
+  </data>
+  <data name="CaptureStock" xml:space="preserve">
+    <value>Capturar stock</value>
+  </data>
+  <data name="PACKINGMODECONFIGURATION" xml:space="preserve">
+    <value>Configurar modos de empaquetado</value>
+  </data>
+  <data name="SCENARIOSIMULATIONANDDESIGN" xml:space="preserve">
+    <value>Simulación de escenarios y diseño</value>
+  </data>
+  <data name="GENERALCONFIGURATION" xml:space="preserve">
+    <value>Configuración general</value>
+  </data>
+</root>

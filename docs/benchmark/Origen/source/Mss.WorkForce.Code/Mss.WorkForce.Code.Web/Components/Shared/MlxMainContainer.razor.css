@@ -1,0 +1,119 @@
+﻿.main-container {
+    display: grid;
+    grid-template-rows: 100%;
+    height: 100%;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Media query para pantallas mas chicas*/
+@media (max-width: 1024px) {
+    .main-container {
+        grid-template-columns: 68px calc(100% - 68px) !important;
+    }
+
+    .new-mode {
+        grid-template-columns: 1fr !important;
+    }
+
+    .right-content {
+        display: none;
+    }
+
+    .main-container.edit-mode {
+        grid-template-columns: 68px calc(100% - 68px);
+    }
+
+        .main-container.edit-mode .middle-content {
+            display: none;
+        }
+
+        .main-container.edit-mode .right-content {
+            display: block;
+            grid-column: 2;
+        }
+}
+
+.left-content {
+    background-color: var(--gl-color-smoke-900);
+    width: 68px;
+    min-width: 68px;
+    border-right: 1px solid #ddd;
+}
+
+.right-content {
+    border-left: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.middle-content {
+    background-color: #fff;
+}
+
+.btn-close-responsive {
+    display: none !important;
+}
+
+/* Clase para la capa de overlay */
+.overlay-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5rem;
+    z-index: 10; /* Asegura que esté sobre el contenido */
+    border-radius: 5px;
+}
+
+/* Clases para el contenedor principal */
+.left-content,
+.middle-content,
+.right-content {
+    position: inherit; /* Necesario para posicionar el overlay */
+}
+
+@media (max-width: 1024px) {
+    .main-container.show-details-mobile {
+        grid-template-columns: 68px auto !important;
+    }
+        .main-container.show-details-mobile .middle-content {
+            display: none !important;
+        }
+
+        .main-container.show-details-mobile .right-content {
+            display: block !important;
+        }
+
+    .btn-close-responsive {
+        display: flex !important;
+    }
+}
+
+.btn-close-inline {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 28px;
+    width: 28px;
+    align-items: center;
+    justify-content: center;
+}
+
+    .btn-close-inline:hover {
+        background: var(--gl-color-smoke-200);
+        border-radius: 40px;
+    }
+
+    .btn-close-inline .mlx-ico-close::before {
+        font-size: 20px;
+        color: var(--gl-color-smoke-600);
+    }

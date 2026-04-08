@@ -1,0 +1,619 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.DTO.Designer.Process
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@using static Mss.WorkForce.Code.Web.Components.Pages.Designer.DesignerComponent
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@using InboundFlowGraphDto = Mss.WorkForce.Code.Models.DTO.Designer.InboundFlowGraphDto;
+@using OutboundFlowGraphDto = Mss.WorkForce.Code.Models.DTO.Designer.OutboundFlowGraphDto;
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using System.ComponentModel.DataAnnotations
+@inject ILocalizationService L
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="EditContext">
+        <div id="flow-component-id" class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                <div class="row">
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="col-xl-6 col-sm-12" style="display: none;">
+                            <div class="mlx-checkbox-container">
+                                @*  <DxCheckBox CssClass="mlx-check-box align-items-center" CheckedChanged="on"></DxCheckBox> <label class="mlx-form-label">Show flow</label> *@
+                                @* <DxCheckBox CheckType="CheckType.Switch" Checked="@isCanvasEnabled" CheckedChanged="@((bool value) => OnCanvasToggled(value))"> </DxCheckBox> <label class="mlx-form-label">Show flow</label> *@ @* This is a functionaly CheckBox *@
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6 col-sm-12">
+                                <label class="mlx-form-label">@L.Loc("Name")</label>
+    
+                                <DxTextBox CssClass="mlx-form-text" @bind-Text="@NameProxy" />
+                                @if (DesignerDto.Type == FlowType.Inbound)
+                                {
+                                    <ValidationMessage class="text-danger" For="@(() => inboundFlowGraphDto.Name)" />
+                                }
+                                else if (DesignerDto.Type == FlowType.Outbound)
+                                {
+                                    <ValidationMessage class="text-danger" For="@(() => outboundFlowGraphDto.Name)" />
+                                }
+                                else
+                                {
+                                    <ValidationMessage class="text-danger" For="@(() => customFlow.Name)" />
+                                }
+    
+                            </div>
+                            <div class="col-xl-6 col-sm-12">
+                                <label class="mlx-form-label">@L.Loc("Type")</label>
+                                <MlxComboBox Data="@flowType"
+                                CssClass="mlx-form-select"
+                                Value="@DesignerDto.Type"
+                                ValueChanged="@((FlowType? ft) => OnFlowTypeChangedInternal(ft))"
+                                ValueExpression="@(() => DesignerDto.Type)"
+                                ValueFieldName="Value"
+                                TextFieldName="Text"
+                                NullText="@L.Loc("Select...")" />
+    
+                            </div>
+                            @if (DesignerDto.Type != FlowType.Custom)
+                            {
+                                <div class="col-xl-6 col-sm-12">
+                                    <label class="mlx-form-label">@L.Loc("Selection type dock")</label>
+                                    <MlxComboBox Data="@DockSelectionStrategyDtos"
+                                                CssClass="mlx-form-select"
+                                                Value="@DesignerDto.SelectionTypeDock"
+                                                ValueFieldName="Id"
+                                                TextFieldName="@nameof(DockSelectionStrategyDto.Code)"
+                                                NullText="@L.Loc("Select...")"
+                                                ValueChanged="@((DockSelectionStrategyDto v) => OnDockSelectionChanged(v))"
+                                                ValueExpression="@(() => DesignerDto.SelectionTypeDock)" />
+                                </div>
+                            }
+                        </div>
+    
+    
+                    </div>
+                </div>
+    
+                @if (DesignerDto.Type != FlowType.Custom)
+                {
+                    <div class="row">
+                        @* FlowType *@
+                        <div class="col-xl-12 col-sm-12">
+                            <div class="accordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idShelfQuantity" aria-expanded="true" aria-controls="idShelfQuantity">
+                                            <span id="titulo_" class="mlx-title-h3">@L.Loc(string.Join(" ", GetFlowTypeString((FlowType)DesignerDto.Type), "order"))</span>
+                                        </button>
+                                    </h2>
+                                    <div id="idShelfQuantity" class="accordion-collapse collapse show">
+                                        <div class="accordion-body">
+                                            <div class="row">
+                                                @if (DesignerDto != null && FieldTemplatesProcess.TryGetValue((FlowType)DesignerDto.Type, out var templates))
+                                                {
+                                                    @foreach (var template in templates)
+                                                    {
+                                                        @template
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+               
+            </div>
+        </div>
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveButtonClick())">@L.Loc("Save")</button>
+</div>
+
+@code {
+    #region Parameters
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public FlowDto? DesignerDto { get; set; }
+    [Parameter]
+    public FlowType? flow { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    #endregion
+
+    [Inject] private IDesignerServices _designer { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; }
+
+    private List<ComboBoxSelectItem<FlowType>> flowType = new();
+
+    private List<DockSelectionStrategyDto> DockSelectionStrategyDtos { get; set; } = new List<DockSelectionStrategyDto>();
+
+    private DockSelectionStrategyDto? dockSelectionStrategyDto { get; set; } = new();
+
+    public InboundFlowGraphDto inboundFlowGraphDto { get; set; } = new();
+
+    public OutboundFlowGraphDto outboundFlowGraphDto { get; set; } = new();
+
+    public CustomFlowGraphDto customFlow { get; set; } = new();
+
+    [Inject] private IJSRuntime JS { get; set; }
+
+    [Parameter] public LayoutDto Dto { get; set; }
+
+    private bool isOn = false;
+    private bool IsUpdate = true;
+    private FlowType oldFlowType;
+    private EditContext inboundEditContext;
+    private EditContext outboundEditContext;
+    private EditContext customEditContext;
+    private EditContext EditContext => DesignerDto.Type == FlowType.Inbound
+    ? inboundEditContext
+    : DesignerDto.Type == FlowType.Outbound ? outboundEditContext : customEditContext;
+
+    // Used to Enable Button Save
+    #region Button Save Status
+
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    private bool CanSave => _isDirty && !_hasErrors;
+
+    #endregion
+
+
+    private string NameProxy
+    {
+        get => DesignerDto?.Name ?? string.Empty;
+        set
+        {
+            if (DesignerDto == null) return;
+            DesignerDto.Name = value;
+            if (DesignerDto.Type == FlowType.Inbound)
+                inboundFlowGraphDto.Name = value;
+            else if (DesignerDto.Type == FlowType.Outbound)
+                outboundFlowGraphDto.Name = value;
+            else
+                customFlow.Name = value;
+
+            // Validación en tiempo real
+            EditContext?.Validate();
+            MarkDirty();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        inboundEditContext = new EditContext(inboundFlowGraphDto);
+        outboundEditContext = new EditContext(outboundFlowGraphDto);
+        customEditContext = new EditContext(customFlow);
+
+        inboundEditContext.AddDataAnnotationsValidation();
+        outboundEditContext.AddDataAnnotationsValidation();
+        customEditContext.AddDataAnnotationsValidation();
+        PrepareFlowDto(DesignerDto);
+        await PrepareFlowTypeContext(DesignerDto?.Type ?? FlowType.Custom);
+        LoadData();
+
+        CaptureBaseline();
+        RegisterTracking();
+    }
+
+    private void ClearTracking()
+    {
+        if (EditContext != null)
+        {
+            EditContext.OnFieldChanged -= OnAnyFieldChanged;
+            EditContext.OnValidationStateChanged -= OnValidationStateChanged;
+        }
+    }
+
+    protected void LoadData()
+    {
+        flowType = Enum.GetValues(typeof(FlowType)).Cast<FlowType>().Select(x => new ComboBoxSelectItem<FlowType>(L) { Value = x, Text = x.ToString() }).OrderBy(x => x.Text).ToList();
+    }
+
+    private async Task CancelButtonClick()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+
+    private async Task SaveButtonClick()
+    {
+        EditContext currentEditContext = DesignerDto.Type switch
+        {
+            FlowType.Inbound => inboundEditContext,
+            FlowType.Outbound => outboundEditContext,
+            FlowType.Custom => customEditContext,
+            _ => throw new NotSupportedException($"Flow type not supported: {DesignerDto.Type}")
+        };
+
+        if (currentEditContext == null)
+            return;
+        bool isValid = currentEditContext.Validate();
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        _hasErrors = !isValid;
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        if (oldFlowType != DesignerDto.Type)
+            await DeleteFlowType();
+
+        switch (DesignerDto.Type)
+        {
+            case FlowType.Inbound:
+
+                PrepareInboundFlowGraph(IsUpdate);
+                if (IsUpdate)
+                    await _designer.UpdateInboundFlowGraph(inboundFlowGraphDto);
+                else 
+                    await _designer.AddInboundFlowGraph(inboundFlowGraphDto);
+
+                break;
+
+            case FlowType.Outbound:
+
+                PrepareOutboundFlowGraph(IsUpdate);
+                if (IsUpdate)
+                    await _designer.UpdateOutboundFlowGraph(outboundFlowGraphDto);
+                else
+                    await _designer.AddOutboundFlowGraph(outboundFlowGraphDto);
+
+                break;
+            case FlowType.Custom:
+              
+                PrepareCustomFlowGraph(IsUpdate);
+
+                if (IsUpdate)
+                    await _designer.UpdateCustomFlow(customFlow);
+                else
+                    await _designer.AddCustomFlowGraph(customFlow);
+
+                break;
+            default:
+                throw new NotSupportedException($"Flow type not supported: {DesignerDto.Type}");
+        }
+        oldFlowType = DesignerDto.Type ?? FlowType.Inbound;
+        IsUpdate = true;
+        CaptureBaseline();
+        await RefreshFlows();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task DeleteFlowType()
+    {
+        IsUpdate = false;
+        switch (oldFlowType)
+        {
+            case FlowType.Inbound:
+                InboundFlowGraphDto deleteInInboundFlow = _designer.GetInboundFlowGraphById(DesignerDto.Id);
+                inboundFlowGraphDto = new();
+                await _designer.DeleteInboundFlowGraph(deleteInInboundFlow);
+                break;
+            case FlowType.Outbound:
+                OutboundFlowGraphDto deleteOutboundFlow = _designer.GetOutboundFlowGraphById(DesignerDto.Id);
+                outboundFlowGraphDto = new();
+                await _designer.DeleteOutboundFlowGraph(deleteOutboundFlow);
+                break;
+            case FlowType.Custom:
+                CustomFlowGraphDto deleteCustomFlow = _designer.GetCustomFlowGraphById(DesignerDto.Id);
+                customFlow = new();
+                await _designer.DeleteCustomFlowGraph(deleteCustomFlow);
+                break;
+            default:
+                throw new NotSupportedException($"Flow type not supported: {DesignerDto.Type}");
+        }
+    }
+
+    private void PrepareInboundFlowGraph(bool isUpdate)
+    {
+        if (!isUpdate)
+        {
+            inboundFlowGraphDto.Id = Guid.NewGuid();
+            inboundFlowGraphDto.WarehouseId = DesignerDto.WarehouseId; 
+        }
+
+        inboundFlowGraphDto.Name = DesignerDto.Name;
+        inboundFlowGraphDto.DockSelectionStrategyId = DesignerDto.SelectionTypeDock?.Id;
+        inboundFlowGraphDto.DockSelection = DesignerDto.SelectionTypeDock;
+    }
+
+    private void PrepareOutboundFlowGraph(bool isUpdate)
+    {
+        if (!isUpdate)
+        {
+            outboundFlowGraphDto.Id = Guid.NewGuid();
+            outboundFlowGraphDto.WarehouseId = DesignerDto.WarehouseId;
+        }
+
+        outboundFlowGraphDto.Name = DesignerDto.Name;
+        outboundFlowGraphDto.DockSelectionStrategyId = DesignerDto.SelectionTypeDock?.Id;
+        outboundFlowGraphDto.DockSelection = DesignerDto.SelectionTypeDock;
+    }
+
+    private void PrepareCustomFlowGraph(bool isUpdate)
+    {
+        if (!isUpdate)
+        {
+            customFlow.Id = Guid.NewGuid();
+            customFlow.WarehouseId = DesignerDto.WarehouseId;
+        }
+
+        customFlow.Name = DesignerDto.Name;
+    }
+
+    private async Task RefreshFlows()
+    {
+        DesignerDto = new();
+        await JS.InvokeVoidAsync("callRecalculateRelatedElements");
+        await CancelButtonClick();
+    }
+
+    private FlowDto MapperFlowDto(dynamic dto, FlowType flowType)
+    {
+        FlowDto flowDto = new();
+        flowDto.Id = dto.Id;
+        flowDto.Name = dto.Name ?? string.Empty;
+        flowDto.Type = flowType;
+
+        return flowDto;
+    }
+
+    private void PrepareFlowDto(FlowDto flow)
+    {
+        oldFlowType = (FlowType)flow.Type;
+        DesignerDto.Type = flow.Type;
+
+        switch (flow.Type)
+        {
+            case FlowType.Inbound:
+                inboundFlowGraphDto = _designer.GetInboundFlowGraphById(flow.Id);
+                SetCommonDesignerValues(inboundFlowGraphDto.Name, inboundFlowGraphDto.WarehouseId, inboundFlowGraphDto.DockSelectionStrategyId);
+                inboundEditContext = new EditContext(inboundFlowGraphDto);
+                inboundEditContext.AddDataAnnotationsValidation();
+                break;
+
+            case FlowType.Outbound:
+                outboundFlowGraphDto = _designer.GetOutboundFlowGraphById(flow.Id);
+                SetCommonDesignerValues(outboundFlowGraphDto.Name, outboundFlowGraphDto.WarehouseId, outboundFlowGraphDto.DockSelectionStrategyId);
+                outboundEditContext = new EditContext(outboundFlowGraphDto);
+                outboundEditContext.AddDataAnnotationsValidation();
+                break;
+
+            case FlowType.Custom:
+                customFlow = _designer.GetCustomFlowGraphById(flow.Id);
+                SetCommonDesignerValues(customFlow.Name, customFlow.WarehouseId ?? Guid.Empty, null);
+                customEditContext = new EditContext(customFlow);
+                customEditContext.AddDataAnnotationsValidation();
+                break;
+
+            default:
+                throw new NotSupportedException($"Flow type not supported: {flow.Type}");
+        }
+    }
+
+    private void SetCommonDesignerValues(string name, Guid warehouseId, Guid? dockSelectionStrategyId)
+    {
+        DesignerDto.Name = name;
+        DesignerDto.WarehouseId = warehouseId;
+
+        DockSelectionStrategyDtos = _designer.GetDockSelectionStrategiesByWarehouseId(warehouseId).ToList();
+
+        DesignerDto.SelectionTypeDock = DockSelectionStrategyDtos.FirstOrDefault(x => x.Id == dockSelectionStrategyId);
+    }
+
+
+    private bool ValidateDto(object dto)
+    {
+        var context = new ValidationContext(dto);
+        var results = new List<ValidationResult>();
+
+        bool isValid = Validator.TryValidateObject(dto, context, results, validateAllProperties: false);
+        if (!isValid)
+        {
+            EditContext.Validate();
+            StateHasChanged();
+        }
+
+        return isValid;
+    }
+
+    private async Task OnFlowTypeChangedInternal(FlowType? newFlowType)
+    {
+        if (newFlowType == null)
+            return;
+
+        if (DesignerDto.Type == newFlowType)
+            return;
+
+        DesignerDto.Type = newFlowType.Value;
+
+        EditContext.NotifyFieldChanged(new FieldIdentifier(DesignerDto, nameof(DesignerDto.Type)));
+
+        await PrepareFlowTypeContext(newFlowType.Value);
+
+        MarkDirty();
+
+        StateHasChanged();
+    }
+
+    private async Task PrepareFlowTypeContext(FlowType newFlowType)
+    {
+        ClearTracking();
+
+        if (oldFlowType != newFlowType)
+        {
+            DesignerDto.Type = newFlowType;
+            switch (newFlowType)
+            {
+                case FlowType.Inbound:
+                    PrepareInboundFlowGraph(false);
+                    break;
+
+                case FlowType.Outbound:
+                    PrepareOutboundFlowGraph(false);
+                    break;
+
+                case FlowType.Custom:
+                    PrepareCustomFlowGraph(false);
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Flow type not supported: {newFlowType}");
+            }
+        }
+
+        RegisterTracking();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private RenderFragment CreateField(string label, RenderFragment field) => @<div class="col-xl-6 col-sm-12">
+        <label class="mlx-form-label">@label</label>
+        @field
+    </div>
+    ;
+
+    private Dictionary<FlowType, List<RenderFragment>> FieldTemplatesProcess => new()
+    {
+        {
+            FlowType.Inbound, new List<RenderFragment>
+            {
+                
+                CreateField(L.Loc("Average number of lines per order"), @<div>
+        <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="inboundFlowGraphDto.AverageLinesPerOrder" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>
+        <ValidationMessage class="text-danger" For="@(() => inboundFlowGraphDto.AverageLinesPerOrder)" />
+    </div>),
+                CreateField(L.Loc("Vehicle max. time in dock"), @<div>
+        <TimeInput Format="mmss"  @bind-Value="inboundFlowGraphDto.MaxVehicleTime" />
+        <ValidationMessage class="text-danger" For="@(() => inboundFlowGraphDto.MaxVehicleTime)" />
+    </div>)
+            }
+        },
+        {
+            FlowType.Outbound, new List<RenderFragment> 
+            {
+               
+                CreateField(L.Loc("Average number of lines per order"), @<div>
+        <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="outboundFlowGraphDto.AverageLinesPerOrder" Mask="n0"><DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" /></DxSpinEdit>
+        <ValidationMessage class="text-danger" For="@(() => outboundFlowGraphDto.AverageLinesPerOrder)" />
+    </div>),
+                CreateField(L.Loc("Vehicle max. time in dock"), @<div>
+        <TimeInput Format="mmss" @bind-Value="outboundFlowGraphDto.MaxVehicleTime" />
+        <ValidationMessage class="text-danger" For="@(() => outboundFlowGraphDto.MaxVehicleTime)" />
+    </div>)
+            }
+        },
+        {
+            FlowType.Custom, new List<RenderFragment>
+            {
+            }
+        }
+    };
+
+    #region Save Button Status
+
+    private void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+
+    private string BuildFingerprint()
+    {
+        var common = string.Join("|",
+            DesignerDto?.Name ?? string.Empty,
+            DesignerDto?.Type ?? FlowType.Custom,
+            DesignerDto?.SelectionTypeDock?.Id ?? Guid.Empty
+        );
+
+        return DesignerDto.Type switch
+        {
+            FlowType.Inbound => common + "|" + string.Join("|",
+                inboundFlowGraphDto.AverageItemsPerOrder,
+                inboundFlowGraphDto.AverageLinesPerOrder,
+                inboundFlowGraphDto.MaxVehicleTime
+            ),
+
+            FlowType.Outbound => common + "|" + string.Join("|",
+                outboundFlowGraphDto.AverageItemsPerOrder,
+                outboundFlowGraphDto.AverageLinesPerOrder,
+                outboundFlowGraphDto.MaxVehicleTime
+            ),
+
+            FlowType.Custom => common + "|" + string.Join("|",
+                customFlow?.Id ?? Guid.Empty,
+                customFlow?.WarehouseId ?? Guid.Empty
+            ),
+
+            _ => common
+        };
+    }
+
+    private void RegisterTracking()
+    {
+        EditContext.OnFieldChanged += OnAnyFieldChanged;
+        EditContext.OnValidationStateChanged += OnValidationStateChanged;
+    }
+
+    private void OnAnyFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        UpdateDirtyFlag();
+    }
+
+    private void OnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
+    {
+        UpdateSaveButtonState();
+    }
+
+    private void UpdateDirtyFlag()
+    {
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        UpdateSaveButtonState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSaveButtonState()
+    {
+        _hasErrors = EditContext?.GetValidationMessages()?.Any() == true;
+    }
+
+    public void MarkDirty()
+    {
+        _isDirty = true;
+        UpdateSaveButtonState();
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Validation to ComboBox
+
+    private void OnDockSelectionChanged(DockSelectionStrategyDto selected)
+    {
+        if (selected == null)
+            return;
+
+        DesignerDto.SelectionTypeDock = selected;
+        DesignerDto.SelectionTypeDock.Id = selected.Id;
+
+        EditContext.NotifyFieldChanged(new FieldIdentifier(DesignerDto, nameof(DesignerDto.SelectionTypeDock)));
+        MarkDirty();
+    }
+
+    #endregion
+}

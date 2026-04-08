@@ -1,0 +1,342 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Models.ModelUpdate
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Web.Services
+@inject IJSRuntime JS
+@inject DataAccess dataAccess
+@inject IInitialDataService initialDataService
+@inject ILocalizationService l
+
+<!-- Contenedor de Combo y Botones -->
+<div class="temporalidad-container container-temporalidad">
+    <div class="d-flex align-items-center w-100">
+        <!-- ComboBox personalizado para seleccionar temporalidades -->
+        <DxComboBox @ref="comboTemporalidades" Data="@Temps" Value="@TempSelected" ValueChanged="@((TemporalidadModel newValue) => OnValueChanged(newValue))"
+        TextFieldName="DisplayText" ValueFieldName="Nombre"
+        CssClass="temporalidad-combobox">
+            <ItemTemplate>
+                <div class="d-flex justify-content-between align-items-center w-100 mlx-temporalidad-option">
+                    <span class="flex-grow-1">
+                        @((context as TemporalidadModel)?.Nombre)
+                        (@((context as TemporalidadModel)?.FechaDesde.ToString(userFormat.DateFormat)) -
+                        @((context as TemporalidadModel)?.FechaHasta.ToString(userFormat.DateFormat)))
+                    </span>
+                    @if((context as TemporalidadModel)?.Nombre != "DEFAULT")
+                    {
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                            <span class="mlx-ico-edit" @onclick="() => AbrirModalEditar(context as TemporalidadModel)" @onclick:stopPropagation="true"></span>
+                            <span class="mlx-ico-trash" @onclick="() => EliminarTemporalidad(context as TemporalidadModel)" @onclick:stopPropagation="true"></span>
+                        </div>
+                    }
+                </div>
+            </ItemTemplate>
+        </DxComboBox>
+    </div>
+</div>
+
+<div class="modal fade" data-bs-backdrop="static" id="tempoModal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="tempoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:680px;">
+            <div class="modal-header">
+                <h5 class="modal-title">@tituloModal</h5>
+                <div class="btn-close-icon" data-bs-dismiss="modal">
+                    <span class="mlx-ico-close-sm"></span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="idName" class="mlx-form-label">@l.Loc("Name")</label>
+                    <DxTextBox @bind-Text="@temporalidadActual.Nombre" CssClass="mlx-form-textbox" InputId="idName" Enabled="@(!isEdit)" />
+                </div>
+
+                <div class="mb-3">
+                    <DxDateRangePicker 
+                    @bind-StartDate="@temporalidadActual.FechaDesde"
+                    @bind-EndDate="@temporalidadActual.FechaHasta"
+                    @bind-StartDate:after="OnFechaChanged"
+                    @bind-EndDate:after="OnFechaChanged"
+                    DisplayFormat="@($"{{0:{userFormat.DateFormat}}} - {{1:{userFormat.DateFormat}}}")"
+                    FirstDayOfWeek="DayOfWeek.Monday">
+                    </DxDateRangePicker>
+                </div>
+
+                @if (mostrarError)
+                {
+                    <div class="alert alert-danger mt-2">
+                        @l.Loc("The 'From' date cannot be later than the 'To' date.")
+                    </div>
+                }
+
+                @if (solapamiento)
+                {
+                    <div class="alert alert-danger mt-2">
+                        @l.Loc("You cannot create two configurations with overlapping dates.")
+
+                        @if (collitions != null && collitions.Any())
+                        {
+                            <ul>
+                                @foreach (var item in collitions)
+                                {
+                                    <li>@item</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                }
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-mlx btn-mlx-white-primary" data-bs-dismiss="modal">@l.Loc("Cancel")</button>
+                <button type="button" class="btn-mlx btn-mlx-blue-primary" @onclick="GuardarTemporalidad">@l.Loc("Save")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    DateTime DateTimeValue { get; set; } = DateTime.Now;
+
+    TimeSpan TimeValue { get; set; } = DateTime.Now.TimeOfDay;
+
+    private DateTime selectedDate = DateTime.Now;
+
+    [Parameter]
+    public IList<TemporalidadModel> Temps { get; set; }
+    [Parameter]
+    public TemporalidadModel TempSelected { get; set; }
+    [Parameter]
+    public EventCallback<TemporalidadModel> ValueChanged { get; set; }
+    [Parameter]
+    public EventCallback<TemporalidadModel> ValueRemoved { get; set; }
+    [Parameter]
+    public EventCallback<bool> DateChanged { get; set; }
+    [Parameter]
+    public Guid siteModelId { get; set; }
+
+    [Inject] private IMlxDialogService DialogService { get; set; }
+
+    [Parameter]
+    public UserFormatOptions userFormat { get; set; } = new();
+
+    private TemporalidadModel temporalidadActual { get; set; }
+
+    private bool mostrarModal = false;
+
+    private DxComboBox<TemporalidadModel, TemporalidadModel> comboTemporalidades;
+
+
+    private string tituloModal = "";
+
+    private bool mostrarError = false;
+
+    private bool solapamiento = false;
+    private List<string> collitions = new List<string>();
+
+    private bool isEdit = false;
+    private string Caption = "Configuration selector";
+    private const string tooltipjs = "setTooltipForSelectedSite";
+    private const string CONTAINER = ".container-temporalidad";
+
+    protected override void OnInitialized()
+    {
+        temporalidadActual = new TemporalidadModel(userFormat.DateFormat);
+        Caption = l.Loc("Configuration selector");
+    }
+
+    private async Task OnDateChanged()
+    {
+        await DateChanged.InvokeAsync(isEdit);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await ApplyComboBoxTooltipAsync();
+    }
+
+    private async Task OnValueChanged(TemporalidadModel newValue)
+    {
+        TempSelected = newValue;
+        await ValueChanged.InvokeAsync(newValue);
+    }
+
+    private void SeleccionarTemporalidad(ChangeEventArgs e)
+    {
+        var nombreSeleccionado = e.Value?.ToString();
+        TempSelected = Temps.FirstOrDefault(t => t.Nombre == nombreSeleccionado);
+    }
+
+    public void AbrirModalCrear()
+    {
+        temporalidadActual = new TemporalidadModel(userFormat.DateFormat);
+        tituloModal = l.Loc("Configuration");
+        mostrarModal = true;
+        isEdit = false;
+        JS.InvokeVoidAsync("openMlxModal", "tempoModal");
+    }
+
+    private void AbrirModalEditar(TemporalidadModel tempSelected)
+    {
+        comboTemporalidades?.HideDropDown();
+        temporalidadActual = new TemporalidadModel(userFormat.DateFormat)
+        {
+            Id = tempSelected.Id,
+            Nombre = tempSelected.Nombre,
+            FechaDesde = tempSelected.FechaDesde,
+            FechaHasta = tempSelected.FechaHasta
+        };
+        isEdit = true;
+        tituloModal = l.Loc("Edit configuration");
+        mostrarModal = true;
+        JS.InvokeVoidAsync("openMlxModal", "tempoModal");
+
+    }
+
+    void OnFechaChanged() => ValidarErroresFechas(); 
+
+    void ValidarErroresFechas()
+    {
+        ValidarRangoFecha();
+        ValidarFechasSolapadas();
+    }
+
+    void ValidarFechasSolapadas()
+    {
+        var colisiones = CollitionInTemporalities();
+        if (colisiones.Count() > 0)
+        {
+            solapamiento = true;
+            collitions = colisiones;
+            return;
+        }
+
+        solapamiento = false;
+        collitions = new List<string>();
+    }
+
+    void ValidarRangoFecha()
+    {
+        if (temporalidadActual.FechaHasta < temporalidadActual.FechaDesde)
+        {
+            mostrarError = true;
+            return;
+        }
+        mostrarError = false;
+    }
+
+    private async Task GuardarTemporalidad()
+    {
+        ValidarErroresFechas();
+        if (solapamiento || mostrarError) return;
+
+        if (isEdit)
+        {
+            var temporalidadExistente = Temps.FirstOrDefault(t => t.Nombre == temporalidadActual.Nombre);
+            if (temporalidadExistente != null)
+            {
+
+                isEdit = true;
+                temporalidadExistente.FechaDesde = temporalidadActual.FechaDesde;
+                temporalidadExistente.FechaHasta = temporalidadActual.FechaHasta;
+
+                TempSelected = new TemporalidadModel(userFormat.DateFormat)
+                {
+                    Id = temporalidadExistente.Id,
+                    Nombre = temporalidadExistente.Nombre,
+                    FechaDesde = temporalidadExistente.FechaDesde,
+                    FechaHasta = temporalidadExistente.FechaHasta,
+                    WarehouseId = temporalidadExistente.WarehouseId,
+                    Data = temporalidadExistente.Data
+                };
+                await ValueChanged.InvokeAsync(TempSelected);
+
+                Temps = Temps.ToList();
+                await OnDateChanged();
+            }
+        }
+        else
+        {
+            Temps.Add(new TemporalidadModel(userFormat.DateFormat)
+                {
+                    Nombre = temporalidadActual.Nombre,
+                    FechaDesde = temporalidadActual.FechaDesde,
+                    FechaHasta = temporalidadActual.FechaHasta,
+                    Id = Guid.NewGuid(),
+                    WarehouseId =siteModelId,
+                });
+
+            TempSelected = Temps.FirstOrDefault(t => t.Nombre == temporalidadActual.Nombre);
+            await ValueChanged.InvokeAsync(TempSelected);
+        }
+
+        CerrarModal();
+    }
+
+    private async void EliminarTemporalidad(TemporalidadModel temporalidad)
+    {
+        comboTemporalidades?.HideDropDown();
+        bool resp = await DialogService.ShowDialogAsync(l.Loc("Notification"), l.Loc("Are you sure you want to delete configuration: {0} ?",temporalidad?.Nombre));
+
+        if (resp)
+        {
+            bool esSeleccionado = TempSelected == temporalidad;
+
+            // Elimina el elemento de la lista
+            Temps.Remove(temporalidad);
+
+            await ValueRemoved.InvokeAsync(temporalidad);
+
+            // Si no hay nada seleccionado, no se hace nada más
+            if (TempSelected == null)
+            {
+                return;
+            }
+
+            // Si el elemento eliminado es el seleccionado, restablece la selección a null
+            if (esSeleccionado)
+            {
+                TempSelected = null;
+            }
+
+            // Si hay otros elementos seleccionados, no se cambia la selección
+        }
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = isEdit = false;
+        JS.InvokeVoidAsync("closeMlxModal", "tempoModal");
+        temporalidadActual = new TemporalidadModel(userFormat.DateFormat);
+    }
+
+    private void SetTodayFrom()
+    {
+        temporalidadActual.FechaDesde = DateTime.Today;
+    }
+
+    private void SetTodayUntil()
+    {
+        temporalidadActual.FechaHasta = DateTime.Today;
+    }
+
+    private List<string> CollitionInTemporalities()
+    {
+        var current = temporalidadActual;
+        if (current == null) return new List<string>();
+
+        return Temps.Where(t =>
+            t.Id != current.Id &&
+            current.FechaDesde <= t.FechaHasta &&
+            t.FechaDesde <= current.FechaHasta
+        ).Select(x => x.Nombre).ToList();
+    }
+
+    private async Task ApplyComboBoxTooltipAsync()
+    {
+        await JS.InvokeVoidAsync(tooltipjs, Caption, CONTAINER);
+    }
+
+}
+
+
+

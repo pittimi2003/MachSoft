@@ -1,0 +1,201 @@
+﻿.top-bar {
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    background-color: var( --sp-color-bg-soft);
+    border-radius: 30px;
+    padding: 3px 5px;
+    display: flex;
+    width: fit-content;
+}
+
+.top-bar-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 28px;
+    width: 28px;
+    align-items: center;
+    justify-content: center;
+}
+
+.top-bar-button-hide {
+    display: none;
+}
+
+    .top-bar-button:hover {
+        background: var(--gl-color-smoke-200);
+        border-radius: 40px;
+    }
+
+.top-bar-button-block {
+    background: none;
+    border: none;
+    cursor: initial;
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 28px;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .top-bar-button-block span::before {
+        color: var(--sp-color-icon-disabled) !important;
+    }
+
+
+    .top-bar-button-block:hover {
+        background: none;
+    }
+
+.top-bar-button-select {
+    background: var(--gl-color-blue-600);
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    height: 28px;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 40px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    box-sizing: border-box;
+    border-radius: 6px;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: 'Segoe UI';
+    background-color: rgb(225,231,237);
+    cursor: pointer;
+}
+
+.mlx-ico-reload, .mlx-ico-export, .mlx-ico-zoom-in, .mlx-ico-zoom-out, .mlx-ico-now, .mlx-ico-contract-vrt, .mlx-ico-expand-vrt {
+    font-size: 20px;
+}
+
+.mlx-ico-zoom-in::before {
+    color: var(--gl-color-blue-600) !important;
+}
+
+.mlx-ico-print::before, .mlx-ico-doc-xml::before, .mlx-ico-doc-pdf::before {
+    font-size: 20px;
+    color: var(--sp-color-icon-soft);
+}
+
+.separator {
+    width: 1px;
+    height: 20px;
+    background-color: var(--sp-color-border-disabled);
+    margin: 0 5px;
+}
+
+.mlx-ico-zoom-in::before, .mlx-ico-chevron-down::before, .mlx-ico-stage::before,
+.mlx-ico-dock::before, .mlx-ico-planification::before {
+    color: white;
+}
+
+.mlx-ico-chevron-down::before {
+    font-size: 15px;
+    padding-left: 5px;
+}
+
+.mlx-ico-stage::before, .mlx-ico-dock::before, .mlx-ico-planification::before {
+    font-size: 15px;
+    padding-right: 5px;
+}
+
+.today-container {
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.label-export {
+    padding-right: 30px;
+    font-size: 14px;
+    color: var(--sp-color-content-default);
+}
+
+.toolbar-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+
+.btnPriority {
+    width: 100px;
+    position: relative;
+    height: 30px;
+}
+
+.btnHourInterval {
+    width: 80px;
+    position: relative;
+    height: 30px;
+}
+
+.gridSize-selected {
+    position: absolute;
+    top: 4px;
+    left: 0px;
+    border-radius: 100px;
+    background-color: var(--sp-color-content-link);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.content1 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.styled-button {
+    display: flex;
+    align-items: center;
+    background-color: var(--sp-color-bg-brand); 
+    border-radius: 20px; 
+    padding: 5px 10px;
+    color: white;
+    font-size: 10px; 
+    border: none; 
+    cursor: pointer; 
+    outline: none; 
+}
+
+    .styled-button:hover {
+        background-color: #004a93; 
+    }
+
+    .styled-button:active {
+        background-color: #003366; 
+    }
+
+.textGridfault {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    padding-left: 1px;
+}
+
+.div1 {
+    position: relative;
+    line-height: 125%;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}

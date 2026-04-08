@@ -1,0 +1,505 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.Models
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@using System.ComponentModel.DataAnnotations
+@using System.Linq.Expressions
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+
+@inject ILocalizationService L
+@implements ITrackChanges
+@implements IChildSaver
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="editContext">
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                @* <div class="row">
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">Name</label>
+                        <DxTextBox CssClass="mlx-form-textbox" @bind-Text="@DesignerDto.Zone.Name" />
+                        <ValidationMessage class="text-danger" For="@(() => DesignerDto.Zone.Name)" />
+                    </div>
+                </div>  *@
+                <div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 1: Basic info zone      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idStationBasicInfo"
+                                            aria-expanded="true"
+                                            aria-controls="idStationBasicInfo">
+                                        <span class="mlx-title-h3">@L.Loc("Common properties")</span>
+                                    </button>
+                                </h2>
+                                <div id="idStationBasicInfo" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">                                    
+                                        <div class="row">
+                                            <!-- Nombre de la estación -->
+                                            <div class="col-xl-6 col-sm-12 container-height-to-validation-message">
+                                                <label class="mlx-form-label">@L.Loc("Name")</label>
+                                                <DxTextBox CssClass="mlx-form-text" Text="@DesignerDto.Zone.Name" TextChanged="@((string? name) => OnNameEvent(name))" TextExpression="@(() => DesignerDto.Zone.Name)" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.Zone.Name)" />
+                                            </div>
+    
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Area")</label>
+                                                <DxTextBox Text="@DesignerDto?.Zone?.Area?.Name" TextExpression="@(() => DesignerDto.Zone.Area.Name)" Enabled="false" CssClass="mlx-form-textbox width-100" />
+                                            </div>
+    
+                                            <div class="col-xl-6 col-sm-12 container-height-to-validation-message">
+                                                <label class="mlx-form-label">@L.Loc("Type")</label>
+                                                <MlxComboBox Data="bufferTypes" CssClass="mlx-form-select width-100" Value="@DesignerDto.BufferType" ValueFieldName="Value" TextFieldName="Text" NullText="@L.Loc("Select...")" ValueChanged="@((BufferType bufferType) => OnValidationMessageChanged(() => DesignerDto.BufferType, bufferType, v => DesignerDto.BufferType = v))" ValueExpression="@(() => DesignerDto.BufferType)" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.BufferType)" />
+                                            </div>
+    
+                                            <!-- Máx. stock a reservar -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max. containers")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="DesignerDto.Zone.MaxContainers" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Máx. equipos en el buffer -->
+											<div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max. equipment")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="DesignerDto.Zone.MaxEquipments" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 2: Capacity and Stock      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idBufferCapacity"
+                                            aria-expanded="false"
+                                            aria-controls="idBufferCapacity">
+                                        <span class="mlx-title-h3">@L.Loc("Detailed properties")</span>
+                                    </button>
+                                </h2>
+                                <div id="idBufferCapacity" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <!-- Entry Capacity -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Inbound container capacity")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.EntryCapacity" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+                    
+                                            <!-- Exit Capacity -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Outbound container capacity")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.ExitCapacity" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+    
+                @*<div class="row">
+                    Shelf section
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idShelfBufferSection" aria-expanded="true" aria-controls="idShelfBufferSection">
+                                        <span class="mlx-title-h3">@L.Loc("Shelf configuration")</span>
+                                    </button>
+                                </h2>
+                                <div id="idShelfBufferSection" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Number of shelves")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="DesignerDto.NumShelves" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.NumShelves)" />
+                                            </div>
+    
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Number of cross aisles")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="999999" @bind-Value="DesignerDto.NumCrossAisles" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.NumCrossAisles)" />
+                                            </div>
+    
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Orientation")</label>
+                                                <DxComboBox Data="orientationType" CssClass="mlx-form-select" Value="@DesignerDto.Orientation" ValueFieldName="Value" TextFieldName="Text" NullText="@L.Loc("Select...")" ValueChanged="@((OrientationType? orientationType) => OnValidationMessageChanged(() => DesignerDto.Orientation, orientationType, v => DesignerDto.Orientation = v))" ValueExpression="@(() => DesignerDto.Orientation)" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.Orientation)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>*@
+            </div>
+        </div>
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEventInternal())">@L.Loc("Save")</button>
+</div>
+
+@code {
+
+    #region Parameters
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public BufferDto DesignerDto { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    [Parameter]
+    public Dictionary<string, object>? Metadata { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildCancel { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildSaved { get; set; }
+    #endregion
+
+    #region Properties
+    [Inject] private IDesignerServices _designer { get; set; }
+
+    [Inject] private IJSRuntime JS { get; set; }
+    #endregion
+
+    #region Interfaces
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    public Task SaveEvent() => SaveEventInternal();
+
+    #endregion
+
+    private EditContext editContext;
+    private ValidationMessageStore? messageStore;
+
+    private string jsonResult { get; set; }
+
+    private IEnumerable<ZoneType> _filteredZoneTypes = Enum.GetValues(typeof(ZoneType)).Cast<ZoneType>().Where(x => x != ZoneType.Unknown);
+    private List<ComboBoxSelectItem<OrientationType>> orientationType = new();
+    private List<ComboBoxSelectItem<BufferType>> bufferTypes = new();
+
+    #region Save Status Button
+
+    private string? _baselineFingerprint;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+    private bool CanSave => _isDirty && !_hasErrors;
+
+    #endregion
+
+    // Method for handling the click
+    private async Task CancelButtonClick()
+    {
+        await OnChildCancel.InvokeAsync(Metadata);
+    }
+
+    // Combo box
+    private IEnumerable<AreaDto>? AreaItems { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Inicializar datos manuales
+        editContext = new EditContext(DesignerDto);
+        messageStore = new ValidationMessageStore(editContext);
+        FillComboBox();
+        CaptureBaseline();
+        editContext.OnFieldChanged += HandleFieldChanged;
+        editContext.OnValidationStateChanged += OnValidationChanged;
+    }
+
+    private void FillComboBox()
+    {
+        List<AreaDto>? areas = _designer.GetAreasDtoByLayout(DesignerDto?.Zone?.Area?.LayoutId ?? Guid.Empty)?.ToList() ?? new List<AreaDto>();
+        AreaItems = areas.Any() && DesignerDto?.Zone?.Area != null ? areas.Where(i => i.Id != DesignerDto.Id).ToList() : new List<AreaDto>();
+
+        orientationType = Enum.GetValues(typeof(OrientationType))
+        .Cast<OrientationType>()
+        .Where(x => x != OrientationType.None)
+        .Select(x => new ComboBoxSelectItem<OrientationType>(L)
+            {
+                Value = x,
+                Text = GetOrientationTypeString(x)
+            }).OrderBy(o => o.Text)
+        .ToList();
+
+        bufferTypes = Enum.GetValues(typeof(BufferType))
+            .Cast<BufferType>()
+            .Where(x => x != BufferType.None)
+            .Select(x => new ComboBoxSelectItem<BufferType>(L)
+                {
+                    Value = x,
+                    Text = GetBufferTypeString(x)
+                }).OrderBy(o => o.Text)
+            .ToList();
+    }
+
+    private async Task SaveEventInternal()
+    {
+        if (editContext == null || DesignerDto.Zone == null)
+            return;
+        bool isValid = ValidateSideBar();
+        MarkDirty();
+        _hasErrors = !isValid;
+
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        try
+        {
+            DesignerDto.Zone.IsVertical = DesignerDto.IsVertical; // Update the IsVertical data for Zones
+            DesignerDto.Zone.Orientation = DesignerDto.Orientation; // Update the Orientation data for Zones
+
+            //Update case
+            await _designer.UpdateBuffer(DesignerDto);
+
+            List<Models.DTO.Designer.ZoneDto> zoneList = new();
+            IEnumerable<Zone> zoneEnumerable = _designer.GetZonesByAreaNoTracking(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty);
+
+            foreach (var zone in zoneEnumerable)
+            {
+                if (null != zone && zone.Id != Guid.Empty)
+                    zoneList.Add(_designer.GetZoneDtoById(zone.Id));
+            }
+
+            List<StepDto> stepDtoList = new();
+            List<ProcessDto> processDtoList = _designer.GetProcesByType(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty).ToList(); // Obtains the processes related to the area
+
+            foreach(var process in processDtoList)
+            {
+                stepDtoList.AddRange(_designer.GetStepsDtoByProcessIdNoTracking(process.Id ?? Guid.Empty).ToList());
+            }
+
+            var newViewport = _designer.GetVieportsByTypeObject(DesignerDto?.Zone.AreaId ?? Guid.NewGuid(), "Area");
+            await JS.InvokeVoidAsync("drawObjectsOnCanvas", newViewport);
+            await JS.InvokeVoidAsync("SaveOnPostback");
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+        CaptureBaseline();
+        await InvokeAsync(StateHasChanged);
+        if (OnChildSaved.HasDelegate)
+            await OnChildSaved.InvokeAsync(Metadata);
+    }
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+
+    private void OnValidationMessageChanged<T>(Expression<Func<T>> propertyExpression, T value, Action<T> assignAction)
+    {
+        assignAction(value); // Assign the new value
+        var field = FieldIdentifier.Create(propertyExpression); // Create the field identifier for validation
+        messageStore?.Clear(field); // Clear previous validations
+        editContext.NotifyFieldChanged(field); // Notify EditContext
+        bool isValid = editContext.Validate();
+        _hasErrors = !isValid;
+        StateHasChanged();
+    }
+
+    #region Validations
+
+    // Event Save
+    private bool ValidateSideBar()
+    {
+        messageStore?.Clear(); // Clears previous validations
+        bool isValid = editContext.Validate(); // Validates the decorators of the attributes of the model assigned in the editContext
+
+        if (DesignerDto.BufferType == null || DesignerDto.BufferType == BufferType.None)
+        {
+            var field = FieldIdentifier.Create(() => DesignerDto.BufferType);
+            messageStore?.Add(field, L.Loc("* Mandatory field"));
+            isValid = false;
+        }
+
+        if (DesignerDto.Orientation == null || DesignerDto.Orientation == OrientationType.None)
+        {
+            var field = FieldIdentifier.Create(() => DesignerDto.Orientation);
+            messageStore?.Add(field, L.Loc("* Mandatory field"));
+            isValid = false;
+        }
+
+        var fieldName = FieldIdentifier.Create(() => DesignerDto.Zone.Name);
+
+        // Validate required field
+        if (string.IsNullOrWhiteSpace(DesignerDto.Zone?.Name))
+        {
+            messageStore?.Add(fieldName, L.Loc("* Mandatory field"));
+            isValid = false;
+        }
+        else
+        {
+            var (itsUnique, suggestions) = _designer.CalculateNameToValidations(DesignerDto.Zone.Name, DesignerDto.Zone.AreaId, DesignerDto.Zone.Id); // Validate duplicates and suggest names
+            if (!itsUnique)
+            {
+                var mensaje = L.Loc("The name is already in use. Suggestions: {0}", string.Join(", ", suggestions));
+                messageStore?.Add(fieldName, mensaje);
+                isValid = false;
+            }
+        }
+
+        // // MaxContainers validation
+        // if (DesignerDto.Zone.MaxContainers <= 0)
+        // {
+        //     var fieldMaxContainers = FieldIdentifier.Create(() => DesignerDto.Zone.MaxContainers);
+        //     messageStore?.Add(fieldMaxContainers, L.Loc("* Must be greater than 0"));
+        //     isValid = false;
+        // }
+
+        // // MaxEquipments validation
+        // if (DesignerDto.Zone.MaxEquipments <= 0)
+        // {
+        //     var fieldMaxEquipments = FieldIdentifier.Create(() => DesignerDto.Zone.MaxEquipments);
+        //     messageStore?.Add(fieldMaxEquipments, L.Loc("* Must be greater than 0"));
+        //     isValid = false;
+        // }
+
+        editContext.NotifyValidationStateChanged(); // Updates the editContext with the messages of manual validations
+        return isValid;
+    }
+
+    // Name OnBlur Event
+    private void OnNameEvent(string? name)
+    {
+        DesignerDto.Zone.Name = name;
+        var field = FieldIdentifier.Create(() => DesignerDto.Zone.Name);
+        messageStore?.Clear(field);
+
+        // Required
+        if (string.IsNullOrWhiteSpace(DesignerDto.Zone?.Name))
+        {
+            messageStore?.Add(field, L.Loc("* Mandatory field"));
+            _hasErrors = true;
+            editContext.NotifyValidationStateChanged();
+            MarkDirty();
+            InvokeAsync(StateHasChanged);
+            return;
+        }
+        var (itsUnique, suggestions) = _designer.CalculateNameToValidations(DesignerDto.Zone.Name, DesignerDto.Zone.AreaId, DesignerDto.Zone.Id); // Unique
+        if (!itsUnique)
+        {
+            messageStore?.Add(field, L.Loc("The name is already in use. Suggestions: {0}", string.Join(", ", suggestions)));
+            _hasErrors = true;
+        }
+        else
+            _hasErrors = !string.IsNullOrEmpty(editContext.GetValidationMessages(field).FirstOrDefault()); // Clears errors ONLY if there are no longer any validation messages in the context
+
+        editContext.NotifyValidationStateChanged();
+        MarkDirty();
+        InvokeAsync(StateHasChanged);
+    }
+
+    #endregion
+
+    #region Save Button Status
+
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        MarkDirty();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnValidationChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        _hasErrors = editContext.GetValidationMessages().Any();
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+    
+    public void MarkDirty()
+    {
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+    }
+    
+    private string BuildFingerprint()
+    {
+        return string.Join("|",
+            DesignerDto?.Id,
+            DesignerDto?.Zone?.Id,
+            DesignerDto?.Zone?.Name,
+            DesignerDto?.Zone?.X,
+            DesignerDto?.Zone?.Y,
+            DesignerDto?.Zone?.Width,
+            DesignerDto?.Zone?.Height,
+            DesignerDto?.Zone?.MaxContainers,
+            DesignerDto?.Zone?.MaxEquipments,
+            DesignerDto?.BufferType,
+            DesignerDto?.Orientation
+        );
+    }
+    
+    // Útil cuando el usuario da "Discard"
+    public void ResetBaseline()
+    {
+        CaptureBaseline();
+    }
+    
+    public void RestoreOriginalState()
+    {
+        if (DesignerDto.Id != null)
+        {
+            var refreshed = _designer.GetBufferDtoByIdNoTracking(DesignerDto.Id);
+            if (refreshed != null)
+            {
+                DesignerDto = refreshed;
+                CaptureBaseline();
+            }
+        }
+    
+        StateHasChanged();
+    }
+    #endregion
+
+}

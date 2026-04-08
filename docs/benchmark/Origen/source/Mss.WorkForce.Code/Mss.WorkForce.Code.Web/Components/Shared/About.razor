@@ -1,0 +1,47 @@
+@using DevExpress.Blazor
+@using System.Reflection
+@using System.Diagnostics
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService l
+
+<div class="modal fade" id="modalAbout" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="container mlx-container-modal">
+                    <h5 class="modal-title" id="exampleModalLabel">@l.Loc("About")</h5>
+                    <div class="btn-close-icon" data-bs-dismiss="modal">
+                        <div class="btn-close-icon">
+                            <span class="mlx-ico-close-sm"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                @*  <div class="container about-container">
+                    <div class="about-info">
+                        <span>Logo</span>
+                    </div>
+                    <div class="about-info">
+                        <span>WFM is a product of Mecalux S.A | </span> <span>Version: @_productVersion</span>
+                    </div>
+                    <div id="licences-container" class="about-licence"></div>
+                </div> *@
+                <span> @(l.Loc("Version - {0}", FileVersionInfo.GetVersionInfo(typeof(Program).Assembly.Location).FileVersion ?? string.Empty)) </span>
+            </div>
+            <div class="modal-footer">
+                @* <div class="copyright">
+                    <span>Copyright @_yearCopyright Mecalux, S.A.</span>
+                    <img src="img/mecalux-symbol-blue.svg" class="me-2" />
+                    <span>All Rights Reserved</span>
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _productVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+    private int _yearCopyright = DateTime.Now.Year;
+}
+

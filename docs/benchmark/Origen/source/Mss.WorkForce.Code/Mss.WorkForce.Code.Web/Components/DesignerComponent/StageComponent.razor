@@ -1,0 +1,652 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.Models
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using System.ComponentModel.DataAnnotations
+@using System.Linq.Expressions
+@inject ILocalizationService L
+@implements ITrackChanges
+@implements IChildSaver
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="editContext">
+        <DataAnnotationsValidator />
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                <div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 1: Basic info zone      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idStationBasicInfo"
+                                            aria-expanded="true"
+                                            aria-controls="idStationBasicInfo">
+                                        <span class="mlx-title-h3">@L.Loc("Common properties")</span>
+                                    </button>
+                                </h2>
+                                <div id="idStationBasicInfo" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <!-- Nombre de la estación -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Name")</label>
+                                                <DxTextBox CssClass="mlx-form-text" Text="@DesignerDto.Zone.Name" TextChanged="@((string? name) => OnNameEvent(name))" TextExpression="@(() => DesignerDto.Zone.Name)" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.Zone.Name)" />
+                                            </div>
+                                            <!-- Nombre del Area -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Area")</label>
+                                                <DxTextBox Text="@DesignerDto?.Zone?.Area?.Name" TextExpression="@(() => DesignerDto.Zone.Area.Name)" Enabled="false" CssClass="mlx-form-textbox width-100" />
+                                                <ValidationMessage class="text-danger" For="@(() => DesignerDto.Zone.Area.Name)" />
+                                            </div>
+    
+                                            <!-- Máx. stock a reservar -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max containers")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                MinValue="0" MaxValue="999999"
+                                                @bind-Value="@DesignerDto.Zone.MaxContainers" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                            </div>
+    
+                                            <!-- Máx. equipos en el Stage -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Max. equipment")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            @bind-Value="@DesignerDto.Zone.MaxEquipments" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 2: Capacity and Stock      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#idStageCapacity"
+                                            aria-expanded="false"
+                                            aria-controls="idStageCapacity">
+                                        <span class="mlx-title-h3">@L.Loc("Detailed properties")</span>
+                                    </button>
+                                </h2>
+                                <div id="idStageCapacity" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            @if (!DesignerDto.IsIn || DesignerDto.IsOut)
+                                            {
+                                                <!-- Entry Capacity -->
+                                                <div class="col-xl-6 col-sm-12">
+                                                    <label class="mlx-form-label">@L.Loc("Entry capacity")</label>
+                                                    <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                                MinValue="0" MaxValue="999999"
+                                                                Value="@DesignerDto.EntryCapacity" ValueChanged="@((int v) => NotifyChange(() => DesignerDto.EntryCapacity, () => DesignerDto.EntryCapacity = v))" ValueExpression="@(() => DesignerDto.EntryCapacity)" Mask="n0">
+                                                        <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                    </DxSpinEdit>
+                                                </div>
+                                            }
+                                            <!-- Exit Capacity -->
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Exit capacity")</label>
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            MinValue="0" MaxValue="999999"
+                                                            Value="@DesignerDto.ExitCapacity" ValueChanged="@((int v) => NotifyChange(() => DesignerDto.ExitCapacity, () => DesignerDto.ExitCapacity = v))" ValueExpression="@(() => DesignerDto.ExitCapacity)" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <!-- ==================================== -->
+                    <!-- CATEGORÍA 3: Available settings      -->
+                    <!-- ==================================== -->
+                    <div class="col-xl-12 col-sm-12">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idSettings" aria-expanded="false" aria-controls="idSettings">
+                                        <span class="mlx-title-h3">@L.Loc("Availability Settings")</span>
+                                    </button>
+                                </h2>
+                                <div id="idSettings" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+    
+                                        <div class="row">
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Allow inbound")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    @*    <DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@DesignerDto.IsIn" CheckedExpression="@(() => DesignerDto.IsIn)" CheckedChanged="EventCallback.Factory.Create<bool>(this, value => ToggleInbound(value))"></DxCheckBox> *@
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center" @bind-Checked="@DesignerDto.IsIn"></DxCheckBox>
+                                                </div>
+                                            </div>
+                                            <div class="col-xl-6 col-sm-12">
+                                                <label class="mlx-form-label">@L.Loc("Allow outbound")</label>
+                                                <div class="mlx-checkbox-container">
+                                                    @* <DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@DesignerDto.IsOut" CheckedExpression="@(() => DesignerDto.IsOut)" CheckedChanged="EventCallback.Factory.Create<bool>(this, value => ToggleOutbound(value))"></DxCheckBox> *@
+                                                    <DxCheckBox CssClass="mlx-check-box align-items-center" @bind-Checked="@DesignerDto.IsOut"></DxCheckBox>
+                                                </div>
+                                            </div>
+                                        </div>
+    
+                                        <div class="row">
+@*                                             @if (!DesignerDto.IsIn || DesignerDto.IsOut)
+                                            {
+                                                <div class="col-xl-6 col-sm-12">
+                                                    <label class="mlx-form-label">@L.Loc("Mix carriers")</label>
+                                                    <div class="mlx-checkbox-container">
+                                                        <DxCheckBox CssClass="mlx-check-box align-items-center" Checked="@DesignerDto.MixCarriers" CheckedChanged="@((bool v) => NotifyChange(() => DesignerDto.MixCarriers, () => DesignerDto.MixCarriers = v))" CheckedExpression="@(() => DesignerDto.MixCarriers)" AllowIndeterminateState="false" />
+                                                    </div>
+                                                </div>
+                                            } *@
+                                            <div class="col-xl-6 col-sm-12 flex-flow-column">
+                                                <label class="mlx-form-label">@L.Loc("Available docks")</label>
+                                                <div class="flex-flow-row gap-10 align-items-center">
+                                                    <MlxComboBox Data="@FilteredDocksItems"
+                                                                @bind-Value="@availableDocksPerStageDTO.Id"
+                                                                ValueFieldName="Id"
+                                                                TextFieldName="Name"
+                                                                CssClass="mlx-form-select width-100"
+                                                                NullText="@L.Loc("Select...")" />
+                                                    <button type="button" class="addButton-circle-style btn-mlx-blue-primary" onclick="@(() => AddDock())" disabled="@(!CanAdd)">
+                                                        <span class="mlx-ico-add"></span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <DxGrid @ref="grid" Data="ListAvailableDocks" KeyFieldName="Id" CssClass="mlx-grid" PageSize="10">
+                                            <Columns>
+                                                <DxGridDataColumn FieldName="Name" Caption="@L.Loc("Name")" AllowSort="false" />
+    
+                                                <DxGridCommandColumn NewButtonVisible="false" Caption="@L.Loc("Action")" Width="80px">
+                                                    <CellDisplayTemplate Context="dock">
+                                                        <!-- Cambié 'context' por 'dock' -->
+                                                        <div class="center-elements-in-content">
+                                                            <DxButton IconCssClass="mlx-ico-trash"
+                                                                      CssClass="cursor-pointer grid-delete-btn"
+                                                                      RenderStyle="ButtonRenderStyle.Link"                                                             
+                                                                      Click="@(() => DeleteDock((AvailableDocksPerStageDto)dock.DataItem))" />
+                                                        </div>
+                                                    </CellDisplayTemplate>
+                                                </DxGridCommandColumn>
+                                            </Columns>
+                                        </DxGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEventInternal())">@L.Loc("Save")</button>
+</div>
+
+@code {
+
+    #region Parameters
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public StageDto DesignerDto { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    [Parameter]
+    public Dictionary<string, object>? Metadata { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildCancel { get; set; }
+    [Parameter]
+    public EventCallback<Dictionary<string, object>?> OnChildSaved { get; set; }
+    #endregion
+
+    #region Properties
+    [Inject] private IDesignerServices _designer { get; set; }
+
+    [Inject] private IJSRuntime JS { get; set; }
+    #endregion
+
+    #region Save Button Status
+
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    private bool CanSave => _isDirty && !_hasErrors;
+    public Task SaveEvent() => SaveEventInternal();
+
+    private List<AvailableDocksPerStageDto> _baselineDocks = new();
+
+    #endregion
+
+    private EditContext editContext;
+    private ValidationMessageStore? messageStore;
+    private string jsonResult { get; set; }
+    private IEnumerable<DockZoneSettingsDto> DocksItems { get; set; }
+    private IEnumerable<ZoneType> _filteredZoneTypes = Enum.GetValues(typeof(ZoneType)).Cast<ZoneType>().Where(x => x != ZoneType.Unknown);
+    private AvailableDocksPerStageDto availableDocksPerStageDTO { get; set; } = new();
+    private DxGrid grid;
+    private List<AvailableDocksPerStageDto> ListAvailableDocks { get; set; } = new();
+    private List<AvailableDocksPerStageDto> ListDeletedDocks = new();
+    private List<AvailableDocksPerStageDto> ListAddDocks = new();
+    private bool CanAdd => availableDocksPerStageDTO.Id != Guid.Empty;
+
+    // Method for handling the click
+    private async Task CancelButtonClick()
+    {
+        await OnChildCancel.InvokeAsync(Metadata);
+    }
+
+    // Combo box
+    private IEnumerable<AreaDto>? AreaItems { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Inicializar datos manuales
+        editContext = new EditContext(DesignerDto);
+        messageStore = new ValidationMessageStore(editContext);
+        editContext.OnFieldChanged += HandleFieldChanged;
+        editContext.OnValidationStateChanged += HandleValidationStateChanged;
+        FillComboBox();
+        CaptureBaseline();
+        await Task.CompletedTask;
+    }
+
+    private void FillComboBox()
+    {
+        List<AreaDto>? areas = _designer.GetAreasDtoByLayout(DesignerDto?.Zone?.Area?.LayoutId ?? Guid.Empty)?.ToList() ?? new List<AreaDto>();
+        AreaItems = areas.Any() && DesignerDto?.Zone?.Area != null ? areas.Where(i => i.Id != DesignerDto.Id).ToList() : new List<AreaDto>();
+        DocksItems = _designer.GetDockDtosByLayoutId(DesignerDto?.Zone?.Area?.LayoutId ?? Guid.Empty);
+        ListAvailableDocks = _designer.GetAvailableDocksPerStageDtoByStageId(DesignerDto.Id).ToList() ?? new List<AvailableDocksPerStageDto>();
+    }
+
+    private async Task SaveEventInternal()
+    {
+        if (editContext == null || DesignerDto?.Zone == null)
+            return;
+        bool isValid = ValidateSideBar();
+        MarkDirty();
+        _hasErrors = !isValid;
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        try
+        {
+            //Update case
+            await _designer.UpdateStage(DesignerDto);
+
+            if (ListAddDocks.Any())
+                await _designer.AddAvailableDocksPerStages(ListAddDocks);
+
+            if (ListDeletedDocks.Any())
+                await _designer.DeleteListAvailableDocksPerStages(ListDeletedDocks);
+
+            List<Models.DTO.Designer.ZoneDto> zoneList = new();
+            IEnumerable<Zone> zoneEnumerable = _designer.GetZonesByAreaNoTracking(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty);
+
+            foreach (var zone in zoneEnumerable)
+            {
+                if (null != zone && zone.Id != Guid.Empty)
+                    zoneList.Add(_designer.GetZoneDtoById(zone.Id));
+            }
+
+            List<StepDto> stepDtoList = new();
+            List<ProcessDto> processDtoList = _designer.GetProcesByType(DesignerDto?.Zone?.Area?.Id ?? Guid.Empty).ToList(); // Obtains the processes related to the area
+
+            foreach (var process in processDtoList)
+            {
+                stepDtoList.AddRange(_designer.GetStepsDtoByProcessIdNoTracking(process.Id ?? Guid.Empty).ToList());
+            }
+
+            var newViewport = _designer.GetVieportsByTypeObject(DesignerDto?.Zone.AreaId ?? Guid.NewGuid(), "Area");
+            await JS.InvokeVoidAsync("drawObjectsOnCanvas", newViewport);
+            await JS.InvokeVoidAsync("SaveOnPostback");
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+        ListAddDocks.Clear();
+        ListDeletedDocks.Clear();
+
+        CaptureBaseline();
+        await InvokeAsync(StateHasChanged);
+        if (OnChildSaved.HasDelegate)
+            await OnChildSaved.InvokeAsync(Metadata);
+    }
+
+    private IEnumerable<DockZoneSettingsDto> FilteredDocksItems
+    {
+        get
+        {
+            var idsEnGrid = ListAvailableDocks.Select(d => d.DockId).ToHashSet();
+            return DocksItems.Where(d => !idsEnGrid.Contains(d.Id)).OrderBy(x => x.Name);
+        }
+    }
+
+    private void AddDock()
+    {
+        var selected = DocksItems.FirstOrDefault(x => x.Id == availableDocksPerStageDTO.Id);
+
+        if (selected != null && !ListAvailableDocks.Any(d => d.DockId == selected.Id))
+        {
+            var newDock = new AvailableDocksPerStageDto
+                {
+                    Id = Guid.Empty,
+                    DockId = selected.Id,
+                    StageId = DesignerDto.Id,
+                    Name = selected.Name
+                };
+
+            ListAvailableDocks.Add(newDock);
+            ListAddDocks.Add(newDock);
+            availableDocksPerStageDTO = AvailableDocksPerStageDto.NewDto();
+
+            UpdateDirtyFlag();
+            UpdateSaveButtonState();
+            StateHasChanged();
+        }
+    }
+
+
+    private void DeleteDock(AvailableDocksPerStageDto dock)
+    {
+        if (dock == null) return;
+
+        ListAvailableDocks.Remove(dock);
+
+        if (dock.Id == Guid.Empty)
+            ListAddDocks.Remove(dock);
+        else
+            ListDeletedDocks.Add(dock);
+
+        UpdateDirtyFlag();
+        UpdateSaveButtonState();
+        StateHasChanged();
+    }
+
+    private void NotifyChange<T>(Expression<Func<T>> field, Action assign)
+    {
+        assign();
+        var fieldId = FieldIdentifier.Create(field);
+        editContext?.NotifyFieldChanged(fieldId);
+        UpdateDirtyFlag();
+    }
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+
+    #region Validations
+
+    // Event Save
+    private bool ValidateSideBar()
+    {
+        messageStore?.Clear(); // Clears previous validations
+        var context = new ValidationContext(DesignerDto);
+        var results = new List<ValidationResult>();
+        bool isValid = Validator.TryValidateObject(DesignerDto, context, results, validateAllProperties: true); // Validates the decorators of the attributes of the model assigned in the editContext
+        var field = FieldIdentifier.Create(() => DesignerDto.Zone.Name);
+
+        // Validate required field
+        if (string.IsNullOrWhiteSpace(DesignerDto.Zone?.Name))
+            isValid = false;
+        else
+        {
+            var (itsUnique, suggestions) = _designer.CalculateNameToValidations(DesignerDto.Zone.Name, DesignerDto.Zone.AreaId, DesignerDto.Zone.Id); // Validate duplicates and suggest names
+            if (!itsUnique)
+            {
+                var mensaje = L.Loc("The name is already in use. Suggestions: {0}", string.Join(", ", suggestions));
+                messageStore?.Add(field, mensaje);
+                isValid = false;
+            }
+        }
+        editContext.NotifyValidationStateChanged(); // Updates the editContext with the messages of manual validations
+        _hasErrors = editContext.GetValidationMessages().Any();
+        return isValid;
+    }
+
+    // Name OnBlur Event
+    private void OnNameEvent(string? name)
+    {
+        DesignerDto.Zone.Name = name;
+        var field = FieldIdentifier.Create(() => DesignerDto.Zone.Name);
+        messageStore?.Clear(field);
+
+        var (itsUnique, suggestions) = _designer.CalculateNameToValidations(DesignerDto.Zone.Name, DesignerDto.Zone.AreaId, DesignerDto.Zone.Id); // Unique
+        if (!itsUnique)
+        {
+            messageStore?.Add(field, L.Loc("The name is already in use. Suggestions: {0}", string.Join(", ", suggestions)));
+            _hasErrors = true;
+        }
+        else
+            _hasErrors = !string.IsNullOrEmpty(editContext.GetValidationMessages(field).FirstOrDefault()); // Clears errors ONLY if there are no longer any validation messages in the context
+
+        editContext.NotifyValidationStateChanged();
+        MarkDirty();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private Task ToggleInbound(bool? value)
+    {
+        var checkedValue = value ?? false;
+
+        if (checkedValue)
+        {
+            DesignerDto.IsIn = true;
+            DesignerDto.IsOut = false;
+        }
+        else
+        {
+            DesignerDto.IsIn = false;
+            DesignerDto.IsOut = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleOutbound(bool? value)
+    {
+        var checkedValue = value ?? false;
+
+        // If Outbound is enabled, disable Inbound
+        if (checkedValue)
+        {
+            DesignerDto.IsOut = true;
+            DesignerDto.IsIn = false;
+        }
+        else
+        {
+            // If an attempt is made to uncheck Outbound, Inbound is checked.
+            DesignerDto.IsOut = false;
+            DesignerDto.IsIn = true;
+        }
+
+        return Task.CompletedTask;
+    }
+
+
+    #endregion
+
+    #region Dirty tracking
+    private bool HasStageChanged(StageDto original, StageDto current)
+    {
+        if (original == null || current == null)
+            return false;
+
+        var props = typeof(StageDto).GetProperties();
+
+        foreach (var p in props)
+        {
+            if (!p.CanRead || !p.CanWrite)
+                continue;
+
+            // Ignoramos Zone porque la comparamos aparte
+            if (p.Name == nameof(StageDto.Zone))
+                continue;
+
+            var oldValue = p.GetValue(original);
+            var newValue = p.GetValue(current);
+
+            if (!Equals(oldValue, newValue))
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Compara la lista original de docks disponibles con la actual.
+    /// Marca dirty si se agrega, quita o cambia alguno.
+    /// </summary>
+    private bool HaveDocksChanged(
+        List<AvailableDocksPerStageDto> baseline,
+        List<AvailableDocksPerStageDto> current)
+    {
+        if (baseline == null || current == null)
+            return false;
+
+        if (baseline.Count != current.Count)
+            return true;
+
+        // Ordenamos para comparar en forma estable
+        var orderedBase = baseline
+            .OrderBy(d => d.DockId)
+            .ThenBy(d => d.Id)
+            .ToList();
+
+        var orderedCurr = current
+            .OrderBy(d => d.DockId)
+            .ThenBy(d => d.Id)
+            .ToList();
+
+        for (int i = 0; i < orderedBase.Count; i++)
+        {
+            var b = orderedBase[i];
+            var c = orderedCurr[i];
+
+            // Lo importante para Stage es que sea el mismo Dock asociado
+            if (b.DockId != c.DockId)
+                return true;
+
+            // Si quieres ser más estricto:
+            if (!string.Equals(b.Name, c.Name, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private AvailableDocksPerStageDto CloneDock(AvailableDocksPerStageDto d)
+    {
+        if (d == null) return new AvailableDocksPerStageDto();
+
+        return new AvailableDocksPerStageDto
+            {
+                Id = d.Id,
+                DockId = d.DockId,
+                StageId = d.StageId,
+                Name = d.Name
+            };
+    }
+
+    #endregion
+
+    #region Save Button Status
+
+    public void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _baselineDocks = ListAvailableDocks.Select(CloneDock).ToList();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+
+    private string BuildFingerprint()
+    {
+        return string.Join("|",
+            DesignerDto?.Id,
+            DesignerDto?.Zone?.Id,
+            DesignerDto?.Zone?.Name,
+            DesignerDto?.Zone?.MaxContainers,
+            DesignerDto?.Zone?.MaxEquipments,
+            DesignerDto?.IsIn,
+            DesignerDto?.IsOut,
+
+            DesignerDto?.EntryCapacity,
+        DesignerDto?.ExitCapacity,
+        DesignerDto?.MixCarriers
+        );
+    }
+
+    public void MarkDirty()
+    {
+        UpdateDirtyFlag();
+    }
+
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        MarkDirty();
+    }
+
+    private void HandleValidationStateChanged(object? sender, ValidationStateChangedEventArgs e)
+    {
+        _hasErrors = editContext.GetValidationMessages().Any();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateDirtyFlag()
+    {
+        // Compare current fingerprint vs baseline fingerprint
+        var currentFingerprint = BuildFingerprint();
+        bool stageChanged = currentFingerprint != _baselineFingerprint;
+        bool docksChanged = HaveDocksChanged(_baselineDocks, ListAvailableDocks); // Compare docks list
+        _isDirty = stageChanged || docksChanged;
+
+        UpdateSaveButtonState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSaveButtonState()
+    {
+        _hasErrors = editContext?.GetValidationMessages().Any() == true;
+    }
+
+    #endregion
+}

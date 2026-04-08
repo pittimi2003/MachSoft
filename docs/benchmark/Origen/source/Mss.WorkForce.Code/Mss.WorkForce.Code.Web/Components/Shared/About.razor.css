@@ -1,0 +1,30 @@
+﻿.about-container {
+    flex-direction: column;
+    padding: 5px 0;
+}
+
+.about-info {
+    justify-content:center;
+    padding: 4px 8px;
+}
+
+
+.about-licence{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: scroll;
+    padding: 0 8px;
+}
+
+.copyright {
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mlx-ico-close-sm::before{
+    font-size: 20px !important;
+}

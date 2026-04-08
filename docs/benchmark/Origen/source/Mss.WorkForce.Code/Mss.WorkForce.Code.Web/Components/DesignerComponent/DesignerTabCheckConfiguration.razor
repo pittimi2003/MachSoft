@@ -1,0 +1,189 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Models.Resources
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+
+<div id="idCheckConfigurationView" class="mlx-right-sideBar-body-height-form">
+    @if (!ShouldReload)
+    {
+        <div class="mlx-right-sideBar-body-form-height center-elements-in-content">
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <div>@L.Loc("Checking configuration...")</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="right-side-content">
+            <button type="button" class="btn-mlx btn-mlx-blue-primary" onclick="toggleAllAccordions()">@L.Loc("Show/Hide all")</button>
+        </div>
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                <div class="row">
+                    <div class="col-xl-12 col-sm-12">
+                        @if (DataConfiguration != null)
+                        {
+                            <!-- Primero los que tienen datos -->
+                            @foreach (var key in KeyOrder)
+                            {
+                                var id = $"idConfigurationKey{key}";
+                                var values = DataConfiguration.ContainsKey(key) ? DataConfiguration[key] : new List<ResourceMessage>();
+
+                                if (values != null && values.Any())
+                                {
+                                    <div class="accordion">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="@($"#{id}")" aria-expanded="true" aria-controls="@id">
+                                                    <span class="mlx-title-h3">@L.Loc(key).ToUpperInvariant()</span>
+                                                </button>
+                                            </h2>
+                                            <div id="@id" class="action-event-open-all-checking accordion-collapse collapse">
+                                                <div class="accordion-body">
+                                                    <div class="row">
+                                                        <div class="col-xl-12 col-sm-12">
+                                                            <ul>
+                                                                @foreach (var item in values)
+                                                                {
+                                                                    <li class="accordion-body-subtitle-check">@L.LocByKey(item.Key, item.DefaultValue, item.Arguments?.Cast<object>().ToArray() ?? null)</li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            <!-- Luego los vacíos -->
+                            @foreach (var key in KeyOrder)
+                            {
+                                var values = DataConfiguration.ContainsKey(key) ? DataConfiguration[key] : new List<ResourceMessage>();
+
+                                if (values == null || !values.Any())
+                                {
+                                    <div class="accordion-no-items d-flex align-items-center mb-2">
+                                        <span class="mlx-ico-check ms-2"></span>
+                                        <span class="mlx-title-h3">@L.Loc(key).ToUpperInvariant()</span>
+                                    </div>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <div>@L.Loc("No data for that warehouse")</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mlx-right-sideBar-footer">
+            <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => Close())">@L.Loc("Cancel")</button>
+        </div>
+    }
+</div>
+
+@code {
+    private Dictionary<string, List<ResourceMessage>> DataConfiguration;
+
+    [Inject] private IDesignerServices _designer { get; set; }
+
+    [Inject] private IJSRuntime JS { get; set; }
+
+    [Parameter] public LayoutDto Dto { get; set; }
+
+    [Parameter]
+    public bool ShouldReload { get; set; }
+
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+
+    //TODO: Revisar si requiere traducción
+    private readonly List<string> KeyOrder = new()
+    {
+        "Areas",
+        "Routes",
+        "Zones",
+        "Docks",
+        "Resources",
+        "Flows",
+        "Processes"
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!ShouldReload)
+        {
+            DataConfiguration = await _designer.CheckConfiguration(Dto.LayoutWarehouseDto.Id ?? Guid.Empty);
+
+            ShouldReload = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Close()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+}
+
+<style>
+    .spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 300px;
+        text-align: center;
+    }
+
+    .spinner {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #007acc;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .accordion-no-items {
+        padding: 1rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        background-color: var(--sp-color-success-light);
+    }
+
+    .mlx-ico-check::before{
+        font-family: mlx_icons;
+        font-size: 1.25rem;
+        padding-right: 8px;
+        color: var(--sp-color-success-medium);
+    }
+
+    .accordion-body-subtitle-check {
+        font-family: Segoe UI;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 20px;
+        color: var(--gl-color-smoke-900);
+    }
+</style>

@@ -1,0 +1,209 @@
+﻿.login-container {
+    display: flex;
+    height: 100vh;
+}
+
+.welcome {
+    text-align: center;
+    color: var(--sp-color-bg-headertable);
+    line-height: normal;
+    font-family: Raleway;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: .08em;
+    margin-bottom: 6%;
+    margin-top: unset;
+}
+
+.form-login {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.login-left {
+    flex: auto;
+    flex-basis: 50%;
+    background-color: var(--sp-color-bg-brand);
+}
+
+.login-logo {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    height: 100vh;
+    width: 100vw;
+}
+
+.login-image {
+    position: absolute !important;
+    margin-top: 5% !important;
+    margin-left: 3% !important;
+    height: 9% !important;
+    width: 25% !important;
+}
+
+.login {
+    flex: auto;
+    flex-basis: 50%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-copyright {
+    position: absolute;
+    bottom: 16px;
+    padding: 3px;
+    font-family: Segoe UI, Helvetica Neue, Droid Sans, Arial, Tahoma, Geneva, Sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sp-color-content-soft);
+    justify-content: center;
+}
+
+.login-input-container-image {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    background: var(--sp-color-bg-default);
+    border: 1px solid;
+    border-radius: 4px !important;
+    border-color: var(--sp-color-border-default);
+    color: var(--sp-color-content-default) !important;
+    gap: 4px;
+    padding: 0 8px;
+}
+
+    .login-input-container-image input {
+        background: none;
+        font-family: Segoe UI, Helvetica Neue, Droid Sans, Arial, Tahoma, Geneva, Sans-serif;
+        font-size: 14px;
+        border: none !important;
+        width: 100%;
+        outline: none;
+    }
+
+        .login-input-container-image input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 50px white inset;
+            -webkit-text-fill-color: #333;
+        }
+
+            .login-input-container-image input:-webkit-autofill:focus {
+                -webkit-box-shadow: 0 0 0 50px white inset; 
+                -webkit-text-fill-color: #333;
+            }
+
+    .login-input-container-image:hover {
+        border-color: var(--sp-color-border-focus-keyboard);
+    }
+
+.login-form-input {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 25px;
+}
+
+.login-container-buttons {
+    gap: 24px;
+    align-items: center;
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.login-form-input label {
+    color: var(--sp-color-bg-headertable);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 15px;
+    padding-bottom: 5px;
+}
+
+.login-large-btn {
+    width: 250px;
+}
+
+.mlx-ico-user-circle-light::before, .mlx-ico-lock-close-light::before {
+    font-size: 20px;
+    color: var(--sp-color-icon-disabled);
+}
+
+.login-input-container-image:hover .mlx-ico-user-circle-light::before,
+.login-input-container-image:hover .mlx-ico-lock-close-light::before {
+    color: var(--sp-color-icon-link);
+}
+
+/*Dropdown lenguaje*/
+.login-select-wrapper {
+    position: relative;
+}
+    .login-select-wrapper .mlx-ico-language {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+        .login-select-wrapper .mlx-ico-language::before {
+            font-size: 20px;
+            color: var(--sp-color-icon-disabled);
+        }
+
+    .login-select-wrapper:hover .mlx-ico-language::before {
+        color: var(--sp-color-icon-link);
+    }
+
+.login-select {
+    display: block;
+    width: 100%;
+    height: 40px;
+    box-sizing: border-box;
+    border: 1px solid var(--sp-color-border-default);
+    border-radius: 4px;
+    background-color: var(--sp-color-bg-default);
+    font-family: Segoe UI;
+    font-size: 14px;
+    color: var(--sp-color-content-default);
+    padding-left: 40px;
+    padding-right: 40px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none;
+    outline: none;
+}
+
+    .login-select:hover,
+    .login-select:focus {
+        border-color: var(--sp-color-border-focus-keyboard);
+    }
+
+.login-select-chevron {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    line-height: 1;
+}
+
+    .login-select-chevron,
+    .login-select-chevron::before {
+        font-size: 20px;
+        color: var(--sp-color-icon-disabled);
+    }
+
+.login-select-wrapper:hover .login-select-chevron::before {
+    color: var(--sp-color-icon-link);
+}

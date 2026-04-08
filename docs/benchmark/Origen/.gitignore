@@ -1,0 +1,17 @@
+.idea
+venv
+[Dd]ebug
+**/bin
+!bin/Process/Images/*
+obj
+deploy/*
+!deploy/.gitignore
+build/builder
+.vs
+*.csproj.user
+*.suo
+*.vsp
+~$*
+source/packages
+source/TestResults/
+/build/compilacion.log

@@ -1,0 +1,196 @@
+﻿@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@inject IEventServices EventServices
+@inject ILocalizationService L
+
+<div class="mlx-tool-bars">
+    @foreach (var action in ActionItems)
+    {
+        if (action.IsVisible)
+        {
+            <div class="mlx-item-action" title="@action.Name" @onclick="() => ExecuteAction(action)">
+                <div class="mlx-item-icon">
+                    <span class="@action.IconName" ></span>
+                </div>
+                <span class="mlx-item-title">@action.Name</span>
+            </div>
+        }
+    }
+</div>
+@code {
+    private EventActions _SelectMode;
+    private List<ActionItem> ActionItems { get; set; } = new();
+
+    [Parameter]
+    public List<EventActions> Actions { get; set; } = new();
+
+    [Parameter]
+    public string EventListener { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventActions SelectMode
+    {
+        get => _SelectMode;
+        set
+        {
+            _SelectMode = value;
+            ShowHiddeActions();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        CreateActions();
+        ShowHiddeActions();
+    }
+
+    public void ExecuteAction(ActionItem action)
+    {
+        EventServices.Publish(EventListener, new EventArguments(EventListener, action.ActionType, null));
+    }
+
+    private void ShowHiddeActions()
+    {
+        // Oculto todas las acciones
+        ActionItems.ToList().ForEach(action => action.IsVisible = false);
+
+        switch (_SelectMode)
+        {
+            case EventActions.Selected:
+                ActionItems.Where(a => a.ActionType == EventActions.Delete ||
+                                  a.ActionType == EventActions.Update ||
+                                  a.ActionType == EventActions.Clone ||
+                                  a.ActionType == EventActions.Designer ||
+                                  a.ActionType == EventActions.ChangePassword)
+                                  .ToList().ForEach(action => action.IsVisible = true);
+                break;
+            case EventActions.MultiSelected:
+                ActionItems.Where(a => a.ActionType == EventActions.New ||
+                                  a.ActionType == EventActions.Delete ||
+                                  a.ActionType == EventActions.Update)
+                                  .ToList().ForEach(action => action.IsVisible = true);
+                break;
+            case EventActions.UnSelected:
+            case EventActions.Delete:
+                ActionItems.Where(a => a.ActionType == EventActions.New).ToList().ForEach(action => action.IsVisible = true);
+                break;
+            case EventActions.Edit:
+                ActionItems.Where(a => a.ActionType == EventActions.Update).ToList().ForEach(action => action.IsVisible = true);
+                break;
+            case EventActions.Enabled:
+                ActionItems.Where(a => a.ActionType == EventActions.New ||
+                                  a.ActionType == EventActions.Delete ||
+                                  a.ActionType == EventActions.Update ||
+                                  a.ActionType == EventActions.Clone ||
+                                  a.ActionType == EventActions.Designer ||
+                                  a.ActionType == EventActions.Enabled)
+                                  .ToList().ForEach(action => action.IsVisible = true);
+                break;
+            case EventActions.Disabled:
+                ActionItems.Where(a => a.ActionType == EventActions.Delete ||
+                                  a.ActionType == EventActions.Update ||
+                                  a.ActionType == EventActions.Clone ||
+                                  a.ActionType == EventActions.Designer || 
+                                  a.ActionType == EventActions.Disabled ||
+                                  a.ActionType == EventActions.ChangePassword)
+                                  .ToList().ForEach(action => action.IsVisible = true);
+
+                break;
+            default:
+                ActionItems.Where(a => a.ActionType == EventActions.New).ToList().ForEach(action => action.IsVisible = true);
+                break;
+        }
+        StateHasChanged();
+    }
+
+    private void CreateActions()
+    {
+        foreach (var action in Actions)
+        {
+            ActionItem actionItem = null;
+
+            switch (action)
+            {
+                case EventActions.New:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.New,
+                            IconName = "mlx-ico-add",
+                            IsVisible = true,
+                            Name = L.Loc("New")
+                        };
+                    break;
+                case EventActions.Edit:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.Update,
+                            IconName = "mlx-ico-edit",
+                            IsVisible = false,
+                            Name = L.Loc("Edit")
+                        };
+                    break;
+                case EventActions.Delete:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.Delete,
+                            IconName = "mlx-ico-trash",
+                            IsVisible = false,
+                            Name = L.Loc("Delete")
+                        };
+                    break;
+                case EventActions.Clone:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.Clone,
+                            IconName = "mlx-ico-copy",
+                            IsVisible = false,
+                            Name = L.Loc("Clone")
+                        };
+                    break;
+                case EventActions.Designer:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.Designer,
+                            IconName = "mlx-ico-brush",
+                            IsVisible = false,
+                            Name = L.Loc("Design")
+                        };
+                    break;
+                case EventActions.Enabled:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.Enabled,
+                            IconName = "mlx-ico-enabled",
+                            IsVisible = false,
+                            Name = L.Loc("Enable")
+                        };
+                    break;
+                case EventActions.Disabled:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.Disabled,
+                            IconName = "mlx-ico-disabled",
+                            IsVisible = false,
+                            Name = L.Loc("Disable")
+                        };
+                    break;
+                case EventActions.ChangePassword:
+                    actionItem = new()
+                        {
+                            ActionType = EventActions.ChangePassword,
+                            IconName = "mlx-ico-lock-close",
+                            IsVisible = false,
+                            Name = L.Loc("Change password")
+                        };
+                    break;
+            }
+
+            if (actionItem != null)
+                ActionItems.Add(actionItem);
+        }
+    }
+
+}

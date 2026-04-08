@@ -1,0 +1,267 @@
+﻿@page "/home"
+
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Services
+@using System.Globalization
+
+@inject NavigationManager NavigationManager
+@inject DataAccess dataAccess
+@inject SendParamService _SendParamService
+@inject ILocalizationService L
+@inject IJSRuntime JS
+@attribute [Authorize]
+
+<div id="MenuContainer" class="d-flex justify-content-center vh-100" style="overflow-y: auto;">
+	@if (isWarehouse)
+	{
+		<div class="mlx-menu">
+			<div class="menu-header">
+				<span class="header-title">@L.Loc("WORKING PLANNING")</span>
+			</div>
+			<div class="menu-content">
+				<div class="container">
+					<div class="row">
+
+						<a href="./live-schedule" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-planification-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Live schedule")</span>
+							</div>
+						</a>
+
+						<a href="./workers-operations" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-workers-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Workers operations")</span>
+							</div>
+						</a>
+
+						<a href="./equipments-operations" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-equipment-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Equipment operations")</span>
+							</div>
+						</a>
+
+						@*<a href="./yard-operations" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-yard-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Yard operations")</span>
+							</div>
+						</a>*@ 
+
+
+					</div>
+				</div>
+			</div>
+
+			<div class="menu-header">
+				<span class="header-title">@L.Loc("SCENARIO SIMULATION AND DESIGN")</span>
+			</div>
+			<div class="menu-content">
+				<div class="container">
+					<div class="row">
+						<a href="./scenario-planner" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-preview-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Scenarios planner")</span>
+							</div>
+						</a>
+						<a href="./project-designer" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-brush-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Project designer")</span>
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="menu-header">
+				<span class="header-title">@L.Loc("MASTER DATA")</span>
+			</div>
+			<div class="menu-content">
+				<div class="container">
+					<div class="row">
+						<a href="./organization" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-organization-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Organization")</span>
+							</div>
+						</a>
+						<a href="./warehouses" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-warehouse-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Warehouses")</span>
+							</div>
+						</a>
+						<a href="./users" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-users-group-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Users")</span>
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="menu-header">
+				<span class="header-title">@L.Loc("GENERAL CONFIGURATION")</span>
+			</div>
+			<div class="menu-content">
+				<div class="container">
+					<div class="row">						
+						<div class="col-auto">
+							<div id="SubMenuWorker" class="menu-item @CurrentHeigthLabor" @onclick="ShowSubMenuLabor">
+								<div class="item-icon">
+									<span class="mlx-ico-workers-light"></span>
+								</div>
+								<div class="item-title">
+									<span>@L.Loc("Work profiles")</span>
+									<div class="item-icon-chevron">
+										<i class="@(subMenuLaborActive ?  "mlx-ico-chevron-up" : "mlx-ico-chevron-down")"></i>
+									</div>	
+								</div>	
+								<div class="mlx-submenu">
+									<a href="@GetTabUrl("tab1", "work-profile")"  class="submenu-item" @onclick:preventDefault @onclick='() => GotoTab("tab1", "/work-profile")'>@L.Loc("Base profiles")</a>
+									<a href="@GetTabUrl("tab2", "work-profile")"  class="submenu-item" @onclick:preventDefault @onclick='() => GotoTab("tab2", "/work-profile")'>@L.Loc("Operators profiles")</a>
+									<a href="@GetTabUrl("tab3", "work-profile")"  class="submenu-item" @onclick:preventDefault @onclick='() => GotoTab("tab3", "/work-profile")'>@L.Loc("Equipment profiles")</a>
+								</div>
+							</div>
+						</div>
+						<div class="col-auto">
+							<div id="SubMenuLogistics" class="menu-item @CurrentHeigthConfig" @onclick="ShowSubMenuConfig">
+								<div class="item-icon">
+									<span class="mlx-ico-data-source-light"></span>
+								</div>
+								<div class="item-title">
+									<span>@L.Loc("Logistics profiles")</span>
+									<div class="item-icon-chevron">
+										<i class="@(subMenuConfigActive ?  "mlx-ico-chevron-up" : "mlx-ico-chevron-down")"></i>
+									</div>
+								</div>
+								<div class="mlx-submenu">										
+									<a href="@GetTabUrl("tab1", "logistics-profile")"  class="submenu-item" @onclick:preventDefault  @onclick='() => GotoTab("tab1", "/logistics-profile")'>@L.Loc("Base profiles")</a>
+									<a href="@GetTabUrl("tab2", "logistics-profile")" class="submenu-item" @onclick:preventDefault  @onclick='() => GotoTab("tab2", "/logistics-profile")'>@L.Loc("Order profiles")</a>
+									<a href="@GetTabUrl("tab3", "logistics-profile")"  class="submenu-item" @onclick:preventDefault @onclick='() => GotoTab("tab3", "/logistics-profile")'>@L.Loc("Load profiles")</a>
+								</div>
+							</div>
+						</div>
+						<a href="./alerts" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-alert-management-light"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("Alerts")</span>
+							</div>
+						</a>
+
+						<div class="col-auto">
+							<div id="SubMenuParameters" class="menu-item @CurrentHeigthParameters" @onclick="ShowSubMenuParameters">
+								<div class="item-icon">
+									<span class="mlx-ico-parameters-light"></span>
+								</div>
+								<div class="item-title">
+									<span>@L.Loc("Parameters")</span>
+									<div class="item-icon-chevron">
+										<i class="@(subMenuParametersActive ?  "mlx-ico-chevron-up" : "mlx-ico-chevron-down")"></i>
+									</div>
+								</div>
+								<div class="mlx-submenu">
+									<a href="@GetTabUrl("tab1", "parameters")" class="submenu-item" @onclick:preventDefault @onclick='() => GotoTab("tab1", "/parameters")'>@L.Loc("Priority of execution")</a>
+									<a href="@GetTabUrl("tab2", "parameters")" class="submenu-item" @onclick:preventDefault @onclick='() => GotoTab("tab2", "/parameters")'>@L.Loc("SLA")</a>
+								</div>
+							</div>
+						</div>
+						
+						<a href="./transactionLog" class="menu-item">
+							<div class="item-icon">
+								<span class="mlx-ico-exchange"></span>
+							</div>
+							<div class="item-title">
+								<span>@L.Loc("TransactionLog")</span>
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+</div>
+
+@code {
+	private bool subMenuConfigActive = false;
+	private bool subMenuLaborActive = false;
+	private bool subMenuParametersActive = false;
+	private string CurrentHeigthConfig => subMenuConfigActive ? "menu-item-all menu-item-3" : "menu-item-fixed";
+	private string CurrentHeigthLabor => subMenuLaborActive ? SizeStyle : "menu-item-fixed";
+	private string CurrentHeigthParameters => subMenuParametersActive ? "menu-item-all menu-item-2" : "menu-item-fixed";
+	private const string FUNCTIONSCROLLJS = "menuHomeScrollAnimation";
+	private bool isWarehouse = false;
+	private bool IsExtraSize => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName is "es";
+	private string SizeStyle => IsExtraSize ? "menu-item-all menu-item-3-xl" : "menu-item-all menu-item-3";
+	protected override void OnInitialized()
+	{
+		isWarehouse = dataAccess.GetWarehouses().Count() > 0;
+	}
+
+	private void GotoTab(string tabKey, string page)
+	{
+		_SendParamService.ActiveTab = tabKey;
+		NavigationManager.NavigateTo(page);
+	}
+
+	private string GetTabUrl(string tabKey, string page) => $"/{page}?tab={tabKey}";
+
+	private void NavigateToPage(string page) => NavigationManager.NavigateTo(page);
+
+	private async Task ShowSubMenuConfig()
+	{
+		subMenuConfigActive = !subMenuConfigActive;
+		if (subMenuConfigActive)
+		{
+			await JS.InvokeVoidAsync(FUNCTIONSCROLLJS, "#SubMenuLogistics", "#MenuContainer");
+		}
+	}
+
+	private async Task ShowSubMenuLabor()
+	{
+		subMenuLaborActive = !subMenuLaborActive;
+		if (subMenuLaborActive)
+		{
+			await JS.InvokeVoidAsync(FUNCTIONSCROLLJS, "#SubMenuWorker", "#MenuContainer");
+		}
+	}
+
+	private async Task ShowSubMenuParameters()
+	{
+		subMenuParametersActive = !subMenuParametersActive;
+		if (subMenuParametersActive)
+		{
+			await JS.InvokeVoidAsync(FUNCTIONSCROLLJS, "#SubMenuParameters", "#MenuContainer");
+		}
+	}
+
+}
+
+
+

@@ -1,0 +1,78 @@
+﻿@page "/logistics-profile"
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.PanelEditor
+@using DevExpress.Blazor
+@inject NavigationManager Navigation
+@inject SendParamService _SendParamService
+@inject IInitialDataService _InitialDataService
+@inject ILocalizationService l
+@attribute [Authorize]
+
+
+<div class="col-md-3" style="padding: 10px 10px 0px;">
+    <SitePreview ValueChanged="OnSiteSeleccionadaChanged" />
+</div>
+<div class="accordion-container">
+    <div class="mlx-row-header">
+        <div class="row">
+            <div class="col">
+                <div class="accordion-item">
+                    <DxTabs CssClass="mlx-tabs" @bind-ActiveTabIndex="activeTabIndex" TabClick="OnTabClick">
+                        <DxTabPage Text="@l.Loc("Base profiles")">
+                            <div class="row">
+                                <div class="col-md">
+                                    <PanelEditor TEntity="LoadProfileDto" Title="Packaging profile" WarehouseId="WarehouseId" Data="DataLoadProfile" OnSaveChanges="SaveChangesInDataBase" UserFormat="userFormat"></PanelEditor>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md">
+                                    <PanelEditor TEntity="VehicleProfileDto" Title="Vehicle profile" WarehouseId="WarehouseId" Data="DataVehicleProfile" OnSaveChanges="SaveChangesInDataBase" UserFormat="userFormat"></PanelEditor>
+                                </div>
+                            </div>
+                            @*<div class="row">
+                                <div class="col-md">
+                                    <PanelEditor TEntity="PutawayProfileDto" Title="Time storage profile" WarehouseId="WarehouseId" Data="DataPutawayProfile" OnSaveChanges="SaveChangesInDataBase" UserFormat="userFormat"></PanelEditor>
+                                </div>
+                            </div>*@
+                        </DxTabPage>
+                        <DxTabPage Text="@l.Loc("Order profiles")">
+                            @if (HasDataBaseProfile)
+                            {
+                                <div class="row MessageNodataBase">
+                                    <span class="text-danger" style="font-size: 12px;">@MESSAGEDEPENDENCIES</span>
+                                </div>
+                            }
+
+                            <div class="row">
+                                <div class="col-md">
+                                    <PanelEditor TEntity="OrderProfilesDto" Title="" WarehouseId="WarehouseId" Data="DataPreprocessProfile" OnSaveChanges="SaveChangesInDataBase" PageSizeBase="25" UserFormat="userFormat"></PanelEditor>
+                                </div>
+                            </div>
+                        </DxTabPage>
+                        <DxTabPage Text="@l.Loc("Load profiles")">
+                            @if (HasDataBaseProfile)
+                            {
+                                <div class="row MessageNodataBase">
+                                    <span class="text-danger" style="font-size: 12px;">@MESSAGEDEPENDENCIES</span>
+                                </div>
+                            }
+
+                            <div class="row">
+                                <div class="col-md">
+                                    <PanelEditor TEntity="OrderLoadPropertiesDto" Title="" WarehouseId="WarehouseId" Data="DataOrderLoadProperties" OnSaveChanges="SaveChangesInDataBase" PageSizeBase="25" UserFormat="userFormat"></PanelEditor>
+                                </div>
+                            </div>
+                        </DxTabPage>
+
+                    </DxTabs>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

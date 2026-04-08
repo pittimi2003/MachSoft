@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>e6b574cd-6006-41a2-8b28-309cf8fc783c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mss.WorkForce.Code.ApiService\Mss.WorkForce.Code.ApiService.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.DataBaseManager\Mss.WorkForce.Code.DataBaseManager.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.HubSignalR\Mss.WorkForce.Code.HubSignalR.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.Models\Mss.WorkForce.Code.Models.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.Simulator\Mss.WorkForce.Code.Simulator.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.Web\Mss.WorkForce.Code.Web.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.WFMConnector\Mss.WorkForce.Code.WFMConnector.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.WMSSimulatorWeb\Mss.WorkForce.Code.WMSSimulatorWeb.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.WMSSimulator\Mss.WorkForce.Code.WMSSimulator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.2.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

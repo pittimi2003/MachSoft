@@ -1,0 +1,181 @@
+﻿.roller-timepicker-wrapper {
+    position: relative;
+    /*width: 200px;*/
+}
+
+.roller-input-wrapper {
+    position: relative;
+    /*width: 200px; */
+}
+
+.roller-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: 4px; /* Bordes redondeados */
+    height: 35px; /* Altura del input */
+    padding: 0 6px; /* Espaciado horizontal */
+    /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/ /* Sombra ligera */
+}
+
+.roller-input-container-background {
+    background-color: var(--sp-color-bg-default) !important; /* Fondo blanco */
+    border: solid 1px var(--sp-color-border-default) !important; /* Borde para el contenedor */
+}
+
+.roller-input-container-background-disabled {
+    background-color: var(--gl-color-smoke-100);
+    opacity: 0.6;
+    border: solid 1px var(--gl-color-smoke-300);
+}
+
+    .roller-input-container:has(:hover) {
+        /*background-color: var(--sp-color-bg-default) !important;*/
+        border: solid 1px var(--gl-color-blue-300) !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+    }
+
+.roller-input {
+    border: none;
+    background: none;
+    width: 100%; /* Ocupar todo el espacio disponible */
+    text-align: left; /* Alinear el texto a la izquierda */
+    padding: 0;
+    margin: 0;
+    outline: none; /* Quitar contorno al enfocar */
+
+    font-family: 'Segoe UI' !important;
+    text-overflow: ellipsis !important;
+    font-size: 14px !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    line-height: 17.5px !important;
+    color: var(--sp-color-content-default) !important;
+}
+
+    .roller-input:disabled {
+        color: var(--sp-color-content-default);
+        opacity: 0.8;
+    }
+
+
+.roller-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .roller-button:disabled {
+        cursor:default;
+    }
+
+    .roller-button svg {
+        width: 20px;
+        height: 20px;
+        color: #555; /* Color del ícono */
+    }
+
+.roller-timepicker {
+    position: fixed; /*estaba absolute, probar con fixed*/
+    /*top: 374px;*/
+    background: #fff;
+    border: solid 1px var(--sp-color-border-default) !important;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /*width: 9%;*/
+    z-index: 1052;
+}
+
+.roller-container {
+    /*display: flex;*/
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.roller-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.roller-column-header {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.roller-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.roller-column {
+    position: relative;
+    overflow: hidden;
+    height: 200px; /* 5 items visibles (40px cada uno) */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Asegura que el elemento seleccionado esté centrado */
+    align-items: center;
+}
+
+.roller-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0; /* Asegura que los elementos estén alineados */
+    transition: transform 0.9s ease-in-out; /* Transición suave */
+}
+
+.roller-item {
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
+    color: #555;
+}
+
+.roller-item.selected {
+    font-weight: bold;
+    color: #0056b3;
+    font-size: 18px;
+}
+
+.roller-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mlx-ico-clock-2:before {
+    color: var(--sp-color-icon-soft) !important;
+    font-size: 20px !important; 
+}
+
+.roller-timepicker .roller-container .row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.roller-timepicker .col-md-4 {
+    width: 33.33%;
+}
+
+.roller-timepicker .col-md-6 {
+    width: 50%;
+}

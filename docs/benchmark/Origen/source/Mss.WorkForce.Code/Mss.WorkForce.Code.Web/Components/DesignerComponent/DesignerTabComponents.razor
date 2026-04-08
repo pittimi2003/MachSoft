@@ -1,0 +1,742 @@
+﻿@using System.Linq
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.DTO.DisgnerTabDto
+@using Mss.WorkForce.Code.Models.DTO.Enums.Designer
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Models.DTO.Designer.DesignerTabDto
+@using Mss.WorkForce.Code.Web.Services
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@inject DataAccess dataAccess
+@inject IJSRuntime JS
+@inject ILocalizationService L
+
+@code {
+    [Parameter]
+    public LayoutDto Layout { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnElementAdding { get; set; }
+
+    [Parameter]
+    public EventCallback<(Guid id, string tab, FlowType? type)> OnElementDoubleClicked { get; set; }
+
+    [Parameter]
+    public Action? OnRenderRequest { get; set; } // ActionEvent to RenderRelatedElements
+
+    [Parameter]
+    public EventCallback<SelectionState> OnSelectionChanged { get; set; } // It is activated each time the selection of flows, areas, processes, or routes changes
+
+    [Parameter]
+    public EventCallback<(Guid id, FlowType type)> OnDeleteRequested { get; set; }
+
+    private DateTime _lastClickTime = DateTime.MinValue;
+    private Guid _lastClickedId = Guid.Empty;
+    private readonly int DoubleClickThresholdMs = 300;
+
+    private HashSet<Guid> selectedFlowIds = new(); // Flows IDs currently selected in the tab
+    private HashSet<Guid> selectedRoutesIds = new(); // Currently selected route IDs
+
+    private IReadOnlyList<AreaType> AvailableAreaTypes => RelatedAreas.Select(a => GetAreaTypeEnum(a.Type)).Distinct().ToList(); // List showing the types existing in the Layout records
+    private DesignerTabSelectionFilter<AreaType> areaFilter = new(); // Reusable filter for the Areas tab based on types
+
+    // Flags indicating whether all elements in the tab are selected
+    private bool AllFlows = false;
+    private bool AllAreas = false;
+    private bool AllProcesses = false;
+    private bool AllRoutes = false;
+
+    private bool showInfoDrawer = true;
+
+    private IEnumerable<FlowDto> RelatedFlow { get; set; } = Enumerable.Empty<FlowDto>();     // Sustituir con el tipo real
+    private IEnumerable<AreaTabDto> RelatedAreas { get; set; } = Enumerable.Empty<AreaTabDto>();     // Sustituir con el tipo real
+    private IReadOnlyList<ObjectsTypes.ProcessType> RelatedProcesses { get; set; } = Array.Empty<ObjectsTypes.ProcessType>();// Sustituir con el tipo real
+    private IEnumerable<RouteTabDto> RelatedRoutes { get; set; } = Enumerable.Empty<RouteTabDto>();
+
+    private List<FlowType> flowOrder = new List<FlowType> { FlowType.Inbound, FlowType.Outbound, FlowType.Custom }; // Define the order of the flows using the type
+    private List<string> areaOrder = new List<string> { GetStringFromZoneType(ZoneType.Dock), GetStringFromZoneType(ZoneType.Aisle), GetStringFromZoneType(ZoneType.Buffer) }; // Define the order of the areas using the type
+    private List<string> existingAreaTypes => RelatedAreas.Select(a => a.Type).Distinct().ToList();
+
+    private HashSet<ObjectsTypes.ProcessType> selectedProcessTypes = new(); // Set of selected process types
+    [Inject] private DesignerUiStateService UiState { get; set; } = default!;
+    private int ActiveTabIndex { get; set; } = 0;
+    //private string AnimationClass => "your-animation-class"; // Ajustar si usas animaciones
+
+    int currentIndex = 0;
+    int previousIndex = 0;
+
+    string AnimationClass => currentIndex > previousIndex ? "slide-left" : "slide-right";
+
+    private async Task OnTabChanged(int newIndex)
+    {
+        UiState.SetActiveTopTabIndex(newIndex);  
+        ActiveTabIndex = newIndex;                
+        // Reset the navigation index of the tabs
+        previousIndex = currentIndex;
+        currentIndex = newIndex;
+
+        // All "All" items are cleared because the selection is independent per tab
+        AllFlows = false;
+        AllAreas = false;
+        AllProcesses = false;
+        AllRoutes = false;
+
+        // The actual selection of each tab is cleared
+        selectedFlowIds = new();
+        selectedRoutesIds = new();
+        selectedProcessTypes.Clear();
+        areaFilter.Clear();
+        await JS.InvokeVoidAsync("discardCanvasSelection");
+        await JS.InvokeVoidAsync("exitRelationsMode");
+        await NotifySelectionChanged(); // Notify the parent so that Canvas can clear the filters
+
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        ActiveTabIndex = UiState.GetActiveTopTabIndex();
+        currentIndex = ActiveTabIndex;
+        previousIndex = ActiveTabIndex;
+        RelatedFlow = dataAccess.GetFlowsByWarehouseId(Layout.LayoutWarehouseDto.Id ?? Guid.Empty, flowOrder);
+        RelatedAreas = dataAccess.GetAreaTabsByLayoutId(Layout.Id, areaOrder);
+        RelatedRoutes = dataAccess.GetRoutesWithAreas(Layout.Id);
+        RelatedProcesses = dataAccess.GetProcessTypesFilter(Layout.Id);
+        await EmitSelectionChangedAsync();
+    }
+
+    private void ToggleDrawer()
+    {
+        showInfoDrawer = !showInfoDrawer;
+
+    }
+
+    public void RecalculateRelatedElements()
+    {
+        // Update the data coming from the server
+        RelatedFlow = dataAccess.GetFlowsByWarehouseId(Layout.LayoutWarehouseDto.Id ?? Guid.Empty, flowOrder);
+        RelatedAreas = dataAccess.GetAreaTabsByLayoutId(Layout.Id, areaOrder);
+        RelatedRoutes = dataAccess.GetRoutesWithAreas(Layout.Id);
+        RelatedProcesses = dataAccess.GetProcessTypesFilter(Layout.Id);
+
+        // Avoid selected IDs that no longer exist
+        selectedFlowIds.IntersectWith(RelatedFlow.Select(f => f.Id));
+        selectedRoutesIds.IntersectWith(RelatedRoutes.Select(r => r.Id));
+
+        // Keeps only valid area types
+        var validAreaTypes = AvailableAreaTypes.ToHashSet();
+        areaFilter.Selected.IntersectWith(validAreaTypes);
+
+        // If no area types exist, selection must be fully cleared
+        if (!validAreaTypes.Any())
+            areaFilter.Clear();
+
+        // Synchronize statuses of “All”
+        AllFlows = selectedFlowIds.Count == RelatedFlow.Count();
+        AllProcesses = selectedProcessTypes.Count == RelatedProcesses.Count;
+        AllRoutes = selectedRoutesIds.Count == RelatedRoutes.Count();
+        AllAreas = areaFilter.Selected.Count == validAreaTypes.Count;
+
+        // If there are no items, the All-buttons must NEVER be active
+        if (!RelatedAreas.Any())
+            AllAreas = false;
+
+        if (!RelatedProcesses.Any())
+            AllProcesses = false;
+
+        if (!RelatedFlow.Any())
+            AllFlows = false;
+
+        if (!RelatedRoutes.Any())
+            AllRoutes = false;
+
+        // Notify the parent that they must re-render
+        OnRenderRequest?.Invoke();
+        StateHasChanged();
+    }
+
+    private string GetColor(string type)
+    {
+        return type switch
+        {
+            "Aisle" => "#FFDAA6",
+            "Dock" => "#F5F6F7",
+            "Buffer" => "#D2A1E0",
+            "Stage" => "#5B9FDA",
+            "Storage" => "#FFDAA6",
+            _ => "gray"
+        };
+    }
+
+    private string GetColorFlow(FlowType type)
+    {
+        return type switch
+        {
+            FlowType.Outbound => "#247ECC",
+            FlowType.Inbound => "#68CAA7",
+            FlowType.Custom => "#92206E",
+            _ => "gray"
+        };
+    }
+
+    public SelectionState GetSelectionState()
+    {
+        return new SelectionState
+                {
+                    AreaTypeCodes = areaFilter.Selected.Select(a => (int)a).ToList(),
+                    ProcessTypeCodes = selectedProcessTypes.Select(p => (int)p).ToList(),
+                    FlowIds = selectedFlowIds.ToList(),
+                    RouteIds = selectedRoutesIds.ToList(),
+                };
+    }
+
+    private RenderFragment RenderEFlowTab => @<div class="d-flex flex-wrap gap-2">
+        <button type="button" class="button-add-in-tabs btn-mlx-blue-primary btn-mlx-blue-primary button-width-tabs-add" @onclick="@(() => HandleClickAdd("Flow"))">
+            <span class="content-white mlx-ico-add"></span>
+        </button>
+
+        <div class="elements-in-tabs @(AllFlows ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" id="mlx-outbound-float-botton-AllFlows" @onclick="@(() => HandleClickAll("Flow"))">
+            <span class="button-text-in-tabs">@L.Loc("All")</span>
+        </div>
+
+        @foreach (var item in RelatedFlow)
+        {
+            bool isSelected = selectedFlowIds.Contains(item.Id);
+            <div class="elements-in-tabs @(isSelected ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" id="mlx-outbound-float-botton-@item.Name" @onclick="@(() => HandleClick(item.Id, "Flow"))">
+                <div style="width: 16px; height: 16px; border-radius: 50%; background-color: @(GetColorFlow((FlowType)item.Type));"></div>
+                @*// TODO: Revisar si requiere traducción*@
+                <span class="button-text-in-tabs">@item.Name</span>
+
+                @if(isSelected)
+                {
+                    <button class="mlx-tab-btn-width-icon" @onclick="@(e => HandleInfoClick(item.Id, "Flow", item.Type))" @onclick:stopPropagation>
+                        <span class="mlx-ico-edit"></span>
+                    </button>
+
+                    <button class="mlx-tab-btn-width-icon" @onclick="@(e => HandleDeleteClick(item.Id, (FlowType)item.Type))" @onclick:stopPropagation>
+                        <span class="mlx-ico-trash"></span>
+                    </button>
+                }
+            </div>
+        }
+    </div>;
+
+    private RenderFragment RenderAreaTab => @<div class="d-flex flex-wrap gap-2">
+        @*<button type="button" class="button-add-in-tabs btn-mlx-blue-primary btn-mlx-blue-primary button-width-tabs-add" onclick="selectActionAddCanvas('addArea')">
+            <span class="content-white mlx-ico-add"></span>
+        </button>*@
+
+        <div class="elements-in-tabs @(AllAreas ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" id="mlx-outbound-float-botton-AllFlows" @onclick="@(() => HandleClickAll("Area"))">
+            <span class="button-text-in-tabs">@L.Loc("All")</span>
+        </div>
+
+        @foreach (var typeEnum in AvailableAreaTypes)
+        {
+            bool isSelected = areaFilter.Selected.Contains(typeEnum);
+            string type = GetAreaTypeString(typeEnum);
+            <div class="elements-in-tabs @(isSelected ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" @onclick="@(() => HandleClickAreaType(type))">
+                <div style=@($"width:16px; height:16px; border-radius:50%; background-color:{GetColor(type)}; border:2px solid #ccc;")></div>
+                @*// TODO: Revisar si requiere traducción*@
+                <span class="button-text-in-tabs">@L.Loc(type)</span>
+                @*<button class="mlx-tab-btn-width-icon" @onclick="@(e => HandleInfoClick(item.Id, "Area"))" @onclick:stopPropagation>
+                    <span class="mlx-ico-edit"></span>
+                </button>*@
+            </div>
+        }
+    </div>
+    ;
+
+    private RenderFragment RenderProcessTab => @<div class="d-flex flex-wrap gap-2">
+        @*<button type="button" class="button-add-in-tabs btn-mlx-blue-primary btn-mlx-blue-primary button-width-tabs-add" @onclick="@(() => HandleClickAdd("Process"))">
+            <span class="content-white mlx-ico-add"></span>
+        </button>*@
+
+        <div class="elements-in-tabs @(AllProcesses ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" id="mlx-outbound-float-botton-AllFlows" @onclick="@(() => HandleClickAll("Process"))">
+            <span class="button-text-in-tabs">@L.Loc("All")</span>
+        </div>
+
+        @foreach (var process in RelatedProcesses)
+        {
+            bool isSelected = selectedProcessTypes.Contains(process);
+            <div class="elements-in-tabs @(isSelected ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" @onclick="@(() => HandleClickProcess(process))">
+                <span class="button-text-in-tabs">@L.Loc(GetProcessTypeString(process))</span>
+            </div>
+        }
+        </div>
+    ;
+
+    private RenderFragment RenderRouteTab => @<div class="d-flex flex-wrap gap-2">
+        @*<button type="button" class="button-add-in-tabs btn-mlx-blue-primary btn-mlx-blue-primary button-width-tabs-add" @onclick="@(() => HandleClickAdd("Route"))">
+            <span class="content-white mlx-ico-add"></span>
+        </button>*@
+
+        <div class="elements-in-tabs @(AllRoutes ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" id="mlx-outbound-float-botton-AllFlows" @onclick="@(() => HandleClickAll("Route"))">
+            <span class="button-text-in-tabs">@L.Loc("All")</span>
+        </div>
+
+        @foreach (var item in RelatedRoutes)
+        {
+            bool isSelected = selectedRoutesIds.Contains(item.Id);
+            <div class="elements-in-tabs @(isSelected ? "background-element-in-tabs-selected" : "background-element-in-tabs-default")" id="mlx-outbound-float-botton-@item.NameFrom-@item.NameTo" @onclick="@(() => HandleClick(item.Id, "Route"))">
+                @*// TODO: Revisar si requiere traducción*@
+                <span class="button-text-in-tabs">@item.NameTo - @item.NameFrom</span>
+                @*<button class="mlx-tab-btn-width-icon" @onclick="@(e => HandleInfoClick(item.Id, "Route"))" @onclick:stopPropagation>
+                    <span class="mlx-ico-edit"></span>
+                </button>*@
+            </div>
+        }
+        </div>
+    ;
+
+    private async Task HandleClickAreaType(string type)
+    {
+        var enumValue = GetAreaTypeEnum(type); // Convert the string to the corresponding enum
+        bool wasSelected = areaFilter.Selected.Contains(enumValue); // Remove if area was deselected
+        areaFilter.Toggle(enumValue);
+        bool removed = wasSelected && !areaFilter.Selected.Contains(enumValue);
+        if (removed)
+        {
+            var processTypesForArea = dataAccess.GetProcessesByAreaType(Layout.Id, enumValue).Select(p => GetProcessTypeEnum(p.Type)).Distinct().ToList();
+            foreach (var p in processTypesForArea)
+                selectedProcessTypes.Remove(p);
+
+            AllProcesses = selectedProcessTypes.Count == RelatedProcesses.Count;
+        }
+
+        AllAreas = areaFilter.Selected.Count == AvailableAreaTypes.Count; // Update the "All" flag
+        await JS.InvokeVoidAsync("discardCanvasSelection");
+        await NotifySelectionChanged(); // Notify the parent of the change to refresh the Canvas
+    }
+
+    private async Task HandleClickProcess(ObjectsTypes.ProcessType process)
+    {
+        // Alternate the process type in the list of selections
+        if (!selectedProcessTypes.Add(process))
+            selectedProcessTypes.Remove(process);
+
+        AllProcesses = selectedProcessTypes.Count == RelatedProcesses.Count; // Actualiza estado "All"
+        await JS.InvokeVoidAsync("discardCanvasSelection");
+        await EmitSelectionChangedAsync(); // Notify the parent to update Canvas
+    }
+
+    private async Task NotifySelectionChanged()
+    {
+        // Build the current selection state
+        var state = new SelectionState
+            {
+                AreaTypeCodes = areaFilter.Selected.Select(a => (int)a).ToList(),
+                FlowIds = selectedFlowIds.ToList(),
+                ProcessTypeCodes = selectedProcessTypes.Select(p => (int)p).ToList(),
+                RouteIds = selectedRoutesIds.ToList()
+            };
+
+        await OnSelectionChanged.InvokeAsync(state); // Send the selection to the parent component
+    }
+
+    public async Task NotifyAreaCreated(AreaType areaType)
+    {
+        RecalculateRelatedElements(); // Refresh the tabs with the new data
+
+        // Automatically activates the newly created area type
+        if (!areaFilter.Selected.Contains(areaType))
+            areaFilter.Selected.Add(areaType);
+
+        AllAreas = areaFilter.Selected.Count == AvailableAreaTypes.Count; // Update status "All"
+
+        await EmitSelectionChangedAsync(); // Notify the parent to update Canvas
+    }
+
+    public async Task NotifyProcessCreated(ProcessType processType)
+    {
+        RecalculateRelatedElements(); // Refresh the tabs with the new data
+
+        // Automatically activates the newly created process type
+        if (!selectedProcessTypes.Contains(processType))
+            selectedProcessTypes.Add(processType);
+
+        AllProcesses = selectedProcessTypes.Count == RelatedProcesses.Count; // Update status "All"
+
+        await EmitSelectionChangedAsync(); // Notify the parent to update Canvas
+    }
+
+    private async Task HandleClickAll(string page)
+    {
+        switch (page)
+        {
+            case "Area":
+                if (!RelatedAreas.Any()) return; // Do not press the button if there are no items
+                if (!AllAreas)
+                {
+                    areaFilter.SelectAll(AvailableAreaTypes);
+                    AllAreas = true;
+                }
+                else
+                {
+                    areaFilter.Clear();
+                    AllAreas = false;
+                }
+                await JS.InvokeVoidAsync("discardCanvasSelection");
+                await NotifySelectionChanged();
+                return;
+
+            case "Flow":
+                if (!RelatedFlow.Any()) return; // Do not press the button if there are no items
+                if (!AllFlows)
+                {
+                    selectedFlowIds = RelatedFlow.Select(x => x.Id).ToHashSet();
+                    AllFlows = true;                   
+                }
+                else
+                {
+                    selectedFlowIds.Clear();
+                    AllFlows = false;
+                }           
+                await JS.InvokeVoidAsync("exitRelationsMode");
+                break;
+            case "Process":
+                if (!RelatedProcesses.Any()) return; // Do not press the button if there are no items
+                if (!AllProcesses)
+                {
+                    selectedProcessTypes = RelatedProcesses.ToHashSet();
+                    AllProcesses = true;
+                }
+                else
+                {
+                    selectedProcessTypes.Clear();
+                    AllProcesses = false;
+                }
+                await NotifySelectionChanged();
+                return;
+            case "Route":
+                if (!RelatedRoutes.Any()) return; // Do not press the button if there are no items
+                if (!AllRoutes)
+                {
+                    selectedRoutesIds = RelatedRoutes.Select(x => x.Id).ToHashSet();
+                    AllRoutes = true;
+                }
+                else
+                {
+                    selectedRoutesIds.Clear();
+                    AllRoutes = false;
+                }
+                break;
+
+        }
+
+        await EmitSelectionChangedAsync();
+        await JS.InvokeVoidAsync("discardCanvasSelection");
+    }
+
+    private async Task HandleInfoClick(Guid id, string tab, FlowType? type = null)
+    {
+        StateHasChanged();
+        await OnElementDoubleClicked.InvokeAsync((id, tab, type));
+    }
+
+    public async Task SelectAreaType(AreaType? type)
+    {        
+        if (type is null)
+           return;
+
+           areaFilter.Toggle(type.Value);
+           AllAreas = areaFilter.Selected.Count == AvailableAreaTypes.Count;
+
+        await NotifySelectionChanged();
+    }
+
+    public async Task HandleClick(Guid id, string tab)
+    {
+        switch (tab)
+        {
+            case "Flow":
+                if (!selectedFlowIds.Add(id))
+                    selectedFlowIds.Remove(id);
+
+                AllFlows = selectedFlowIds.Count() == RelatedFlow.Count(); // Enable AllFlows if all items are selected or deselected
+                await JS.InvokeVoidAsync("exitRelationsMode");
+                break;
+
+            case "Route":
+                if (!selectedRoutesIds.Add(id))
+                    selectedRoutesIds.Remove(id);
+
+                AllRoutes = selectedRoutesIds.Count() == RelatedRoutes.Count(); // Enable AllRoutes if all items are selected or deselected
+                break;
+        }
+        await JS.InvokeVoidAsync("discardCanvasSelection");
+        await EmitSelectionChangedAsync();
+    }
+
+    public bool ValidExistActiveObjects(Guid id, string tab)
+    {
+        switch (tab)
+        {
+            case "Flow":
+                return selectedFlowIds.Contains(id);
+            case "Route":
+                return selectedRoutesIds.Contains(id);
+            default:
+            return false;
+        }
+    }
+
+    public async Task HandleClickAdd(string tab)
+    {
+        await OnElementAdding.InvokeAsync(tab);
+    }
+
+    private Task HandleDeleteClick(Guid id, FlowType type) => OnDeleteRequested.InvokeAsync((id, type));
+
+    private async Task EmitSelectionChangedAsync()
+    {
+        // Build the complete selection state
+        var state = new SelectionState
+            {
+                AreaTypeCodes = areaFilter.Selected.Select(a => (int)a).ToList(),
+                FlowIds = selectedFlowIds.ToList(),
+                ProcessTypeCodes = selectedProcessTypes.Select(p => (int)p).ToList(),
+                RouteIds = selectedRoutesIds.ToList(),
+            };
+
+        await OnSelectionChanged.InvokeAsync(state); // Send to the parent to update Canvas
+    }
+    private SelectionState? _baseStateForRestore;
+
+    public void CaptureBaseSelectionState()
+    {
+        _baseStateForRestore = GetSelectionState(); // usa tu método existente
+    }
+    public SelectionState? ExportBaseSelectionState()
+    => _baseStateForRestore;
+
+    public void ImportBaseSelectionState(SelectionState? state)
+    => _baseStateForRestore = state;
+
+    public Task ClearAllSelectionsForRelationsMode()
+    {
+        AllFlows = AllAreas = AllProcesses = AllRoutes = false;
+
+        selectedFlowIds.Clear();
+        selectedRoutesIds.Clear();
+        selectedProcessTypes.Clear();
+        areaFilter.Clear();
+
+        StateHasChanged();
+        return Task.CompletedTask;
+}
+
+   public async Task RestoreBaseSelectionState()
+{
+    if (_baseStateForRestore is null)
+        return;
+
+    selectedFlowIds = (_baseStateForRestore.FlowIds ?? Enumerable.Empty<Guid>()).ToHashSet();
+    selectedRoutesIds = (_baseStateForRestore.RouteIds ?? Enumerable.Empty<Guid>()).ToHashSet();
+
+    selectedProcessTypes = (_baseStateForRestore.ProcessTypeCodes ?? Enumerable.Empty<int>())
+        .Select(x => (ObjectsTypes.ProcessType)x)
+        .ToHashSet();
+
+    areaFilter.Clear();
+    foreach (var code in _baseStateForRestore.AreaTypeCodes ?? Enumerable.Empty<int>())
+        areaFilter.Selected.Add((AreaType)code);
+
+    var validAreaTypes = AvailableAreaTypes.ToHashSet();
+
+    AllAreas = areaFilter.Selected.Count == validAreaTypes.Count && validAreaTypes.Any();
+    AllFlows = selectedFlowIds.Count == RelatedFlow.Count() && RelatedFlow.Any();
+    AllRoutes = selectedRoutesIds.Count == RelatedRoutes.Count() && RelatedRoutes.Any();
+    AllProcesses = selectedProcessTypes.Count == RelatedProcesses.Count && RelatedProcesses.Any();
+
+    await NotifySelectionChanged();
+    StateHasChanged();
+}
+}
+
+<div class="designerTabComponent-container">
+    <div class="mlx-preview-section-button-chevron">
+        <div class="mlx-row-chevron">
+            <button id="btnDrawerInfoPreview"
+                    class="mlx-btn-action-enabled mlx-btn-chevron"
+                    @onclick="ToggleDrawer">
+                <span class="@(showInfoDrawer ? "mlx-ico-chevron-down" : "mlx-ico-chevron-up")"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="@(showInfoDrawer ? "mlx-preview-section-simulation-data" : "mlx-preview-section-simulation-data-hidden")">
+        <div class="row w-100 mlx-panel">
+            <DxTabs Position="TabPosition.Top" CssClass="mlx-tabs mlx-tabs-for-details gap-10 flex-flow-row overflow-auto"
+                     ActiveTabIndex="@ActiveTabIndex"
+                    ActiveTabIndexChanged="OnTabChanged">
+                    <DxTabPage Text="@L.Loc("Flow")">
+                        <div class="@AnimationClass">
+                            @RenderEFlowTab
+                        </div>
+                    </DxTabPage>
+                
+               
+                    <DxTabPage Text="@L.Loc("Area")">
+                        <div class="@AnimationClass">
+                            @RenderAreaTab
+                        </div>
+                    </DxTabPage>
+                
+               
+                    <DxTabPage Text="@L.Loc("Process")">
+                        <div class="@AnimationClass">
+                            @RenderProcessTab
+                        </div>
+                    </DxTabPage>
+                
+
+               
+                    <DxTabPage Text="@L.Loc("Routes")">
+                        <div class="@AnimationClass">
+                            @RenderRouteTab
+                        </div>
+                    </DxTabPage>
+                
+            </DxTabs>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .mlx-preview-section-header {
+        flex-grow: 0;
+    }
+
+    .mlx-tabs-for-details {
+        min-width: 0;
+        width: 100%;
+        display: block;
+    }
+
+
+    .mlx-preview-section-simulation-data {
+        flex-grow: 1;
+        overflow-y: auto;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .mlx-preview-section-simulation-data-hidden {
+        flex-basis: 0px;
+        flex-grow: 0;
+        overflow: hidden;
+        max-height: 0;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .mlx-preview-section-button-action {
+        flex-basis: 60px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    #btnReloadPreview {
+        width: 40px;
+    }
+
+    .designerTabComponent-container {
+        background-color: var(--gl-color-brand-400);
+        z-index: 5;
+        padding-right: 20px;
+    }
+
+    .designerTabComponent-container .dxbl-tabs-content-panel.dxbl-tabs-render-default.dxbl-loaded {
+        overflow: hidden auto;
+        min-height: 95px;
+        max-height: calc(100vh - 978px);
+        margin-top: 16px;
+    }
+
+    .designerTabComponent-container .mlx-panel{
+        margin: 5px 0 10px;
+    }
+
+    .designerTabComponent-container .dxbl-tabs.dxbl-tabs-content-panel.dxbl-tabs-content{
+        margin-top: 14px;
+    }
+
+    /* -------------Style Buttons------------- */
+    .elements-in-tabs{
+        padding: 8px 16px;
+    }
+    
+    .elements-in-tabs,
+    .button-add-in-tabs {
+        display: flex;
+        border-radius: 99999px;
+        height: 32px;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .button-width-tabs-add {
+        width: 32px;
+    }
+
+    .background-element-in-tabs-default{
+        background: var(--sp-color-bg-soft);
+        border: 2px solid transparent;
+    }
+
+    .background-element-in-tabs-default:hover{
+        background: var(--sp-color-bg-selected);
+        border: 2px solid transparent;
+    }
+
+    .background-element-in-tabs-selected{
+        background: var(--sp-color-bg-default);
+        border: 2px solid var(--sp-color-border-inverse);
+    }
+
+    .background-element-in-tabs-selected:hover {
+        border: 2px solid var(--sp-color-border-inverse); 
+        background: var(--sp-color-bg-selected);
+    }
+
+    .background-element-in-tabs-default,
+    .background-element-in-tabs-selected{
+        min-width: max-content;
+        cursor: pointer;
+    }
+
+    .button-text-in-tabs{
+        color: var(--sp-color-content-default);
+        font-family: "Segoe UI";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        user-select: none;
+    }
+
+    .mlx-tab-btn-width-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: none;
+        border: none;
+        padding: 0;
+        border-radius: 99999px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .mlx-tab-btn-width-icon:hover:not(:disabled) {
+        background-color: var(--sp-color-bg-soft);
+    }
+
+    /*Span size icon*/
+    .mlx-tab-btn-width-icon > span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+    /* --------------------------------------- */
+</style>

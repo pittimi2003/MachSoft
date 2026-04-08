@@ -1,0 +1,259 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.Shared
+@inject ILocalizationService L
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="@editContext">
+        <DataAnnotationsValidator />
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            @* Section without tabs *@
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                <div class="row">
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Name")</label>
+                        <DxTextBox CssClass="mlx-form-textbox" @bind-Text="@DesignerDto.Name" />
+                        <ValidationMessage class="text-danger" For="@(() => DesignerDto.Name)" />
+                    </div>
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Bidirectional")</label>
+                        <div class="mlx-checkbox-container">
+                            <DxCheckBox class="text-danger" CssClass="mlx-check-box align-items-center" @bind-Checked="@DesignerDto.Bidirectional"></DxCheckBox>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Outbound area")</label>
+                        <MlxComboBox Data="@FilteredOutboundAreaItems()" CssClass="mlx-form-select" Value="@DesignerDto.OutboundArea" ValueFieldName="Id" TextFieldName="@nameof(DesignerDto.OutboundArea.Name)" NullText="@L.Loc("Select...")" ValueChanged="@((AreaDto area) => OnValueChangedOutbound(area))" ValueExpression="@(() => DesignerDto.OutboundArea)" TextExpression="@(() => DesignerDto.OutboundArea.Name)" />
+                        <ValidationMessage class="text-danger" For="@(() => DesignerDto.OutboundAreaId)" />
+                    </div>
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Inbound area")</label>
+                        <MlxComboBox Data="@FilteredInboundAreaItems()" CssClass="mlx-form-select" Value="@DesignerDto.InboundArea" ValueFieldName="Id" TextFieldName="@nameof(DesignerDto.InboundArea.Name)" NullText="@L.Loc("Select...")" ValueChanged="@((AreaDto area) => OnValueChangedInbound(area))" ValueExpression="@(() => DesignerDto.InboundArea)" TextExpression="@(() => DesignerDto.InboundArea.Name)" />
+                        <ValidationMessage class="text-danger" For="@(() => DesignerDto.InboundAreaId)" />
+                    </div>
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Time")</label>
+                        <TimeInput Format="mmss" @bind-Value="DesignerDto.TimeMin" />
+                        @* <ValidationMessage class="text-danger" For="@(() => DesignerDto.TimeMin)" ValueChanged="@((int time) =>OnTimeMinChanged(time))" /> *@
+                    </div>
+                </div>
+            </div>
+            @*------------------------*@
+        </div>
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CloseSideBarButton())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEvent())">@L.Loc("Save")</button>
+</div>
+
+@code{
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public RouteDto? DesignerDto { get; set; }
+
+    [Inject] private IDesignerServices _designer { get; set; }
+    [Inject] private IJSRuntime JS { get; set; }
+
+    private EditContext editContext;
+
+    private bool IsNewMode { get; set; } = false;
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+
+    // Combo box
+    private List<AreaDto>? InboundAreaItems { get; set; } = new();
+    private List<AreaDto>? OutboundAreaItems { get; set; } = new();
+    private Guid oldAreaOut;
+    private Guid oldAreaIn;
+    private string originalViewPort;
+
+    // Used to Enable Button Save
+    #region Save Button Status
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    public bool IsSidebarDirty => _isDirty;
+    public bool HasErrors => _hasErrors;
+    private bool CanSave => _isDirty && !_hasErrors;
+    #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (DesignerDto == null)
+            return;
+        // Inicializar datos manuales
+        editContext = new EditContext(DesignerDto);
+        DesignerDto.InboundArea = DesignerDto.InboundArea ?? new();
+        DesignerDto.OutboundArea = DesignerDto.OutboundArea ?? new();
+        DesignerDto.TimeMin = DesignerDto.TimeMin ?? 0;
+        oldAreaOut = DesignerDto.OutboundAreaId ?? Guid.Empty;
+        oldAreaIn = DesignerDto.InboundAreaId ?? Guid.Empty;
+
+        FillComboBox(DesignerDto.LayoutId ?? Guid.Empty);
+
+        editContext.OnFieldChanged += OnAnyFieldChanged;
+        editContext.OnValidationStateChanged += OnValidationStateChanged;
+
+        CaptureBaseline();
+    }
+
+    private async Task SaveEvent()
+    {
+        if (DesignerDto == null || editContext == null)
+            return;
+        bool isValid = editContext.Validate();
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        _hasErrors = !isValid;
+        if (!isValid || !_isDirty)
+        {
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+        try
+        {
+            SetModelDefaultValuesRoute();
+
+            //Update case
+            await _designer.UpdateRouteDto(DesignerDto);
+
+            await JS.InvokeVoidAsync("drawRouteOnCanvas", DesignerDto); //Sending the object to the JS for drawing
+            await JS.InvokeVoidAsync("callRecalculateRelatedElements"); // Update DesignerTabComponents data in DesignerComponent
+            oldAreaIn = DesignerDto.InboundAreaId ?? Guid.Empty;
+            oldAreaOut = DesignerDto.OutboundAreaId ?? Guid.Empty;
+            CaptureBaseline();
+            IsNewMode = false;
+            await CloseSideBarButton();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    #region ComboBox Section
+
+    //Fills the Component DxComboBoxes
+    private void FillComboBox(Guid layoutId)
+    {
+        List<AreaDto>? areas = _designer.GetAreasDtoByLayout(layoutId).ToList();
+        InboundAreaItems = new List<AreaDto>(areas);
+        OutboundAreaItems = new List<AreaDto>(areas);
+    }
+
+    // Filter that displays in Inbound everything but Outbound content
+    private List<AreaDto>? FilteredInboundAreaItems()
+    {
+        return InboundAreaItems?.Where(a => a.Id != DesignerDto?.OutboundAreaId).OrderBy(x => x.Name).ToList();
+    }
+
+    // Filter that displays in Outbound everything but Inbound content
+    private List<AreaDto>? FilteredOutboundAreaItems()
+    {
+        return OutboundAreaItems?.Where(a => a.Id != DesignerDto?.InboundAreaId).OrderBy(x => x.Name).ToList();
+    }
+
+    // Event that changes the value of the Outbound combo
+    private Task OnValueChangedOutbound(AreaDto selectedItem)
+    {
+        if (selectedItem != null)
+        {
+            DesignerDto.OutboundAreaId = (Guid)selectedItem.Id;
+            DesignerDto.OutboundArea = selectedItem; // Assign the selected value
+            editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.OutboundAreaId)));
+            MarkDirty(); // Force UI update
+        }
+        return Task.CompletedTask;
+    }
+
+    // Event that changes the value of the Inbound combo
+    private Task OnValueChangedInbound(AreaDto selectedItem)
+    {
+        if (selectedItem != null)
+        {
+            DesignerDto.InboundAreaId = (Guid)selectedItem.Id;
+            DesignerDto.InboundArea = selectedItem; // Assign the selected value
+            editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.InboundAreaId)));
+            MarkDirty(); // Force UI update
+        }
+        return Task.CompletedTask;
+    }
+
+    // private void OnTimeMinChanged(int timeMin)
+    // {
+    //     DesignerDto.TimeMin = timeMin;
+    //     editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.TimeMin)));
+    // }
+    #endregion
+
+    #region Mapper Section
+    private void SetModelDefaultValuesRoute()
+    {
+        IsNewMode = DesignerDto.Id == Guid.Empty;
+        DesignerDto.Id = DesignerDto.Id == Guid.Empty ? Guid.NewGuid() : DesignerDto.Id;
+        DesignerDto.CanvasObjectType = "Route";
+        if (oldAreaIn != DesignerDto.InboundAreaId || oldAreaOut != DesignerDto.OutboundAreaId)
+            DesignerDto.ViewPort = string.Empty;
+    }
+    #endregion
+
+    #region EnableButtonSaveChanges
+
+    private void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+
+    private string BuildFingerprint()
+    {
+        return string.Join("|",
+            DesignerDto?.Name ?? string.Empty,
+            DesignerDto?.Bidirectional ?? false,
+            DesignerDto?.InboundAreaId ?? Guid.Empty,
+            DesignerDto?.OutboundAreaId ?? Guid.Empty,
+            DesignerDto?.TimeMin ?? 0
+        );
+    }
+
+    private void OnAnyFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        UpdateDirtyFlag();
+    }
+    private void OnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
+    {
+        UpdateSaveButtonState();
+    }
+
+    private void UpdateDirtyFlag()
+    {
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        UpdateSaveButtonState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSaveButtonState()
+    {
+        _hasErrors = editContext?.GetValidationMessages().Any() == true;
+    }
+
+    public void MarkDirty()
+    {
+        _isDirty = true;
+        UpdateSaveButtonState();
+        StateHasChanged();
+    }
+    #endregion
+}

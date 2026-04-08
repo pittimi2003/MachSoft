@@ -1,0 +1,162 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+
+@if (editMode)
+{
+    <div class="mlx-row-header">
+        <div class="row">
+            <!-- Dropdown para seleccionar almacenes -->
+            <div class="col-md">
+                <label for="idSelectWarehouse" class="mlx-form-label">@SELECTWAREHOUSE</label>
+                <MlxComboBox Data="@AvailableWarehouses"
+                TextFieldName="Name"
+                ValueFieldName="Id"
+                @bind-Value="@SelectedWarehouseId"
+                CssClass="mlx-form-select"
+                NullText="@L.Loc("Select warehouse...")" />
+            </div>
+
+            <!-- Checkbox para marcar como predeterminado -->
+            <div class="col-md">
+                <label for="idDefaultWarehouse" class="mlx-form-label">@DEFAULT</label>
+                <DxCheckBox @bind-Checked="@IsDefault" CssClass="mlx-check-box" Enabled=@EnabledAddWarehouse() />
+            </div>
+
+            <!-- Botón para agregar almacén -->
+            <div class="col-auto icon-add-align-center">
+                <DxButton IconCssClass="mlx-btn-action mlx-ico-add"
+                CssClass="@(EnabledAddWarehouse() ? " mlx-btn-action-enabled" : "mlx-btn-action-disabled" )" 
+                Click="AddWarehouse" />
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Grid para mostrar almacenes -->
+<DxGrid Data="@Warehouses"
+CssClass="mlx-grid" SelectionMode="GridSelectionMode.Single">
+    <Columns>
+        <DxGridDataColumn FieldName="Name" Caption="@WAREHOUSE" />
+
+
+        <DxGridDataColumn Caption="@DEFAULT" Width="80px" Name="SelectCheck" ShowInColumnChooser="false">
+            <CellDisplayTemplate Context="contextItem">
+                @{
+                    // Determina si el almacén actual es el predeterminado
+                    var warehouse = (Warehouse)contextItem.DataItem;
+                    var isDefault = warehouse.Id == WarehouseDefaultId;
+                }
+
+                @if (editMode)
+                {
+                    <DxCheckBox CssClass="mlx-check-box" Checked="isDefault" CheckedChanged="EventCallback.Factory.Create<bool>(this, newValue => SetDefaultWarehouse(warehouse.Id, newValue))" CheckedExpression="@(() => isDefault)"></DxCheckBox>
+                }
+                else
+                {
+                    <span class="@(isDefault ? "mlx-ico-check" : "mlx-ico-close")"></span>
+                }
+
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+
+        @if (editMode)
+        {
+            <DxGridDataColumn FieldName="@ACTIONS" Width="80px" Context="contextItem" TextAlignment="GridTextAlignment.Center">
+                <CellDisplayTemplate><span class="mlx-ico-trash mlx-button-trash" @onclick="() => RemoveWarehouse(((Warehouse)contextItem.DataItem).Id)"></span></CellDisplayTemplate>
+            </DxGridDataColumn>
+        }
+    </Columns>
+</DxGrid>
+
+
+@code {
+    [Parameter] public ICollection<Warehouse> Warehouses { get; set; } = new List<Warehouse>();
+    [Parameter] public Guid? WarehouseDefaultId { get; set; }
+    [Parameter] public IEnumerable<Warehouse> AvailableWarehouses { get; set; } = new List<Warehouse>();
+    [Parameter] public EventCallback<ICollection<Warehouse>> WarehousesChanged { get; set; }
+    [Parameter] public EventCallback<Guid?> DefaultWarehouseChanged { get; set; }
+    [Parameter] public bool editMode { get; set; }
+
+    private string SELECTWAREHOUSE => L.Loc("Select a warehouse");
+    private string DEFAULT => L.Loc("Default");
+    private string WAREHOUSE => L.Loc("Warehouse");
+    private string ACTIONS => L.Loc("Actions");
+
+
+    private Guid SelectedWarehouseId { get; set; }
+    private bool IsDefault { get; set; } = false;
+
+    private async Task AddWarehouse()
+    {
+        if (SelectedWarehouseId == Guid.Empty)
+        {
+            return;
+        }
+
+        var selectedWarehouse = AvailableWarehouses.FirstOrDefault(w => w.Id == SelectedWarehouseId);
+
+        if (selectedWarehouse != null)
+        {
+            if (Warehouses.Any(w => w.Id == selectedWarehouse.Id))
+            {
+                return;
+            }
+
+            Warehouses.Add(selectedWarehouse);
+
+            if (IsDefault)
+            {
+                WarehouseDefaultId = selectedWarehouse.Id;
+                await DefaultWarehouseChanged.InvokeAsync(WarehouseDefaultId);
+            }
+
+            await WarehousesChanged.InvokeAsync(Warehouses);
+            SelectedWarehouseId = Guid.Empty;
+            IsDefault = false;
+        }
+    }
+
+    private async Task RemoveWarehouse(Guid id)
+    {
+        var warehouseToRemove = Warehouses.FirstOrDefault(w => w.Id == id);
+        if (warehouseToRemove != null)
+        {
+            Warehouses.Remove(warehouseToRemove);
+
+            if (WarehouseDefaultId == id)
+            {
+                WarehouseDefaultId = Guid.Empty;
+                await DefaultWarehouseChanged.InvokeAsync(WarehouseDefaultId);
+            }
+
+            await WarehousesChanged.InvokeAsync(Warehouses);
+        }
+    }
+
+    private async Task SetDefaultWarehouse(Guid warehouseId, bool isDefault)
+    {
+        if (isDefault)
+        {
+            WarehouseDefaultId = warehouseId;
+            await DefaultWarehouseChanged.InvokeAsync(WarehouseDefaultId);
+        }
+        else
+        {
+            if (WarehouseDefaultId == warehouseId)
+            {
+                WarehouseDefaultId = Guid.Empty;
+                await DefaultWarehouseChanged.InvokeAsync(WarehouseDefaultId);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    public bool EnabledAddWarehouse() => SelectedWarehouseId != Guid.Empty;
+}
+
+

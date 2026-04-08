@@ -1,0 +1,60 @@
+﻿.custom-height {
+    height: 40vh;
+}
+
+.mlx-ico-reload::before {
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
+.aligned {
+    align-content: center;
+}
+
+::deep .dxbl-grid .roller-input:hover,
+::deep .dxbl-grid .roller-input-container:hover {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+::deep .dxbl-grid .dxbl-grid-edit-row td[data-edit-cell]:has(.roller-input-container) {
+    position: relative !important;
+    padding: 0 !important;
+    height: 100% !important;
+}
+
+::deep .dxbl-grid .roller-input-container {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border: none !important;
+    width: 96% !important;
+    left: 4px !important;
+    height: 25px !important;
+    display: flex;
+}
+
+::deep .dxbl-grid .dxbl-grid-editor-inplace-container > td:focus-within {
+    outline: none !important;
+    position: relative;
+}
+
+::deep .dxbl-grid
+.dxbl-grid-editor-inplace-container
+td:focus-within
+.roller-timepicker-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--dxbl-grid-focus-frame-color);
+    pointer-events: none;
+}
+
+.shift-edit-cell {
+    height: 34px;
+    display: flex;
+    align-items: center;
+}

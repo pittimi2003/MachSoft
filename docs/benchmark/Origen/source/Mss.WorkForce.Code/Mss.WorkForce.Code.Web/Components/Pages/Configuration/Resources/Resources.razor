@@ -1,0 +1,129 @@
+﻿@page "/work-profile"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Components.PanelEditor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Services
+@inject NavigationManager Navigation
+@inject SendParamService _SendParamService
+@inject IInitialDataService _InitialDataService
+@inject ILocalizationService l
+@attribute [Authorize]
+
+<ConfirmDialog></ConfirmDialog>
+
+<div class="col-md-3" style="padding: 10px 10px 0px;">
+    <SitePreview  ValueChanged="OnSiteSeleccionadaChanged" />
+</div>
+<div class="accordion-container">
+    <div class="mlx-row-header">
+        <div class="row">
+            <div class="col">
+                <DxTabs CssClass="mlx-tabs" @bind-ActiveTabIndex="activeTabIndex" TabClick="OnTabClick">
+                    <DxTabPage Text="@l.Loc("Base profiles")">
+                        <div class="row">
+                            <div class="col-md">
+                                <PanelEditor TEntity="TeamsDto" WarehouseId="WarehouseId" Title="Teams" Data="Teams" OnSaveChanges="SaveChangesInDataBase" UserFormat="userFormat"></PanelEditor>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md">
+                                <PanelEditor TEntity="ShiftsDto" WarehouseId="WarehouseId" Title="Shifts" Data="Shifts" OnSaveChanges="SaveChangesInDataBase" UserFormat="userFormat"></PanelEditor>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md">
+                                <PanelEditor @ref="PanelBreak" TEntity="BreakDto" WarehouseId="WarehouseId" Title="BREAKS" Data="Breaks" OnEditBreakProfile="OpenEditBreakProfile" OnDeleteBreakProfile="DeleteBreakProfile" OnSaveChanges="SaveChangesInDataBase" OnShowBreakPopup="ShowNewBreakPopup" UserFormat="userFormat"></PanelEditor>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md">
+                                <PanelEditor TEntity="ResourceRolProcessDto" WarehouseId="WarehouseId" Title="Work roles" Data="Roles" OnSaveChanges="SaveChangesInDataBase" ErrorMessage="@GetErrorMessageWorkRoles()" PanelType="Model.Enums.ePanelType.Process" UserFormat="userFormat"></PanelEditor>
+                            </div>
+                        </div>
+                    </DxTabPage>
+
+                    <DxTabPage Text="@l.Loc("Operators profiles")">
+                        @if (HasDataBaseProfile)
+                        {
+                            <div class="row MessageNodataBase">
+                                <span class="text-danger" style="font-size: 12px;">@MESSAGEDEPENDENCIES</span>
+                            </div>
+                        }
+                        <div class="row">
+                            <div class="col-md">
+                                <PanelEditor @ref="PanelWorkerSchedule" TEntity="ResourceWorkerScheduleDto" WarehouseId="WarehouseId" Data="Workers" OnSaveChanges="SaveChangesInDataBase" PageSizeBase="25" UserFormat="userFormat"></PanelEditor>
+                            </div>
+                        </div>
+                    </DxTabPage>
+
+                    <DxTabPage Text="@l.Loc("Equipment profiles")">
+                        <div class="row">
+                            <div class="col-md">
+                                <PanelEditor TEntity="TypeEquipmentDto" WarehouseId="WarehouseId" Title="Equipment types" Data="Equipments" PageSizeBase="10" OnSaveChanges="SaveChangesInDataBase" UserFormat="userFormat"></PanelEditor>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md">
+                                <PanelEditor TEntity="EquipmentGroupsDto" WarehouseId="WarehouseId" Title="Equipment groups" Data="EquipmentsGroups" PageSizeBase="10" OnSaveChanges="SaveChangesInDataBase" ErrorMessage="@GetErrorMessageGroupEquipment()" UserFormat="userFormat" PanelType="Model.Enums.ePanelType.Area"></PanelEditor>
+                            </div>
+                        </div>
+                    </DxTabPage>
+
+                </DxTabs>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<DxPopup @bind-Visible="@IsBreakPopupVisible"
+CssClass="mlx-modal"
+ShowFooter="true"
+HeaderText="@titlePopup"
+CloseOnOutsideClick="false"
+CloseOnEscape="false"
+ShowCloseButton="true"
+Width="60%">
+    <BodyContentTemplate>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <label class="mlx-form-label">@l.Loc("Name")</label>
+                <DxTextBox @bind-Text="_breakProfile.Name" autocomplete="true" />
+                @if (string.IsNullOrWhiteSpace(_breakProfile.Name))
+                {
+                    <small class="text-danger">@l.Loc("* Mandatory field")</small>
+                }
+                else if (IsBreakProfileNameDuplicated)
+                {
+                    <small class="text-danger">@l.Loc("* The Name must be unique.")</small>
+                }
+            </div>
+            <div class="col-md-6">
+                <label class="mlx-form-label">@l.Loc("Type")</label>
+                <DxTextBox @bind-Text="_breakProfile.Type" autocomplete="true" />
+                @if (string.IsNullOrWhiteSpace(_breakProfile.Type))
+                {
+                    <small class="text-danger">@l.Loc("* Mandatory field")</small>
+                }
+            </div>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="() => IsBreakPopupVisible = false">
+            @l.Loc("Cancel")
+        </button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!IsBreakProfileValid)" @onclick="SaveBreakProfile">
+            @l.Loc("Save")
+        </button>
+    </FooterContentTemplate>
+</DxPopup>
+
+
+@code {
+
+}

@@ -1,0 +1,39 @@
+﻿@using DevExpress.Blazor
+@{
+	string stylePopup = isLargeModal ? "popup-Large" : "popup";
+}
+
+<div class="modal-overlay">
+	<div class="@($"{stylePopup} {CssClass}")">
+		<div class="popup-content-action">
+			<div class="action-text">@Title</div>
+			<div class="icon-close-size" @onclick="CloseButtonClicked">
+				<img class="icon-close" alt="" src="img/ico/close.svg">
+			</div>
+		</div>
+		
+		@if (!string.IsNullOrEmpty(Text))
+		{
+			<div class="popup-body-text">@Text</div>
+		}
+		<div class="popup-body-content">
+			@BodyContent
+		</div>
+
+		<div class="popup-footter">
+			@FooterContent
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter] public string? Text { get; set; }
+	[Parameter] public RenderFragment? BodyContent { get; set; }
+	[Parameter] public RenderFragment? FooterContent { get; set; }
+	[Parameter] public bool Opened { get; set; } = false;
+	[Parameter] public EventCallback CloseButtonClicked { get; set; }
+	[Parameter] public string? Title { get; set; }
+	[Parameter] public bool isLargeModal { get; set; } = false;
+	[Parameter] public string? CssClass { get; set; }
+
+}

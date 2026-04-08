@@ -1,0 +1,262 @@
+﻿@page "/organization"
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.ToolBar
+@using Mss.WorkForce.Code.Web.Components.BaseComponent
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using System.ComponentModel.DataAnnotations;
+@inject ISimulateService simulateService
+@inject IEventServices eventServices
+@inject ILocalizationService L
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@attribute [Authorize]
+
+<ConfirmDialog></ConfirmDialog>
+<MlxMainContainer IsLeftSideVisible="true">
+    <LeftSideContent>
+        <ToolbarActions Actions="@Actions" EventListener="@EventListener" SelectMode="@SelectMode"></ToolbarActions>
+    </LeftSideContent>
+
+    <MiddleSideContent>
+        <div class="dxbl-modal-body">
+            <div class="d-flex flex-column" style="background-color: white; height:88vh">
+                <div class="container-title-panel container-for-image" style="justify-content: space-between;">
+                    <div class="item-title-data">
+                        <span class="data-title">@DATA</span>
+                        <span style="border-bottom: 4px solid black; display: block; padding: 0.25rem;"></span>
+                    </div>
+                </div>
+                <div class="container-data">
+                    <div class="data">
+                        <BaseComponente @ref="baseComponentRef" Models="lstOrganization" editMode="editMode" Container="@BaseListener" />
+                    </div>
+
+                </div>
+
+                <div class="modal-footer container-buttons">
+                    @if (editMode)
+                    {
+                        <button id="btnCancel" type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelEvent">@CANCEL</button>
+                        <button id="btnSave" type="button" disabled="@savebtn" class="btn-mlx btn-mlx-blue-primary" @onclick="SaveEvent">@SAVE</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </MiddleSideContent>
+</MlxMainContainer>
+
+
+
+@code {
+    [Inject]
+    private IContextConfig _contextConfig { get; set; }
+    [Inject]
+    private IInitialDataService _initialDataService { get; set; }
+    private BaseComponente<OrganizationDto>? baseComponentRef;
+
+    private OrganizationDto _Organization = new OrganizationDto();
+    private List<OrganizationDto> lstOrganization = new();
+    private bool IsDetailsVisible { get; set; } = false;
+    private bool IsEditMode { get; set; } = false;
+    private bool IsNewMode { get; set; } = true;
+    private EventActions SelectMode = EventActions.Edit;
+    public bool editMode { get; set; } = false;
+    private string EventListener { get; set; } = string.Empty;
+    private string BaseListener { get; set; } = string.Empty;
+
+    private string CANCEL => L.Loc("Cancel");
+    private string SAVE => L.Loc("Save");
+    private string DATA => L.Loc("DATA");
+
+    private List<EventActions> Actions { get; set; }
+    private bool savebtn { get; set; } = false;
+    protected override void OnInitialized()
+    {
+        LoadData();
+        Actions = new List<EventActions>()
+        {
+            {EventActions.Edit},
+        };
+        EventListener = $"{nameof(ToolbarActions)}{nameof(Organization)}";
+        BaseListener = $"(BaseComponent{nameof(Organization)}";
+        eventServices.Subscribe(nameof(Organization), EventListener, ToolBarActions);
+        eventServices.Subscribe(nameof(Organization), BaseListener, BaseComponentActions);
+    }
+
+
+    public void BaseComponentActions(EventArguments eventArguments)
+    {
+        savebtn = (eventArguments.EventActions == EventActions.SaveValid && eventArguments.EventData is bool flag && flag);
+
+        StateHasChanged();
+    }
+
+    public void ToolBarActions(EventArguments eventArguments)
+    {
+        switch (eventArguments.EventActions)
+        {
+
+            case EventActions.Update:
+                EnableEditMode();
+                break;
+            default:
+                break;
+        }
+        StateHasChanged();
+    }
+
+    private void EnableEditMode()
+    {
+        editMode = true;
+        SelectMode = EventActions.Update;
+    }
+
+    private void DisableEditMode()
+    {
+        editMode = false;
+        SelectMode = EventActions.Edit;
+    }
+
+    private async Task LoadData()
+    {
+        lstOrganization = new List<OrganizationDto>();
+        var organizationBD = _contextConfig.GetOnlyOrganization();
+        if (organizationBD != null)
+        {
+            _Organization.Id = organizationBD.Id;
+
+            _Organization.Code = organizationBD.Code;
+            _Organization.Name = organizationBD.Name;
+            _Organization.Description = organizationBD.Description;
+            _Organization.Logo = organizationBD.Logo;
+            _Organization.RegionalSettings = GetRegionalSettings(organizationBD);
+            _Organization.Adress = GetAdress(organizationBD.Address, organizationBD.AddressLine, organizationBD.ZIPCode, organizationBD.City, organizationBD.State, organizationBD.Country, organizationBD.AddressComment);
+            _Organization.Contact = GetContact(organizationBD.ContactName, organizationBD.Telephone, organizationBD.Extension, organizationBD.Telephone, organizationBD.Fax, organizationBD.Email, organizationBD.ContactComment);
+            _Organization.Warehouses = GetWarehouses(organizationBD.Id, _contextConfig);
+
+            lstOrganization.Add(_Organization);
+        }
+        StateHasChanged();
+    }
+
+
+    private static Adress GetAdress(string completeAdress, string addressLine, string zipCode, string city, string state, Country country, string comment)
+    {
+        return new Adress
+            {
+                CompleteAdress = completeAdress,
+                AdressLine = addressLine,
+                ZipCode = zipCode,
+                City = city,
+                State = state,
+                Country = country,
+                Comment = comment,
+            };
+    }
+
+    private static Contact GetContact(string name, string telephone, string extension, string telephoneOther, string fax, string email, string comment)
+    {
+        return new Contact
+            {
+                Name = name,
+                Telephone = telephone,
+                Extension = extension,
+                TelephoneOther = telephoneOther,
+                Fax = fax,
+                Email = email,
+                Comment = comment,
+            };
+    }
+
+    private static List<WarehouseDto> GetWarehouses(Guid orgGuid, IContextConfig contextConfig)
+    {
+        List<WarehouseDto> warehouseDtos = new List<WarehouseDto>();
+        var warehouseBD = contextConfig.GetWarehouse(orgGuid).ToList();
+        foreach (var itemWh in warehouseBD)
+        {
+            warehouseDtos.Add(new WarehouseDto
+                {
+                    Id = itemWh.Id,
+                    Code = itemWh.Code,
+                    Name = itemWh.Name,
+                    TimeZone = itemWh.TimeZone_,
+                    Description = itemWh.Description,
+                    Adress = GetAdress(itemWh.Address, itemWh.AddressLine, itemWh.ZIPCode, itemWh.City, itemWh.State, new Country(), itemWh.AddressComment),
+                    Contact = GetContact(itemWh.ContactName, itemWh.Telephone, itemWh.Extension, itemWh.Telephone, itemWh.Fax, itemWh.Email, itemWh.ContactComment),
+                });
+        }
+
+        return warehouseDtos;
+    }
+
+    private static RegionalSettingsOrganization GetRegionalSettings(Models.Models.Organization org)
+    {
+
+        return new RegionalSettingsOrganization
+            {
+                SystemOfMeasurement = org.SystemOfMeasurement,
+                Language = org.Language,
+                DecimalSeparator = org.DecimalSeparator,
+                ThousandsSeparator = org.ThousandsSeparator,
+                DateFormat = org.DateFormat,
+                HourFormat = org.HourFormat,
+            };
+
+        
+    }
+
+    private async Task SaveEvent()
+    {
+        FillCatalogueOrganization();
+        string jsonModel = ConvertirModeloAString(_Organization);
+        await simulateService.UpdateModel(jsonModel);
+        _initialDataService.UpdateOrganizationData();
+        DisableEditMode();
+    }
+
+    private string ConvertirModeloAString(OrganizationDto model)
+    {
+        var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
+                WriteIndented = true
+            };
+
+        return JsonSerializer.Serialize(model, options);
+    }
+    private void LoadEvent()
+    {
+        LoadData();
+    }
+
+    private void CancelEvent()
+    {
+        LoadData();
+        DisableEditMode();
+        var isValid = baseComponentRef != null ? baseComponentRef.Validate() : false;
+    }
+
+    public bool CustomValidation(OrganizationDto organizationDto)
+    {
+        if (organizationDto.RegionalSettings.ThousandsSeparator.Id == organizationDto.RegionalSettings.DecimalSeparator.Id)
+            return false;
+
+        return true;
+    }
+
+    private void FillCatalogueOrganization()
+    {
+        _Organization.RegionalSettings.HourFormat = _contextConfig.GetHourFormats().Where(x => x.Id == _Organization.RegionalSettings.HourFormat.Id).FirstOrDefault();
+        _Organization.RegionalSettings.DateFormat = _contextConfig.GetDateFormats().Where(x => x.Id == _Organization.RegionalSettings.DateFormat.Id).FirstOrDefault();
+        _Organization.RegionalSettings.DecimalSeparator = _contextConfig.GetDecimalSeparator().Where(x => x.Id == _Organization.RegionalSettings.DecimalSeparator.Id).FirstOrDefault();
+        _Organization.RegionalSettings.SystemOfMeasurement = _contextConfig.GetSystemOfMeasurements().Where(x => x.Id == _Organization.RegionalSettings.SystemOfMeasurement.Id).FirstOrDefault();
+        _Organization.RegionalSettings.ThousandsSeparator = _contextConfig.GetThousandsSeparator().Where(x => x.Id == _Organization.RegionalSettings.ThousandsSeparator.Id).FirstOrDefault();
+        _Organization.RegionalSettings.Language = _contextConfig.GetLanguages().Where(x => x.Id == _Organization.RegionalSettings.Language.Id).FirstOrDefault();
+        _Organization.Adress.Country = _contextConfig.GetCountries().Where(x => x.Id == _Organization.Adress.Country.Id).FirstOrDefault();
+
+    }
+}

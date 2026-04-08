@@ -1,0 +1,39 @@
+﻿@page "/metrics"
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.Common
+@inject IJSRuntime JS
+@inject IInitialDataService initialDataService
+@attribute [Authorize]
+
+<div id="web-dashboard" style="width: 100%; height: 100%; min-height: 600px;">
+</div>
+
+@code {
+    private IJSObjectReference? _dashboardScript;
+    private UserFormatOptions userFormat { get; set; } = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dashboardScript = await JS.InvokeAsync<IJSObjectReference>("import", "./js/dashboardmetrics-init.js");
+            await GetUserData();
+            await _dashboardScript.InvokeVoidAsync("initializeDashboard", "", userFormat.FullDate, userFormat.DecimalRegion);
+        }
+    }
+
+    private async Task GetUserData()
+    {
+        await initialDataService.GetDataUserLocal();
+        var user = initialDataService.GetDatauser();
+        if (user != null)
+        {
+            userFormat = new UserFormatOptions()
+                {
+                    DecimalSeparator = user.DecimalFormat,
+                    DateFormat = user.DateFormat,
+                    HourFormat = user.TimeFormat,
+                };
+        }
+    }
+}

@@ -1,0 +1,93 @@
+﻿@using Mss.WorkForce.Code.Models.Enums
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+
+<div class="row">
+    @foreach (var tipo in Enum.GetValues(typeof(EnumOrderPriority)).Cast<EnumOrderPriority>().Reverse())
+    {
+            <button @onclick="() => ChangePriority(tipo)" class="priority-btn col @(priorityTask == tipo ? "priority-btn-select" : "")">
+            <div>
+                <span class="@GetIconClass((tipo))"></span>
+            </div>
+            <label class="priority-label">@L.Loc(GetText((tipo)))</label>
+        </button>
+    }
+
+    <div class="custom-alert-error custom-alert-backgroud-warning"
+         style="margin-bottom: 16px; padding: 8px 12px;">
+        <div style="display: flex; align-items: center; font-family: 'Segoe UI' !important;">
+            <span class="mlx-ico-warning-bg-solid alert-icon" style="margin-right: 8px;"></span>
+            <span class="title-details-normal" style="font-weight: 500;">
+                @L.Loc("SIMULATION_TRIGGER_MESSAGE")
+            </span>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter] public EventCallback<bool> OnChangePriorityButton { get; set; }
+    [Parameter] public EventCallback<string> OnChangePriorityTask { get; set; }
+    private EnumOrderPriority? priorityTask = null;    
+
+
+    private async Task ChangePriority(EnumOrderPriority newPriorityTask)
+    {
+        priorityTask = newPriorityTask;
+        await OnChangePriorityButton.InvokeAsync(false);
+        await OnChangePriorityTask.InvokeAsync(GetText(newPriorityTask));
+    }
+
+    private string GetIconClass(EnumOrderPriority severity) => severity switch
+    {
+       EnumOrderPriority.VeryLow => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.VeryLow),
+       EnumOrderPriority.Low => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.Low),
+       EnumOrderPriority.Normal => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.Normal),
+       EnumOrderPriority.High => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.High),
+       EnumOrderPriority.Urgent => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.Urgent),
+        _ => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.Normal)
+    };
+
+    private string GetText(EnumOrderPriority severity) => severity switch
+    {
+        EnumOrderPriority.VeryLow =>  EnumHelper.GetItemDescription(EnumOrderPriority.VeryLow),
+        EnumOrderPriority.Low => EnumHelper.GetItemDescription(EnumOrderPriority.Low),
+        EnumOrderPriority.Normal =>EnumHelper.GetItemDescription(EnumOrderPriority.Normal),
+        EnumOrderPriority.High => EnumHelper.GetItemDescription(EnumOrderPriority.High),
+        EnumOrderPriority.Urgent => EnumHelper.GetItemDescription(EnumOrderPriority.Urgent),
+        _ => EnumHelper.GetItemDescription(EnumOrderPriority.Normal)
+    };   
+}
+
+<style>
+
+    .priority-btn{
+        margin: 8px;
+        border-color: transparent;
+        background-color: #f6f6f6;
+        border-radius: 10px;
+        height: 90px;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .priority-btn:hover, .priority-btn-select{
+        background-color: white;
+        border-color: black;
+    }
+
+    .priority-label{
+        cursor: inherit;
+        padding: 10px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .mlx-ico-Priority-5-very-low:before, .mlx-ico-Priority-4-low:before,
+    .mlx-ico-Priority-3-normal:before, .mlx-ico-Priority-2-high:before, .mlx-ico-Priority-1-urgent:before  {
+        font-size: 30px;
+    }
+
+</style>

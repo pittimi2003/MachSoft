@@ -1,0 +1,146 @@
+﻿@typeparam T
+@using System.Reflection
+@using System.Text.Json
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.BaseComponent
+@inject ILocalizationService L
+
+@inject IEventServices EventServices
+
+<div class="details-container">    
+
+    <!-- Controles dinamicos generados desde el modelo -->
+        <div class="details-fields">
+            <DxTabs CssClass="mlx-tabs mlx-tabs-for-details">
+                <DxTabPage Text="@L.Loc("Data")">
+                    <div class="container-fluid mt-4">
+                        <div class="row">
+                            <BaseComponente @ref="baseComponentRef" Models="SelectedModels"
+                                            UserFormat="UserFormat"
+                                            ColumnsSize="2"
+                                            editMode="@IsEditable" Container="@EmiterContainer"></BaseComponente>
+                        </div>
+                    </div>
+                </DxTabPage>
+            </DxTabs>
+
+        </div>
+
+        <div class="details-actions">
+            @if (IsEditable)
+            {
+                <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="() => ExecuteCancel()">@L.Loc("Cancel")</button>
+                <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@savebtn" @onclick="() => ExecuteUpdate()">@L.Loc("Save")</button>
+            }
+        </div>    
+</div>
+
+<style>
+    .details-container {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between; /* Empuja el contenido hacia los extremos */
+        height: 100%; /* Asegura que ocupe todo el espacio disponible */
+        background: var(--gl-color-neutral-100);
+    }
+
+    .details-fields {
+        margin-bottom: -10px;
+        overflow: auto;
+    }
+
+    .details-actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        padding: 28px;
+        background: linear-gradient(0deg, white, white, transparent);
+        backdrop-filter: blur(1px) saturate(47%);
+    }        
+
+    .details-container {
+        position: relative;
+    }
+</style>
+
+@code {
+    [Parameter] public GetAttributesDto<List<T>>? FillGridParameters { get; set; }
+    [Parameter] public List<Guid> SelectedIds { get; set; } = new();
+    [Parameter] public bool IsEditable { get; set; } = false;
+    [Parameter] public T Model { get; set; }
+    [Parameter] public UserFormatOptions UserFormat { get; set; } = new();
+
+    private List<T?> SelectedModels { get; set; } = new();
+    private List<T?> OriginalModels { get; set; } = new();
+    private BaseComponente<T>? baseComponentRef;
+    private Dictionary<string, DisplayAttributes> Properties { get; set; } = new();
+    private Dictionary<string, object?> BoundFieldValues { get; set; } = new();
+    private bool savebtn { get; set; } = false;
+    private string EmiterContainer { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (FillGridParameters != null)
+        {
+            EmiterContainer = $"{FillGridParameters.NameContainer}Details";
+            EventServices.Subscribe("Details", EmiterContainer, BaseComponentActions);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (FillGridParameters?.Model != null && SelectedIds.Any() && FillGridParameters.Model.Any())
+        {
+            var Id = FillGridParameters.GetKeyProperty()?.Name ?? "Id";
+            OriginalModels = FillGridParameters.Model
+                .Where(item => typeof(T).GetProperty(Id)?
+                .GetValue(item) is Guid id && SelectedIds
+                .Contains(id))
+                .ToList();
+
+            var isValid = baseComponentRef != null ? baseComponentRef.Validate() : false;
+
+
+            SelectedModels = OriginalModels.Select(item => CloneObject(item)).ToList();
+        }
+    }
+
+    public void ExecuteCancel()
+    {
+        EventServices.Publish(FillGridParameters.DetailPublish, new EventArguments(FillGridParameters.DetailPublish, EventActions.Cancel, OriginalModels));
+    }
+
+    public void ExecuteUpdate()
+    {
+        bool isValid = baseComponentRef != null ? baseComponentRef.Validate() : false;
+        if (isValid)
+            EventServices.Publish(FillGridParameters.DetailPublish, new EventArguments(FillGridParameters.DetailPublish, EventActions.Update, SelectedModels));
+    }
+
+    private T? CloneObject(T? source)
+    {
+        if (source == null) return default;
+
+        var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
+                WriteIndented = false
+            };
+
+        var serialized = JsonSerializer.Serialize(source, options);
+        return JsonSerializer.Deserialize<T>(serialized, options);
+    }
+
+    public void BaseComponentActions(EventArguments eventArguments)
+    {
+        savebtn = (eventArguments.EventActions == EventActions.SaveValid && eventArguments.EventData is bool flag && flag);
+        StateHasChanged();
+    }
+}

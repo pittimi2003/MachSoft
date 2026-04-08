@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ValidationConfiguration\**" />
+    <EmbeddedResource Remove="ValidationConfiguration\**" />
+    <None Remove="ValidationConfiguration\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ModelGantt\GanttBaseTask.cs" />
+    <Compile Remove="ModelGantt\Yards\AppointmentYardTask.cs" />
+  </ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	  <PackageReference Include="Npgsql" Version="8.0.5" />
+	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+	  <Compile Update="Resources\ValidationResources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>ValidationResources.resx</DependentUpon>
+	  </Compile>
+	  <EmbeddedResource Update="Resources\ValidationResources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>ValidationResources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	  
+    <PackageReference Update="Microsoft.Extensions.Logging" Version="8.0.1" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,326 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Components.DesignerComponent
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.DTO
+@if (Opened)
+{
+    <DialogComponent Title="@WhatIf"
+                     Opened="Opened"
+                     CloseButtonClicked="OnClose"
+                     isLargeModal="false">
+
+        <BodyContent>
+            @if (HasChanges)
+            {
+                <div class="mlx-alert mlx-alert-warning">
+                    <span class="mlx-ico-warning-bg-solid"></span>
+                    <div class="mlx-alert-text">
+                        @((MarkupString)Notification)
+                    </div>
+                </div>
+                <div class="mlx-grid-what-if-scroll">
+                    <DxGrid Data="@Shifts"
+                            @ref="grid"
+                            KeyFieldName="id"
+                            VirtualScrollingEnabled="true"
+                            KeyboardNavigationEnabled="true"
+                            CssClass="mlx-grid no-top">
+
+                        <Columns>
+                            <!-- SHIFT (no editable, cursiva) -->
+                            <DxGridDataColumn FieldName="name"
+                                              Caption="@Name"
+                                              ReadOnly="true"
+                                              DataRowEditorVisible="false">
+                                <CellDisplayTemplate>
+                                    <span class="mlx-italic">@context.DisplayText</span>
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+
+                            <!-- INIT HOUR (no editable) -->
+                            <DxGridDataColumn FieldName="initHour" Name="initHour"
+                                              Caption="@Shift_start"
+                                              SortIndex="0"
+                                              SortOrder="GridColumnSortOrder.Ascending">
+                                <CellDisplayTemplate>
+                                    @((context.Value is TimeSpan ts) ? ts.ToString(@"hh\:mm") : "")
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+
+                            <!-- END HOUR (no editable) -->
+                            <DxGridDataColumn FieldName="endHour" Name="endHour"
+                                              Caption="@Shift_end">
+                                <CellDisplayTemplate>
+                                    @((context.Value is TimeSpan ts) ? ts.ToString(@"hh\:mm") : "")
+                                </CellDisplayTemplate>
+                            </DxGridDataColumn>
+                        </Columns>
+
+                        <!-- Detalle con los roles -->
+                        <DetailRowTemplate Context="shift">
+                            @{
+                                var shiftRow = shift?.DataItem as ShiftRolDto;
+                            }
+                            <DxGrid Data="shiftRow.workersInRol"
+                                    KeyFieldName="id"
+                                    CssClass="mlx-grid dxbl-grid-detail"
+                                    KeyboardNavigationEnabled="true">
+
+                                <Columns>
+                                    <!-- ROLE (no editable, cursiva) -->
+                                    <DxGridDataColumn FieldName="name"
+                                                      Caption="@Role"
+                                                      ReadOnly="true"
+                                                      DataRowEditorVisible="false">
+                                        <CellDisplayTemplate>
+                                            <span class="mlx-italic">@context.DisplayText</span>
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+
+                                    <!-- WORKERS (no editable) -->
+                                    <DxGridDataColumn FieldName="Workers" Name="Workers"
+                                                      Caption="@Operators">
+                                        <CellDisplayTemplate>
+                                            <div class="text-right">
+                                                @context.DisplayText
+                                            </div>
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+
+                                    <DxGridDataColumn FieldName="RequiredWorkers"
+                                                      Name="RequiredWorkers"
+                                                      Caption="@Required_operators">
+                                        <CellDisplayTemplate Context="context">
+                                            @{
+                                                var row = (context.DataItem as WorkersInRolDto);
+
+                                                int workers = row?.Workers ?? 0;
+                                                int required = row?.RequiredWorkers ?? 0;
+
+                                                string icon = required > workers
+                                                ? "mlx-ico-trend-up"
+                                                : required < workers
+                                                ? "mlx-ico-trend-down"
+                                                : "mlx-ico-equal";
+                                            }
+
+                                            <div class="recommended-cell">
+                                                <span class="recommended-value">
+                                                    @required
+                                                </span>
+                                                <span class="@icon"></span>
+                                            </div>
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+
+
+                                </Columns>
+                            </DxGrid>
+                        </DetailRowTemplate>
+                    </DxGrid>
+                </div>
+            }
+            else
+            {
+                <div class="mlx-alert mlx-alert-success">
+                    <span class="mlx-ico-success-bg-solid"></span>
+                    <div class="mlx-alert-text">
+                        @((MarkupString)NoChangesNotification)
+                    </div>
+                </div>
+            }
+        </BodyContent>
+
+        <FooterContent>
+            <button id="btnCancel"
+                    type="button"
+                    class="btn-mlx btn-mlx-white-primary"
+                    @onclick="OnClose">
+                @if (HasChanges)
+                {
+                    @Cancel
+                }
+                else
+                {
+                    @Close
+                }
+            </button>
+            @if (HasChanges)
+            {
+                <button id="btnApplySuggestion"
+                        type="button"
+                        class="btn-mlx btn-mlx-blue-primary"
+                        @onclick="OnApply">
+                    @ApplySuggestion
+                </button>
+            }
+        </FooterContent>
+
+    </DialogComponent>
+}
+
+
+@code {
+    [Parameter] public bool Opened { get; set; }
+    [Parameter] public EventCallback<bool> OpenedChanged { get; set; }
+    [Parameter] public EventCallback<bool> AceptChange { get; set; }
+    [Parameter] public IReadOnlyList<WorkerWhatIf>? Logs { get; set; }
+    [Parameter] public IReadOnlyList<ShiftRolDto>? Shifts { get; set; }
+
+    [Inject] private ILocalizationService L { get; set; }
+
+    private string Cancel = "WHATIF_MODAL_CANCEL";
+    private string Close = "WHATIF_MODAL_CLOSE";
+    private string ApplySuggestion = "WHATIF_MODAL_APPLYSUGGESTION";
+    private string WhatIf = "WHATIF_MODAL_TITLE";
+    private string Notification = "WHATIF_MODAL_BANNER";
+    private string Name = "WHATIF_MODAL_OPERATOR_NAME";
+    private string Shift_start = "WHATIF_MODAL_SHIFT_START";
+    private string Shift_end = "WHATIF_MODAL_SHIFT_END";
+    private string Role = "WHATIS_MODAL_ROLE";
+    private string Operators = "WHATIF_MODAL_OPERATORS_COUNT";
+    private string Required_operators = "WHATIF_MODAL_OPERATORS_RECOMMENDED_COUNT";
+    private string NoChangesNotification = "WHATIF_MODAL_NO_CHANGES_NOTIFICATION";
+
+    DxGrid? grid;
+    bool expandedOnce;
+    bool shouldExpand;
+    private bool HasChanges;
+
+    protected override void OnParametersSet()
+    {
+        if (Opened)
+        {
+            expandedOnce = false;
+            shouldExpand = true;
+            HasChanges = HasWorkloadChanges(Shifts?.ToList() ?? []);
+        }
+    }
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!shouldExpand || expandedOnce || grid is null || Shifts is null || !HasChanges)
+            return;
+
+        int visibleCount = grid.GetVisibleRowCount();
+        if (visibleCount == 0)
+            return;
+
+        expandedOnce = true;
+        shouldExpand = false;
+
+        for (int visibleIndex = 0; visibleIndex < visibleCount; visibleIndex++)
+        {
+            var rowKeyObj = grid.GetRowValue(visibleIndex, "id");
+            if (rowKeyObj != null)
+                grid.ExpandDetailRow(visibleIndex);
+        }
+    }
+
+    private async Task OnClose()
+    {
+        Opened = false;
+        await OpenedChanged.InvokeAsync(false);
+    }
+
+    private async Task OnApply()
+    {
+        Opened = false;
+        await AceptChange.InvokeAsync(false);
+    }
+
+    protected override void OnInitialized()
+    {
+        Translate();
+    }
+
+    private bool HasWorkloadChanges(List<ShiftRolDto> shifts)
+    {
+        foreach (var shift in shifts)
+        {
+            // Nuevo turno
+            if (shift.IsNew)
+                return true;
+
+            foreach (var role in shift.workersInRol)
+            {
+                // Nuevo rol
+                if (role.IsNew)
+                    return true;
+
+                // Diferencia entre operarios actuales y sugeridos
+                if (role.Workers != role.RequiredWorkers)
+                    return true;
+            }
+        }
+
+        // No hay segerencias de operarios en la carga de trabajo.
+        return false;
+    }
+
+    private void Translate()
+    {
+        Cancel = L.Loc(Cancel);
+        Close = L.Loc(Close);
+        ApplySuggestion = L.Loc(ApplySuggestion);
+        WhatIf = L.Loc(WhatIf);
+        Notification = L.Loc(Notification);
+        Name = L.Loc(Name);
+        Shift_start = L.Loc(Shift_start);
+        Shift_end = L.Loc(Shift_end);
+        Role = L.Loc(Role);
+        Operators = L.Loc(Operators);
+        Required_operators = L.Loc(Required_operators);
+        NoChangesNotification = L.LocByKey(NoChangesNotification, "The workload simulation <strong>shows no mismatch.</strong>");
+    }
+}
+
+<style>
+     .mlx-grid-what-if-scroll {
+        max-height: 55vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 6px;
+    }
+
+
+    .whatif-grid {
+        height: 100%;
+    }
+
+    .wrap-cell {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .recommended-cell {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .recommended-value {
+        min-width: 24px;
+        text-align: right;
+    }
+
+    .mlx-grid .mlx-ico-trend-up::before, 
+    .mlx-grid .mlx-ico-trend-down::before {
+        font-size: 20px;
+    }
+
+    .mlx-grid .mlx-ico-equal::before {
+        font-size: 20px;
+        color: #F26D0D;
+    }
+
+
+</style>

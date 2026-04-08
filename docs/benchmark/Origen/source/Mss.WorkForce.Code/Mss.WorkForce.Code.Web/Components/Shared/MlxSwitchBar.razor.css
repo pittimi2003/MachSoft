@@ -1,0 +1,84 @@
+﻿.switch-bar {
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 30px;
+    /*padding: 3px 5px;*/
+    display: flex;
+    width: fit-content;
+    /*margin-right: 5px;*/
+}
+
+.custom-switch-buttons {
+    width: fit-content;
+    height: 34px;
+    background-color: var(--sp-color-bg-disabled);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    gap: 2px;
+    position: relative;
+}
+
+.switch-option {
+    border: none;
+    background-color: transparent;
+    border-radius: 25px;
+    padding: 0px 2px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: 28px;
+}
+
+    .switch-option.active {
+        background-color: white;
+        color: var(--sp-color-content-default) !important;
+        font-weight: 600;
+    }
+
+    .switch-option.inactive {
+        color: var(--sp-color-content-soft) !important;
+    }
+
+    .switch-option.active .mlx-ico-grid:before,
+    .switch-option.active .mlx-ico-gantt:before,
+    .switch-option.active .mlx-ico-planification:before {
+        color: var(--sp-color-content-default);
+    }
+
+    .switch-option.inactive .mlx-ico-grid:before,
+    .switch-option.inactive .mlx-ico-gantt:before,
+    .switch-option.inactive .mlx-ico-planification:before {
+        color: var(--sp-color-content-soft);
+    }
+
+.switch-label {
+    text-align: center;
+    font-family: "Segoe UI";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 125%;
+    padding-right: 8px;
+}
+
+.icon-label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.mlx-ico-gantt:before,
+.mlx-ico-grid:before,
+.mlx-ico-planification:before, 
+.mlx-ico-mode-automatic:before, 
+.mlx-ico-mode-manual:before {
+    font-size: 16px;
+    padding-left: 8px;
+    padding-right: 4px;
+}

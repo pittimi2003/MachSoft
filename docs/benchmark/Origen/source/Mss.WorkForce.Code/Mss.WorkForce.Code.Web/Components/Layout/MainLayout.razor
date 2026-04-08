@@ -1,0 +1,847 @@
+﻿@using Microsoft.AspNetCore.Authentication
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Model
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Services.Interfaces
+
+@inject IEventServices eventServices
+@inject IJSRuntime JS
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject IInitialDataService _InitialDataService
+@inject LocalStorageService _storageService
+@inject SendParamService _SendParamService 
+@inject IAlertService _AlertService
+@inject GlobalSettings _GlobalSettings
+@inject NavigationDataSource NavData
+@inject ILocalizationService l
+@inject IConfiguration _configuration
+@inject ILogger<MainLayout> Logger
+@inject IDesignerServices _designer
+@inject IHttpContextAccessor HttpContextAccessor
+
+<HeadContent>
+    <title>@Helper.PageTitle.Name</title>
+</HeadContent>
+
+<DxToastProvider Name="Global"
+                 HorizontalAlignment="HorizontalAlignment.Right"
+                 VerticalAlignment="VerticalEdge.Bottom"
+                 MaxToastCount="5"
+                 DisplayTime="TimeSpan.FromSeconds(4)" />
+
+<article class="bottom-row px-4">
+    <CultureSelector />
+</article>
+
+<div class="header d-flex justify-content-between align-items-center px-3 py-2">
+    <div class="header-left d-flex align-items-center">
+        <button class="menu-button me-3" @onclick="DrawerToggle">
+            <img id="menu" src="img/burger.svg" class="img-header" alt="Menu" />
+        </button>
+        <NavLink href="/home" Match="NavLinkMatch.All">
+            <img id="logo" src="img/mecalux-symbol.svg" alt="Logo" class="me-2 " />
+        </NavLink>
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                @foreach (var segment in GetBreadcrumbSegments())
+                {
+                    if (segment.HasSubMenu)
+                    {
+                        <li class="breadcrumb-item dropdown">
+                            <div class="dropdown-toggle-wrapper" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a href="javascript:void(0);" class="dropdown-toggle">
+                                    @segment.Name
+                                </a>
+                                <span class="mlx-ico-chevron-down"></span>
+                            </div>
+
+                            <ul class="dropdown-menu">
+                                @foreach (var subItem in segment.SubMenuItems)
+                                {
+                                    <!-- Nivel 1: items dentro de MANAGEMENT -->
+                                    @if (subItem.SubMenuItems != null && subItem.SubMenuItems.Any())
+                                    {
+                                        <li class="dropdown-submenu">
+                                            <a class="dropdown-item dropdown-toggle" href="@subItem.Url" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="icon-text">
+                                                    <span class="@subItem.Icon"></span>
+                                                    @subItem.Name
+                                                </span>
+                                                <span class="mlx-ico-chevron-right submenu-arrow"></span>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                @foreach (var subSubItem in subItem.SubMenuItems)
+                                                {
+                                                    <li>
+                                                        @if (!string.IsNullOrEmpty(subSubItem.TabKey))
+                                                        {
+                                                            <a href="@subSubItem.Url"
+                                                                class="dropdown-item"
+                                                            @onclick:preventDefault
+                                                                @onclick="() => GotoTab(subSubItem.TabKey ?? string.Empty, subSubItem.Url)">
+                                                                <span class="icon-text">
+                                                                    <span class="@subSubItem.Icon"></span>
+                                                                    @subSubItem.Name
+                                                                </span>
+                                                                    </a>
+                                                        }
+                                                        else if (!string.IsNullOrEmpty(subSubItem.ProjectName))
+                                                        {
+                                                            <a href="@subSubItem.Url"
+                                                                class="dropdown-item"
+                                                            @onclick:preventDefault
+                                                                @onclick="() => SelectProject(subSubItem.ProjectName)">
+                                                                <span class="icon-text">
+                                                                    <span class="@subSubItem.Icon"></span>
+                                                                    @subSubItem.Name
+                                                                </span>
+                                                            </a>
+                                                        }
+
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <!-- Item simple (sin subniveles) -->
+                                        <li>
+                                            @if (!string.IsNullOrEmpty(subItem.TabKey))
+                                            {
+                                                <a href="@GetTabUrl(subItem.TabKey, subItem.Url.TrimStart('/'))"
+                                                    class="dropdown-item"
+                                                    @onclick:preventDefault="true"
+                                                    @onclick="() => GotoTab(subItem.TabKey, subItem.Url.TrimStart('/'))">
+                                                    <span class="icon-text">
+                                                        <span class="@subItem.Icon"></span>
+                                                        @subItem.Name
+                                                    </span>
+                                                </a>
+                                            }
+                                            else if (!string.IsNullOrEmpty(subItem.ProjectName))
+                                            {
+                                                        <a href="@subItem.Url"
+                                                    class="dropdown-item"
+                                                    @onclick:preventDefault="true"
+                                                           @onclick="() => SelectProject(subItem.ProjectName)">
+                                                    <span class="icon-text">
+                                                        <span class="@subItem.Icon"></span>
+                                                        @subItem.Name
+                                                    </span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                @* Item simple sin TabKey (usa NavLink normal) *@
+                                                <NavLink href="@subItem.Url" class="dropdown-item" Match="NavLinkMatch.All">
+                                                    <span class="icon-text">
+                                                        <span class="@subItem.Icon"></span>
+                                                        @subItem.Name
+                                                    </span>
+                                                </NavLink>
+                                            }
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </li>
+                    }
+                    else if (segment.IsActive)
+                    {
+                        <li class="breadcrumb-item active" aria-current="page">@segment.Name</li>
+                    }
+                    else
+                    {
+                        <li class="breadcrumb-item">
+                            <NavLink href="@segment.Url" Match="NavLinkMatch.All">
+                                @segment.Name
+                            </NavLink>
+                        </li>
+                    }
+                }
+            </ol>
+        </nav>
+    </div>
+
+    <div class="header-right d-flex align-items-center">
+        @* <DxButton IconCssClass="mlx-ico-search" CssClass="btn-mlx-header btn-mlx-blue-primary" title="Search"></DxButton> *@
+
+        <MlxMainAlert @ref="mainAlert"></MlxMainAlert>
+
+        <div style="border-left: 1px solid white; height: 22px; margin: 0 10px;"></div>
+
+        <div id="dropdown-user-menu-container">
+            <DxButton Click="ToggleUserMenu" CssClass="mlx-user-menu-button">
+                <span class="mlx-ico-user-circle-light"></span>
+                <div class="d-flex flex-column text-start ms-2 me-2">
+                    <span class="mlx-username">@nameUser</span>
+                    <span class="mlx-warehouse-name">
+                        @if (!string.IsNullOrEmpty(nameWarehouse))
+                        {
+                            @nameWarehouse<span class="clock-utc" style="margin: 0 4px;"></span>@utcWarehouse
+                        }
+                    </span>
+                </div>
+                @{
+                    if (!IsOpen)
+                    {
+                        <span class="mlx-header mlx-ico-chevron-down"></span>
+                    }
+                    else
+                    {
+                        <span class="mlx-header mlx-ico-chevron-up"></span>
+                    }
+                }
+            </DxButton>
+        </div>
+
+        <DxDropDown @bind-IsOpen="@IsOpen"
+        Id="dropdown-user-menu"
+        CssClass="mlx-dropdown mlx-upperIndex"
+        HeaderVisible="false"
+        PositionMode="DropDownPositionMode.Bottom"
+        Width="250px"
+        PositionTarget="#dropdown-user-menu-container"
+        CloseMode="DropDownCloseMode.Close"
+        PreventCloseOnPositionTargetClick="true">
+            <BodyContentTemplate>
+
+                <div class="dropdown-content-mlx">
+                    <div class="dropdown-item-mlx">
+                        <div class="d-flex flex-column">
+                            <span class="mlx-username-dropdown">@nameUser</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown-divider-mlx"></div>
+                <div class="dropdown-content-mlx">
+                    <div class="dropdown-item-mlx">
+                        <div class="d-flex flex-column">
+                            <span class="mlx-username-dropdown">@nameWarehouse</span>
+                            <span class="mlx-warehouse-name-dropdown">
+                                <span class="clock-utc" style="padding-right: 4px;"></span>@utcWarehouse
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown-divider-mlx"></div>
+                <div class="dropdown-content-mlx">
+                    <div class="dropdown-item-mlx" @onclick="OnAbout">
+                        <img id="logo" src="img/mecalux-symbol-blue.svg" style="font-size:20px; width: 20px; height: 20px;" alt="Mecalux" />
+                        <span class="mlx-about-dropdown ms-2">@l.Loc("About")</span>
+                    </div>
+                </div>
+                <div class="dropdown-divider-mlx"></div>
+                <div class="dropdown-content-mlx">
+                    <div class="dropdown-item-mlx" style="color:#eb5160;" @onclick="OnCloseSession">
+                        <span class="mlx-ico-logout me-2" style="color:#eb5160; font-size:20px; width: 20px; height: 20px;"></span><span class="mlx-change-session-dropdown">@l.Loc("Change session")</span>
+                    </div>
+                </div>
+
+            </BodyContentTemplate>
+        </DxDropDown>
+
+        <div style="border-left: 1px solid white; height: 22px; margin: 0 10px;"></div>
+
+        <span id="fullscreenToggle" class="mlx-ico-maximize-screen" @onclick="ToggleFullscreen" style="cursor: pointer;" title="@l.Loc("Maximize")"></span>
+    </div>
+</div>
+
+<div class="menu-overlay @(showNavMenu ? "show" : "")" @onclick="DrawerToggle"></div>
+<div id="idNavMenu" class="menu-container @(showNavMenu ? "show" : "hide")">
+    <NavMenu OnDrawerClose="DrawerToggle" MenuItems="MenuItems" NameWarehouse="@nameWarehouse"/>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        @if (IsOpen)
+        {
+            <div class="overlay active" id="menuOverlay" @onclick="CloseMenu"></div>
+        }
+    </div>
+
+    @Body
+</div>
+
+<div>
+    <About></About>
+</div>
+
+
+<style>
+
+    .dropdown-item.dropdown-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* separa texto e icono */
+        gap: 0.5rem; /* opcional, espacio entre texto e icono */
+    }
+
+    .icon-text {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem; /* espacio entre ícono y texto */        
+    }
+
+    .submenu-arrow {
+        margin-left: auto; /* empuja la flecha al final */
+    }
+
+
+    .dropdown-submenu {
+        position: relative;
+    }
+
+        .dropdown-submenu > .dropdown-menu {
+            top: 0 !important;
+            left: 100% !important;
+            margin-top: -0.25rem;
+            margin-left: 0.15rem;
+            border-radius: 0.375rem;
+        }
+
+    .submenu-arrow {
+        float: right;
+        font-size: 0.75rem;
+        opacity: 0.6;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-content-mlx {
+    padding: 10px;
+    border-radius: 4px;
+    width: 100%;
+    }
+
+    .user-menu-button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    }
+
+    .user-menu-button:hover {
+    background: none;
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    }
+
+    .dropdown-menu-mlx {
+    padding: 0px;
+    width: 100%;
+    }
+
+    .dropdown-item-mlx {
+    font-size: 14px;
+    color: #2e4052;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    }
+
+    .dropdown-divider-mlx {
+    height: 1px;
+    background-color: var(--gl-color-smoke-200);
+    width: 100%;
+    }
+
+    .mlx-dropdown .dxbl-dropdown-body {
+    padding: unset !important;
+    }
+
+    #dropdown-user-menu {
+    top: 7px !important;
+    left: 30px !important;
+    border-radius: 8px;
+    }
+
+    .dropdown-toggle-wrapper:hover .dropdown-toggle,
+    .dropdown-toggle-wrapper:hover .mlx-ico-chevron-down::before {
+    opacity: 1;
+    cursor: pointer;
+    }
+
+    .dropdown-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    }
+</style>
+
+@implements IDisposable
+
+@code {
+    private MlxMainAlert? mainAlert;
+
+    private bool showNavMenu = false;
+    private Timer? _timerAlert;
+
+    private List<BreadcrumbItem> Breadcrumbs { get; set; } = new();
+    private bool IsOpen { get; set; } = false;
+    private string PageTitle { get; set; } = "Home";
+
+    public string nameUser { get; set; } = string.Empty;
+    public string utcWarehouse { get; set; } = string.Empty;
+    public string nameWarehouse { get; set; } = "Mecalux_BCN";
+    public string timeFormart { get; set; } = string.Empty;
+
+    public List<MenuItem> MenuItems { get; set; } = new();
+    private List<MenuItem> _originalMenuItems { get; set; } = new();
+
+    private TimeSpan offset;
+
+    private List<AlertMessageDto> Alerts { get; set; } = new();
+
+    private string GetIconClass(AlertSeverity severity) => severity switch
+    {
+        AlertSeverity.Error => "mlx-ico-error-bg-solid",
+        AlertSeverity.Warning => "mlx-ico-warning-bg-solid",
+        AlertSeverity.Information => "mlx-ico-info-bg-solid",
+        _ => "mlx-ico-info-bg-solid"
+    };
+
+    public void DrawerToggle()
+    {
+        showNavMenu = !showNavMenu;
+        this.MenuItems.ForEach(x => x.IsOpen = false);
+    }
+
+    private void CloseMenu()
+    {
+        IsOpen = false;
+    }
+
+    private async Task ToggleFullscreen()
+    {
+        await JS.InvokeVoidAsync("toggleFullscreen");
+    }
+
+
+    private List<BreadcrumbItem> GetBreadcrumbSegments()
+    {
+        string url = NavigationManager.Uri.Replace(NavigationManager.BaseUri, "");
+        var breadcrumb = new List<BreadcrumbItem>();
+
+        if (string.IsNullOrWhiteSpace(url) || string.Equals(url, "home", StringComparison.OrdinalIgnoreCase))
+            return breadcrumb;
+
+        // Buscar el item actual
+        var currentItem = NavData.GetMenuItems()
+            .FirstOrDefault(x => string.Equals(x.Url?.Trim('/'), url.Split('?')[0].Trim('/'), StringComparison.OrdinalIgnoreCase));
+
+        if (currentItem == null)
+            return breadcrumb;
+
+        // ========================================================================
+        //  SCENARIO SECTION
+        // ========================================================================
+        var scenarios = NavData.GetMenuItem("scenariosimulationanddesing");
+        bool isScenariosSection = scenarios?.BreadcrumbChildren
+            .Any(c => string.Equals(c.Url?.Trim('/'), currentItem.Url?.Trim('/'), StringComparison.OrdinalIgnoreCase)) ?? false;
+
+        if (isScenariosSection)
+        {
+            var userId = _InitialDataService.GetDatauser()?.Id ?? Guid.Empty;
+            var layouts = _designer.GetLayoutsDto(userId).OrderBy(x => x.Name).ToList();
+
+            // Referencias de secciones con hijos
+            var projectDesignerItem = scenarios?.BreadcrumbChildren
+                .FirstOrDefault(x => string.Equals(x.Url?.Trim('/'), "project-designer", StringComparison.OrdinalIgnoreCase));
+
+            // Asignar los proyectos dinAmicos a Project Designer
+            if (projectDesignerItem != null)
+            {
+                projectDesignerItem.BreadcrumbChildren = layouts
+                    .Select(layout => new MenuItem
+                        {
+                            Name = layout.Name,
+                            Url = "/project-designer",
+                            ProjectName = layout.Name
+                        })
+                    .ToList();
+            }
+
+            // Si estamos dentro de Project Designer, asegurar que el currentItem tenga hijos dinAmicos
+            if (string.Equals(currentItem.Url?.Trim('/'), "project-designer", StringComparison.OrdinalIgnoreCase))
+            {
+                currentItem.BreadcrumbChildren = layouts
+                    .Select(layout => new MenuItem
+                        {
+                            Name = layout.Name,
+                            Url = "/project-designer",
+                            ProjectName = layout.Name
+                        })
+                    .ToList();
+            }
+
+            breadcrumb.Add(new BreadcrumbItem
+            {
+                Name = scenarios?.Name ?? "SCENARIO SIMULATION AND DESIGN",
+                Url = "#",
+                HasSubMenu = true,
+                SubMenuItems = scenarios?.BreadcrumbChildren.Select(c =>
+                {
+                    var item = new BreadcrumbItem
+                    {
+                        Name = c.Name,
+                        Url = c.Url,
+                        Icon = c.Icon
+                    };
+
+                    // Si es Project Designer, proyectos dinamicos
+                    if (string.Equals(c.Url?.Trim('/'), "project-designer", StringComparison.OrdinalIgnoreCase))
+                    {
+                        item.HasSubMenu = projectDesignerItem?.BreadcrumbChildren?.Any() == true;
+                        item.SubMenuItems = projectDesignerItem?.BreadcrumbChildren?
+                        .Select(p => new BreadcrumbItem
+                                {
+                                    Name = p.Name,
+                                    Url = p.Url,
+                                    ProjectName = p.ProjectName
+                                })
+                        .ToList();
+                    }
+                    return item;
+
+                }).ToList() ?? new List<BreadcrumbItem>()
+            });
+
+            // Nivel actual (Project Designer, Work Profiles, etc.)
+            breadcrumb.Add(new BreadcrumbItem
+            {
+                Name = currentItem.Name,
+                Url = currentItem.Url,
+                HasSubMenu = currentItem.BreadcrumbChildren?.Any() == true,
+                SubMenuItems = currentItem.BreadcrumbChildren?
+                        .Select(sub => new BreadcrumbItem
+                        {
+                            Name = sub.Name,
+                            Url = sub.Url,
+                            Icon = sub.Icon,
+                            TabKey = sub.TabKey,
+                            ProjectName = sub.ProjectName
+                        })
+                        .ToList() ?? new List<BreadcrumbItem>()
+            });
+
+            // Proyecto activo (solo para Project Designer)
+            if (string.Equals(currentItem.Url?.Trim('/'), "project-designer", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrEmpty(_SendParamService.ActiveProjectName))
+            {
+                breadcrumb.Add(new BreadcrumbItem
+                    {
+                        Name = _SendParamService.ActiveProjectName,
+                        Url = "/project-designer",
+                        IsActive = true,
+                        ProjectName = _SendParamService.ActiveProjectName
+                    });
+            }
+
+            return breadcrumb;
+
+        }
+
+        // ========================================================================
+        //  MANAGEMENT SECTION LOGIC
+        // ========================================================================
+        // Detectar si pertenece a la secciOn MANAGEMENT
+        var management = NavData.GetMenuItem("management");
+        bool isManagementSection = management?.BreadcrumbChildren
+            .Any(c => string.Equals(c.Url?.Trim('/'), currentItem.Url?.Trim('/'), StringComparison.OrdinalIgnoreCase)) ?? false;
+        if (isManagementSection)
+        {
+            
+            var workProfilesItem = NavData.GetMenuItem("work-profile");
+            var logisticsProfilesItem = NavData.GetMenuItem("logistics-profile");
+            var parametersItem = NavData.GetMenuItem("parameters");
+
+            // Agregar el nivel padre MANAGEMENT con submenus y subniveles
+            breadcrumb.Add(new BreadcrumbItem
+            {
+                Name = management?.Name ?? "MANAGEMENT",
+                Url = "#",
+                HasSubMenu = true,
+                SubMenuItems = management?.BreadcrumbChildren.Select(c =>
+                {
+                    var item = new BreadcrumbItem
+                    {
+                        Name = c.Name,
+                        Url = c.Url,
+                        Icon = c.Icon
+                    };                       
+
+                    // Si es Work Profiles tabs fijas
+                    if (string.Equals(c.Url?.Trim('/'), "work-profile", StringComparison.OrdinalIgnoreCase))
+                    {
+                        item.HasSubMenu = workProfilesItem?.BreadcrumbChildren?.Any() == true;
+                        item.SubMenuItems = workProfilesItem?.BreadcrumbChildren?
+                            .Select(tab => new BreadcrumbItem
+                            {
+                                Name = tab.Name,
+                                Url = tab.Url,
+                                TabKey = tab.TabKey
+                            })
+                            .ToList();
+                    }
+
+                    // Si es Logistics Profiles tabs fijas
+                    else if (string.Equals(c.Url?.Trim('/'), "logistics-profile", StringComparison.OrdinalIgnoreCase))
+                    {
+                        item.HasSubMenu = logisticsProfilesItem?.BreadcrumbChildren?.Any() == true;
+                        item.SubMenuItems = logisticsProfilesItem?.BreadcrumbChildren?
+                            .Select(tab => new BreadcrumbItem
+                            {
+                                Name = tab.Name,
+                                Url = tab.Url,
+                                TabKey = tab.TabKey
+                            })
+                            .ToList();
+                    }
+                    // Si es Logistics Profiles tabs fijas
+                    else if (string.Equals(c.Url?.Trim('/'), "parameters", StringComparison.OrdinalIgnoreCase))
+                    {
+                        item.HasSubMenu = parametersItem?.BreadcrumbChildren?.Any() == true;
+                        item.SubMenuItems = parametersItem?.BreadcrumbChildren?
+                            .Select(tab => new BreadcrumbItem
+                            {
+                                Name = tab.Name,
+                                Url = tab.Url,
+                                TabKey = tab.TabKey
+                            })
+                            .ToList();
+                    }
+
+                    return item;
+                }).ToList() ?? new List<BreadcrumbItem>()
+            });
+
+            // Nivel actual (Project Designer, Work Profiles, etc.)
+            breadcrumb.Add(new BreadcrumbItem
+                {
+                    Name = currentItem.Name,
+                    Url = currentItem.Url,
+                    HasSubMenu = currentItem.BreadcrumbChildren?.Any() == true,
+                    SubMenuItems = currentItem.BreadcrumbChildren?
+                        .Select(sub => new BreadcrumbItem
+                        {
+                            Name = sub.Name,
+                            Url = sub.Url,
+                            Icon = sub.Icon,
+                            TabKey = sub.TabKey,
+                            ProjectName = sub.ProjectName
+                        })
+                        .ToList() ?? new List<BreadcrumbItem>()
+                });            
+
+            // Tab activa (Work Profiles o Logistics Profiles)
+            if ((string.Equals(currentItem.Url?.Trim('/'), "work-profile", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(currentItem.Url?.Trim('/'), "logistics-profile", StringComparison.OrdinalIgnoreCase) || 
+                 string.Equals(currentItem.Url?.Trim('/'), "parameters", StringComparison.OrdinalIgnoreCase) ||
+                 string.Equals(currentItem.Url?.Trim('/'), "transactionLog", StringComparison.OrdinalIgnoreCase))
+                && !string.IsNullOrEmpty(_SendParamService.ActiveTab))
+            {
+                var activeTabItem = currentItem.BreadcrumbChildren
+                    .FirstOrDefault(t => string.Equals(t.TabKey, _SendParamService.ActiveTab, StringComparison.OrdinalIgnoreCase));
+
+                if (activeTabItem != null)
+                {
+                    breadcrumb.Add(new BreadcrumbItem
+                        {
+                            Name = activeTabItem.Name,
+                            Url = activeTabItem.Url,
+                            TabKey = activeTabItem.TabKey,
+                            IsActive = true
+                        });
+                }
+            }
+
+            return breadcrumb;
+        }      
+
+        // Buscar el padre (por ejemplo: MASTER DATA)
+        var parent = NavData.GetMenuItems()
+            .FirstOrDefault(x => x.BreadcrumbChildren.Any(c =>
+                string.Equals(c.Url?.Trim('/'), currentItem.Url?.Trim('/'), StringComparison.OrdinalIgnoreCase)));
+
+        if (parent != null)
+        {
+            // Nivel 1: Padre
+            breadcrumb.Add(new BreadcrumbItem
+                {
+                    Name = parent.Name,
+                    Url = "#",
+                    HasSubMenu = true,
+                    SubMenuItems = parent.BreadcrumbChildren
+                        .Select(c => new BreadcrumbItem
+                        {
+                            Name = c.Name,
+                            Url = c.Url,
+                            Icon = c.Icon
+                        })
+                        .ToList()
+                });
+
+            // Nivel 2: Item actual
+            breadcrumb.Add(new BreadcrumbItem
+                {
+                    Name = currentItem.Name,
+                    Url = currentItem.Url,
+                    IsActive = true
+                });
+        }
+        else
+        {
+            // Sin padre nivel unico
+            breadcrumb.Add(new BreadcrumbItem
+                {
+                    Name = currentItem.Name,
+                    Url = currentItem.Url,
+                    IsActive = true
+                });
+        }
+
+        return breadcrumb;
+    }
+
+    private async Task OnCloseSession()
+    {
+        //Al tener tokken eliminar codigo para tratarlo en la administracion de sessiones
+        _InitialDataService.flushData();
+        NavigationManager.NavigateTo("/auth/logout", forceLoad: true);
+    }
+
+    private async Task OnAbout()
+    {
+        await JS.InvokeVoidAsync("openMlxModal", "modalAbout");
+        // await JS.InvokeVoidAsync("loadLicences");
+
+        CloseMenu();
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _originalMenuItems = NavData.GetMenuItems();
+        MenuItems = _originalMenuItems.Select(item => item.Clone()).ToList();
+        _SendParamService.OnChange += StateHasChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        int intervalSeconds = _GlobalSettings.AlertIntervalSeconds;
+        _timerAlert = new Timer(async _ =>
+       {
+           var resultAlerts = await _AlertService.GetBellAlertsForAllWarehousesAsync();
+           await InvokeAsync(() => mainAlert?.UpdateAlerts(resultAlerts));
+       },
+       null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(intervalSeconds));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender || _SendParamService.ReloadInitData)
+        {
+            try
+            {
+                var resources = await l.GetAllJavaScriptResourcesAsync();
+
+                var _enableLocalizable = _configuration.GetValue<bool>("GlobalSettings:EnableLocalizableAuto");
+
+                if (resources != null && resources.Any())
+                    await JS.InvokeVoidAsync("initializeJavaScriptLocalization", resources, _enableLocalizable);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error initializing JS localization:");
+            }
+
+            await FilluserData();
+             _SendParamService.ReloadInitData = false;
+            StateHasChanged();
+        }
+    }
+    private async Task ToggleUserMenu()
+    {
+        IsOpen = !IsOpen;
+        if (IsOpen)
+        {
+            int offsetMinutes = (int)offset.TotalMinutes;
+            await Task.Delay(200);
+            await JS.InvokeVoidAsync("forceUpdateUtcClock", "clock-utc", offsetMinutes, timeFormart);
+        }
+    }
+
+    private async Task FilluserData()
+    {
+        
+        await _InitialDataService.ReloadDataUserLocal();
+        await _InitialDataService.GetDataUserLocal();
+        var user = _InitialDataService.GetDatauser();
+
+        if (user != null)
+        {
+            nameUser = $"{user.Name} {user.LastName}";
+            nameWarehouse = user.Warehouse ?? string.Empty;
+
+            if (!string.IsNullOrEmpty(nameWarehouse))
+            {
+                string rawOffset = user.TimeZoneName?.Substring(4, 6) ?? "00:00";
+                utcWarehouse = $"(UTC {rawOffset})";
+
+                bool isNegative = rawOffset.StartsWith("-");
+                rawOffset = rawOffset.Substring(1);
+
+                offset = TimeSpan.Parse(rawOffset);
+                if (isNegative) offset = offset.Negate();
+
+                var offsetMinutes = (int)offset.TotalMinutes;
+                timeFormart = user.TimeFormat;
+
+                await JS.InvokeVoidAsync("startUtcClock", "clock-utc", offsetMinutes, timeFormart);
+            }
+            await JS.InvokeVoidAsync("loadDataUser", user.Id);
+        }
+    }
+
+    private string GetTabUrl(string tabKey, string page) => $"/{page}?tab={tabKey}";
+
+    private void GotoTab(string tabKey, string page)
+    {  
+        _SendParamService.ActiveTab = tabKey;
+        NavigationManager.NavigateTo(page);      
+    }
+
+    private void SelectProject(string projectName)
+    {
+        _SendParamService.ActiveProjectName = projectName;
+        _SendParamService.ReloadInitData = true;
+        NavigationManager.NavigateTo("/project-designer");
+    }
+
+
+    public void Dispose()
+    {
+        _timerAlert?.Dispose();
+        _SendParamService.OnChange -= StateHasChanged;
+    }
+}
+
+
+

@@ -1,0 +1,111 @@
+﻿<div class="main-container
+            @(IsEditMode         ? "edit-mode"           : "")
+            @(!IsLeftSideVisible ? "new-mode"            : "")
+            @(ShowDetailsMobile  ? "show-details-mobile" : "")"
+	 style="@GetGridTemplateColumns()">
+
+
+	@if (IsLeftSideVisible)
+	{
+		<div class="left-content">
+			@LeftSideContent
+			@if (ShowLeftOverlay)
+			{
+				<div class="overlay-content"></div>
+			}
+		</div>
+	}
+
+	<div class="middle-content">
+		@MiddleSideContent
+		@if (ShowCentertOverlay)
+		{
+			<div class="overlay-content"></div>
+		}
+	</div>
+
+	@if (IsRightSideVisible)
+	{
+		<div class="right-content">
+
+			@if (ShowDetailsMobile)
+			{
+				<div class="d-flex justify-content-end px-2 mt-2">
+					<button class="btn-close-inline btn-close-responsive" @onclick="ClearSelectionAndClose">
+						<i class="mlx-ico-close"></i>
+					</button>
+				</div>
+			}
+
+			@RightSideContent
+			@if (ShowRightOverlay)
+			{
+				<div class="overlay-content"></div>
+			}
+		</div>
+	}
+</div>
+
+@code {
+	[Parameter] public bool ShowLeftOverlay { get; set; } = false;
+	[Parameter] public bool ShowCentertOverlay { get; set; } = false;
+	[Parameter] public bool ShowRightOverlay { get; set; } = false;
+	private bool _isRightSideVisible;
+	[Parameter] public RenderFragment? LeftSideContent { get; set; }
+	[Parameter] public RenderFragment? MiddleSideContent { get; set; }
+	[Parameter] public RenderFragment? RightSideContent { get; set; }
+	[Parameter] public bool IsLeftSideVisible { get; set; } = true;
+	[Parameter]
+	public bool IsRightSideVisible
+	{
+		get => _isRightSideVisible;
+		set
+		{
+			if (_isRightSideVisible != value)
+			{
+				_isRightSideVisible = value;
+				IsRightSideVisibleChanged.InvokeAsync(value);
+			}
+		}
+	}
+	[Parameter] public EventCallback<bool> IsRightSideVisibleChanged { get; set; }
+	// Exponer el evento ToggleRightSidebar
+	[Parameter] public EventCallback OnToggleRightSidebar { get; set; }
+	[Parameter] public bool IsEditMode { get; set; } = false;
+
+	[Parameter] public EventCallback OnClearSelection { get; set; }
+	[Parameter] public bool ShowDetailsMobile { get; set; } = false;
+
+	private string GetGridTemplateColumns()
+	{
+		if (IsLeftSideVisible && IsRightSideVisible)
+		{
+			return "grid-template-columns: 68px calc(65% - 68px) 35%;";
+		}
+		else if (IsLeftSideVisible && !IsRightSideVisible)
+		{
+			return "grid-template-columns: 68px calc(100% - 68px);";
+		}
+		else if (!IsLeftSideVisible && IsRightSideVisible)
+		{
+			return "grid-template-columns: 65% 35%;";
+		}
+		else
+		{
+			return "grid-template-columns: 1fr;";
+		}
+	}
+
+	private void ToggleRightSidebar()
+	{
+		IsRightSideVisible = !IsRightSideVisible;
+		OnToggleRightSidebar.InvokeAsync();
+	}
+
+	private async Task ClearSelectionAndClose()
+	{
+		await OnClearSelection.InvokeAsync();
+		IsRightSideVisible = false;
+		await IsRightSideVisibleChanged.InvokeAsync(false);
+	}
+}

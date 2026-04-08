@@ -1,0 +1,133 @@
+﻿@using System.Timers
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Components.Pages
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Models.Common
+@inject IJSRuntime JS
+@inject ISimulateService _simulateService
+@inject IEventServices _eventServices
+
+@if (reloadDashboard)
+{
+    <div class="carousel-container carousel-container-align">
+        @if (!popupVisible)
+        {
+            <div>
+                <button class="carousel-arrow mlx-btn-action-enabled mlx-btn-chevron" @onclick="ShowPrevious">
+                    <span id="btnPreviousWidget" class="mlx-ico-chevron-left"></span>
+                </button>
+            </div>
+            <div class="carousel-container-dahsboard">
+                <Mss.WorkForce.Code.Web.Components.Pages.Dashboard changeWidth="true" isWidget="false" isVerticalOrientation="false" GroupWidgets="GroupWidgets" CurrentPlanning="CurrentPlanning" UserFormat="UserFormat" OffSet="OffSet"></Mss.WorkForce.Code.Web.Components.Pages.Dashboard>
+            </div>
+
+            <div>
+                <button class="carousel-arrow mlx-btn-action-enabled mlx-btn-chevron" @onclick="ShowNext">
+                    <span id="btnNextWidget" class="mlx-ico-chevron-right"></span>
+                </button>
+            </div>
+        }
+    </div>
+}
+
+
+
+<DxPopup Id="popupWidget" CssClass="mlx-modal"
+@bind-Visible="@popupVisible"
+CloseOnEscape="true"
+CloseOnOutsideClick="false"
+Width="60%"
+Height="80%"
+ShowFooter="true"
+Scrollable="true">
+    <Content>
+        @if (popupVisible)
+        {
+            <div id="dashboardWidgetContainer" style="width: 100%; height: 100%">
+                <Mss.WorkForce.Code.Web.Components.Pages.Dashboard changeWidth="false" isWidget="true" isVerticalOrientation="false" GroupWidgets="GroupWidgets" CurrentPlanning="CurrentPlanning" reloadDashboard="reloadDashboard" UserFormat="UserFormat" OffSet="OffSet"></Mss.WorkForce.Code.Web.Components.Pages.Dashboard>
+            </div>
+        }
+
+    </Content>
+</DxPopup>
+
+@code {
+
+    [Parameter]
+    public bool reloadDashboard { get; set; } = false;
+
+    [Parameter]
+    public eGroupWidgets GroupWidgets { get; set; }
+
+    [Parameter]
+    public Guid CurrentPlanning { get; set; }
+
+    [Parameter]
+    public UserFormatOptions UserFormat { get; set; } = new();
+
+    [Parameter]
+    public double OffSet { get; set; }
+
+    private int Items = 0;
+    private bool popupVisible = false;
+
+    private DotNetObjectReference<WidgetCarousel> _dotNetHelper;
+    private IJSObjectReference? _dashboardScript;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                Items = _simulateService.GetWidgets(GroupWidgets);
+                _dashboardScript = await JS.InvokeAsync<IJSObjectReference>("import", "./js/dashboard-init.js");
+                await _dashboardScript.InvokeVoidAsync("getDoNetHelper", _dotNetHelper);
+                await _dashboardScript.InvokeVoidAsync("getItems", Items);
+                _eventServices.Subscribe(nameof(Dashboard), nameof(Dashboard), EventsPopup);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching widgets: {ex.Message}");
+            }
+        }
+    }
+
+
+    private async Task ShowNext()
+    {
+        _dashboardScript = await JS.InvokeAsync<IJSObjectReference>("import", "./js/dashboard-init.js");
+        await _dashboardScript.InvokeVoidAsync("moveCarousel", "left");
+    }
+
+    private async Task ShowPrevious()
+    {
+        _dashboardScript = await JS.InvokeAsync<IJSObjectReference>("import", "./js/dashboard-init.js");
+        await _dashboardScript.InvokeVoidAsync("moveCarousel", "right");
+    }
+
+    private void EventsPopup(EventArguments eventData)
+    {
+        switch (eventData.EventActions)
+        {
+            case EventActions.Open:
+                popupVisible = true;
+                StateHasChanged();
+                break;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_dashboardScript is not null)
+        {
+            await _dashboardScript.InvokeVoidAsync("disposeDashboard");
+            await _dashboardScript.DisposeAsync();
+            _dashboardScript = null;
+        }
+
+        _dotNetHelper?.Dispose();
+        _dotNetHelper = null;
+        _eventServices.Unsubscribe(nameof(Dashboard), nameof(Dashboard), EventsPopup);
+    }
+}

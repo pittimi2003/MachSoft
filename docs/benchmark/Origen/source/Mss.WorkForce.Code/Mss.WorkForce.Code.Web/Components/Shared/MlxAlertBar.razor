@@ -1,0 +1,359 @@
+﻿
+@inject IJSRuntime JS
+@inject IEventServices eventServices
+@inject ISimulateService simulateService
+@inject GanttJsService GanttService
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using DevExpress.Blazor
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.Models
+@inject ILocalizationService l
+
+<div class="toolbar-container">
+	@RenderAlertDropdown
+	<div class="toolbar-wrapper">
+		<div id="alertBar" class="alert-bar">
+			<div id="errorDropdownTarget" class="alert-icon-container">
+				<button class="top-bar-button top-bar-button-show @(AlertsList.Any(a => a.AlertSeverity == AlertSeverity.Error) ? "" : "no-alerts")"
+						title="@l.Loc("Errors")" @onclick="ToggleErrorDropdown">
+					<span class="mlx-ico-error"></span>
+					@if (AlertsList.Any(a => a.AlertSeverity == Models.Models.AlertSeverity.Error && !a.IsRead))
+					{
+						<span class="badge red">@AlertsList.Count(a => a.AlertSeverity == Models.Models.AlertSeverity.Error && !a.IsRead)</span>
+					}
+
+				</button>
+			</div>
+			@if (IsErrorDropdownOpen && AlertsList.Any(a => a.AlertSeverity == Models.Models.AlertSeverity.Error))
+			{
+				@RenderErrorDropDown()
+			}
+
+			<div id="warningDropdownTarget" class="alert-icon-container">
+				<button class="top-bar-button top-bar-button-show @(AlertsList.Any(a => a.AlertSeverity == AlertSeverity.Warning) ? "" : "no-alerts")"
+						title="@l.Loc("Warnings")" @onclick="ToggleWarningDropdown">
+					<span class="mlx-ico-warning"></span>
+					@if (AlertsList.Any(a => a.AlertSeverity == Models.Models.AlertSeverity.Warning && !a.IsRead))
+					{
+						<span class="badge orange">@AlertsList.Count(a => a.AlertSeverity == Models.Models.AlertSeverity.Warning && !a.IsRead)</span>
+					}
+
+				</button>
+			</div>
+			@if (IsWarningDropdownOpen && AlertsList.Any(a => a.AlertSeverity == Models.Models.AlertSeverity.Warning))
+			{
+				@RenderWarningDropDown()
+			}
+
+			<div id="infoDropdownTarget" class="alert-icon-container">
+				<button class="top-bar-button top-bar-button-show  @(AlertsList.Any(a => a.AlertSeverity == AlertSeverity.Information) ? "" : "no-alerts")"
+						title="@l.Loc("Information")" @onclick="ToggleInfoDropdown">
+					<span class="mlx-ico-info"></span>
+					@if (AlertsList.Any(a => a.AlertSeverity == Models.Models.AlertSeverity.Information && !a.IsRead))
+					{
+						<span class="badge blue">@AlertsList.Count(a => a.AlertSeverity == Models.Models.AlertSeverity.Information && !a.IsRead)</span>
+					}
+				</button>
+			</div>
+			@if (IsInfoDropdownOpen && AlertsList.Any(a => a.AlertSeverity == Models.Models.AlertSeverity.Information))
+			{
+				@RenderInfoDropDown()
+			}
+		</div>
+
+	</div>
+</div>
+
+<MlxModalAlert Visible="@IsMyAlertModalVisible"
+VisibleChanged="@((bool value) => IsMyAlertModalVisible = value)"
+Alert="SelectedAlert" />
+
+@code {
+	[Parameter]
+	public IEnumerable<AlertMessageDto> Alerts { get; set; }
+
+	private List<AlertMessageDto> AlertsList = new();
+	private List<AlertMessageDto> AlertsListGanntOrder = new();
+	private List<AlertMessageDto> AlertsListByInputOrder = new();
+
+	private bool IsErrorDropdownOpen = false;
+	private bool IsWarningDropdownOpen = false;
+	private bool IsInfoDropdownOpen = false;
+
+	private bool IsMainAlertDropdownOpen = false;
+	private AlertMessageDto SelectedAlert { get; set; }
+
+	private bool IsMyAlertModalVisible { get; set; } = false;
+
+	public IJSObjectReference? _ganttFileJS;
+
+	private void ToggleErrorDropdown() => IsErrorDropdownOpen = !IsErrorDropdownOpen;
+	private void ToggleWarningDropdown() => IsWarningDropdownOpen = !IsWarningDropdownOpen;
+	private void ToggleInfoDropdown() => IsInfoDropdownOpen = !IsInfoDropdownOpen;
+	private string? SelectedTaskId;
+	private bool IsDropDownOpen { get; set; }
+
+	private RenderFragment? RenderAlertDropdown => SelectedTaskId is not null
+	? @<DxDropDown IsOpen="@IsDropDownOpen"
+					 	IsOpenChanged="@(x => IsDropDownOpen = x)"
+					 	PositionTarget="@($"#task-alert-{SelectedTaskId}")"
+					 	PositionMode="DropDownPositionMode.Bottom"
+					 	ShowArrow="false"
+					 	Width="300px">
+		<DropDownContent>
+			@RenderDropDownContentAll("Alerts", AlertsListByInputOrder)
+		</DropDownContent>
+	</DxDropDown>
+	: null;
+
+	private RenderFragment RenderAlertDropDown(
+		AlertSeverity severity,
+		string title,
+		string iconClass,
+		string targetId,
+		Func<bool> isOpenFunc,
+		Action toggleAction) => @<DxDropDown IsOpen="@isOpenFunc()"
+									  	IsOpenChanged="@(_ => toggleAction())"
+									  	PositionTarget="@($"#{targetId}")"
+									  	PositionMode="DropDownPositionMode.Bottom"
+									  	CloseOnOutsideClick="true"
+									  	ShowArrow="false"
+									  	Width="300px">
+		<DropDownContent>
+			@RenderDropDownContent(
+		title,
+		iconClass,
+		AlertsList?.Where(a => a.AlertSeverity == severity).ToList(),
+		severity
+		)
+		</DropDownContent>
+	</DxDropDown>;
+
+	RenderFragment RenderErrorDropDown() => RenderAlertDropDown(
+				AlertSeverity.Error,
+				AlertSeverity.Error.ToString().ToUpper(),
+				"mlx-ico-error-bg-solid",
+				"errorDropdownTarget",
+				() => IsErrorDropdownOpen,
+				ToggleErrorDropdown);
+
+	RenderFragment RenderWarningDropDown() => RenderAlertDropDown(
+				AlertSeverity.Warning,
+				AlertSeverity.Warning.ToString().ToUpper(),
+				"mlx-ico-warning-bg-solid",
+				"warningDropdownTarget",
+				() => IsWarningDropdownOpen,
+				ToggleWarningDropdown);
+
+	RenderFragment RenderInfoDropDown() => RenderAlertDropDown(
+				AlertSeverity.Information,
+				AlertSeverity.Information.ToString().ToUpper(),
+				"mlx-ico-info-bg-solid",
+				"infoDropdownTarget",
+				() => IsInfoDropdownOpen,
+				ToggleInfoDropdown);
+
+	RenderFragment RenderDropDownContent(string title, string iconClass, List<AlertMessageDto> messages, AlertSeverity severity) => @<div class="alert-dropdown-content">
+		<div class="alert-dropdown-header">
+			<span class="alert-title">@l.Loc(title)</span>
+			
+
+		</div>
+		@foreach (var msg in messages)
+	{
+		<div class="alert-notification @(msg.IsRead ? "read" : "unread") alert-clickable"
+		 	@onclick="() => ShowAlertModal(msg)"
+		 	@onclick:preventDefault>
+			<div class="icon-with-badge">
+				<span class="@iconClass alert-icon"></span>
+				
+			</div>
+			<div class="alert-message">
+				<div class="alert-text">@msg.Message</div>
+				<div class="alert-footer">
+					<span class="alert-time">@msg.CreationDate</span>
+					
+				</div>
+			</div>
+		</div>
+		@if (msg != messages.Last())
+	{
+		<div class="mlx-alert-separation"></div>
+	}
+	}
+	</div>
+	;
+
+	RenderFragment RenderDropDownContentAll(string title, List<AlertMessageDto> messages) =>@<div class="alert-dropdown-content">
+		<div class="alert-dropdown-header">
+			<span class="alert-title">@title</span>
+		</div>
+		@{
+	string icon = string.Empty;
+		}
+		@foreach (var msg in messages)
+	{
+	switch (msg.AlertSeverity)
+	{
+	case AlertSeverity.Error:
+	icon = "mlx-ico-error-bg-solid";
+	break;
+	case AlertSeverity.Warning:
+	icon = "mlx-ico-warning-bg-solid";
+	break;
+	case AlertSeverity.Information:
+	icon = "mlx-ico-info-bg-solid";
+	break;
+	default:
+	icon = string.Empty;
+	break;
+	}
+
+		<div class="alert-notification @(msg.IsRead ? "read" : "unread") alert-clickable"
+		 	@onclick="() => ShowAlertModal(msg)"
+		 	@onclick:preventDefault>
+			<div class="icon-with-badge">
+				<span class="@icon alert-icon"></span>
+			</div>
+			<div class="alert-message">
+				<div class="alert-text">@msg.Message</div>
+				<div class="alert-footer">
+					<span class="alert-time">@msg.CreationDate</span>
+					
+				</div>
+			</div>
+		</div>
+	}
+	</div>;
+
+	[JSInvokable]
+	public Task ShowTaskAlerts(string taskId)
+	{
+		SelectedTaskId = taskId;
+
+		// Aquí filtras las alertas por ID
+		AlertsListByInputOrder = GetAlertsForTask(taskId);
+
+		IsDropDownOpen = true;
+		StateHasChanged();
+		return Task.CompletedTask;
+	}
+
+	private async Task UpdateBadgeCount(AlertMessageDto msg = null)
+	{
+		if (msg != null)
+		{
+			AlertsListByInputOrder = AlertsListGanntOrder.Where(t => t.EntityId == msg.EntityId).ToList();
+			var unreadCount = AlertsListByInputOrder.Count(a => !a.IsRead);
+			SelectedTaskId = msg.EntityId.ToString();
+			await _ganttFileJS.InvokeVoidAsync("updateAlertBadge", SelectedTaskId, unreadCount, msg.Id.ToString());
+		}
+		else
+		{
+			SelectedTaskId = AlertsListByInputOrder[0].EntityId.ToString();
+			await _ganttFileJS.InvokeVoidAsync("updateAlertBadge", SelectedTaskId, 0);
+		}
+	}
+
+	private List<AlertMessageDto> GetAlertsForTask(string inputOrderId)
+	{
+		return AlertsListGanntOrder
+			.Where(a => a.EntityId.ToString() == inputOrderId)
+			.ToList();
+	}
+
+	private async void ToggleReadStatus(AlertMessageDto msg)
+	{
+		msg.IsRead = !msg.IsRead;
+		await UpdateBadgeCount(msg);
+		IsMyAlertModalVisible = false;
+		StateHasChanged();
+	}
+
+	private async void MarkAllAsRead(Models.Models.AlertSeverity severity)
+	{
+		foreach (var alert in AlertsList.Where(a => a.AlertSeverity == severity))
+			alert.IsRead = true;
+
+		var groupedByTask = AlertsList
+			.Where(a => !a.IsRead)
+			.GroupBy(a => a.EntityId.ToString())
+			.ToDictionary(g => g.Key, g => g.Count());
+
+		await _ganttFileJS.InvokeVoidAsync("updateAllAlertBadge", groupedByTask, (int)severity);
+		StateHasChanged();
+	}
+
+	private async Task LoadGanttService()
+	{
+		_ganttFileJS = await GanttService.GetModuleAsync(JS);
+	}
+
+
+	private async void MarkAllAsUnRead(Models.Models.AlertSeverity severity)
+	{
+		foreach (var alert in AlertsList.Where(a => a.AlertSeverity == severity))
+			alert.IsRead = false;
+
+		var groupedByTask = AlertsList
+			.Where(a => !a.IsRead)
+			.GroupBy(a => a.EntityId.ToString())
+			.ToDictionary(g => g.Key, g => g.Count());
+
+		await _ganttFileJS.InvokeVoidAsync("updateAllAlertBadge", groupedByTask, (int)severity);
+		StateHasChanged();
+	}
+
+	private async void MarkAllAsRead()
+	{
+		foreach (var alert in AlertsListByInputOrder)
+		{
+			alert.IsRead = true;
+		}
+		await UpdateBadgeCount();
+		StateHasChanged();
+	}
+
+	protected override void OnInitialized()
+	{
+		AlertsList = Alerts?
+					.Where(a => a.AlertType == AlertType.GeneralIndicator)
+					.ToList() ?? new List<AlertMessageDto>();
+
+		AlertsListGanntOrder = Alerts?
+			.Where(a => a.AlertType == AlertType.SpecificIndicator)
+			.Select(alert => alert.Clone())
+			.Cast<AlertMessageDto>()
+			.ToList();
+		// LoadGanttService();
+	}
+
+	protected override void OnParametersSet()
+	{
+		AlertsList = Alerts?
+					.Where(a => a.AlertType == AlertType.GeneralIndicator)
+					.ToList() ?? new List<AlertMessageDto>();
+
+		AlertsListGanntOrder = Alerts?
+				.Where(a => a.AlertType == AlertType.SpecificIndicator)
+				.Select(alert => alert.Clone())
+				.Cast<AlertMessageDto>()
+				.ToList();
+	}
+
+	private void ShowAlertModal(AlertMessageDto alert)
+	{
+		SelectedAlert = alert;
+		IsMainAlertDropdownOpen = false;
+		IsMyAlertModalVisible = true;
+		StateHasChanged();
+	}
+
+}

@@ -1,0 +1,756 @@
+﻿
+@typeparam type
+@using System.Reflection
+@using System.ComponentModel
+@using DevExpress.Blazor
+@using DevExpress.Data
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.Attributtes
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.Enums
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.DTO;
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using System.Globalization
+@inject IEventServices EventServices
+@inject ILogger<GridComponent<type>> Logger
+@inject SendParamService _SendParamService
+@inject IFieldLabelService FieldLabelService
+@inject IJSRuntime JS
+@inject ILocalizationService L
+@attribute [Authorize]
+
+<div class="d-flex mt-3" style="margin-left: 1%;">
+    <div class="mlx-toolbar-grid">
+        <div class="mlx-toolbar-item" @onclick="RefreshGrid" title="@SRefresh">
+            <button class="mlx-toolbar-grid-button">
+                <i class="mlx-ico-reload"></i>
+            </button>
+        </div>
+        <div class="split-linea"></div>
+
+        <div class="@(isCollapseToolbar ? "mlx-toolbar-item-hidden" : "mlx-toolbar-item")" @onclick="ColumnChooserGrid" title="@SColumnChooser">
+            <button class="mlx-toolbar-grid-button">
+                <i class="mlx-ico-column-chooser"></i>
+            </button>
+        </div>
+        <div class="@(isCollapseToolbar ? "mlx-toolbar-item-hidden" : "mlx-toolbar-item")" @onclick="FitColumnsToGrid" title="@SFitColumnsToGrid">
+            <button class="mlx-toolbar-grid-button">
+                <i class="mlx-ico-fit-to-grid"></i>
+            </button>
+        </div>
+        <div class="@(isCollapseToolbar ? "mlx-toolbar-item-hidden" : "mlx-toolbar-item")" @onclick="FitColumnsToContent" title="@SFitColumnsToContent">
+            <button class="mlx-toolbar-grid-button">
+                <i class="mlx-ico-fit-to-content"></i>
+            </button>
+        </div>
+        <div class="@(isCollapseToolbar ? "mlx-toolbar-item-hidden" : "mlx-toolbar-item")" @onclick="ResetColumnsGrid" title="@SResetColumns">
+            <button class="mlx-toolbar-grid-button">
+                <i class="mlx-ico-revertir"></i>
+            </button>
+        </div>
+        <div class="mlx-toolbar-item" @onclick="CollapseExpantGrid" title="@(isExpandGrid? SCollapsedGrid : SExpandGrid) ">
+            <button class="mlx-toolbar-grid-button">
+                <i class="@(isExpandGrid ? "mlx-ico-contract" : "mlx-ico-expand_hrz") "></i>
+            </button>
+        </div>
+        <div class="split-linea"></div>
+        <div class="mlx-toolbar-item" @onclick="CollapseExpandToolbar" title="@(isCollapseToolbar? SOpen : SClose)">
+            <button class="mlx-toolbar-grid-button">
+                <i class="@(isCollapseToolbar ? "mlx-ico-chevron-right" : "mlx-ico-chevron-left")"></i>
+
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<div class="mlx-grid-container">
+    <DxGrid @ref="MlxGrid" @key="@gridKey" Data="@ParametersData"
+            CssClass="mlx-grid"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" CustomizeFilterMenu="OnCustomizeFilterMenu"
+            KeyFieldName="@Id"
+            SelectionMode="@GridSelectionMode"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            TextWrapEnabled="false"
+            AllowSelectRowByClick="true"
+            SelectedDataItemsChanged="OnSelectedDataItemsChanged"
+            SelectedDataItems="SelectedData"
+            PagerVisible="false"
+            PageSize="PageSize">
+        <Columns>
+            <DxGridSelectionColumn Width="80px" Name="SelectCheck" ShowInColumnChooser="false">
+                <CellDisplayTemplate Context="SelContext">
+                    <DxCheckBox CssClass="mlx-check-box" @bind-Checked="SelContext.Selected"></DxCheckBox>                    
+                </CellDisplayTemplate>
+            </DxGridSelectionColumn>
+            @foreach (var propiedad in FillProperties.OrderBy(x => x.Value.Index))
+            {
+                string FieldName = propiedad.Value.FieldType switch
+                {
+                    ComponentType.DropDown or ComponentType.DropDownEnum => $"{propiedad.Key}.Name",
+                    ComponentType.WarehouseGrid => nameof(UserDto.WarehouseCodes),
+                    _ => propiedad.Key
+                };
+
+                <DxGridDataColumn Name="@propiedad.Key"
+                FieldName="@FieldName"
+                Caption="@propiedad.Value.Caption"
+                Visible="@propiedad.Value.IsVisible"
+                FilterMenuButtonDisplayMode="@GetFilterMode(propiedad.Value.FieldType)">
+                    <CellDisplayTemplate Context="ModelContext">
+                        @{
+                            var alignmentClass = propiedad.Value.TextAlignment
+                            ? "text-Right-important"
+                            : "";
+                        }
+                        <div class="@alignmentClass">
+                            @{
+                                var value = ModelContext.Value;
+                                var tipo = propiedad.Value.FieldType;
+                                if (tipo == ComponentType.PassWord && value is string pass)
+                                {
+                                    <span>@(new string('*', pass.Length))</span>
+                                }
+                                else if (tipo == ComponentType.CheckBox || propiedad.Key == "Condition.IsFixed")
+                                {
+                                    <span class="@(value is true ? "mlx-ico-check" : "mlx-ico-close")"></span>
+                                }
+                                else if (propiedad.Value.ShowIconEnum)
+                                {
+                                    <span class="@GetIconText(value?.ToString() ?? "")"></span>
+                                }
+                                else if (tipo == ComponentType.WarehouseGrid && value is ICollection<Warehouse> warehouses)
+                                {
+                                    <span>@(warehouses.Any() ? string.Join(',', warehouses.Select(x => x.Code)) : "-")</span>
+                                }
+                                else if (tipo == ComponentType.AlertFilter && value is ICollection<AlertFilterDto> filters)
+                                {
+                                    if (filters.Any())
+                                    {
+                                        List<string> filtrosGrid = new();
+                                        foreach (var item in filters)
+                                        {
+                                            var display = item.IsFixed ? item.FilterFixedValue.TrimEnd() : item.FilterReference.TrimEnd();
+                                            filtrosGrid.Add($"{item.FilterField} {EnumHelper.GetItemDescription(item.Operator)} {display}");
+                                        }
+                                        var next = filtrosGrid.Count > 1 ? "..." : "";
+                                        var datashow = $"{filtrosGrid.FirstOrDefault()}{next}";
+                                        <span title="@string.Join(", ", filtrosGrid)">@(datashow) </span>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                }
+                                else if (tipo == ComponentType.AlertConfiguration && value is ICollection<AlertConfigurationDto> config)
+                                {
+                                    <span>@(config.Any() ? string.Join(',', config.Select(x => $"{x.Severity} {x.Type}...")) : "-")</span>
+                                }
+                                else if (tipo == ComponentType.CustomProperty)
+                                {
+                                    var alert = ModelContext.DataItem as AlertDto;
+                                    var valStr = value?.ToString()?.Trim();
+                                    string output;
+
+                                    if (DateTime.TryParseExact(valStr, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime))
+                                    {
+                                        output = parsedDateTime.ToUserTime(UserFormat.HourFormatWithoutSeconds);
+                                    }
+                                    else
+                                    {
+                                        output = string.IsNullOrWhiteSpace(valStr) ? string.Empty : L.Loc(FieldLabelService.GetLabel(alert?.EntityCode.ToString(), valStr));
+                                    }
+
+                                    <span>@output</span>
+                                }
+                                else if (tipo == ComponentType.AlertCondition)
+                                {
+                                    if (value is AlertFilterDto item)
+                                    {
+                                        var alert = ModelContext.DataItem as AlertDto;
+                                        var label = L.Loc(FieldLabelService.GetLabel(alert?.EntityCode.ToString(), item.FilterField));
+                                        var op = EnumHelper.GetItemDescription(item.Operator);
+                                        var display = item.IsFixed ? item.FilterFixedValue : item.FilterReference;
+                                        <span>@($"{label} {op} {display}")</span>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                }
+                                else if (tipo == ComponentType.DropDownEnum)
+                                {
+                                    if (value is EntityTypeEnum enumValue)
+                                    {
+                                        <span>@EnumHelper.GetItemDescription(enumValue)</span>
+                                    }
+                                    else
+                                    {
+                                        <span></span>
+                                    }
+                                }
+                                else if (tipo == ComponentType.DropDownLocalized)
+                                {
+                                    <span>@L.Loc(value.ToString())</span>
+                                }
+                                else if (tipo == ComponentType.NumericSpin)
+                                {
+                                    <span>@FormatNumber(value)</span>
+                                }
+                                else
+                                {
+                                    @if (value is DateTime date)
+                                    {
+                                        <span>@date.ToUserDate(UserFormat.FullDate)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@value</span>
+                                    }
+                                }
+                            }
+
+                        </div>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+            }
+
+        </Columns>
+    </DxGrid>
+
+    <div class="mlx-pager-pager-layout">
+        <div class="mlx-pager-left-group">
+            <DxPager PageCount="@PageCount"
+            ActivePageIndex="@ActivePageIndex"
+            SwitchToInputBoxButtonCount="4"
+            NavigationMode="PagerNavigationMode.InputBox"
+            ActivePageIndexChanged="@OnActivePageIndexChanged">
+            </DxPager>
+            <MlxComboBox Data="@PageSizeOptions"
+            CssClass="mlx-form-select"
+            Value="@PageSize"
+            ValueChanged="@((int newSize) => OnPageSizeChanged(newSize))"
+            ValueFieldName="Value"
+            TextFieldName="Key" />
+            <span class="mlx-pager-records"> @PagerRecords</span>
+        </div>
+        <div class="mlx-pager-right-group">
+            @if (SelectedData.Any())
+            {
+                <DxButton CssClass="btn-mlx-grid-select"
+                Visible="@SelectedData.Any()"
+                IconPosition="ButtonIconPosition.AfterText"
+                IconCssClass="mlx-ico-close"
+                Click="UnSelectedAll">
+                    <span>@SelectedRecords</span>
+                    <span class="mlx-separator"></span>
+                    <i class="mlx-ico-close"></i>
+                </DxButton>
+            }
+            else
+            {
+                <span class="mlx-grid-pager-no-selected">@SelectedRecords</span>
+            }
+        </div>
+    </div>
+</div>
+
+<MlxColumnChooserPopup Visible="@showColumnChoose"
+ColumnChooseProperties="@ColumnChooseProperties"
+OnSave="UpdateColumnChoose"
+OnCancel="CloseColumnChoose"
+OnClose="CloseColumnChoose" />
+
+@code {
+    [Parameter]
+    public GetAttributesDto<type>? GridParameters { get; set; }
+    [Parameter] public bool isExpandGrid { get; set; } = true;
+    [Parameter] public UserFormatOptions UserFormat { get; set; } = new();
+    [Parameter] public GridSelectionMode GridSelectionMode { get; set; } = GridSelectionMode.Multiple;
+
+    private IEnumerable<object> ParametersData;
+    IGrid MlxGrid { get; set; }
+    private string gridKey = Guid.NewGuid().ToString();
+
+    private string SColumnChooser = string.Empty;
+    private string SFitColumnsToGrid = string.Empty;
+    private string SFitColumnsToContent = string.Empty;
+    private string SResetColumns = string.Empty;
+    private string SRefresh = string.Empty;
+    private string SCollapsedGrid = string.Empty;
+    private string SExpandGrid = string.Empty;
+    private string SOpen = string.Empty;
+    private string SClose = string.Empty;
+    private string SSelected = string.Empty;
+
+    private bool showColumnChoose = false;
+    public bool isCollapseToolbar { get; set; }
+    private List<object> SelectedData { get; set; } = new List<object>();
+    private string Id { get; set; } = string.Empty;
+    private IDictionary<int, int> PageSizeOptions = new Dictionary<int, int>() { { 50, 50 }, { 100, 100 }, { 200, 200 } };
+    private string PagerRecords { get; set; } = string.Empty;
+    private Dictionary<string, DisplayAttributes>? FillProperties = new Dictionary<string, DisplayAttributes>();
+    private List<ColumnChoose>? ColumnChooseProperties { get; set; } = new();
+    private List<ColumnChoose>? ColumnChoosePropertiesEdit { get; set; } = new();
+
+    private int CurrentPage { get; set; } = 0;
+    private int PageSize { get; set; } = 50;
+    private int TotalItems { get; set; } = 0;
+    private int PageCount { get; set; }
+    private int ActivePageIndex { get; set; } = 0;
+    private string SelectedRecords { get; set; } = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        TranslateResource();
+        DevExpress.Utils.Localization.XtraLocalizer.HandleAllThreadEvents();
+        DevExpress.Utils.Localization.XtraLocalizer.QueryLocalizedString += XtraLocalizer_QueryLocalizedString;
+        SelectedRecords = string.Format("{0}: {1}", L.Loc("Selected"), 0);
+        PagerRecords = L.Loc("Page {0} of {1}, {2} Items", 0 + 0, 0, 0);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && MlxGrid != null)
+        {
+
+            if (GridParameters != null)
+            {
+                EventServices.Subscribe(GridParameters.NameContainer, GridParameters.NameContainer, ContainerActions);
+                FillProperties = GridParameters.GetProperties();
+
+                FillProperties = FillProperties
+                   .Where(kv => kv.Value.IsVisible)
+                   .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+                FillPropertyColumnChoose();
+            }
+            LoadData();
+            SelectFirstData();
+            StateHasChanged();
+        }
+    }
+
+    private void XtraLocalizer_QueryLocalizedString(object? sender, DevExpress.Utils.Localization.XtraLocalizer.QueryLocalizedStringEventArgs e)
+    {
+        if (e.StringIDType == typeof(DevExpress.Blazor.Localization.DxBlazorStringId))
+        {
+            // Imprime en consola del servidor (Blazor Server) o usa Debug/JS interop en WASM
+            Console.WriteLine($"DevExpress requested: {e.StringID} -> '{e.Value}'");
+            // Si quieres reemplazar ahí mismo, puedes:
+            // if ((DevExpress.Blazor.Localization.DxBlazorStringId)e.StringID ==
+            //      DevExpress.Blazor.Localization.DxBlazorStringId.MessageBox_CancelButton)
+            //    e.Value = "Cancelar";
+        }
+    }
+
+    private string FormatNumber(object value)
+    {
+        var culture = new System.Globalization.CultureInfo(UserFormat.CultureCode ?? "es-ES");
+        culture.NumberFormat.NumberGroupSeparator = UserFormat.GroupSeparator.ToString();
+        culture.NumberFormat.NumberDecimalSeparator = UserFormat.DecimalSeparator.ToString();
+
+        double doubleValue = Convert.ToDouble(value);
+
+        if (doubleValue % 1 == 0)
+            return ((long)doubleValue).ToString("N0", culture);
+        else
+            return doubleValue.ToString("N", culture);
+    }
+
+    private void TranslateResource()
+    {
+        SColumnChooser = L.Loc("Column chooser");
+        SFitColumnsToGrid = L.Loc("Fit columns to grid");
+        SFitColumnsToContent = L.Loc("Fit columns to content");
+        SResetColumns = L.Loc("Reset columns");
+        SRefresh = L.Loc("Refresh");
+        SCollapsedGrid = L.Loc("Collapse grid");
+        SExpandGrid = L.Loc("Expand grid");
+        SOpen = L.Loc("Open");
+        SClose = L.Loc("Close");
+        SSelected = L.Loc("Selected");
+    }
+
+    private void LoadData()
+    {
+        if (FillProperties.Any())
+        {
+            var data = GridParameters.Model as IEnumerable<object>;
+            ParametersData = data?.Skip(ActivePageIndex * PageSize).Take(PageSize).ToList() ?? new List<object>();
+            Id = GridParameters.GetKeyProperty()?.Name ?? "Id";
+
+            ReloadGridFooter();
+        }
+    }
+
+
+    public void ContainerActions(EventArguments eventArguments)
+    {
+        if (eventArguments.EventActions == EventActions.Refresh)
+        {
+            UnSelectedAll();
+            SelectedData.Clear();
+            LoadData();
+            SelectCount(SelectedData.Count());
+        }
+    }
+
+    private void ReloadGridFooter()
+    {
+        if (GridParameters.Model != null)
+        {
+            dynamic dynamic = GridParameters.Model;
+            TotalItems = dynamic.Count;
+            PageCount = (TotalItems / PageSize) + 1;
+        }
+        reloadItem();
+    }
+
+    private void OnSelectedDataItemsChanged(IReadOnlyList<object> newSelection)
+    {
+        try
+        {
+            foreach (var item in newSelection)
+                if (!SelectedData.Contains(item))
+                    SelectedData.Add(item);
+
+            var itemsToRemove = SelectedData.Except(newSelection).ToList();
+            foreach (var item in itemsToRemove)
+                SelectedData.Remove(item);
+
+            var cont = SelectedData.Count;
+            SelectCount(cont);
+            EventServices.Publish(GridParameters.GridPublish, new EventArguments(GridParameters.GridPublish, SelectedData.Count > 1 ? EventActions.MultiSelected : EventActions.Selected, SelectedData));
+        }
+        catch (Exception ex)
+        {
+            //log exception
+        }
+    }
+
+    private IEnumerable<object> OrderData(object data, string propertyName)
+    {
+        var listData = data as IEnumerable<object>;
+        if (listData.Any())
+        {
+            var elementType = listData.FirstOrDefault()?.GetType();
+            var propertyInfo = elementType.GetProperty(propertyName);
+            if (propertyInfo != null)
+                return listData.OrderBy(item => propertyInfo.GetValue(item));
+        }
+
+        return listData;
+    }
+
+    private void SelectCount(int cont)
+    {
+        if (cont > 1)
+            isExpandGrid = false;
+        else
+            isExpandGrid = true;
+
+        SelectedRecords = string.Format("{0}: {1}", L.Loc("Selected"), cont);
+    }
+
+    private void CollapseExpandToolbar() => isCollapseToolbar = !isCollapseToolbar;
+
+    private void OnActivePageIndexChanged(int activePageIndex)
+    {
+        ActivePageIndex = activePageIndex;
+        reloadDatadItem();
+    }
+
+    private async Task OnPageSizeChanged(int newSize)
+    {
+        PageSize = newSize;
+        ActivePageIndex = 0;
+        reloadDatadItem();
+    }
+
+    private void reloadDatadItem()
+    {
+        LoadData();
+        reloadItem();
+        StateHasChanged();
+    }
+
+    private void reloadItem() => PagerRecords = L.Loc("Page {0} of {1}, {2} Items", ActivePageIndex + 1, PageCount, TotalItems);
+
+    private void UnSelectedAll()
+    {
+        SelectedData.Clear();
+        OnSelectedDataItemsChanged(SelectedData);
+        MlxGrid.DeselectAllAsync();
+    }
+
+    private void RefreshGrid()
+    {
+        EventServices.Publish(GridParameters.GridPublish, new EventArguments(GridParameters.GridPublish, EventActions.Refresh, null));
+    }
+
+    private async Task ColumnChooserGrid()
+    {
+        SyncColumnOrderFromGrid();
+
+        ColumnChooseProperties = ColumnChooseProperties
+        .OrderBy(c => c.Index)
+        .ToList();
+
+        foreach (var gridColumn in FillProperties)
+        {
+            if (ColumnChooseProperties.FirstOrDefault(c => c.FieldName == gridColumn.Key) is ColumnChoose columnChoose)
+            {
+                columnChoose.IsVisible = gridColumn.Value.IsVisible;
+            }
+        }
+
+        showColumnChoose = true;
+        StateHasChanged();
+
+        await Task.Delay(100);
+        await JS.InvokeVoidAsync("initSingleContainerReorder");
+    }
+
+    private void FitColumnsToGrid()
+    {
+        MlxGrid.BeginUpdate();
+        foreach (var column in MlxGrid.GetColumns())
+        {
+            if (column.Name != "SelectCheck")
+                column.Width = "Auto";
+        }
+        MlxGrid.EndUpdate();
+        MlxGrid.Reload();
+    }
+
+    private void FitColumnsToContent()
+    {
+        MlxGrid.BeginUpdate();
+        foreach (var column in MlxGrid.GetColumns())
+        {
+            if (column.Name != "SelectCheck")
+                column.Width = "150px";
+        }
+        MlxGrid.EndUpdate();
+        MlxGrid.AutoFitColumnWidths();
+    }
+
+    private void ResetColumnsGrid()
+    {
+        if (ColumnChoosePropertiesEdit == null || !ColumnChoosePropertiesEdit.Any())
+            return;
+
+        ColumnChooseProperties = ColumnChoosePropertiesEdit
+            .Select(x => new ColumnChoose(x.FieldName, x.Caption, x.IsVisible) { Index = x.Index })
+            .ToList();
+
+        ApplyColumnChooseToFillProperties(ColumnChooseProperties);
+        ReorderFillProperties(ColumnChooseProperties);
+
+        LoadData();
+        StateHasChanged();
+    }
+
+    private void CollapseExpantGrid()
+    {
+        isExpandGrid = !isExpandGrid;
+
+        if (isExpandGrid)
+        {
+            EventServices.Publish(GridParameters.GridPublish, new EventArguments(GridParameters.GridPublish, EventActions.ExpandGrid, null));
+        }
+        else
+        {
+            EventServices.Publish(GridParameters.GridPublish, new EventArguments(GridParameters.GridPublish, EventActions.CollapseGrid, null));
+        }
+    }
+
+    private void CloseColumnChoose() => showColumnChoose = false;
+
+    private async Task UpdateColumnChoose()
+    {
+        var newOrder = await JS.InvokeAsync<List<string>>("getReorderedFieldNames");
+
+        if (newOrder != null && newOrder.Any())
+        {
+            int idx = 1;
+            foreach (var fieldName in newOrder)
+            {
+                var column = ColumnChooseProperties.FirstOrDefault(c => c.FieldName == fieldName);
+                if (column != null && column.IsVisible)
+                {
+                    column.Index = idx++;
+                }
+            }
+            var visibles = ColumnChooseProperties.Where(c => c.IsVisible).OrderBy(c => c.Index);
+            var ocultas = ColumnChooseProperties.Where(c => !c.IsVisible).OrderBy(c => c.Caption);
+            ColumnChooseProperties = visibles.Concat(ocultas).ToList();
+        }
+
+        ApplyColumnChooseToFillProperties(ColumnChooseProperties);
+        ReorderFillProperties(ColumnChooseProperties);
+        gridKey = Guid.NewGuid().ToString();
+        showColumnChoose = false;
+        MlxGrid.Reload();
+        StateHasChanged();
+    }
+
+
+
+    private void FillPropertyColumnChoose()
+    {
+        if (ColumnChooseProperties != null && !ColumnChooseProperties.Any())
+        {
+            List<ColumnChoose> visibles = new();
+            List<ColumnChoose> ocultas = new();
+            foreach (var propertyColumn in FillProperties)
+            {
+                propertyColumn.Value.IsVisible = propertyColumn.Value.IsVisibleDefault;
+                if (!string.IsNullOrEmpty(propertyColumn.Value.Caption))
+                {
+                    var col = new ColumnChoose(
+                        propertyColumn.Key,
+                        propertyColumn.Value.Caption,
+                        propertyColumn.Value.IsVisible
+                    );
+
+                    col.Index = propertyColumn.Value.Index;
+
+                    if (col.IsVisible)
+                    {
+                        visibles.Add(col);
+                    }
+                    else
+                    {
+                        ocultas.Add(col);
+                    }
+                }
+            }
+
+            ColumnChooseProperties = visibles
+            .OrderBy(c => c.Index)
+            .Concat(ocultas.OrderBy(c => c.Caption))
+            .ToList();
+
+            ColumnChoosePropertiesEdit = ColumnChooseProperties
+            .Select(x => new ColumnChoose(x.FieldName, x.Caption, x.IsVisible) { Index = x.Index })
+            .ToList();
+        }
+    }
+
+    private void SelectFirstData()
+    {
+        if (ParametersData?.Any() == true && _SendParamService.WarehouseId != null && _SendParamService.WarehouseId != Guid.Empty && GridParameters is GetAttributesDto<List<WarehouseDto>>)
+        {
+            if (ParametersData.OfType<WarehouseDto>().FirstOrDefault(x => x.Id == _SendParamService.WarehouseId) is WarehouseDto item)
+            {
+                SelectedData.Add(item);
+                _SendParamService.WarehouseId = Guid.Empty;
+                OnSelectedDataItemsChanged(SelectedData);
+            }
+        }
+    }
+
+    private void ReorderFillProperties(List<ColumnChoose> ordered)
+    {
+        var orderedFields = ordered
+            .Where(c => c.IsVisible)
+            .OrderBy(c => c.Index)
+            .Select(c => c.FieldName)
+            .ToList();
+
+        var reordered = FillProperties
+            .Where(kv => orderedFields.Contains(kv.Key))
+            .OrderBy(kv => orderedFields.IndexOf(kv.Key))
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        foreach (var kv in FillProperties.Where(kv => !orderedFields.Contains(kv.Key)))
+        {
+            reordered[kv.Key] = kv.Value;
+        }
+        FillProperties = new Dictionary<string, DisplayAttributes>(reordered);
+    }
+
+
+    private void ApplyColumnChooseToFillProperties(List<ColumnChoose> source)
+    {
+        foreach (var chooseColumn in source)
+        {
+            if (FillProperties.TryGetValue(chooseColumn.FieldName, out var gridColumn))
+            {
+                gridColumn.IsVisible = chooseColumn.IsVisible;
+                gridColumn.Index = chooseColumn.Index;
+            }
+        }
+    }
+
+    string GetIconText(string name) => name switch
+    {
+        "Error" => EnumHelper.GetItemDescription(EnumSeverityIcon.Error),
+        "Warning" => EnumHelper.GetItemDescription(EnumSeverityIcon.Warning),
+        "Information" => EnumHelper.GetItemDescription(EnumSeverityIcon.Information),
+        "GreaterThan" => EnumHelper.GetItemDescription(EnumAlertOperatorIcon.GreaterThan),
+        "LessThan" => EnumHelper.GetItemDescription(EnumAlertOperatorIcon.LessThan),
+        "Equal" => EnumHelper.GetItemDescription(EnumAlertOperatorIcon.Equal),
+        "NotEqual" => EnumHelper.GetItemDescription(EnumAlertOperatorIcon.NotEqual),
+        "GreaterOrEqual" => EnumHelper.GetItemDescription(EnumAlertOperatorIcon.GreaterOrEqual),
+        "LessOrEqual" => EnumHelper.GetItemDescription(EnumAlertOperatorIcon.LessOrEqual),
+        _ => name
+    };
+
+    private void SyncColumnOrderFromGrid()
+    {
+        var visibleColumns = MlxGrid.GetVisibleColumns()
+            .OfType<IGridDataColumn>()
+            .Select((col, index) => new
+            {
+                FieldName = col.FieldName,
+                Caption = col.Caption,
+                VisibleIndex = index + 1
+            })
+            .ToList();
+
+        foreach (var column in visibleColumns)
+        {
+            var match = ColumnChooseProperties.FirstOrDefault(c => c.FieldName == column.FieldName);
+            if (match != null && match.IsVisible)
+            {
+                match.Index = column.VisibleIndex;
+            }
+        }
+
+        int nextIndex = visibleColumns.Count + 1;
+        foreach (var oculto in ColumnChooseProperties.Where(c => !c.IsVisible).OrderBy(c => c.Caption))
+        {
+            oculto.Index = nextIndex++;
+        }
+    }
+
+    void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
+    {
+        if (e.DataColumn.FieldName == $"{nameof(AlertDto.Condition)}.{nameof(AlertFilterDto.IsFixed)}")
+        {
+            e.DataItems.ForEach(di =>
+            {
+                if (di.Value is bool value)
+                    di.DisplayText = (bool)di.Value ? L.Loc("Yes") : L.Loc("No");
+            });
+            return;
+        }
+    }
+
+    private GridFilterMenuButtonDisplayMode GetFilterMode(ComponentType type)
+    {
+        if (type == ComponentType.PassWord)
+            return GridFilterMenuButtonDisplayMode.Never;
+
+        return GridFilterMenuButtonDisplayMode.Always;
+    }
+}

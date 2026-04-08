@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<form method="post">
+    <div class="form-group">
+        <label for="SelectedView">Select Gantt View:</label>
+        <select asp-for="SelectedView" asp-items="Model.GanttViews" class="form-control"></select>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Reload gannt</button>
+</form>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["Message"]</div>
+}

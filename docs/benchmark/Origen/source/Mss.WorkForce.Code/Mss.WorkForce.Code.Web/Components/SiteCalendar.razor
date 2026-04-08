@@ -1,0 +1,50 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@inject IJSRuntime JS
+@inject IEventServices _eventServices
+@inject DataAccess dataAccess
+
+<div class="d-flex align-items-center">
+    <!-- Contenedor de Combo y Botones -->
+    <div class="temporalidad-container">
+        <div class="d-flex align-items-center w-100">
+            <!-- ComboBox personalizado para seleccionar temporalidades -->
+            <DxComboBox Data="@Sites" Value="@SelectedSite"
+                        TextFieldName="Name" ValueFieldName="Id"
+                        CssClass="mlx-ico-warehouse site-combobox mlx-title-warehouse"
+                        ValueChanged="@((SiteModel newValue) => OnValueChanged(newValue))">
+                <ItemTemplate>
+                    <div class="d-flex justify-content-between w-100">
+                        <span>
+                            @((context as SiteModel)?.Name)
+                        </span>
+                    </div>
+                </ItemTemplate>
+            </DxComboBox>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<SiteModel> Sites { get; set; }
+
+    [Parameter]
+    public SiteModel SelectedSite { get; set; }
+
+    [Parameter]
+    public EventCallback<SiteModel> ValueChanged { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();       
+    }
+
+    private async Task OnValueChanged(SiteModel newSite)
+    {
+        SelectedSite = newSite;
+        await ValueChanged.InvokeAsync(newSite);
+    }
+
+}

@@ -1,0 +1,6 @@
+@Mss.WorkForce.Code.DataBaseManager_HostAddress = http://localhost:5269
+
+GET {{Mss.WorkForce.Code.DataBaseManager_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,130 @@
+.menu-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #80808091;
+    z-index: 1000;
+}
+
+.menu-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease-in-out;
+    padding: 24px 19px;
+}
+
+.menu-item-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex: 1;
+}
+
+.menu-item-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding-left: 4px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.menu-item-option:hover {
+    background-color: var(--gl-color-smoke-100);
+    border-radius: 4px;
+}
+
+.menu-submenu {
+    margin-top: 20px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--sp-color-border-default);
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    transition: opacity 0.3s ease-in-out;
+    height: 100%;
+    width: 50%;
+}
+
+.menu-chevron {
+    margin-left: auto;
+    color: var(--sp-color-icon-soft);
+}
+
+.menu-header {
+    border-bottom: 1px solid var(--sp-color-border-default);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    height: auto;
+    cursor: default;
+    flex-shrink: 0;
+}
+
+.menu-header-warehouse {
+    font-style: normal;
+    color: var(--content-defautl, #2E4052);
+    font-family: Raleway;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    line-height: 24px;
+}
+
+.menu-btn-close-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.mlx-icon-menu {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.mlx-icon-menu.mlx-ico-close-sm:before {
+    content: "\e972";
+    color: #889DB8;
+}
+
+.menu-item-item {
+    color: var(--gl-color-smoke-900);
+    font-family: 'Segoe UI';
+    font-size: 14px;
+    font-weight: 400;
+    padding: 7.25px;
+    display: block;
+}
+
+.menu-items {
+    flex: 1; /* Ocupa todo el ancho disponible del contenedor principal */
+    /*padding-top: 10px;*/
+    padding-right: 8px;
+    padding-left: 8px;
+    margin-top: 20px;
+}
+
+.menu-item-container .mlx-ico-chevron-right:before {
+    color: var(--sp-color-icon-soft);
+}
+
+.menu-submenu-item {
+    color: var(--sp-color-content-soft) !important;
+    font-family: Segoe UI;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700 !important;
+    line-height: 150%;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}

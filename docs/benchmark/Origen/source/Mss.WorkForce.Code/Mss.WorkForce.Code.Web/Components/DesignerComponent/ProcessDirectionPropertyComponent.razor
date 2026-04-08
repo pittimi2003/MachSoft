@@ -1,0 +1,282 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.Models
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using System.ComponentModel.DataAnnotations
+@inject ILocalizationService L
+
+<div class="mlx-right-sideBar-body-with-button mlx-right-sideBar-body-height-without-tab">
+    <EditForm EditContext="editContext">
+        <DataAnnotationsValidator />
+        <div class="mlx-right-sideBar-body mlx-right-sideBar-body-form-height">
+            <div class="mlx-right-sideBar-body-content-widthout-tab">
+                <div class="row">
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Name")</label>
+                        <DxTextBox CssClass="mlx-form-textbox" @bind-Text="@DesignerDto.Name" />
+                    </div>
+    
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Probability of execution (%)")</label>
+                        <DxSpinEdit CssClass="mlx-form-spinedit" MinValue="0" MaxValue="100" @bind-Value="@DesignerDto.Percentage" Mask="n2">
+                            <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                        </DxSpinEdit>
+                    </div>
+    
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Init process")</label>
+                        <MlxComboBox Data="@FilteredInitProcessItems()" CssClass="mlx-form-select" Value="@DesignerDto.InitProcess" ValueFieldName="Id" TextFieldName="@nameof(DesignerDto.InitProcess.Name)" NullText="@L.Loc("Select...")" ValueChanged="@((ProcessDto processDto) => OnValueChangedInitProcessDirectionProperty(processDto))" ValueExpression="@(() => DesignerDto.InitProcess)" TextExpression="@(() => DesignerDto.InitProcess.Name)" />
+                    </div>
+    
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("End process")</label>
+                        <MlxComboBox Data="@FilteredEndProcessItems()" CssClass="mlx-form-select" Value="@DesignerDto.EndProcess" ValueFieldName="Id" TextFieldName="@nameof(DesignerDto.EndProcess.Name)" NullText="@L.Loc("Select...")" ValueChanged="@((ProcessDto processDto) => OnValueChangedEndProcessDirectionProperty(processDto))" ValueExpression="@(() => DesignerDto.EndProcess)" TextExpression="@(() => DesignerDto.EndProcess.Name)" />
+                    </div>
+    
+                    <div class="col-xl-6 col-sm-12">
+                        <label class="mlx-form-label">@L.Loc("Is this final process direction?")</label>
+                        <div class="mlx-checkbox-container">
+                            <DxCheckBox class="text-danger" CssClass="mlx-check-box align-items-center" @bind-Checked="@DesignerDto.IsEnd"></DxCheckBox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+</div>
+<div class="mlx-right-sideBar-footer">
+    <button type="button" class="btn-mlx btn-mlx-white-primary" onclick="@(() => CancelButtonClick())">@L.Loc("Cancel")</button>
+    <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@(!CanSave)" onclick="@(() => SaveEvent())">@L.Loc("Save")</button>
+</div>
+
+@code {
+
+    #region Parameters
+    [Parameter]
+    public EventCallback OnClickSideBar { get; set; }
+    [Parameter]
+    public ProcessDirectionPropertyDto? DesignerDto { get; set; }
+    [Parameter] 
+    public UserFormatOptions UserFormat { get; set; } = new();
+    #endregion
+
+    #region Properties
+    [Inject] private IDesignerServices _designer { get; set; }
+
+    [Inject] private IJSRuntime JS { get; set; }
+
+    // Combo box
+    private List<ProcessDto>? InitProcessItems { get; set; } = new();
+    private List<ProcessDto>? EndProcessItems { get; set; } = new();
+    #endregion
+
+    private EditContext editContext;
+    private Guid? OriginalInitProcessId;
+    private Guid? OriginalEndProcessId;
+    private string OriginalViewPort = string.Empty;
+
+    // Used to Enable Button Save
+    #region Save Button Status
+
+    private string _baselineFingerprint = string.Empty;
+    private bool _isDirty = false;
+    private bool _hasErrors = false;
+
+    private bool CanSave => _isDirty && !_hasErrors;
+
+    #endregion
+
+    // Method for handling the click
+    private async Task CancelButtonClick()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (DesignerDto == null)
+            return;
+        // Inicializar datos manuales
+        editContext = new EditContext(DesignerDto);
+        DesignerDto.InitProcess = DesignerDto.InitProcess ?? new();
+        DesignerDto.EndProcess = DesignerDto.EndProcess ?? new();
+        OriginalInitProcessId = DesignerDto?.InitProcessId;
+        OriginalEndProcessId = DesignerDto?.EndProcessId;
+        OriginalViewPort = DesignerDto.ViewPort;
+        UpdateFilteredProcessDirectionItems();
+        CaptureBaseline();
+        RegisterTracking();
+    }
+
+    private async Task OnValueChangedInitProcessDirectionProperty(ProcessDto selectedProcessItem)
+    {
+        if (selectedProcessItem != null)
+        {
+            DesignerDto.InitProcessId = selectedProcessItem.Id ?? Guid.Empty;
+            DesignerDto.InitProcess = selectedProcessItem;
+
+            // Si se selecciona el mismo proceso, deseleccionamos el otro
+            if (DesignerDto.EndProcess?.Id == selectedProcessItem.Id)
+            {
+                DesignerDto.EndProcess = null;
+                DesignerDto.EndProcessId = Guid.Empty;
+            }
+
+            editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.InitProcessId)));
+            UpdateFilteredProcessDirectionItems();
+
+            MarkDirty();
+        }
+    }
+
+    private async Task OnValueChangedEndProcessDirectionProperty(ProcessDto selectedProcessItem)
+    {
+        if (selectedProcessItem != null)
+        {
+            DesignerDto.EndProcessId = selectedProcessItem.Id ?? Guid.Empty;
+            DesignerDto.EndProcess = selectedProcessItem;
+
+            // Si se selecciona el mismo proceso, deseleccionamos el otro
+            if (DesignerDto.InitProcess?.Id == selectedProcessItem.Id)
+            {
+                DesignerDto.InitProcess = null;
+                DesignerDto.InitProcessId = Guid.Empty;
+            }
+
+            editContext.NotifyFieldChanged(editContext.Field(nameof(DesignerDto.EndProcessId)));
+            UpdateFilteredProcessDirectionItems();
+
+            MarkDirty();
+        }
+    }
+
+    private void UpdateFilteredProcessDirectionItems()
+    {
+        InitProcessItems = _designer
+            .GetProcessesByLayoutIdNoTracking((Guid)DesignerDto.InitProcess.AreaDto.LayoutId)
+            .Where(p => DesignerDto.EndProcess == null || p.Id != DesignerDto.EndProcess.Id)
+            .ToList();
+
+        EndProcessItems = _designer
+            .GetProcessesByLayoutIdNoTracking((Guid)DesignerDto.InitProcess.AreaDto.LayoutId)
+            .Where(p => DesignerDto.InitProcess == null || p.Id != DesignerDto.InitProcess.Id)
+            .ToList();
+    }
+
+    // Filter that displays in InitProcess everything but EndProcess content
+    private List<ProcessDto>? FilteredInitProcessItems()
+    {
+        return InitProcessItems?.Where(a => a.Id != DesignerDto?.EndProcessId).OrderBy(x => x.Name).ToList();
+    }
+
+    // Filter that displays in EndProcess everything but InitProcess content
+    private List<ProcessDto>? FilteredEndProcessItems()
+    {
+        return EndProcessItems?.Where(a => a.Id != DesignerDto?.InitProcessId).OrderBy(x => x.Name).ToList();
+    }
+
+    private async Task SaveEvent()
+    {
+        try
+        {
+            if (DesignerDto == null || editContext == null)
+                return;
+            bool isValid = editContext.Validate();
+            _isDirty = BuildFingerprint() != _baselineFingerprint;
+            _hasErrors = !isValid;
+            if (!isValid || !_isDirty)
+            {
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+
+            if (OriginalInitProcessId != DesignerDto.InitProcessId || OriginalEndProcessId != DesignerDto.EndProcessId)
+                DesignerDto.ViewPort = "";
+            else
+                DesignerDto.ViewPort = OriginalViewPort;
+
+            //Update case
+            await _designer.UpdateProcessDirectionProperty(DesignerDto);
+            var processDirection = _designer.GetProcessDirectionPropertyDtoByIdNoTracking(DesignerDto.Id);
+            await JS.InvokeVoidAsync("drawProcessDirectionOnCanvas", processDirection);
+
+            CaptureBaseline();
+            await CloseSideBarButton();
+            await InvokeAsync(StateHasChanged);
+        }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving the record: {ex.Message}");
+        }
+
+        StateHasChanged();
+    }
+
+    // Method for handling the click
+    private async Task CloseSideBarButton()
+    {
+        await OnClickSideBar.InvokeAsync();
+    }
+
+    #region Save Button Status
+
+    private void CaptureBaseline()
+    {
+        _baselineFingerprint = BuildFingerprint();
+        _isDirty = false;
+        _hasErrors = false;
+    }
+
+    private string BuildFingerprint()
+    {
+        return string.Join("|",
+            DesignerDto?.Name ?? string.Empty,
+            DesignerDto?.Percentage ?? 0,
+            DesignerDto?.InitProcessId ?? Guid.Empty,
+            DesignerDto?.EndProcessId ?? Guid.Empty,
+            DesignerDto?.IsEnd ?? false
+        );
+    }
+
+    private void RegisterTracking()
+    {
+        editContext.OnFieldChanged += OnAnyFieldChanged;
+        editContext.OnValidationStateChanged += OnValidationStateChanged;
+    }
+
+    private void OnAnyFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        UpdateDirtyFlag();
+    }
+
+    private void OnValidationStateChanged(object sender, ValidationStateChangedEventArgs e)
+    {
+        UpdateSaveButtonState();
+    }
+
+    private void UpdateDirtyFlag()
+    {
+        _isDirty = BuildFingerprint() != _baselineFingerprint;
+        UpdateSaveButtonState();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateSaveButtonState()
+    {
+        _hasErrors = editContext?.GetValidationMessages()?.Any() == true;
+    }
+
+    public void MarkDirty()
+    {
+        _isDirty = true;
+        UpdateSaveButtonState();
+        StateHasChanged();
+    }
+
+    #endregion
+}

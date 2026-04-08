@@ -1,0 +1,38 @@
+﻿.carousel-container, .carousel-container-dahsboard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 90%;
+}
+
+.carousel-item {
+    flex: 0 0 50%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+    .carousel-item.active {
+        display: block; 
+    }
+
+
+.arrow-container:first-child {
+    left: 10px;
+}
+
+.arrow-container:last-child {
+    right: 10px;
+}
+
+.mlx-ico-chevron-left,
+.mlx-ico-chevron-right {
+    font-size: 1.5rem;
+}
+
+    .mlx-ico-chevron-left.noAction::before,
+    .mlx-ico-chevron-right.noAction::before {
+        color: var(--sp-color-icon-soft);
+    }

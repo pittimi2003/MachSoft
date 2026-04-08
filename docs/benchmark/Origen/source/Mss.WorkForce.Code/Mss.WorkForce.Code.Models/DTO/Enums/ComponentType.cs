@@ -1,0 +1,33 @@
+﻿namespace Mss.WorkForce.Code.Web.Model.Enums
+{
+    public enum ComponentType
+    {
+        None,
+        TextBox,
+        DropDown,
+        DropDownEnum,
+        DropDownLocalized,
+        NumericSpin,
+        DateTime,
+        Image,
+        Link,
+        CommetText,
+        PassWord,
+        WarehouseGrid,
+        IdWareHouse,
+        CheckBox,
+        Time,
+        Multiselec,
+        DropDownYesNo,
+        AlertFilter,
+        AlertCondition,
+        AlertConfiguration,
+        CustomProperty,
+        ItemIcon,
+        TypeBound,
+        NumericSpinInt,
+        Date,
+        Booleano,
+        ReadOnlyText
+    }
+}

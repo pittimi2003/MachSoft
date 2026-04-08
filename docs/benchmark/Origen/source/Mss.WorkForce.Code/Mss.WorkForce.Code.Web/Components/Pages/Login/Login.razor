@@ -1,0 +1,214 @@
+﻿@page "/"
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Services
+@using System.Globalization
+@inject DataAccess dataAccess
+@layout EmptyLayout;
+@inject NavigationManager Navigation
+@inject IInitialDataService _InitialDataService
+@inject IJSRuntime JS
+@inject IHttpContextAccessor Http
+
+<PageTitle>@Helper.PageTitle.Name</PageTitle>
+
+<div class="login-container">
+    <div class="login-left">
+        <img src="/img/Mecalux_logo.svg" class="login-image" />
+        <img src="/img/login/img-WF-login.png" class="login-logo" />
+    </div>
+    <div class="login">
+        <span class="welcome">@translations.GetValueOrDefault(WELCOME)</span>
+        <div class="form-login">
+            <form method="post" action="/auth/login@((returnUrl != null ? $"?ReturnUrl={Uri.EscapeDataString(returnUrl)}" : ""))" enctype="application/x-www-form-urlencoded" @onkeydown="HandleEnter">
+                
+                
+                
+                <div class="login-form-input">
+                    <label>@translations.GetValueOrDefault(USER)</label>
+                    <div class="login-input-container-image">
+                        <span class="mlx-ico-user-circle-light"></span>
+                        <input @bind="User" name="user" type="text" placeholder="@translations.GetValueOrDefault(USER)" />
+                    </div>   
+                    @if (string.IsNullOrWhiteSpace(User))
+                    {
+                        <small class="text-danger pt-1">@translations.GetValueOrDefault(MANDATORYFIELD)</small>
+                    }
+                </div>
+
+                <div class="login-form-input">
+                    <label>@translations.GetValueOrDefault(PASSWORD)</label>
+                    <div class="login-input-container-image">
+                        <span class="mlx-ico-lock-close-light"></span>
+                        <input @bind="Password" name="password" type="password" placeholder="@translations.GetValueOrDefault(PASSWORD)" />
+                    </div>
+                    @if (string.IsNullOrWhiteSpace(Password))
+                    {
+                        <small class="text-danger pt-1">@translations.GetValueOrDefault(MANDATORYFIELD)</small>
+                    }
+                    @if (errorLogin)
+                    {
+                        <small class="text-danger pt-1">@translations.GetValueOrDefault(errorLoginMessage)</small>
+                    }
+                </div>
+@*                 <div class="login-form-input">
+                    <label>@translations.GetValueOrDefault(SELECTEDLENGUAGE)</label>
+                    <div class="login-select-wrapper">
+                        <span class="mlx-ico-language" aria-hidden="true"></span>
+
+                        <select @onchange="OnLanguageChanged" class="login-select">
+                            @foreach (var lang in Languages)
+                            {
+                                <option value="@lang.Value" selected="@(lang.Value == selectedLanguage)">
+                                    @lang.Key
+                                </option>
+                            }
+                        </select>
+                        <i class="mlx-ico-chevron-down login-select-chevron" aria-hidden="true"></i>
+                    </div>
+                </div> *@
+                <div>
+                    <div class="login-container-buttons">
+                        <button type="reset" class="btn-mlx btn-mlx-white-primary login-large-btn" @onclick="OnClearSumbit">
+                            <span>@translations.GetValueOrDefault(CLEAR)</span>
+                        </button>
+                        <button type="submit" class="btn-mlx btn-mlx-blue-primary login-large-btn" >
+                            <span>@translations.GetValueOrDefault(ACCEPT)</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="login-copyright">
+            <img src="img/mecalux-symbol-blue.svg" class="me-2" />
+            <span>Copyright © @_yearCopyright Mecalux, S.A.</span>
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+    [Inject] ILocalizationService LocalizationService { get; set; }
+    private IJSObjectReference?  _localizationJS;
+    private string User { get; set; }
+    private string Password { get; set; }
+    private int _yearCopyright = DateTime.Now.Year;
+    private bool errorLogin { get; set; } = false;
+    private string errorLoginMessage { get; set; } = string.Empty;
+    private CultureInfo? selectedCulture;
+    private IDictionary<string, string> Languages { get; set; }
+    private string selectedLanguage { get; set; } = "en";
+
+    private const string WELCOME = "WELCOME";
+    private const string USER = "User";
+    private const string PASSWORD = "Password";
+    private const string MANDATORYFIELD = "*Mandatory field";
+    private const string SELECTEDLENGUAGE = "Select language";
+    private const string CLEAR = "Clear";
+    private const string ACCEPT = "Accept";
+    private const string INCORECTPASSWORD = "Incorrect user or password";
+    private const string DISABLEUSER = "Disabled user";
+    private string? returnUrl;
+    private bool _redirected;
+
+    private Dictionary<string, string> translations = new();
+    private readonly List<string> translationKeys = new()
+    {
+        WELCOME, USER, PASSWORD, MANDATORYFIELD, SELECTEDLENGUAGE, CLEAR, ACCEPT, INCORECTPASSWORD, DISABLEUSER
+    };
+
+    private void OnClearSumbit(){
+        errorLogin = false;
+        User = null;
+        Password = null;
+    }
+
+    private async Task HandleEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await JS.InvokeVoidAsync("document.querySelector('form').requestSubmit()");
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        
+        // Si viene desde un intento de login fallido
+        if (query.TryGetValue("loginError", out _))
+        {
+            errorLogin = true;
+            errorLoginMessage = INCORECTPASSWORD;
+        }
+        
+        if (query.TryGetValue("ReturnUrl", out var val))
+            returnUrl = val.ToString();
+
+        translations = LocalizationService.GetTranslationsForKeys(selectedLanguage, translationKeys);
+        #if DEBUG
+        User ="mecalux";
+        Password ="mecalux";
+        #endif
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && errorLogin)
+        {
+            var cleanUri = Navigation.BaseUri.TrimEnd('/');
+            Navigation.NavigateTo(cleanUri, replace: true);
+        }
+    }
+
+    private void login()
+    { 
+        _InitialDataService.PullData(User, Password);
+    }
+
+    private void GetLanguages(string languageCode)
+    {
+        var availableLanguages = dataAccess.GetLanguages().Where(x => x.IsActive);
+
+        if (!availableLanguages.Any())
+        {
+            Languages = new Dictionary<string, string>
+            {
+                { "English", "en" }
+            };
+            return;
+        }
+
+        var languageKeys = availableLanguages.Select(x => x.Name).ToList();
+        var languageTranslations = LocalizationService.GetTranslationsForKeys(languageCode, languageKeys);
+
+        Languages = availableLanguages.ToDictionary(
+        lang => languageTranslations.GetValueOrDefault(lang.Name) ?? lang.Name,
+        lang => lang.InternationalCode
+        );
+    }
+
+    private void OnLanguageChanged(ChangeEventArgs e)
+    {
+        selectedLanguage = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedLanguage))
+        {
+            translations = LocalizationService.GetTranslationsForKeys(selectedLanguage, translationKeys);
+            GetLanguages(selectedLanguage);
+            StateHasChanged();
+        }
+    }
+
+    //En caso de tener autorizacion y llegar de nuevo al login
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Yield();
+
+        if (Http.HttpContext?.User?.Identity?.IsAuthenticated == true)
+        {
+            Navigation.NavigateTo("/home", replace: true);
+        }
+    }
+}

@@ -1,0 +1,71 @@
+﻿@using DevExpress.Blazor;
+@using Mss.WorkForce.Code.Web.Components.Pages
+<div>
+<DxFlyout @bind-IsOpen=IsOpen
+          PositionTarget="#btnShowModalWidgets"
+          HeaderVisible="IsOpen"
+          Position="FlyoutPosition.LeftEnd"
+          MinWidth="600"
+          CloseMode="FlyoutCloseMode.None"
+          PreventCloseOnPositionTargetClick="false"
+          CloseOnOutsideClick=false
+          CssClass="@FlyoutCssClass" Scrollable>
+    <HeaderTemplate>
+        
+            <div class="mlx-btn-content">
+            <DxButton Id=btnHideModalWidgets
+                      IconCssClass="mlx-widgets-btn mlx-ico-close-sm"
+                      CssClass="mlx-btn-close-widgets btn-mlx-blue-primary" Click="CloseModal" 
+                      Visible="IsOpen"/>
+                      </div>
+    </HeaderTemplate>
+    <BodyContentTemplate>         
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <Dashboard></Dashboard>
+                </div>
+            </div>
+        </div>
+    </BodyContentTemplate>
+</DxFlyout>
+
+
+<div class="mlx-btn-content">
+<DxButton Id=btnShowModalWidgets
+          IconCssClass="mlx-widgets-btn mlx-ico-chart"
+          CssClass="mlx-btn-flotante btn-mlx-blue-primary"
+          Click="ShowModal"
+                  Visible=viewBtnwidgets title="Widgets" />
+</div>
+</div>
+@code {
+
+    [Parameter]
+    public bool viewBtnwidgets{ get; set; } = true;
+    private string FlyoutCssClass => isAnimating ? "mlx-modal-widgets mlx-slide-down" : (IsOpen ? "mlx-modal-widgets mlx-slide-up" : "mlx-modal-widgets");
+    bool IsOpen { get; set; } = false;
+    private bool isAnimating { get; set; }
+
+
+    AccordionExpandCollapseAction ExpandCollapseAction { get; set; } = AccordionExpandCollapseAction.HeaderClick;
+
+    void CloseModal()
+    {
+        isAnimating = true; // Inicia la animación de salida
+        StateHasChanged();
+
+        // Espera el tiempo de la animación antes de ocultar el flyout
+        Task.Delay(500).ContinueWith(_ =>
+        {
+            isAnimating = false;
+            IsOpen = false;
+            InvokeAsync(StateHasChanged); // Actualiza el estado de forma asíncrona
+        });
+    }
+
+    void ShowModal()
+    {
+        IsOpen = true;
+    }
+}

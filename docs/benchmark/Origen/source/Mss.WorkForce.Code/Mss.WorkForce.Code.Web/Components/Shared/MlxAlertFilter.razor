@@ -1,0 +1,177 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Model
+@inject ILocalizationService L
+
+@if (IsEditing)
+{
+    <div class="mlx-row-header">
+        <div class="row">
+            <div class="col-md-@(12 / Columns)">
+                <label for="idSelectWarehouse" class="mlx-form-label">@Field</label>
+                <MlxComboBox Data="@Fields"
+                            CssClass="mlx-form-select"
+                            TextFieldName="Text"
+                            ValueFieldName="Value"
+                            Value="@ModelFilter.FilterField"
+                            ValueChanged="@((string newValue) => OnFieldChanged(newValue))"
+                            ValueExpression="() => ModelFilter.FilterField"
+                            NullText="@SelectedField" />
+            </div>
+
+            <div class="col-md-@(12 / Columns)">
+                <label for="idSelectWarehouse" class="mlx-form-label">@Operator</label>
+                <DxComboBox Data="@Operators"
+                            CssClass="mlx-form-select"
+                            ValueFieldName="Value"
+                            @bind-Value="@ModelFilter.Operator"
+                            NullText="@SelectedOperator">
+
+                    <ItemTemplate Context="item">
+                        <span class="@GetOperatorIcon(item.Value)"></span>
+                    </ItemTemplate>
+
+                    <EditBoxTemplate Context="item">
+                        <span class="@GetOperatorIcon(item.Value)"></span>
+                    </EditBoxTemplate>
+                </DxComboBox>
+            </div>
+
+            @if (ModelFilter.IsFixed)
+            {
+                <div class="col-md-@(12 / Columns)">
+                    <label for="idFixedNumberValue" class="mlx-form-label">@ReferenceFixedValue</label>
+                    @switch (FieldType)
+                    {
+                        case Models.Enums.FieldTypeEnum.None:
+                        case Models.Enums.FieldTypeEnum.Text:
+                            <DxTextBox CssClass="mlx-form-textbox"
+                                       Text="@ModelFilter.FilterFixedValue"
+                                       TextChanged="ValidateFixedValue"
+                                       TextExpression="@(() => ModelFilter.FilterFixedValue)"
+                                       BindValueMode="BindValueMode.OnInput" />
+                            break;
+                        case Models.Enums.FieldTypeEnum.Number:
+                            var valueDecimal = Decimal.Parse(ModelFilter.FilterFixedValue ?? "0");
+                            <DxSpinEdit T="Decimal"
+                                        Value="valueDecimal"
+                                        Increment="1"
+                                        MinValue="0"
+                                        ValueExpression="@(() => valueDecimal)"
+                                        ValueChanged="@((Decimal newValue) => SetProperty(newValue))" Mask="n2">
+                                <DxNumericMaskProperties Culture="userFormat.BuildCultureFromSeparators()" />
+                            </DxSpinEdit>
+                            break;
+                        case Models.Enums.FieldTypeEnum.Bool:
+                            Boolean.TryParse(ModelFilter.FilterFixedValue, out bool valueBool);
+                            <MlxComboBox CssClass="mlx-form-select"
+                                        Data="@ListBoolOptions"
+                                        TextFieldName="Value"
+                                        ValueFieldName="Key"
+                                        Value="valueBool"
+                                        ValueExpression="@(() => valueBool)"
+                                        ValueChanged="EventCallback.Factory.Create<bool>(this, newValue => SetProperty(newValue))" />
+
+                            break;
+                        case Models.Enums.FieldTypeEnum.Date:
+                            var parsed = DateTime.TryParse(ModelFilter.FilterFixedValue, out var date);
+                            var time = (parsed ? date : DateTime.Today).TimeOfDay;
+                            <MlxTimePicker Time="@time"
+                                           
+                                           TimeChanged="EventCallback.Factory.Create<TimeSpan>(this, newValue => SetProperty(newValue))"
+                                           ScrollContainerSelector=".accordion-container" userFormat="userFormat">
+                            </MlxTimePicker>
+                            break;
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="col-md-@(12 / Columns)">
+                    <label for="idSelectWarehouse" class="mlx-form-label">@Reference</label>
+                    <DxComboBox Data="@FieldReferences"
+                                CssClass="mlx-form-select"
+                                TextFieldName="Text"
+                                ValueFieldName="Value"
+                                ValueChanged="@((string newValue) => OnReferenceChanged(newValue))"
+                                ValueExpression="() => ModelFilter.FilterReference"
+                                NullText="@SelectedField" />
+                </div>           
+            }
+            <div class="col-auto icon-add-align-center">
+                <DxCheckBox CssClass="mlx-check-box align-items-center"
+                            Checked="@ModelFilter.IsFixed"
+                            CheckedExpression="@(() => ModelFilter.IsFixed)"
+                            CheckedChanged="@((bool newValue) => OnCheckFixedChanged(newValue))">@Fixed</DxCheckBox>
+            </div>
+
+            <div class="col-auto icon-add-align-center">
+                <DxButton IconCssClass="mlx-btn-action mlx-ico-add"
+                          CssClass="@(EnableAddNewButton ? "mlx-btn-action-enabled" : "mlx-btn-action-disabled")"
+                          Enabled="@EnableAddNewButton"
+                          Click="AddAlertFilter" />
+            </div>
+        </div>
+    </div>
+}
+
+<DxGrid Data="@AlertFilters"
+        CssClass="mlx-grid"
+        SelectionMode="GridSelectionMode.Single">
+    <Columns>
+        <DxGridDataColumn FieldName="@nameof(AlertFilterDto.FilterField)" Caption="@Field">
+            <CellDisplayTemplate Context="context">
+                @L.Loc(context.Value?.ToString())
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="@nameof(AlertFilterDto.Operator)" Caption="@Operator">
+            <CellDisplayTemplate Context="ModelContext">
+                <span class="@GetOperatorIcon(ModelContext.Value)"></span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="@nameof(AlertFilterDto.FilterReference)" Caption="@Reference">
+            <CellDisplayTemplate Context="context">
+                @L.Loc(context.Value?.ToString())
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="@nameof(AlertFilterDto.FilterFixedValue)" Caption="@ReferenceFixedValue">
+            <CellDisplayTemplate Context="context">
+                @FormatFilterFixedValue(context.Value?.ToString())
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="@nameof(AlertFilter.IsFixed)" Width="80px" TextAlignment="GridTextAlignment.Center" Caption="@IsFixed">
+            <CellDisplayTemplate Context="ModelContext">
+                <span class="@((bool)ModelContext.Value ? "mlx-ico-check" : "mlx-ico-close")"></span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        @if (IsEditing)
+        {
+            <DxGridDataColumn FieldName="@Actions" Width="80px" Context="contextItem" TextAlignment="GridTextAlignment.Center">
+                <CellDisplayTemplate><span class="mlx-ico-trash mlx-button-trash" @onclick="() => RemoveAlertFilter(((AlertFilterDto)contextItem.DataItem).Id)"></span></CellDisplayTemplate>
+            </DxGridDataColumn>
+        }
+    </Columns>
+</DxGrid>
+
+<style>
+    .mlx-ico-greater-than::before,
+    .mlx-ico-less-than::before,
+    .mlx-ico-equal::before,
+    .mlx-ico-distinct::before,
+    .mlx-ico-greater-than-or-equal-to::before,
+    .mlx-ico-less-than-or-equal-to::before {
+        font-size: 16px !important;
+    }
+
+    .dxbl-text-edit > .dxbl-text-edit-template:not(:first-child) {
+        padding-top: 7px;
+        padding-left: 25px;
+    }
+</style>
+
+@code {
+
+
+}

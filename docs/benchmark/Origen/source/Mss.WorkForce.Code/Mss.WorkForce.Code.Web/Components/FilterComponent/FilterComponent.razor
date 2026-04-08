@@ -1,0 +1,40 @@
+﻿@using Mss.WorkForce.Code.Web.Services
+﻿@using DevExpress.Blazor
+@inject IEventServices eventServices
+@inject ISimulateService simulateService
+@inject IJSRuntime JS
+@inject GanttJsService GanttService
+@inject ILocalizationService l
+
+
+<DxLoadingPanel Visible="LoadPanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text=@l.Loc("Loading data...")>
+    <div>
+        <div style="@(ShowChart ? "display:block;" : "display:none;")">
+            <div id="pivotchart" style="margin-bottom:5px; padding: 5px 20px;" />
+        </div>
+        <div id="pivotgrid" style="height: 80vh; padding: 0px 10px; " />
+    </div>
+</DxLoadingPanel>
+
+@* Este estilo se define aquí para evitar interferencias con los estilos de los gráficos en los widgets.
+Se encarga de mostrar el título de cada gráfica correctamente. *@
+<style>
+    #pivotchart .dxc-axes-group text,
+    #pivotchart .dxc-legend text,
+    #pivotchart .dxc-labels text {
+        font-family: "Segoe UI" !important;
+        fill: var(--sp-color-content-soft) !important;
+    }
+
+    #pivotchart g.dxc-axes-group {
+        display: block !important;
+    }
+</style>
+
+@code {
+
+}

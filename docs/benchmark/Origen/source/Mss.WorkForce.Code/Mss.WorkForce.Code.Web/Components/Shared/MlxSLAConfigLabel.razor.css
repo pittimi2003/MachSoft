@@ -1,0 +1,31 @@
+﻿.sla-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 999px;
+    padding-left: 5px;
+    font-size: 13px;
+    /*gap: 5px;*/
+}
+
+.sla-badge .label {
+    color: #555;
+}
+
+.sla-badge .value {
+    border-radius: 999px;
+    padding: 0px 6px;
+    font-weight: bold;
+    color: white;
+    font-size: 12px;
+}
+
+    .sla-badge.green .value {
+        background-color: #06a77d; /* verde */
+    }
+
+    .sla-badge.red .value {
+        background-color: #eb5160; /* rojo */
+    }
+
+

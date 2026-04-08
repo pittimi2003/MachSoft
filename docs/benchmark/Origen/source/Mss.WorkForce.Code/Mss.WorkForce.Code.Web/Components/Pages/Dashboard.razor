@@ -1,0 +1,154 @@
+﻿@using Mss.WorkForce.Code.Web.Code
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.Common
+@inject IJSRuntime JS
+@inject IEventServices _eventServices
+@inject GlobalSettings globalSettings
+@inject IInitialDataService initialDataService
+@inject ILocalizationService L
+@implements IDisposable
+
+<div id="web-dashboard" class="dashboard">
+</div>
+
+@code {
+    [Parameter]
+    public bool changeWidth { get; set; } = false;
+
+    [Parameter]
+    public string isWidget { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool isVerticalOrientation { get; set; } = true;
+
+    [Parameter]
+    public eGroupWidgets GroupWidgets { get; set; }
+
+    [Parameter]
+    public Guid CurrentPlanning { get; set; }
+
+    [Parameter]
+    public bool reloadDashboard { get; set; } = false;
+
+    [Parameter]
+    public UserFormatOptions UserFormat { get; set; } = new();
+
+    [Parameter]
+    public double OffSet { get; set; }
+
+    private Guid currentPlanning = Guid.Empty;
+    private Dictionary<string, string> fieldTexts = new Dictionary<string, string>();
+    private IJSObjectReference? _dashboardScript;
+    private DotNetObjectReference<Dashboard> _dotNetHelper;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<Guid>(nameof(CurrentPlanning), out var value) && value != currentPlanning)
+        {
+            currentPlanning = value;
+            reloadDashboard = true;
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await InitializeDashboardAsync();
+
+        if (reloadDashboard)
+        {
+            UpdateGlobalSettings();
+            await _dashboardScript.InvokeVoidAsync("reloadDataGant", GroupWidgets.ToString(), currentPlanning.ToString());
+            reloadDashboard = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (_dashboardScript is not null)
+        {
+            _dashboardScript.InvokeVoidAsync("disposeDashboard");
+            _dashboardScript.DisposeAsync();
+            _dashboardScript = null;
+        }
+
+        _dotNetHelper?.Dispose();
+        _dotNetHelper = null;
+    }
+
+    private void TranslateFields()
+    {
+        fieldTexts = new Dictionary<string, string>
+            {
+                { "loadignData", L.Loc("Loading data...") },
+                { "exportImage", L.Loc("Export to image") },
+                { "exportExcel", L.Loc("Export to Excel") },
+                { "exportPDF", L.Loc("Export to PDF") },
+                { "export", L.Loc("Export") },
+                { "maximize", L.Loc("Maximize") },
+                { "noDataText", L.Loc("No data to display") },
+
+            };
+    }
+
+    private async Task InitializeDashboardAsync()
+    {
+        _dotNetHelper = DotNetObjectReference.Create(this);
+        TranslateFields();
+
+        _dashboardScript = await JS.InvokeAsync<IJSObjectReference>(
+            "import",
+            "./js/dashboard-init.js"
+        );
+
+        var configWidgets = new
+        {
+            IsWidget = isWidget,
+            DateHourFormat = UserFormat.FullDate,
+            Region = UserFormat.DecimalRegion,
+            FieldTexts = fieldTexts,
+            GroupWidgets = GroupWidgets,
+            CurrentPlanning = currentPlanning
+        };
+
+        // Inizializar los dashboard
+        await _dashboardScript.InvokeVoidAsync(
+            "initializeDashboard",
+            configWidgets
+        );
+
+        await Task.WhenAll(
+            _dashboardScript.InvokeVoidAsync("getDoNetHelper", _dotNetHelper).AsTask(),
+            _dashboardScript.InvokeVoidAsync("setMinWidth", changeWidth).AsTask()
+        );
+
+        UpdateGlobalSettings();
+    }
+
+    private void UpdateGlobalSettings()
+    {
+        globalSettings.widgetOrientation = isVerticalOrientation;
+        globalSettings.GroupWidgets = GroupWidgets;
+        globalSettings.CurrentPlanning = currentPlanning;
+        globalSettings.UtcWarehouse = OffSet;
+        globalSettings.HourFormat = UserFormat.HourFormat;
+    }
+
+    [JSInvokable]
+    public void OpenPopup()
+    {
+        _eventServices.Publish(nameof(Dashboard), new EventArguments(nameof(Dashboard), EventActions.Open, true));
+    }
+
+}
+
+<style>
+    .dashboard {
+        width: 100%;
+        height: 100%;
+    }
+</style>

@@ -1,0 +1,713 @@
+﻿@page "/parameters"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using Mss.WorkForce.Code.Models.Models;
+@using Mss.WorkForce.Code.Models.Enums
+@using Mss.WorkForce.Code.Web.Services
+@implements IDisposable
+@inject IJSRuntime JS
+@inject DataAccess dataAccess
+@inject ILocalizationService L
+@inject NavigationManager Navigation
+@inject SendParamService _SendParamService
+@attribute [Authorize]
+
+
+<div style="padding: 0 40px;" class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <div class="flex-grow-0 mt-1 align-items-center" style="margin-top:0.35rem !important">
+                <div class="col-md-3">
+                    <SitePreview  ValueChanged="OnSiteSeleccionadaChanged" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <DxTabs @ref="tabsRef" CssClass="mlx-tabs" RenderMode="TabsRenderMode.AllTabs" @bind-ActiveTabIndex="activeTabIndex" TabClick="OnTabClick">
+                <DxTabPage Text="@Priorityofexecution">
+                    <div>
+                        <div class="simulation-layout">
+                            <div class="container-for-dragable" id="leftContainer" @key="containerKeyLeft">
+                                <span class="title-new-tab">@Availablecriteria</span>
+                                @foreach (var item in DragFields.Where(x => !x.IsActive || !x.HasItems).OrderBy(x => x.Priority))
+                                {
+                                    @if (item.HasItems)
+                                    {
+                                        <div id="@item.Code" class="drag-item drag-item-selector" draggable="true" data-type="field" data-order="@item.Priority" data-id="@item.Id" data-code="@item.Code">
+                                            <span class="drag-label">@FormatLabel(item.Code)</span>
+                                            <button class="drag-remove">
+                                                <span class="mlx-ico-add-border"></span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (item.Items.Any(x => !x.IsActive))
+                                    {
+                                        <div id="@("left-"+item.Id)" class="drag-item-group drag-item-selector" data-group="priority" data-order="@item.Priority" data-id="@item.Id" data-code="@item.Code" data-type="grouped" draggable="true">
+                                            <div class="group-title">Priority</div>
+                                            @foreach (var order in item.Items.Where(x => !x.IsActive).OrderBy(x => x.Priority))
+                                            {
+                                                <div class="drag-item-priority priority-element" draggable="true" id="@("priority-" + order.Code.Replace(" ", ""))" data-type="priority" data-priority-label="@order.Code" data-order="@order.Priority" data-id="@order.Id" data-code="@order.Code">
+                                                    <span class="@order.IconClass"></span>
+                                                    <span class="drag-label">@FormatLabel(order.Code)</span>
+                                                    <button class="drag-remove">
+                                                        <span class="mlx-ico-add-border"></span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+
+                            <div id="containerForDivider">
+                                <div class="divider-for-dragable"></div>
+                                <span class="mlx-ico-arrow-reorder"></span>
+                                <div class="divider-for-dragable"></div>
+                            </div>
+
+                            <div class="container-for-dragable" id="rightContainer" @key="containerKeyRight">
+                                <span class="title-new-tab">@Appliedcriteria</span>
+                                <!-- Lista de campos asignados -->
+                                @foreach (var item in DragFields.Where(x => x.IsActive || !x.HasItems).OrderBy(x => x.Priority))
+                                {
+                                    @if (item.HasItems)
+                                    {
+                                        <div id="@item.Id" class="drag-item drag-item-selector" draggable="true" data-type="field" data-id="@item.Id" data-code="@item.Code" data-order="@item.Priority">
+                                            <span class="mlx-ico-drag drag-icon"></span>
+                                            <span class="drag-label">@FormatLabel(item.Code)</span>
+                                            <button class="drag-remove">
+                                                <span class="mlx-ico-minus-border"></span>
+                                            </button>
+                                        </div>
+                                    }
+                                    else if (item.Items.Any(x => x.IsActive))
+                                    {
+                                        <div id="@("right-"+item.Id)" class="drag-item-group drag-item-selector" data-group="priority" data-order="@item.Priority" data-id="@item.Id" data-code="@item.Code" data-type="grouped" draggable="true">
+                                            <div class="group-title">
+                                                <span class="mlx-ico-drag drag-icon"></span>
+                                                @Priority
+                                            </div>
+                                            @foreach (var order in item.Items.Where(x => x.IsActive).OrderBy(x => x.Priority))
+                                            {
+                                                <div class="drag-item-priority priority-element" draggable="true" id="@("priority-" + order.Code.Replace(" ", ""))" data-type="priority" data-priority-label="@order.Code" data-order="@order.Priority" data-id="@order.Id" data-code="@order.Code">
+                                                    <span class="@order.IconClass"></span>
+                                                    <span class="drag-label">@FormatLabel(order.Code)</span>
+                                                    <button class="drag-remove">
+                                                        <span class="mlx-ico-minus-border"></span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </DxTabPage>
+
+                <DxTabPage Text="@Sla">
+                    <div style="margin: 40px 40px 0px 40px;">
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="idHeadSLA">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idBodySLA" aria-expanded="true" aria-controls="idBodySLA">
+                                        <span class="mlx-title-h3">@Global</span>
+                                    </button>
+                                </h2>
+
+                                <div id="idBodySLA" class="accordion-collapse collapse show" aria-labelledby="idHeadSLA">
+                                    <div class="accordion-body">
+                                        <MlxProgressBarJS @key="progressBarKey" Value="SLAConfigProgress" ValueChanged="OnSLAChanged" Min="0" Max="100"></MlxProgressBarJS>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </DxTabPage>
+
+            </DxTabs>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="modal-footer container-buttons" style="background-color: white;">
+                <button id="btnCancel" type="button" class="btn-mlx btn-mlx-white-primary" @onclick="OnCancelClick" disabled="@(!CanSave)">@L.Loc("Cancel")</button>
+                <button id="btnSave" type="button" class="btn-mlx btn-mlx-blue-primary" @onclick="OnSaveClick" disabled="@(!CanSave)">@L.Loc("Save")</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .page-layout {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .page-header {
+        flex-shrink: 0;
+        z-index: 2;
+    }
+
+    .page-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .page-footer {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+    }
+
+    .draggable {
+        width: 150px;
+        height: 100px;
+        background-color: #4caf50;
+        color: white;
+        padding: 10px;
+        position: absolute;
+        cursor: move;
+        user-select: none;
+    }
+
+    .simulation-layout {
+        display: flex;
+        gap: 20px;
+        width: 100%;
+        height: 100%;
+        padding-bottom: 80px;
+    }
+
+    .container-for-dragable {
+        flex: 1;
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 65vh;
+        overflow-y: scroll;
+    }
+
+    .divider-for-dragable {
+        width: 1px;
+        background-color: #D0D5DD;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        justify-self: center;
+        height: 48%;
+    }
+
+    .divider-icon {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        color: #005ca9;
+        font-size: 12px;
+        font-weight: bold;
+        font-family: sans-serif;
+        opacity: 0.5;
+        user-select: none;
+    }
+
+    .drag-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background-color: #f5f6f7;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 14px;
+        position: relative;
+    }
+
+    .drag-icon {
+        color: #8c9aa6;
+        font-size: 16px;
+        cursor: grab;
+    }
+
+    .drag-remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    .drag-remove .mlx-ico-add {
+        color: #dc3545;
+        font-size: 16px;
+    }
+
+    .drag-item-group {
+        background-color: #f5f6f7;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .group-title {
+        font-weight: 600;
+        color: #344054;
+        margin-bottom: 8px;
+        display: flex;
+        gap: 12px;
+    }
+
+    .drag-item-priority {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-size: 14px;
+        cursor: grab;
+        transition: background 0.2s;
+    }
+
+    .drag-icon {
+        font-size: 16px;
+    }
+
+    .drag-label {
+        color: #344054;
+        font-weight: 500;
+        flex-grow: 1;
+    }
+
+    .drag-remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    .drag-remove .mlx-ico-minus {
+        color: #004a91;
+        font-size: 16px;
+    }
+
+    .drag-pill {
+        background-color: #ffffff;
+        color: #1d2939;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: auto;
+    }
+
+    .arrow-up {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .title-new-tab {
+        color: var(--sp-color-content-default);
+        font-family: Raleway;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 24px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+</style>
+
+@code {
+
+    public List<SiteModel> Sites = new List<SiteModel>();
+    public SiteModel SelectedSite = new SiteModel();
+    public List<ProcessPriorityOrderDto> DragFields { get; set; }
+    public List<OrderPriorityDto> DragSubItems { get; set; }
+    private int SLAConfigProgress { get; set; }
+    private SLAConfigDto slaConfigDto { get; set; } = new SLAConfigDto();
+    private Guid containerKeyLeft = Guid.NewGuid();
+    private Guid containerKeyRight = Guid.NewGuid();
+    private Guid progressBarKey = Guid.NewGuid();
+
+    private List<ProcessPriorityOrderDto> OriginalDragFields;
+    private bool hasSLAModified = false;
+    private bool CanSave = false;
+    private bool hasDragChanges = false;
+    private DxTabs tabsRef;
+    private int InitialSLAValue;
+    private PriorityStateResult OriginalDragState;
+    private DotNetObjectReference<SimulationLogic> dotNetHelperRef;
+
+    private string Priorityofexecution = string.Empty;
+    private string Sla = string.Empty;
+    private string Availablecriteria = string.Empty;
+    private string Appliedcriteria = string.Empty;
+    private string Global = string.Empty;
+    private string Priority = string.Empty;
+    private bool _urlCleaned = false;
+    private int activeTabIndex;
+
+    [Inject]
+    private ISimulationLogicService SimulationLogicService { get; set; }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            if (dotNetHelperRef == null)
+            {
+                dotNetHelperRef = DotNetObjectReference.Create(this);                
+                await JS.InvokeVoidAsync("initDrag", dotNetHelperRef);
+            }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        NavigationNewPage();
+        SetActiveTab();
+
+
+        FillDragFields();
+        TranslateFields();
+        StoreInitialDragState();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        CleanNamePage();
+        SetActiveTab();
+        StateHasChanged();
+    }
+
+    private void CleanNamePage()
+    {
+        var uri = new Uri(Navigation.Uri);
+        if (!string.IsNullOrEmpty(uri.Query))
+        {
+            var cleanUrl = uri.GetLeftPart(UriPartial.Path);
+            Navigation.NavigateTo(cleanUrl, replace: true);
+            _urlCleaned = true;
+        }
+    }
+
+    private void NavigationNewPage()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var tabFromUrl = query.Get("tab");
+        if (!string.IsNullOrEmpty(tabFromUrl))
+            _SendParamService.ActiveTab = tabFromUrl;
+    }
+
+    private void SetActiveTab()
+    {
+        activeTabIndex = _SendParamService.ActiveTab switch
+        {
+            "tab1" => 0,
+            "tab2" => 1,
+            "tab3" => 2,
+            _ => 0
+        };
+    }
+
+    void OnTabClick(TabClickEventArgs args)
+    {
+        _SendParamService.ActiveTab = args.TabIndex switch
+        {
+            0 => "tab1",
+            1 => "tab2",
+            2 => "tab3",
+            _ => "tab1"
+        };
+        _SendParamService.ReloadInitData = true;
+        activeTabIndex = args.TabIndex;
+    }
+
+    private void TranslateFields()
+    {
+        Priorityofexecution = L.Loc("Priority of execution");
+        Sla = L.Loc("SLA");
+        Availablecriteria = L.Loc("Available criteria");
+        Appliedcriteria = L.Loc("Applied criteria");
+        Global = L.Loc("GLOBAL");
+        Priority = L.Loc("Priority");
+    }
+
+    private async Task OnSaveClick()
+    {
+        try
+        {
+            var state = await JS.InvokeAsync<PriorityStateResult>("getPrioritiesState");
+
+            if (state is not null)
+            {
+                foreach (var pItem in state.ProcessItems)
+                {
+                    pItem.WarehouseId = SelectedSite.Id;
+                }
+
+                foreach (var pItem in state.PriorityItems)
+                {
+                    pItem.WarehouseId = SelectedSite.Id;
+                }
+
+
+                await SimulationLogicService.UpdateProcessPriorityOrder(state.ProcessItems);
+                await SimulationLogicService.UpdateOrderPriority(state.PriorityItems);
+            }
+
+            slaConfigDto.Value = SLAConfigProgress;
+            await SimulationLogicService.UpdateSLAConfig(slaConfigDto);
+
+            hasDragChanges = false;
+            hasSLAModified = false;
+            CanSave = false;
+            // Forzar rerender de la UI generando nuevo @key
+            containerKeyLeft = Guid.NewGuid();
+            containerKeyRight = Guid.NewGuid();
+            progressBarKey = Guid.NewGuid();
+            tabsRef.ActiveTabIndex = 0;
+
+            FillDragFields();
+            StoreInitialDragState();
+            dotNetHelperRef = null;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Guardado de prioridades: {ex.Message}");
+        }
+    }
+
+    private async Task OnSiteSeleccionadaChanged((SiteModel newSite, bool changeColumns) args)
+    {
+        SelectedSite = args.newSite;
+        FillDragFields();
+        StoreInitialDragState();
+        OnCancelClick();
+        StateHasChanged();
+    }
+
+    private void FillDragFields()
+    {
+        DragFields = new();
+        foreach (var process in dataAccess.GetAllProcessPriorityOrderByWh().Where(x => x.WarehouseId == SelectedSite.Id))
+        {
+
+            DragFields.Add(new ProcessPriorityOrderDto
+                {
+                    Id = process.Id,
+                    Code = process.Code,
+                    Priority = process.Priority,
+                    IsActive = process.IsActive,
+                });
+        }
+        if (DragFields.FirstOrDefault(x => x.Code == "Priority") is ProcessPriorityOrderDto dragField)
+        {
+            foreach (var order in dataAccess.GetAllOrderPriorityByWh().Where(x => x.WarehouseId == SelectedSite.Id))
+                dragField.Items.Add(new OrderPriorityDto
+                    {
+                        Id = order.Id,
+                        Code = order.Code,
+                        Priority = order.Priority,
+                        IconClass = GetIconText(order.Code),
+                        IsActive = order.IsActive
+                    });
+        }
+
+        var SlaConfigs = dataAccess.GetAllSLAConfigs().FirstOrDefault(x => x.WarehouseId == SelectedSite.Id && x.Code == "Shipped Stock");
+        if (SlaConfigs != null)
+        {
+            slaConfigDto.Code = SlaConfigs.Code;
+            slaConfigDto.Id = SlaConfigs.Id;
+            slaConfigDto.WarehouseId = SlaConfigs.WarehouseId;
+            SLAConfigProgress = (int)SlaConfigs.Value;
+        }
+        InitialSLAValue = SLAConfigProgress;
+
+    }
+
+    string GetIconText(string name)
+    {
+        try
+        {
+            var priorityEnum = EnumHelper.GetEnumValueFromDescription<EnumOrderPriority>(name);
+
+            return priorityEnum switch
+            {
+                EnumOrderPriority.Urgent => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.Urgent),
+                EnumOrderPriority.High => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.High),
+                EnumOrderPriority.Normal => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.Normal),
+                EnumOrderPriority.Low => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.Low),
+                EnumOrderPriority.VeryLow => EnumHelper.GetItemDescription(EnumOrderPriorityIcon.VeryLow),
+                _ => name
+            };
+        }
+        catch
+        {
+            return name;
+        }
+    }
+
+    private void StoreInitialDragState()
+    {
+        OriginalDragFields = new();
+        OriginalDragState = new();
+
+        foreach (var f in DragFields)
+        {
+            // Guardar en lista original normal
+            var original = new ProcessPriorityOrderDto
+                {
+                    Id = f.Id,
+                    Code = f.Code,
+                    Priority = f.Priority,
+                    IsActive = f.IsActive,
+                    Items = f.Items.Select(i => new OrderPriorityDto
+                    {
+                        Id = i.Id,
+                        Code = i.Code,
+                        Priority = i.Priority,
+                        IsActive = i.IsActive
+                    }).ToList()
+                };
+
+            OriginalDragFields.Add(original);
+
+            // También llenar el objeto PriorityStateResult
+            OriginalDragState.ProcessItems.Add(new ProcessPriorityOrderDto
+                {
+                    Id = f.Id,
+                    Code = f.Code,
+                    Priority = f.Priority,
+                    IsActive = f.IsActive
+                });
+
+            foreach (var i in f.Items)
+            {
+                OriginalDragState.PriorityItems.Add(new OrderPriorityDto
+                    {
+                        Id = i.Id,
+                        Code = i.Code,
+                        Priority = i.Priority,
+                        IsActive = i.IsActive
+                    });
+            }
+        }
+    }
+
+    private async Task<bool> HasRightContainerChangesAsync()
+    {
+        try
+        {
+            if (await JS.InvokeAsync<PriorityStateResult>("getPrioritiesState") is PriorityStateResult NewState && OriginalDragState is PriorityStateResult OldState)                           
+                return  !ObjectCompare.AreEqual(NewState.ToDictionary(), OldState.ToDictionary());
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Guardado de prioridades: {ex.Message}");
+        }
+
+        return false;
+    }
+
+    [JSInvokable]
+    public async Task NotifyRightContainerChanged()
+    {
+        hasDragChanges = await HasRightContainerChangesAsync();
+        CanSave = hasSLAModified || hasDragChanges;
+        StateHasChanged();
+    }
+
+    private async void OnCancelClick()
+    {
+        // Restaurar los valores del drag
+        DragFields = OriginalDragFields
+            .Select(f => new ProcessPriorityOrderDto
+                {
+                    Id = f.Id,
+                    Code = f.Code,
+                    Priority = f.Priority,
+                    IsActive = f.IsActive,
+                    Items = f.Items
+                            .Select(i => new OrderPriorityDto
+                            {
+                                Id = i.Id,
+                                Code = i.Code,
+                                Priority = i.Priority,
+                                IsActive = i.IsActive,
+                                IconClass = GetIconText(i.Code)
+                            }).ToList()
+                }).ToList();
+
+        // Restaurar el valor SLA
+        SLAConfigProgress = InitialSLAValue;
+
+        hasDragChanges = false;
+        hasSLAModified = false;
+        CanSave = false;
+
+        // Forzar rerender de la UI generando nuevo @key
+        containerKeyLeft = Guid.NewGuid();
+        containerKeyRight = Guid.NewGuid();
+        progressBarKey = Guid.NewGuid();
+        tabsRef.ActiveTabIndex = 0;
+        dotNetHelperRef = null;
+
+        StateHasChanged();
+    }
+
+    private void OnSLAChanged(int newValue)
+    {
+        if (SLAConfigProgress != newValue)
+        {
+            SLAConfigProgress = newValue;
+            hasSLAModified = (SLAConfigProgress != InitialSLAValue);
+            CanSave = hasSLAModified || hasDragChanges;
+            StateHasChanged();
+        }
+    }
+
+    private string FormatLabel(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return text;
+
+        var words = text.Split(' ');
+        words[0] = char.ToUpper(words[0][0]) + words[0][1..].ToLower();
+
+        for (int i = 1; i < words.Length; i++)
+            words[i] = words[i].ToLower();
+
+        return L.Loc(string.Join(' ', words));
+    }
+
+    public void Dispose()
+    {
+        dotNetHelperRef?.Dispose();
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}

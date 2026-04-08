@@ -1,0 +1,187 @@
+﻿@using DevExpress.Blazor
+@typeparam TNumber
+
+<div class="time-input-container" @onkeydown="HandleKeyDown">
+    @if (DisplayOnly)
+    {
+        <span class="time-display">@DisplayValue</span>
+    }
+    else
+    {
+
+        <DxTextBox Text="@DisplayValue"
+                   TextChanged="@((string displayValue) => OnTextChanged(displayValue))"
+                   TextExpression="@(() => DisplayValue)"
+                   NullText="@DefaultValue"
+                   CssClass="@(CssBase + CssClass)"
+                   ReadOnly="@ReadOnly"
+                   InputCssClass="@("mlx-timeinput-field " + InputCssClass)" />
+        @if (ShowFormatHint)
+        {            
+            <span class="time-format">@FormatHint</span>
+        }
+
+        @if (IsFilter && HasFilterValue)
+        {
+            <button type="button"
+                    class="time-clear-btn"
+                    @onclick="ClearFilter">
+                <i class="mlx-ico-close-sm"></i>
+            </button>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public TNumber Value { get; set; }
+    [Parameter] public EventCallback<TNumber> ValueChanged { get; set; }
+
+    [Parameter] public bool DisplayOnly { get; set; } = false;
+    [Parameter] public bool ReadOnly { get; set; } = false;
+    [Parameter] public string CssClass { get; set; } = "";
+    [Parameter] public string InputCssClass { get; set; } = "";
+    [Parameter] public bool ShowFormatHint { get; set; } = true;
+
+    public string CssBase = "mlx-form-text ";
+
+
+    // Modo filtro
+    [Parameter] public bool IsFilter { get; set; } = false;
+
+    // Permite confirmar edición con ENTER
+    [Parameter] public EventCallback OnEnterPressed { get; set; }
+
+    [Parameter] public string Format { get; set; } = "mmss";
+
+    string MaskPattern => Format == "hhmmss" ? "00:00:00" : "00:00";
+    string DefaultValue => Format == "hhmmss" ? "00:00:00" : "00:00";
+
+    string FormatHint => Format switch
+    {
+        "hhmmss" => "hh:mm:ss",
+        "hhmm" => "hh:mm",
+        "mmss" => "mm:ss",
+        _ => ""
+    };
+
+    bool HasFilterValue =>
+        Value != null && Convert.ToDouble(Value) > 0;
+
+    string DisplayValue
+    {
+        get => Format switch
+        {
+            "hhmm" => SecondsToHHMM(Value),
+            "mmss" => SecondsToMMSS(Value),
+            "hhmmss" => SecondsToHHMMSS(Value),
+            _ => SecondsToMMSS(Value)
+        };
+        set
+        {
+            double parsed = 0;
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                parsed = Format switch
+                {
+                    "hhmm" => HHMMToSeconds(value),
+                    "mmss" => MMSSToSeconds(value),
+                    "hhmmss" => HHMMSSToSeconds(value),
+                    _ => MMSSToSeconds(value)
+                };
+            }
+
+            object boxed;
+
+            var t = typeof(TNumber);
+
+            if (t == typeof(int)) boxed = (int)parsed;
+            else if (t == typeof(int?)) boxed = (int?)((int)parsed);
+            else if (t == typeof(double)) boxed = (double)parsed;
+            else if (t == typeof(double?)) boxed = (double?)parsed;
+            else
+                throw new InvalidOperationException($"TimeInput: Tipo no soportado: {t.FullName}");
+
+            ValueChanged.InvokeAsync((TNumber)boxed);
+        }
+    }
+
+    void ClearFilter()
+    {
+        ValueChanged.InvokeAsync(default(TNumber)!);
+    }
+
+    private void OnTextChanged(string text)
+    {
+        // Esto dispara el setter de DisplayValue
+        // que a su vez convierte a segundos y llama a ValueChanged
+        DisplayValue = text;
+        InvokeAsync(StateHasChanged);
+    }
+
+    async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await OnEnterPressed.InvokeAsync();
+    }
+
+    // ==== helpers ====
+
+    string SecondsToMMSS(TNumber seconds)
+    {
+        if (seconds == null) return "00:00";
+        double total = Convert.ToDouble(seconds);
+        int minutes = (int)(total / 60);
+        int secs = (int)(total % 60);
+        return $"{minutes:D2}:{secs:D2}";
+    }
+
+    string SecondsToHHMM(TNumber seconds)
+    {
+        if (seconds == null) return "00:00";
+        double total = Convert.ToDouble(seconds);
+        int hours = (int)(total / 3600);
+        int mins = (int)((total % 3600) / 60);
+        return $"{hours:D2}:{mins:D2}";
+    }
+
+    string SecondsToHHMMSS(TNumber seconds)
+    {
+        if (seconds == null) return "00:00:00";
+        double total = Convert.ToDouble(seconds);
+        int hours = (int)(total / 3600);
+        int mins = (int)((total % 3600) / 60);
+        int secs = (int)(total % 60);
+        return $"{hours:D2}:{mins:D2}:{secs:D2}";
+    }
+
+    double MMSSToSeconds(string time)
+    {
+        var parts = time.Split(':');
+        return parts.Length == 2 &&
+               int.TryParse(parts[0], out var m) &&
+               int.TryParse(parts[1], out var s)
+            ? m * 60 + s
+            : 0;
+    }
+
+    double HHMMToSeconds(string time)
+    {
+        var parts = time.Split(':');
+        return parts.Length == 2 &&
+               int.TryParse(parts[0], out var h) &&
+               int.TryParse(parts[1], out var m)
+            ? (h * 3600) + (m * 60)
+            : 0;
+    }
+
+    double HHMMSSToSeconds(string time)
+    {
+        var parts = time.Split(':');
+        return parts.Length == 3 &&
+               int.TryParse(parts[0], out var h) &&
+               int.TryParse(parts[1], out var m) &&
+               int.TryParse(parts[2], out var s)
+            ? (h * 3600) + (m * 60) + s
+            : 0;
+    }
+}

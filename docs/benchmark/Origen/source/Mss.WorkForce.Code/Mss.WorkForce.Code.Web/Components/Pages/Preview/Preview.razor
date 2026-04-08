@@ -1,0 +1,883 @@
+﻿@* @page "/scenario-planner2"
+
+@inject ILogger<Preview> Logger
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Models.ModelUpdate
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview.Components
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Model
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Enums
+@using Newtonsoft.Json
+@using static Mss.WorkForce.Code.Web.Components.Pages.Preview.Components.Temporalidad
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Models.DTO.Preview
+@inherits Mss.WorkForce.Code.Web.Common.GanttOperations
+@attribute [Authorize]
+
+<ConfirmDialog></ConfirmDialog>
+
+<div class="mlx-preview-container">
+    <div class="mlx-preview-section-header">
+        <div class="row mt-1">
+            <div class="col-auto">
+                <SitePreview ValueChanged="OnSiteSeleccionadaChanged" />
+            </div>
+            <div class="col-auto">
+                <Temporalidad @ref="temporalityComponent" siteModelId="CurrentSite.Id" Temps="temps" TempSelected="temporalidadSeleccionada" ValueChanged="OnTemporalidadSeleccionadaChanged" ValueRemoved="OnTemporalidadSeleccionadaRemoved" DateChanged="OnTemporalidadDateChanged" userFormat="userFormat"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="mlx-preview-section-gantt">
+        <div class="row">
+            <div class="col">
+                <div id="GanttContainer" class="mlx-container-gantt-40">
+                    <GanttComponent TModel="TaskData" LoadPanelVisible="LoadPanelVisible" BackgroundShading="BackGroudShading" GanttSetup="GanttSetup" GanttTasksData="DataSimulation" UserFormat="userFormat" Properties="GanttProperties"></GanttComponent>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mlx-preview-section-button-chevron">
+        <div class="mlx-row-chevron">
+            <button id="btnDrawerInfoPreview" class="mlx-btn-action-enabled mlx-btn-chevron" @onclick='() => ChangeGanttRepaint(!ShowInfoDrawer)' disabled>
+                <span class="@(ShowInfoDrawer ? "mlx-ico-chevron-down" : "mlx-ico-chevron-up") "></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="@(ShowInfoDrawer ? "mlx-preview-section-simulation-data" : "mlx-preview-section-simulation-data-hidden" )">
+
+        <div class="row w-100">
+            <div class="col-md-2">
+                <div class="mlx-panel" style="overflow:auto">
+                    <div class="mlx-panel-header">
+                        <div class="mlx-panel-title">
+                            @l.Loc("Schedule")
+                        </div>
+
+                        <div class="mlx-panel-bar-action">
+                            <button name="action-edit" class="mlx-component-visible" @onclick='() => ShowModalEditSchedule()' disabled>
+                                <i class="mlx-ico-edit"></i>
+                            </button>
+
+                        </div>
+                    </div>
+                    <div class="mlx-panel-body">
+                        <div class="row">
+                            <DxGrid Data="@ShiftsDtos" ColumnResizeMode="GridColumnResizeMode.NextColumn" TextWrapEnabled="false" CssClass="mlx-grid">
+                                <Columns>
+                                    <DxGridDataColumn FieldName="name"  Caption="@l.Loc("Name")" TextAlignment="GridTextAlignment.Left" />
+                                    <DxGridDataColumn FieldName="initHour" Caption="@CaptionStart" TextAlignment="GridTextAlignment.Center">
+                                        <CellDisplayTemplate Context="context">
+                                            <MlxTimePicker @bind-Time="((ShiftDto)context.DataItem).initHour" userFormat="userFormat" @bind-Time:after="() => AfterTimeChanged((ShiftDto)context.DataItem)" />
+                                            @if (IsInvalidShift((ShiftDto)context.DataItem))
+                                            {
+                                                <small class="text-danger" title="@MessageErrorHour">@MessageErrorHour</small>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="endHour" Caption="@CaptionEnd" TextAlignment="GridTextAlignment.Center">
+                                        <CellDisplayTemplate Context="context">                                            
+                                            <MlxTimePicker @bind-Time="((ShiftDto)context.DataItem).endHour" userFormat="userFormat" @bind-Time:after="() => AfterTimeChanged((ShiftDto)context.DataItem)" />
+                                            @if (IsInvalidShift((ShiftDto)context.DataItem))
+                                            {
+                                                <small class="text-danger" title="@MessageErrorHour">@MessageErrorHour</small>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                </Columns>
+                            </DxGrid>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="mlx-panel" style="overflow:auto">
+                    <div class="mlx-panel-header">
+                        <div class="mlx-panel-title">
+                            @l.Loc("Resources")
+                        </div>
+                        <div class="mlx-panel-bar-action">
+                            <button name="action-edit" class="mlx-component-visible" @onclick="OnShowModalResource" disabled>
+                                <i class="mlx-ico-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mlx-panel-body">
+                        <div class="row">
+                            <div class="col">
+                                <DxTabs CssClass="mlx-tabs">
+                                    <DxTabPage Text="@CaptionOperators">
+                                        <DxGrid Data="@DataOperator"
+                                        ColumnResizeMode="GridColumnResizeMode.NextColumn" TextWrapEnabled="false" CssClass="mlx-grid">
+                                            <Columns>
+                                                <DxGridDataColumn Caption="@CaptionRoles" FieldName="resource" TextAlignment="GridTextAlignment.Left" />
+                                                <DxGridDataColumn Caption="@CaptionOperators" Width="100px" TextAlignment="GridTextAlignment.Center">
+                                                    <CellDisplayTemplate>
+                                                        <DxTextBox @bind-Text="((ResourceDto)context.DataItem).value" CssClass="mlx-form-textbox" InputId="idResource" @bind-Text:after="() => OnValueChanged((ResourceDto)context.DataItem)" />
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                            </Columns>
+                                        </DxGrid>
+                                    </DxTabPage>
+                                    <DxTabPage Text="@CaptionEquipments">
+                                        <DxGrid Data="@Data"
+                                        ColumnResizeMode="GridColumnResizeMode.NextColumn" TextWrapEnabled="false" CssClass="mlx-grid">
+                                            <Columns>
+                                                <DxGridDataColumn Caption="@CaptionEquipmentGroup" FieldName="resource" TextAlignment="GridTextAlignment.Left" />
+                                                <DxGridDataColumn Caption="@CaptionEquipments" Width="100px" TextAlignment="GridTextAlignment.Center">
+                                                    <CellDisplayTemplate>
+                                                        <DxTextBox @bind-Text="((ResourceDto)context.DataItem).value" CssClass="mlx-form-textbox" InputId="idResource" />
+                                                    </CellDisplayTemplate>
+                                                </DxGridDataColumn>
+                                            </Columns>
+                                        </DxGrid>
+                                    </DxTabPage>
+                                </DxTabs>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div id="idSectionInput" class="mlx-panel" style="overflow:auto">
+                    <div class="mlx-panel-header">
+                        <div class="mlx-panel-title">
+                            @l.Loc("Input Profile")
+                        </div>
+                        <div class="mlx-panel-bar-action">
+                            <button name="action-edit" class="mlx-component-visible" @onclick='() => EditingGridDataItems("idSectionInput", PanelType.InputProfiles)' disabled>
+                                <i class="mlx-ico-edit"></i>
+                            </button>
+                            <button name="action-readonly" class="mlx-component-hidden" @onclick="SetInputProfileToReadOnly">
+                                <i class="mlx-ico-show"></i>
+                            </button>
+                            <button name="action-add" class="mlx-component-visible" @onclick="ShowAddInputProfiles" disabled>
+                                <i class="mlx-ico-add"></i>
+                            </button>
+                            <button name="action-save" disabled="@HasInputRowErrors" class="mlx-component-hidden" @onclick="SaveInputProfileElements">
+                                <i class="mlx-ico-save"></i>
+                            </button>
+                            <button name="action-trash" class="mlx-component-hidden" @onclick="RemoveInputProfileElements">
+                                <i class="mlx-ico-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mlx-panel-body">
+                        @{
+                            if (ShowInputProfilesForm)
+                            {
+                                <div class="mlx-row-header mlx-row-header-background ">
+                                    <div class="row">
+                                        <div class="col-md">
+                                            <label for="idSelectLoad" class="mlx-form-label">@l.Loc("Load")</label>
+                                            <DxComboBox Data="@loadTypes" TextFieldName="Name" ValueFieldName="Name" @bind-Value="@InputDto.load"
+                                            CssClass="mlx-form-select" InputId="idSelectLoad" NullText="@NullSelecction" />
+                                            @{
+                                                if (string.IsNullOrEmpty(InputDto.load))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else { ValidInputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idSlectVeicle" class="mlx-form-label">@l.Loc("Vehicle")</label>
+                                            <DxComboBox Data="@vehicleTypes" TextFieldName="Name" ValueFieldName="Name" @bind-Value="@InputDto.vehicle"
+                                            CssClass="mlx-form-select" InputId="idSlectVeicle" NullText="@NullSelecction" />
+                                            @{
+                                                if (string.IsNullOrEmpty(InputDto.vehicle))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else { ValidInputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idNoVehicle" class="mlx-form-label">@l.Loc("N° vehicle")</label>
+                                            <DxSpinEdit InputCssClass="mlx-delete-negative-character" MinValue="0" MaxValue="999999" CssClass="mlx-form-spinedit" InputId="idNoVehicle" @bind-Value="@InputDto.numberVehicle" Mask="n0">
+                                                <DxNumericMaskProperties Culture="userFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                            @{
+                                                if (string.IsNullOrEmpty(InputDto.numberVehicle.ToString()) || InputDto.numberVehicle == 0)
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else { ValidInputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idInputStartHour" class="mlx-form-label">@l.Loc("Start")</label>
+                                            <MlxTimePicker @bind-Time="@InputDto.hour" InputId="idInputStartHour" userFormat="userFormat"></MlxTimePicker>
+                                            @{
+                                                if (string.IsNullOrEmpty(InputDto.hour.ToString()))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else if (InputDto.hour > InputDto.endHour)
+                                                {
+                                                    <small class="text-danger">@MessageErrorHour</small>
+                                                }
+                                                else { ValidInputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idInputEndHour" class="mlx-form-label">@l.Loc("End")</label>
+                                            <MlxTimePicker @bind-Time="@InputDto.endHour" InputId="idInputEndHour" userFormat="userFormat"></MlxTimePicker>
+                                            @{
+                                                if (string.IsNullOrEmpty(InputDto.hour.ToString()))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else if (InputDto.hour > InputDto.endHour)
+                                                {
+                                                    <small class="text-danger">@MessageErrorHour</small>
+                                                }
+                                                else { ValidInputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-auto icon-add-align-center">
+                                            <DxButton IconCssClass="mlx-btn-action mlx-ico-add" CssClass="@btnInputCss" Click="AddInput" Enabled="@validInput" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        <div class="row">
+                            <DxGrid CssClass="mlx-grid" Data="@InputList.Where(p => p.DataOperationType != OperationType.Delete)"
+                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            SelectionMode="GridSelectionMode.Multiple"
+                            AllowSelectRowByClick="false"
+                            SelectedDataItems="@SelectedInputProfiles"
+                            SelectedDataItemsChanged="SelectedInputProfilesItems">
+                                <Columns>
+                                    @{
+                                        if (IsEditingInputProfile)
+                                        {
+                                            <DxGridSelectionColumn VisibleIndex="0" Width="80px" Name="SelectCheck" ShowInColumnChooser="false">
+                                                <CellDisplayTemplate Context="SelContext">
+                                                    <DxCheckBox CssClass="mlx-check-box" @bind-Checked="SelContext.Selected"></DxCheckBox>
+                                                </CellDisplayTemplate>
+                                            </DxGridSelectionColumn>
+                                        }
+                                    }
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.load)" Caption="@CaptionLoad" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingInputProfile)
+                                                {
+                                                    <DxComboBox Data="@loadTypes" CssClass="mlx-form-select" TextFieldName="Name" ValueFieldName="Name" @bind-Value="((LoadDto)ModelContext.DataItem).load" />
+                                                }
+                                                else
+                                                {
+                                                    <span>@ModelContext.Value</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.vehicle)" Caption="@CaptionVehicle" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingInputProfile)
+                                                {
+                                                    <DxComboBox Data="@vehicleTypes" CssClass="mlx-form-select" TextFieldName="Name" ValueFieldName="Name" @bind-Value="((LoadDto)ModelContext.DataItem).vehicle" />
+                                                }
+                                                else
+                                                {
+                                                    <span>@ModelContext.Value</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.numberVehicle)" Caption="@CaptionNVehicle" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingInputProfile)
+                                                {
+                                                    <DxSpinEdit InputCssClass="mlx-delete-negative-character" MinValue="1" MaxValue="999999" CssClass="mlx-form-spinedit" InputId="idNoVehicle" @bind-Value="((LoadDto)ModelContext.DataItem).numberVehicle" Mask="n0">
+                                                        <DxNumericMaskProperties Culture="userFormat.BuildCultureFromSeparators()" />
+                                                    </DxSpinEdit>
+                                                }
+                                                else
+                                                {
+                                                    <span>@ModelContext.Value</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.hour)" Caption="@CaptionStart" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingInputProfile)
+                                                {
+                                                    var row = (LoadDto)ModelContext.DataItem;
+                                                    <MlxTimePicker @bind-Time="((LoadDto)ModelContext.DataItem).hour" userFormat="userFormat"></MlxTimePicker>
+                                                    @if (row.hour > row.endHour)
+                                                    {
+                                                        <small class="text-danger" title="@MessageErrorHour">@MessageErrorHour</small>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span>@(((TimeSpan)ModelContext.Value).ToTransform(userFormat.HourFormat))</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.endHour)" Caption="@CaptionEnd" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingInputProfile)
+                                                {
+                                                    var row = (LoadDto)ModelContext.DataItem;
+                                                    <MlxTimePicker @bind-Time="((LoadDto)ModelContext.DataItem).endHour" userFormat="userFormat"></MlxTimePicker>
+                                                    @if (row.hour > row.endHour)
+                                                    {
+                                                        <small class="text-danger" title="@MessageErrorHour">@MessageErrorHour</small>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span>@(((TimeSpan)ModelContext.Value).ToTransform(userFormat.HourFormat))</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                </Columns>
+                            </DxGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div id="idSectionOutput" class="mlx-panel" style="overflow:auto">
+                    <div class="mlx-panel-header">
+                        <div class="mlx-panel-title">
+                            @l.Loc("OutPut Profile")
+                        </div>
+                        <div class="mlx-panel-bar-action">
+                            <button name="action-edit" class="mlx-component-visible" @onclick='() => EditingGridDataItems("idSectionOutput", PanelType.OutputProfiles)' disabled>
+                                <i class="mlx-ico-edit"></i>
+                            </button>
+                            <button name="action-readonly" class="mlx-component-hidden" @onclick="SetOutputProfileToReadOnly">
+                                <i class="mlx-ico-show"></i>
+                            </button>
+                            <button name="action-add" class="mlx-component-visible" @onclick="ShowAddOutputProfiles" disabled>
+                                <i class="mlx-ico-add"></i>
+                            </button>
+                            <button name="action-save" disabled="@HasOutputRowErrors" class="mlx-component-hidden" @onclick="SaveOutputProfileElements">
+                                <i class="mlx-ico-save"></i>
+                            </button>
+                            <button name="action-trash" class="mlx-component-hidden" @onclick="RemoveOutputProfileElements">
+                                <i class="mlx-ico-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mlx-panel-body">
+                        @{
+                            if (ShowOutputProfilesForm)
+                            {
+                                <div class="mlx-row-header mlx-row-header-background ">
+                                    <div class="row">
+                                        <div class="col-md">
+                                            <label for="idOutPutLoad" class="mlx-form-label">Load</label>
+                                            <DxComboBox Data="@loadTypes" TextFieldName="Name" ValueFieldName="Name" @bind-Value="@OutputDto.load"
+                                            CssClass="mlx-form-select" InputId="idOutPutLoad" NullText="@NullSelecction" />
+                                            @{
+                                                if (string.IsNullOrEmpty(OutputDto.load))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else { ValidOutputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idOutputVehicle" class="mlx-form-label">Vehicle</label>
+                                            <DxComboBox Data="@vehicleTypes" TextFieldName="Name" ValueFieldName="Name" @bind-Value="@OutputDto.vehicle"
+                                            CssClass="mlx-form-select" InputId="idOutputVehicle" NullText="@NullSelecction" />
+                                            @{
+                                                if (string.IsNullOrEmpty(OutputDto.vehicle))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else { ValidOutputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idOutputNoVehicle" class="mlx-form-label">N° vehicle</label>
+                                            <DxSpinEdit InputCssClass="mlx-delete-negative-character" MinValue="0" MaxValue="999999" CssClass="mlx-form-spinedit" @bind-Value="@OutputDto.numberVehicle" InputId="idOutputNoVehicle" Mask="n0">
+                                                <DxNumericMaskProperties Culture="userFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                            @{
+                                                if (string.IsNullOrEmpty(OutputDto.numberVehicle.ToString()) || OutputDto.numberVehicle == 0)
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else { ValidOutputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idOutputStartHour" class="mlx-form-label">Start</label>
+                                            <MlxTimePicker @bind-Time="@OutputDto.hour" InputId="idOutputStartHour" userFormat="userFormat"></MlxTimePicker>
+                                            @{
+                                                if (string.IsNullOrEmpty(OutputDto.hour.ToString()))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else if (OutputDto.hour > OutputDto.endHour)
+                                                {
+                                                    <small class="text-danger">@MessageErrorHour</small>
+                                                }
+                                                else { ValidOutputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-md">
+                                            <label for="idOutputEndHour" class="mlx-form-label">End</label>
+                                            <MlxTimePicker @bind-Time="@OutputDto.endHour" InputId="idOutputEndHour" userFormat="userFormat"></MlxTimePicker>
+                                            @{
+                                                if (string.IsNullOrEmpty(OutputDto.hour.ToString()))
+                                                {
+                                                    <small class="text-danger">@MessageMandatoryField</small>
+                                                }
+                                                else if (OutputDto.hour > OutputDto.endHour)
+                                                {
+                                                    <small class="text-danger">@MessageErrorHour</small>
+                                                }
+                                                else { ValidOutputOperation(); }
+                                            }
+                                        </div>
+                                        <div class="col-auto icon-add-align-center">
+                                            <DxButton IconCssClass="mlx-btn-action mlx-ico-add" CssClass="@btnOutputCss" Click="AddOutput" Enabled="@validOutput" />
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        <div class="row">
+                            <DxGrid CssClass="mlx-grid" Data="@OutputList.Where(p => p.DataOperationType != OperationType.Delete)"
+                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                            TextWrapEnabled="false"
+                            SelectionMode="GridSelectionMode.Multiple"
+                            AllowSelectRowByClick="false"
+                            SelectedDataItems="@SelectedOutputProfiles"
+                            SelectedDataItemsChanged="SelectedOutputProfilesItems">
+                                <Columns>
+                                    @{
+                                        if (IsEditingOutputProfile)
+                                        {
+                                            <DxGridSelectionColumn VisibleIndex="0" Width="80px" Name="SelectCheck" ShowInColumnChooser="false">
+                                                <CellDisplayTemplate Context="SelContext">
+                                                    <DxCheckBox CssClass="mlx-check-box" @bind-Checked="SelContext.Selected"></DxCheckBox>
+                                                </CellDisplayTemplate>
+                                            </DxGridSelectionColumn>
+                                        }
+                                    }
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.load)" Caption="@CaptionLoad" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingOutputProfile)
+                                                {
+                                                    <DxComboBox Data="@loadTypes" CssClass="mlx-form-select" TextFieldName="Name" ValueFieldName="Name" @bind-Value="((LoadDto)ModelContext.DataItem).load" />
+                                                }
+                                                else
+                                                {
+                                                    <span>@ModelContext.Value</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.vehicle)" Caption="@CaptionVehicle" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingOutputProfile)
+                                                {
+                                                    <DxComboBox Data="@vehicleTypes" CssClass="mlx-form-select" TextFieldName="Name" ValueFieldName="Name" @bind-Value="((LoadDto)ModelContext.DataItem).vehicle" />
+                                                }
+                                                else
+                                                {
+                                                    <span>@ModelContext.Value</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.numberVehicle)" Caption="@CaptionNVehicle" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingOutputProfile)
+                                                {
+                                                    <DxSpinEdit InputCssClass="mlx-delete-negative-character" MinValue="1" MaxValue="999999" CssClass="mlx-form-spinedit" InputId="idNoVehicle" @bind-Value="((LoadDto)ModelContext.DataItem).numberVehicle" Mask="n0">
+                                                        <DxNumericMaskProperties Culture="userFormat.BuildCultureFromSeparators()" />
+                                                    </DxSpinEdit>
+                                                }
+                                                else
+                                                {
+                                                    <span>@ModelContext.Value</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.hour)" Caption="@CaptionStart" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingOutputProfile)
+                                                {
+                                                    var row = (LoadDto)ModelContext.DataItem;
+                                                    <MlxTimePicker @bind-Time="((LoadDto)ModelContext.DataItem).hour" userFormat="userFormat"></MlxTimePicker>
+                                                    @if (row.hour > row.endHour)
+                                                    {
+                                                        <small class="text-danger" title="@MessageErrorHour">@MessageErrorHour</small>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span>@(((TimeSpan)ModelContext.Value).ToTransform(userFormat.HourFormat))</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(LoadDto.endHour)" Caption="@CaptionEnd" TextAlignment="GridTextAlignment.Left">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            @{
+                                                if (IsEditingOutputProfile)
+                                                {
+                                                    var row = (LoadDto)ModelContext.DataItem;
+                                                    <MlxTimePicker @bind-Time="((LoadDto)ModelContext.DataItem).endHour" userFormat="userFormat"></MlxTimePicker>
+                                                    @if (row.hour > row.endHour)
+                                                    {
+                                                        <small class="text-danger" title="@MessageErrorHour">@MessageErrorHour</small>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span>@(((TimeSpan)ModelContext.Value).ToTransform(userFormat.HourFormat))</span>
+                                                }
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                </Columns>
+                            </DxGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="@(ShowInfoDrawer ? "mlx-preview-section-button-action" : "mlx-preview-section-simulation-data-hidden" )">
+        <div class="mlx-footer-button">
+            <button id="btnCancelPreview" type="button" disabled="@(!IsDirty)" class="btn-mlx btn-mlx-white-primary" @onclick="CancelDataPreview">@l.Loc("Cancel")</button>
+            <button id="btnSavePreview" type="button" disabled="@(!IsDirty)" class="btn-mlx btn-mlx-blue-primary" @onclick="SaveDataPreview">@l.Loc("Save")</button>
+            <button id="btnReloadPreview" type="button" class="btn-mlx-blue-primary mlx-btn-action-enabled" @onclick="ReloadGanttSetupData" title="@CaptionSimulation">
+                <span class="mlx-ico-reload"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<DxPopup CssClass="mlx-modal"
+HeaderText="@l.Loc("Workers Management")"
+@bind-Visible="showModalOperator"
+CloseOnEscape="false"
+CloseOnOutsideClick="false"
+Width="60%"
+Height="80%"
+ShowFooter="true"
+Scrollable="true">
+    <BodyContentTemplate>
+        <div class="row">
+            <div class="col-md">
+                <label class="mlx-form-label">@l.Loc("Role")</label>
+                <DxComboBox TValue="CatalogEntity"
+                TData="CatalogEntity"
+                CssClass="mlx-form-select"
+                Data="@ListRoles"
+                @bind-Value="@SelectedRole"
+                TextFieldName="@nameof(CatalogEntity.Name)"
+                SelectedItemChanged="OnSelectedItemChangeRole"
+                NullText="@NullSelecction" />
+                @{
+                    if (SelectedRole == null || SelectedRole.Id == Guid.Empty)
+                    {
+                        <small class="text-danger">@MessageMandatoryField</small>
+                    }
+                }
+            </div>
+
+            <div class="col-md">
+                <label class="mlx-form-label">@l.Loc("Shift")</label>
+                <DxComboBox TValue="CatalogEntity"
+                TData="CatalogEntity"
+                CssClass="mlx-form-select"
+                Data="@ListShift"
+                @bind-Value="@SelectedShift"
+                TextFieldName="@nameof(CatalogEntity.Name)"
+                SelectedItemChanged="OnSelectedItemChangeShift"
+                NullText="@NullSelecction" />
+                @{
+                    if (SelectedShift == null || SelectedShift.Id == Guid.Empty)
+                    {
+                        <small class="text-danger">@MessageMandatoryField</small>
+                    }
+                }
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md">
+                <div class="mlx-panel" id="idPnlEditor">
+                    <div class="mlx-panel-header">
+                        <div class="mlx-panel-title">
+                            @l.Loc("Workers")
+                        </div>
+                    </div>
+
+                    <div class="mlx-panel-body">
+                        <div class="row">
+                            <DxGrid CssClass="mlx-grid"
+                            Data="@GridDataSchedulesFilter"
+                            PageSize="5"
+                            PagerPosition="GridPagerPosition.Bottom"
+                            SelectionMode="GridSelectionMode.Multiple"
+                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.Page"
+                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                            PageSizeSelectorVisible="true"
+                            PageSizeSelectorItems="@(new int[]{5,10})"
+                            PageSizeSelectorAllRowsItemVisible="false"
+                            PagerSwitchToInputBoxButtonCount="5"
+                            PagerVisibleNumericButtonCount="5">
+                                <Columns>
+                                    <DxGridSelectionColumn VisibleIndex="0"
+                                    Width="80px"
+                                    Name="SelectCheck"
+                                    ShowInColumnChooser="false"
+                                    TextAlignment="GridTextAlignment.Center">
+                                        <HeaderTemplate Context="headerContext">
+                                            <DxCheckBox T="bool" CssClass="mlx-check-box"
+                                            Checked="@isAllSelected"
+                                            CheckedChanged="@OnResourceSelectAllChanged">
+
+                                            </DxCheckBox>
+                                        </HeaderTemplate>
+                                        <CellDisplayTemplate Context="SelContext">
+                                            <DxCheckBox CssClass="mlx-check-box"
+                                            Checked="@(((ScheduleWorkerDto)SelContext.DataItem).ShiftId.HasValue && ((ScheduleWorkerDto)SelContext.DataItem).AvailableWorkerId.HasValue)"
+                                            CheckedChanged="@((bool value) => OnSelectedChangeWorker((ScheduleWorkerDto)SelContext.DataItem, value))"></DxCheckBox>
+                                        </CellDisplayTemplate>
+                                    </DxGridSelectionColumn>
+
+                                    <DxGridDataColumn FieldName="@nameof(ScheduleWorkerDto.WorkerName)" Caption="@CaptionName"></DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ScheduleWorkerDto.WorkerNumber)" Caption="@CaptionNumber" DisplayFormat="F0"></DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ScheduleWorkerDto.ShiftId)" Caption="@CaptionShift">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            <DxComboBox TData="CatalogEntity"
+                                            TValue="Guid?"
+                                            CssClass="mlx-form-select"
+                                            Data="@ListShift"
+                                            @bind-Value="@(((ScheduleWorkerDto)ModelContext.DataItem).ShiftId)"
+                                            TextFieldName="@nameof(CatalogEntity.Name)"
+                                            ValueFieldName="@nameof(CatalogEntity.Id)"
+                                            SelectedDataItemChanged="@((element) => OnSelectedItemChangeSchedule(element, (ScheduleWorkerDto)ModelContext.DataItem))"
+                                            NullText="@NullSelecction" />
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="@nameof(ScheduleWorkerDto.BreakProfileId)" Caption="@CaptionBreakProfile">
+                                        <CellDisplayTemplate Context="ModelContext">
+                                            <DxComboBox TData="CatalogEntity"
+                                            TValue="Guid?"
+                                            CssClass="mlx-form-select"
+                                            Data="@ListBreakProfiles"
+                                            @bind-Value="@(((ScheduleWorkerDto)ModelContext.DataItem).BreakProfileId)"
+                                            TextFieldName="@nameof(CatalogEntity.Name)"
+                                            ValueFieldName="@nameof(CatalogEntity.Id)"
+                                            SelectedDataItemChanged="@((element) => OnSelectedItemChangeSchedule(element, (ScheduleWorkerDto)ModelContext.DataItem))"
+                                            NullText="@NullSelecction" />
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                </Columns>
+                            </DxGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="(() => showModalOperator = false)">@l.Loc("Cancel")</button>
+        <button id="btnSaveWorker" type="button" disabled="@(!IsDirtyWorkerRoles)" class="btn-mlx btn-mlx-blue-primary" @onclick="OnApplyChangesResources">@l.Loc("Apply")</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+<DxPopup CssClass="mlx-modal"
+HeaderText="@l.Loc("Shift Management")"
+@bind-Visible="@showModalEditSchedules"
+CloseOnEscape="false"
+CloseOnOutsideClick="false"
+CloseButtonClick="HiddeModalEditSchedule"
+ShowFooter="true"
+Width="60%"
+Scrollable="true">
+    <BodyContentTemplate>
+        <DxTabs CssClass="mlx-tabs">
+            <DxTabPage Text="@l.Loc("Shift")">
+                <div class="pt-3">
+                    <div class="row mb-2">
+                        <div class="col-md-4">
+                            <label for="idSelectSchedule" class="mlx-form-label">@CaptionShift</label>
+                            <DxComboBox Data="@PopupShiftsDtos" TextFieldName="name" ValueFieldName="name" Value="@ShiftDto" ValueChanged="@((ShiftDto shift) => SelectedShiftChanged(shift))"
+                            CssClass="mlx-form-select" InputId="idSelectSchedule" NullText="@NullSelecction" />
+                            @{
+                                <small class="text-danger">@(GetValidationError("ComboSchedules")) </small>
+                            }
+                        </div>
+                        <div class="col-md-4" style="@(!string.IsNullOrEmpty(ShiftDto.name) ? "display:block" : "display:none")">
+                            <label for="idInputStartHour" class="mlx-form-label">@CaptionStart</label>
+                            <MlxTimePicker Disabled="true" Time="@ShiftDto.initHour" TimeChanged="@(time => HandleTimeChanged(time, nameof(ShiftDto.initHour)))" InputId="idInputStartHour" userFormat="userFormat"></MlxTimePicker>
+                        </div>
+                        <div class="col-md-4" style="@(!string.IsNullOrEmpty(ShiftDto.name) ? "display:block" : "display:none")">
+                            <label for="idInputEndHour" class="mlx-form-label">@CaptionEnd</label>
+                            <MlxTimePicker Disabled="true" Time="@ShiftDto.endHour" TimeChanged="@(time => HandleTimeChanged(time, nameof(ShiftDto.endHour)))" InputId="idInputEndHour" userFormat="userFormat"></MlxTimePicker>
+                        </div>
+                    </div>
+
+                    <div class="row" style="@(!string.IsNullOrEmpty(ShiftDto.name) ? "display:block" : "display:none")">
+                        <div class="accordion" id="idPnlSchedules">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="idHeadSchedules">
+                                    <button class="accordion-button mlx-title-h4" type="button" data-bs-toggle="collapse" data-bs-target="#idBodySchedules" aria-expanded="true" aria-controls="idBodySchedules">
+                                        <span class="mlx-title-h3">@CaptionWorkers</span>
+                                    </button>
+                                </h2>
+                                @if (isAnyWorkerSelected)
+                                {
+                                    <div class="row mb-2">
+                                        <div class="col-md-1" />
+                                        <div class="col-md-5">
+                                            <label for="idInputStartHour2" class="mlx-form-label">@l.Loc("Modify start shift")</label>
+                                            <MlxTimePicker Time="@CustomShiftDto.initHour" TimeChanged="@(time => HandleCustomTimeChanged(time, nameof(CustomShiftDto.initHour)))" InputId="idInputStartHour2" userFormat="userFormat"></MlxTimePicker>
+                                            @if (CustomShiftDto.initHour > CustomShiftDto.endHour)
+                                            {
+                                                <small class="text-danger">@MessageErrorHour</small>
+                                            }
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label for="idInputEndHour2" class="mlx-form-label">@l.Loc("Modify end shift")</label>
+                                            <MlxTimePicker Time="@CustomShiftDto.endHour" TimeChanged="@(time => HandleCustomTimeChanged(time, nameof(CustomShiftDto.endHour)))" InputId="idInputEndHour2" userFormat="userFormat"></MlxTimePicker>
+                                            @if (CustomShiftDto.initHour > CustomShiftDto.endHour)
+                                            {
+                                                <small class="text-danger">@MessageErrorHour</small>
+                                            }
+                                        </div>
+                                        <div class="col-md-1 aligned">
+                                            <button type="button" class="btn-mlx-blue-primary mlx-btn-action-enabled" disabled="@(CustomShiftDto.initHour > CustomShiftDto.endHour)" @onclick="UpdateWorkersGrid">
+                                                <span class="mlx-ico-count-white"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                <div id="idBodySchedules" class="accordion-collapse collapse show" aria-labelledby="idHeadSchedules" data-bs-parent="#idPnlSchedules">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <DxGrid Data="@workerScheduleDtos"
+                                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                            TextWrapEnabled="false" CssClass="mlx-grid"
+                                            PageSize="5"
+                                            PagerPosition="GridPagerPosition.Bottom"
+                                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                                            PageSizeSelectorVisible="true"
+                                            PageSizeSelectorItems="@(new int[]{5,10})"
+                                            PageSizeSelectorAllRowsItemVisible="false"
+                                            PagerSwitchToInputBoxButtonCount="5"
+                                            PagerVisibleNumericButtonCount="5"
+                                            SelectedDataItems="@SelectedWorkerSchedules"
+                                            SelectedDataItemsChanged="@((items) => HandleSelectWorkers(items.Cast<ShiftSheduleDto>().ToList()))"
+                                            SelectionMode="GridSelectionMode.Multiple"
+                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.Page">
+                                                <Columns>
+                                                    <DxGridSelectionColumn Width="40px" />
+                                                    <DxGridDataColumn FieldName="name" Caption="@CaptionName" TextAlignment="GridTextAlignment.Left" />
+                                                    <DxGridDataColumn FieldName="initHour" Caption="@CaptionStartShift" TextAlignment="GridTextAlignment.Left" DisplayFormat="@userFormat.HourFormatWithoutSeconds" />
+                                                    <DxGridDataColumn FieldName="endHour" Caption="@CaptionEndShift" TextAlignment="GridTextAlignment.Left" DisplayFormat="@userFormat.HourFormatWithoutSeconds" />
+                                                    <DxGridDataColumn FieldName="WorkHours" Caption="@CaptionWorkHours" TextAlignment="GridTextAlignment.Left" />
+                                                </Columns>
+                                            </DxGrid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </DxTabPage>
+
+            <DxTabPage Text="@l.Loc("Stops")">
+                <div class="pt-3">
+                    <Stops AllStops="AllStops" AllWorkers="AllWorkers" StopsChanged="ChangeWorkersStops" userFormat="userFormat"></Stops>
+                </div>
+            </DxTabPage>
+        </DxTabs>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="HiddeModalEditSchedule">@l.Loc("Cancel")</button>
+        <button type="button" disabled="@(IsDirtySchedule())" class=" btn-mlx btn-mlx-blue-primary" @onclick="UpdateSchedules">@l.Loc("Apply")</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+<style>
+
+    .mlx-preview-section-header {
+    flex-grow: 0;
+    }
+
+    .mlx-preview-section-simulation-data {
+    flex-grow: 1;
+    overflow-y: auto;
+    transition: all 0.3s ease-in-out;
+    }
+
+    .mlx-preview-section-simulation-data-hidden {
+    flex-basis: 0px;
+    flex-grow: 0;
+    overflow: hidden;
+    max-height: 0;
+    transition: all 0.3s ease-in-out;
+    }
+
+    .mlx-preview-section-button-action {
+    flex-basis: 60px;
+    transition: all 0.3s ease-in-out;
+    }
+
+    #btnReloadPreview {
+    width: 40px;
+    }
+
+</style>
+
+<script>
+    document.addEventListener('keydown', (event) => {
+    const target = event.target;
+    if (target.classList.contains('mlx-delete-negative-character')) {
+    if (event.key === '-') {
+    event.preventDefault();
+    }
+    }
+    });
+</script>
+
+@code {    
+} *@

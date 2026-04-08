@@ -1,0 +1,93 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <Compile Remove="Components\DetailsComponent\**" />
+    <Compile Remove="Components\Pages\Configuration\ExtraConfiguration\**" />
+    <Compile Remove="Services\LogiticsServices\**" />
+    <Compile Remove="wwwroot\js\Widgets\**" />
+    <Content Remove="Components\DetailsComponent\**" />
+    <Content Remove="Components\Pages\Configuration\ExtraConfiguration\**" />
+    <Content Remove="Services\LogiticsServices\**" />
+    <Content Remove="wwwroot\js\Widgets\**" />
+    <EmbeddedResource Remove="Components\DetailsComponent\**" />
+    <EmbeddedResource Remove="Components\Pages\Configuration\ExtraConfiguration\**" />
+    <EmbeddedResource Remove="Services\LogiticsServices\**" />
+    <EmbeddedResource Remove="wwwroot\js\Widgets\**" />
+    <None Remove="Components\DetailsComponent\**" />
+    <None Remove="Components\Pages\Configuration\ExtraConfiguration\**" />
+    <None Remove="Services\LogiticsServices\**" />
+    <None Remove="wwwroot\js\Widgets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mss.WorkForce.Code.Models\Mss.WorkForce.Code.Models.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.ServiceDefaults\Mss.WorkForce.Code.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.WMSSimulator\Mss.WorkForce.Code.WMSSimulator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <Folder Include="Components\Pages\Configuration\Organization\" />
+	  <Folder Include="Data\Dashboards\" />
+	  <Folder Include="Model\DTO\" />
+	  <Folder Include="wwwroot\fonts\mecalux\" />
+	  <Folder Include="wwwroot\fonts\globalFonts\" />
+    <Folder Include="wwwroot\img\designer\" />
+    <Folder Include="wwwroot\lib\devextreme\" />
+    <Folder Include="wwwroot\lib\bootstrap\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\Designer\DesignerRightSideContent.css" />
+    <None Include="wwwroot\css\Gantt\mlx-Tasks.css" />
+	<None Include="wwwroot\css\Gantt\mlx-PivotGrid.css" />
+	<None Include="wwwroot\js\TimeInput\TimeInput.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="25.2.3" />
+    <PackageReference Include="DevExpress.Blazor" Version="25.2.3" />
+    <PackageReference Include="DevExpress.Blazor.Dashboard" Version="25.2.3" />
+    <PackageReference Include="Mecalux.ITSW.ApplicationDictionary.Widgets" Version="27.22.24324.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.0" />
+    <PackageReference Include="Npgsql" Version="8.0.5" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Radzen.Blazor" Version="7.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\img\designer\pattern-plus-orange.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\img\designer\pattern-WF-Caotic.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\img\designer\pattern-WF-DriveIn.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\img\ico\equipment.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\img\ico\equipmentNA.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\img\ico\rf.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\Canvas\CanvasEvents.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\Canvas\CanvasPolyline.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\Canvas\CanvasTools.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\js\Canvas\DrawObjects.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

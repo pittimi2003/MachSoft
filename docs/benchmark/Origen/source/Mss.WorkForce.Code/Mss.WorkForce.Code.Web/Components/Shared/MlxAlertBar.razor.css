@@ -1,0 +1,52 @@
+﻿.alert-bar {
+    align-items: center;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border-radius: 30px;
+    display: flex;
+    width: fit-content;
+}
+
+.toolbar-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+
+.top-bar-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 5px;
+    margin-right: 5px;
+    height: 28px;
+    width: 28px;
+    align-items: center;
+    justify-content: center;
+}
+
+    .top-bar-button:hover {
+        background: var(--gl-color-smoke-200);
+        border-radius: 40px;
+    }
+    .top-bar-button-block span::before {
+        color: var(--sp-color-icon-disabled) !important;
+    }
+    .top-bar-button-block:hover {
+        background: none;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+

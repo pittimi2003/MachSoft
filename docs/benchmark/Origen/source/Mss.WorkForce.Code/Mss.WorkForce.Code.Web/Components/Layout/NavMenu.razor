@@ -1,0 +1,139 @@
+﻿@using Mss.WorkForce.Code.Web.Model
+@inject NavigationManager NavigationManager
+@using Mss.WorkForce.Code.Models.DataAccess
+@inject DataAccess dataAccess
+@using Mss.WorkForce.Code.Web.Services
+@inject SendParamService _SendParamService
+
+<div id="idMenuBackground" class="menu-popup" @onclick="CloseDrawer">
+    <div class="menu-nav" style="width:@(MenuItems.Any(x => x.IsOpen) ? "500px" : "300px");" @onclick:stopPropagation>
+
+        <div class="menu-header">
+            <span class="menu-header-warehouse">@NameWarehouse</span>
+            <div class="menu-btn-close-icon" @onclick="CloseDrawer">
+                <span class="mlx-icon-menu mlx-ico-close-sm"></span>
+            </div>
+        </div>
+
+        <div class="menu-item-container">
+            <div class="menu-items">
+                @foreach (var item in MenuItems)
+                {
+                    @if (item.IsParent)
+                    {
+                        <div>
+                        <span class="menu-submenu-item">@item.Name</span>
+                        </div>
+                        continue;
+                    }
+                    @if (!isWarehouse && item.DependsOnWarehouse) continue;
+                    @if (item.HasSubMenu)
+                    {
+                        <div class="menu-item-option" @onclick="() => HandleMenuClick(item)">
+                            <span class="@item.Icon"></span>
+                            <span class="menu-item-item">@item.Name</span>
+                            <span class="mlx-icon-menu mlx-ico-chevron-right menu-chevron"></span>
+                        </div>
+                    }
+                    else
+                    {
+                        <NavLink href="@item.Url" Match="NavLinkMatch.All" style="text-decoration:none;"  @onclick="CloseDrawer">
+                            <div class="menu-item-option" >
+                                <span class="@item.Icon"></span>
+                                <span class="menu-item-item">@item.Name</span>
+                            </div>
+                        </NavLink>
+                    }
+                }
+            </div>
+
+            @{
+                var openItem = MenuItems.FirstOrDefault(x => x.IsOpen);
+            }
+
+            @if (openItem?.SubMenuItems?.Any() == true)
+            {
+                <div class="menu-submenu">
+                    @foreach (var subItem in openItem.SubMenuItems)
+                    {
+                        @if (!isWarehouse && subItem.DependsOnWarehouse) continue;
+                          <a href="@GetTabUrl(subItem.TabKey??"tab1",  openItem.Url)" Match="NavLinkMatch.All" style="text-decoration:none;" @onclick:preventDefault  @onclick="() => HandleSubMenuClick(subItem)">
+                            <div class="menu-item-option">
+                                <span class="@subItem.Icon"></span>
+                                <span class="menu-item-item">@subItem.Name</span>
+                            </div>
+                          </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public List<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
+
+    [Parameter]
+    public EventCallback OnDrawerClose { get; set; }
+
+    [Parameter]
+    public string NameWarehouse { get; set; } = string.Empty;
+
+    private const int BaseWidth = 300;
+    private const int SubMenuWidth = 200;
+
+    private bool isWarehouse = true;
+
+    protected override void OnInitialized()
+    {
+        isWarehouse = dataAccess.GetWarehouses().Any();
+
+        if (MenuItems.Any())
+            MenuItems.ForEach(x => x.IsOpen = false);
+    }
+
+    private async Task HandleMenuClick(MenuItem item)
+    {
+
+        if (item.HasSubMenu)
+        {
+            ToggleSubMenu(item);
+        }
+        else
+        {
+            await CloseDrawer();
+            NavigationManager.NavigateTo(item.Url, false);
+        }
+    }
+
+    private void ToggleSubMenu(MenuItem item)
+    {
+        MenuItems.ForEach(x => x.IsOpen = x == item && !x.IsOpen);
+    }
+
+    public async Task CloseDrawer()
+    {
+        _SendParamService.ActiveProjectName = null;
+        isWarehouse = dataAccess.GetWarehouses().Any();
+        foreach (var item in MenuItems)
+        {
+            item.IsOpen = false;
+        }
+        await OnDrawerClose.InvokeAsync();
+    }
+
+    private async Task HandleSubMenuClick(MenuItem subItem)
+    {
+        if (!string.IsNullOrEmpty(subItem.TabKey))
+            _SendParamService.ActiveTab = subItem.TabKey;
+
+        await CloseDrawer();
+        NavigationManager.NavigateTo(subItem.Url, false);
+    }
+
+    private string GetTabUrl(string tabKey, string page) => $"{page}?tab={tabKey}";
+
+}
+

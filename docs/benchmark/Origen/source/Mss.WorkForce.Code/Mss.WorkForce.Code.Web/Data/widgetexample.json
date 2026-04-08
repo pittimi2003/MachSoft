@@ -1,0 +1,22 @@
+{
+  "Test": [
+    {
+      "When": "2024-11-10T08:00:00",
+      "InboundSec": 120,
+      "OutboundSec": 150,
+      "InterleavingSec": 100
+    },
+    {
+      "When": "2024-11-10T09:00:00",
+      "InboundSec": 90,
+      "OutboundSec": 180,
+      "InterleavingSec": 130
+    },
+    {
+      "When": "2024-11-10T10:00:00",
+      "InboundSec": 110,
+      "OutboundSec": 160,
+      "InterleavingSec": 120
+    }
+  ]
+}

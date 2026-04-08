@@ -1,0 +1,4292 @@
+﻿@* ===========================================================
+   DesignerDataGrid.razor  
+   * La agrupación por defecto a YES
+   * Los campos que no son editables si que tiene que ser creables
+   * Opción de búsqueda habilitada -> ShowFilterRow="true"
+   * La agrupación de elementos deberia estar por name en vez de id
+   * El borrado ; Debería preguntar confirmación de eliminar de la vista el elemento. dejando claro que no va a persistir el cambio hasta que guardes.
+   * Los botones de eliminar vamos a cambiar el comportamiento
+        Los quitamos de la barra de acciones
+        Ponemos un solo botón a la izquierda del crear arriba que se vera cuando haya algo seleccionado
+        Se eliminara (con modal de confirmación) todo lo seleccionado y tendrá cascada (tendremos que ver la forma de informar de la cascada - para mas adelante)
+   * Opción de ALL en la paginación
+   * La paginación solo abajo y fijada al footer encima de los botones con scroll dentro
+   * Los numeros que son numeros, alineado a la derecha
+   * Opción de All por defecto en la paginación
+   * Eliminar la paginación de los elementos interiores (Process direction, equipment, ruta, zona) 
+   * Eliminar la paginación que hay arriba a la derecha.
+   * El botón de Suprimir del teclado debe activar de ser posible (tener algo seleccionado y no estar editando un campo) el botón de eliminar.
+   * Los tipos de procesos así como el tipo de Área debe ser un enumerado.
+     Para procesos el enumerado de tipo de proceso.
+     Para área el enumerado de tipo de área, aquí tenemos que revisar que el tipo esta teniendo alguna cosa especial.
+   =========================================================== *@
+@using System
+@using System.Collections.Generic
+@using System.Linq
+@using System.Threading.Tasks
+@using DevExpress.Blazor
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
+
+
+@using Mss.WorkForce.Code.Models.DBContext
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.DTO.Enums.Designer
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Components.DesignerComponent
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Services.Interfaces
+@using System.Text.Json
+@using static Mss.WorkForce.Code.Models.DTO.Enums.Designer.ObjectsTypes
+@using Buffer = Mss.WorkForce.Code.Models.Models.Buffer;
+@using System.Text.Json.Nodes
+
+@inject DataAccess Da
+@inject IGridService GridService
+@inject ILocalizationService L
+@inject IJSRuntime JS
+
+<div class="wl-component-container"
+     id="designer-root"
+     tabindex="0"
+     @onkeydown="HandleKeyDown">
+
+    <!-- Header -->
+    <div class="wl-header-bar">
+        <div class="wl-left">
+            <MlxSwitchBar IsSwitchOn="@IsSwitchOn"
+                          TitleWhenOn="Canvas"
+                          IconWhenOn=""
+                          TitleWhenOff="Data"
+                          IconWhenOff=""
+                          IsSwitchOnChanged="@(EventCallback.Factory.Create<bool>(this, OnSwitchView))" />
+        </div>
+        <div class="wl-center">
+            @if (HasPendingChanges)
+            {
+                <div class="warning-container">
+                    <i class="mlx-ico-warning-bg-solid"></i>
+                    <span class="wl-status wl-status-pending">
+                        @L.Loc("There are {0} unsaved changes", @TotalPendingChanges)
+                    </span>
+                </div>
+            }
+
+            @if (ShowSaveSuccess)
+            {
+                <div class="success-container">
+                    <i class="mlx-ico-success-bg-solid"></i>
+                    <span class="wl-status wl-status-success">
+                        @SuccessMessage
+                    </span>
+                </div>
+            }
+        </div>
+        <div class="wl-right">
+            <div class="mlx-panel-header wl-sticky-top">
+                <div class="mlx-panel-bar-action">
+                    <!-- Delete global (habilitado sólo si hay selección en cualquier grid) -->
+                    @if(HasAnySelection){
+                        <button name="action-delete-global"
+                                title="@L.Loc("Delete selected")"
+                                @onclick="OpenGlobalDeleteModal">
+                            <i class="mlx-ico-trash"></i>
+                        </button>
+                    }
+
+                    <button name="action-add" title="@L.Loc("Add")"
+                            @onclick="AddCurrent">
+                        <i class="mlx-ico-add"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <DxTabs CssClass="mlx-tabs"
+            Position="TabPosition.Top"
+            ActiveTabIndex="@ActiveTabIndex"
+            ActiveTabIndexChanged="@(EventCallback.Factory.Create<int>(this, OnTabChanged))">
+
+        <!-- ============================ -->
+        <!-- TAB: PROCESSES -->
+        <!-- ============================ -->
+        <DxTabPage CssClass="mlx-tab-height" Text="@L.Loc("Processes")">
+            <div class="wl-tab-scroll">
+                <!-- Grid principal: Processes -->
+                <div class="grid-container grid-host">
+                    <DxGrid TData="ProcessRow"
+                        @ref="ProcessGridRef"
+                        CssClass="mlx-grid"
+                        Data="@ProcessesSorted"
+                        KeyFieldName="@nameof(ProcessRow.Id)"
+                        EditMode="GridEditMode.EditCell"
+                        ShowGroupPanel="true"
+                        ShowGroupedColumns="true"
+                        ShowFilterRow="true"
+                        AllowSort="true"
+                        AllowGroup="true"
+                        PageSize="@PageSizeProcessesEffective"
+                        PageIndex="@PageIndexProcesses"
+                        PageIndexChanged="@(EventCallback.Factory.Create<int>(this, OnPageIndexProcessesChanged))"
+                        PagerVisible="false"
+                        SelectionMode="GridSelectionMode.Multiple"
+                        AllowSelectRowByClick="false"
+                        SelectedDataItems="@(SelectedProcesses.Cast<object>().ToList())"
+                        SelectedDataItemsChanged="@(EventCallback.Factory.Create<IReadOnlyList<object>>(this, OnSelectedProcessesChanged))"
+                        EditModelSaving="OnProcessEditModelSaving"
+                        DataItemDeleting="OnProcessDataItemDeleting"
+                        CustomizeElement="OnCustomizeGridElement"
+                        CustomizeGroupValueDisplayText="OnProcessesCustomizeGroupValueDisplayText"
+                        HighlightRowOnHover="true"
+                        LayoutAutoSaving="OnProcessesLayoutAutoSaving"
+                        EditOnKeyPress="true">
+
+                        <Columns>
+                            <DxGridSelectionColumn Width="40px" ShowInColumnChooser="false" AllowSelectAll="false" />
+
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.Name)"
+                                              Caption="@L.Loc("Name")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+
+                                <FilterRowCellTemplate Context="ctx">
+                                    <MlxFilterOperationType FilterContext="ctx">
+                                        <DxTextBox Text="@(ctx.FilterRowValue as string)"
+                                                   TextChanged="@( (string v) => ctx.FilterRowValue = v )"
+                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                   NullText="@L.Loc("All")" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+                            </DxGridDataColumn>
+
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.Type)"
+                                              Caption="@L.Loc("Type")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <CellDisplayTemplate Context="ctx">
+                                    @{
+
+                                        var typeValue = ctx.Value as string;
+                                    }
+                                    @GetProcessTypeDisplay(typeValue)
+                                </CellDisplayTemplate>
+
+                                <CellEditTemplate Context="ctx">
+                                    @{
+                                        var m = (ProcessRow)ctx.EditModel;
+                                    }
+
+                                    @if (m.RowState == RowState.New)
+                                    {
+                                        <DxComboBox TData="ComboGeneric<string>" TValue="string"
+                                                    Data="@ProcessTypeItems"
+                                                    @bind-Value="m.Type"
+                                                    ValueFieldName="Value"
+                                                    TextFieldName="Description"
+                                                    AllowUserInput="false"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("Select...")" />
+                                    }
+                                    else
+                                    {
+                                        <!-- Si NO es nuevo, no renderices editor -->
+                                        <span class="wl-cell-readonly">
+                                            @GetProcessTypeDisplay(m.Type)
+                                        </span>
+                                    }
+                                </CellEditTemplate>
+                                  <!-- FILA DE FILTRO -->
+                                <FilterRowCellTemplate Context="context">
+                                    <MlxFilterOperationType FilterContext="context">
+                                        <DxComboBox TData="ComboGeneric<string>" TValue="string"
+                                                    Data="@ProcessTypeItems"
+                                                    Value="(string?)context.FilterRowValue"
+                                                    ValueChanged="@( (string? v) => context.FilterRowValue = v )"
+                                                    ValueFieldName="Value"
+                                                    TextFieldName="Description"
+                                                    AllowUserInput="false"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("All")" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+                            
+                                
+                            </DxGridDataColumn>
+
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.IsInitProcess)" Caption="@L.Loc("Is start process")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <FilterRowCellTemplate Context="ctx">
+                                    <MlxFilterOperationType FilterContext="ctx">
+                                        <DxComboBox TData="ComboGeneric<bool?>" TValue="bool?"
+                                                    Data="@_boolFilterItems"
+                                                    Value="(bool?)ctx.FilterRowValue"
+                                                    ValueChanged="@( (bool? v) => ctx.FilterRowValue = v )"
+                                                    ValueFieldName="Value"
+                                                    TextFieldName="Description"
+                                                    AllowUserInput="false"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("All")" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+                            </DxGridDataColumn>
+
+                            <!-- MinTime -->
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.MinTime)"
+                                              Caption="@L.Loc("Processing time")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <!-- DISPLAY -->
+                                <CellDisplayTemplate Context="ctx">
+                                    @{
+                                        int? value = ctx.Value as int?;
+
+                                        // Si llega como int (no nullable) en algún caso
+                                        if (value is null && ctx.Value is int v)
+                                            value = v;
+                                    }
+
+                                    <span class="mlx-timeinput">
+                                        <TimeInput TNumber="int?"
+                                                   Value="@value"
+                                                   Format="hhmmss"
+                                                   DisplayOnly="true" />
+                                    </span>
+                                </CellDisplayTemplate>
+
+                                <!-- EDICIÓN: EditModel -->
+                                <CellEditTemplate Context="ctx">
+                                    @{
+                                        var row = ctx.EditModel as ProcessRow;
+                                    }
+                                    @if (row is not null)
+                                    {
+                                        <span class="mlx-timeinput">
+                                            <TimeInput TNumber="int?"
+                                                       Value="row.MinTime"
+                                                       ValueChanged="@(v => row.MinTime = v ?? 0)"
+                                                       Format="hhmmss" />
+                                        </span>
+                                    }
+                                </CellEditTemplate>
+
+                                <!-- FILA DE FILTRO -->
+                                <FilterRowCellTemplate Context="ctx">
+                                    <MlxFilterOperationType FilterContext="ctx">
+                                        <TimeInput TNumber="int?"
+                                                   IsFilter="true"
+                                                   Value="@(ctx.FilterRowValue as int?)"
+                                                   ValueChanged="@(v => ctx.FilterRowValue = v)"
+                                                   Format="hhmmss" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+                            </DxGridDataColumn>
+
+                            <!-- PreprocessTime -->
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.PreprocessTime)" Caption="@L.Loc("Preprocess time")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <!-- DISPLAY -->
+                                <CellDisplayTemplate Context="ctx">
+                                    @{
+                                        int? value = ctx.Value as int?;
+                                        if (value is null && ctx.Value is int v)
+                                            value = v;
+                                    }
+
+                                    <span class="mlx-timeinput">
+                                        <TimeInput TNumber="int?"
+                                                   Value="@value"
+                                                   Format="mmss"
+                                                   DisplayOnly="true" />
+                                    </span>
+                                </CellDisplayTemplate>
+
+                                <!-- EDIT -->
+                                <CellEditTemplate Context="ctx">
+                                    @{
+                                        var row = ctx.EditModel as ProcessRow;
+                                    }
+                                    @if (row is not null)
+                                    {
+                                        <span class="mlx-timeinput">
+                                            <TimeInput TNumber="int?"
+                                                       @bind-Value="row.PreprocessTime"
+                                                       Format="mmss" />
+                                        </span>
+                                    }
+                                </CellEditTemplate>
+
+                                <!-- FILTER -->
+                                <FilterRowCellTemplate Context="ctx">
+                                    <MlxFilterOperationType FilterContext="ctx">
+                                        <TimeInput TNumber="int?"
+                                                   IsFilter="true"
+                                                   Value="@(ctx.FilterRowValue as int?)"
+                                                   ValueChanged="@(v => ctx.FilterRowValue = v)"
+                                                   Format="mmss" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+
+                            </DxGridDataColumn>
+
+
+                            <!-- PostprocessTime -->
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.PostprocessTime)"
+                                              Caption="@L.Loc("Postprocess time")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <!-- DISPLAY -->
+                                <CellDisplayTemplate Context="ctx">
+                                    @{
+                                        int? value = ctx.Value as int?;
+                                        if (value is null && ctx.Value is int v)
+                                            value = v;
+                                    }
+
+                                    <span class="mlx-timeinput">
+                                        <TimeInput TNumber="int?"
+                                                   Value="@value"
+                                                   Format="mmss"
+                                                   DisplayOnly="true" />
+                                    </span>
+                                </CellDisplayTemplate>
+
+                                <!-- EDIT -->
+                                <CellEditTemplate Context="ctx">
+                                    @{
+                                        var row = ctx.EditModel as ProcessRow;
+                                    }
+                                    @if (row is not null)
+                                    {
+                                        <span class="mlx-timeinput">
+                                            <TimeInput TNumber="int?"
+                                                       @bind-Value="row.PostprocessTime"
+                                                       Format="mmss"
+                                                       OnEnterPressed="OnTimeInputEnter" />
+                                        </span>
+                                    }
+                                </CellEditTemplate>
+
+                                <!-- FILTER -->
+                                <FilterRowCellTemplate Context="ctx">
+                                    <MlxFilterOperationType FilterContext="ctx">
+                                        <TimeInput TNumber="int?"
+                                                   IsFilter="true"
+                                                   Value="@(ctx.FilterRowValue as int?)"
+                                                   ValueChanged="@(v => ctx.FilterRowValue = v)"
+                                                   Format="mmss" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+                            </DxGridDataColumn>
+
+
+                            <!-- Flow -->
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.FlowId)"
+                                              Caption="@L.Loc("Flow")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <!-- DISPLAY -->
+                                <CellDisplayTemplate Context="ctx">
+                                    @{
+                                        Guid? flowId = null;
+                                        if (ctx.Value is Guid g) flowId = g;
+
+                                        var flow = (flowId is null)
+                                        ? null
+                                        : Flows.FirstOrDefault(f => f.Id == flowId.Value);
+                                    }
+
+                                    @if (flow is null)
+                                    {
+                                        <div>@L.Loc("Select...")</div>
+                                    }
+                                    else
+                                    {
+                                        var badgeClass = flow.Type switch
+                                        {
+                                            FlowType.Inbound => "wl-flow-badge wl-inbound",
+                                            FlowType.Outbound => "wl-flow-badge wl-outbound",
+                                            FlowType.Custom => "wl-flow-badge wl-custom",
+                                            _ => "wl-flow-badge"
+                                        };
+
+                                        var iconClass = flow.Type switch
+                                        {
+                                            FlowType.Inbound => "mlx-ico-entrada",
+                                            FlowType.Outbound => "mlx-ico-salida",
+                                            FlowType.Custom => "mlx-ico-settings",
+                                            _ => "mlx-ico-info"
+                                        };
+
+                                        <span class="@badgeClass" title="@flow.Name">
+                                            <i class="@iconClass"></i>
+                                            <span class="wl-flow-text">@flow.Name</span>
+                                        </span>
+                                    }
+                                </CellDisplayTemplate>
+
+                                <!-- EDIT -->
+                                <CellEditTemplate Context="ctx">
+                                    @{
+                                        var row = (ProcessRow)ctx.EditModel;
+                                    }
+
+                                    @if (row.RowState == RowState.New)
+                                    {
+                                        <DxComboBox TData="LookupFlowItem" TValue="Guid?"
+                                                    Data="@FlowsSorted"
+                                                    @bind-Value="row.FlowId"
+                                                    ValueFieldName="Id"
+                                                    TextFieldName="Name"
+                                                    AllowUserInput="false"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("Select...")" />
+                                    }
+                                    else
+                                    {
+                                        // Mantiene apariencia de solo lectura cuando NO es New
+                                        <span class="wl-cell-readonly">
+                                            @{
+                                                var flow = (row.FlowId is null) ? null : Flows.FirstOrDefault(f => f.Id == row.FlowId.Value);
+                                            }
+                                            @if (flow is null)
+                                            {
+                                                <span></span>
+                                            }
+                                            else
+                                            {
+                                                var badgeClass = flow.Type switch
+                                                {
+                                                    FlowType.Inbound => "wl-flow-badge wl-inbound",
+                                                    FlowType.Outbound => "wl-flow-badge wl-outbound",
+                                                    FlowType.Custom => "wl-flow-badge wl-custom",
+                                                    _ => "wl-flow-badge"
+                                                };
+
+                                                var iconClass = flow.Type switch
+                                                {
+                                                    FlowType.Inbound => "mlx-ico-entrada",
+                                                    FlowType.Outbound => "mlx-ico-salida",
+                                                    FlowType.Custom => "mlx-ico-settings",
+                                                    _ => "mlx-ico-info"
+                                                };
+
+                                                <span class="@badgeClass" title="@flow.Name">
+                                                    <i class="@iconClass"></i>
+                                                    <span class="wl-flow-text">@flow.Name</span>
+                                                </span>
+                                            }
+                                        </span>
+                                    }
+                                </CellEditTemplate>
+
+                                <!-- FILTER -->
+                                <FilterRowCellTemplate Context="context">
+                                    <MlxFilterOperationType FilterContext="context">
+                                        <DxComboBox TData="LookupFlowItem" TValue="Guid?"
+                                                    Data="@FlowsSorted"
+                                                    Value="@(context.FilterRowValue is Guid g ? (Guid?)g : null)"
+                                                    ValueChanged="@( (Guid? v) => context.FilterRowValue = v )"
+                                                    ValueFieldName="Id"
+                                                    TextFieldName="Name"
+                                                    AllowUserInput="false"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("All")" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+                            </DxGridDataColumn>
+
+                            <!-- Area -->
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.AreaId)"
+                                              Caption="@L.Loc("Area")"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <!-- DISPLAY -->
+                                <CellDisplayTemplate Context="ctx">
+                                    @{
+                                        Guid? areaId = null;
+                                        if (ctx.Value is Guid g) areaId = g;
+                                        else if (ctx.Value is Guid gn) areaId = gn;
+
+                                        var aid = areaId ?? Guid.Empty;
+                                        var name = AreasLookup.FirstOrDefault(a => a.Id == aid)?.Name;
+                                    }
+                                    @if (name is null)
+                                    {
+                                        <div>@L.Loc("Select...")</div>
+                                    }
+                                    @name
+                                </CellDisplayTemplate>
+
+                                <!-- EDIT -->
+                                <CellEditTemplate Context="ctx">
+                                    @{
+                                        var row = ctx.EditModel as ProcessRow;
+                                    }
+                                    @if (row is not null)
+                                    {
+                                        if (row.RowState == RowState.New)
+                                        {
+                                            <DxComboBox TData="LookupItem" TValue="Guid?"
+                                                        Data="@AreasLookupSorted"
+                                                        @bind-Value="row.AreaId"
+                                                        ValueFieldName="Id"
+                                                        TextFieldName="Name"
+                                                        ValidationEnabled="false"
+                                                        AllowUserInput="false"
+                                                        NullText="@L.Loc("Select...")" />
+                                        }
+                                        else
+                                        {
+                                            <span class="wl-cell-readonly">
+                                                @{
+                                                    var aid = row.AreaId ?? Guid.Empty;
+                                                    var name = AreasLookup.FirstOrDefault(a => a.Id == aid)?.Name;
+                                                }
+                                                @name
+                                            </span>
+                                        }
+                                    }
+                                </CellEditTemplate>
+
+                                <!-- Fila de filtro: combo de Areas -->
+                                <FilterRowCellTemplate Context="context">
+                                    <MlxFilterOperationType FilterContext="context">
+                                        <DxComboBox TData="LookupItem" TValue="Guid?"
+                                                    Data="@AreasLookupSorted"
+                                                    Value="@(context.FilterRowValue is Guid g ? (Guid?)g : null)"
+                                                    ValueChanged="@( (Guid? v) => context.FilterRowValue = v )"
+                                                    ValueFieldName="Id"
+                                                    TextFieldName="Name"
+                                                    AllowUserInput="false"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("All")" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+                            </DxGridDataColumn>
+
+
+                            <!-- Contador (solo lectura) -->
+                            <DxGridDataColumn FieldName="@nameof(ProcessRow.ProcessDirectionsCount)"
+                                              Caption="@L.Loc("Total directions")"
+                                              DataRowEditorVisible="false"
+                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                <FilterRowCellTemplate Context="ctx">
+                                    <MlxFilterOperationType FilterContext="ctx">
+                                        <DxSpinEdit TValue="int?"
+                                                    Value="@(ctx.FilterRowValue as int?)"
+                                                    ValueChanged="@( (int? v) => ctx.FilterRowValue = v )"
+                                                    MinValue="0"
+                                                    ShowSpinButtons="true"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("All")" />
+                                    </MlxFilterOperationType>
+                                </FilterRowCellTemplate>
+
+                            </DxGridDataColumn>
+                        </Columns>
+
+                        <!-- Subgrid: Directions -->
+                        <DetailRowTemplate Context="detail">
+                            @{
+                                var process = detail?.DataItem as ProcessRow;
+                                var totalDir = process?.Directions?.Count ?? 0;
+                                var pageCountDir = GetPageCount(process?.Directions, PageSizeDetailEffective);
+                            }
+
+                            <div class="mlx-panel-header wl-sticky-sub">
+                                <div class="mlx-panel-bar-action" style="margin-left:auto">
+                                    <button name="action-add" title="@L.Loc("Add")"
+                                            @onclick="@(EventCallback.Factory.Create(this, () => { if (process != null) AddDirection(process); }))">
+                                        <i class="mlx-ico-add"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <DxGrid TData="ProcessDirectionRow"
+                                    CssClass="mlx-grid dxbl-grid-detail"
+                                    Data="@(process?.Directions)"
+                                    EditMode="GridEditMode.EditCell"
+                                    ShowGroupPanel="false"
+                                    ShowFilterRow="true"
+                                    PageSize="@PageSizeDetailEffective"
+                                    PageIndex="@(process?.PageIndex_Dir ?? 0)"
+                                    PageIndexChanged="@(EventCallback.Factory.Create<int>(this, (int i) => { if (process != null) OnPageIndexDirectionsChanged(process, i); }))"
+                                    PagerVisible="false"
+                                    SelectionMode="GridSelectionMode.Multiple"
+                                    AllowSelectRowByClick="true"
+                                    SelectedDataItems="@(process?.SelectedDirections?.Cast<object>().ToList() ?? new List<object>())"
+                                    SelectedDataItemsChanged="@(EventCallback.Factory.Create<IReadOnlyList<object>>(this, (IReadOnlyList<object> newSel) => { if (process != null) OnSelectedDirectionsChanged(process, newSel); }))"
+                                    EditModelSaving="OnProcessDirectionEditModelSaving"
+                                    DataItemDeleting="OnProcessDirectionDataItemDeleting"
+                                    CustomizeElement="OnCustomizeGridElement">
+
+                                <Columns>
+                                    <DxGridSelectionColumn Width="40px" ShowInColumnChooser="false" AllowSelectAll="false" />
+                                    <DxGridDataColumn FieldName="@nameof(ProcessDirectionRow.EndProcessId)"
+                                                      Caption="@L.Loc("Destination process")"
+                                                      FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                        <!-- DISPLAY -->
+                                        <CellDisplayTemplate Context="ctx">
+                                            @{
+                                                Guid? endId = null;
+                                                if (ctx.Value is Guid g) endId = g;
+
+                                                var name = (endId is null)
+                                                ? null
+                                                : Processes.FirstOrDefault(p => p.Id == endId.Value)?.Name;
+                                            }
+                                            @if (name is null)
+                                            {
+                                                <div>@L.Loc("Select...")</div>
+                                            }
+                                            @name
+                                        </CellDisplayTemplate>
+
+                                        <!-- EDIT -->
+                                        <CellEditTemplate Context="ctx">
+                                            @{
+                                                var dir = ctx.EditModel as ProcessDirectionRow;
+                                                var options = GetDestinationProcessOptions(process);
+                                            }
+
+                                            @if (dir is not null)
+                                            {
+                                                <DxComboBox TData="ProcessRow" TValue="Guid?"
+                                                            Data="@options"
+                                                            @bind-Value="dir.EndProcessId"
+                                                            ValueFieldName="Id"
+                                                            TextFieldName="Name"
+                                                            AllowUserInput="false"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                            NullText="@L.Loc("Select...")" />
+                                            }
+                                        </CellEditTemplate>
+
+                                        <!-- FILTER -->
+                                        <FilterRowCellTemplate Context="ctx">
+                                            @{
+                                                var options = GetDestinationProcessOptions(process);
+                                            }
+                                            <MlxFilterOperationType FilterContext="ctx">
+                                                <DxComboBox TData="ProcessRow" TValue="Guid?"
+                                                            Data="@options"
+                                                            Value="@(ctx.FilterRowValue as Guid?)"
+                                                            ValueChanged="@( (Guid? v) => ctx.FilterRowValue = v )"
+                                                            ValueFieldName="Id"
+                                                            TextFieldName="Name"
+                                                            AllowUserInput="false"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                            NullText="@L.Loc("All")" />
+                                            </MlxFilterOperationType>
+                                        </FilterRowCellTemplate>
+                                    </DxGridDataColumn>
+
+                                    <DxGridDataColumn FieldName="@nameof(ProcessDirectionRow.Percentage)" Caption="@L.Loc("Percentage")" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                                        <FilterRowCellTemplate Context="ctx">
+                                            <MlxFilterOperationType FilterContext="ctx">
+                                                <DxSpinEdit TValue="int?"
+                                                            Value="@(ctx.FilterRowValue as int?)"
+                                                            ValueChanged="@((int? v) => ctx.FilterRowValue = v)"
+                                                            MinValue="0"
+                                                            MaxValue="100"
+                                                            ShowSpinButtons="true"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                            NullText="@L.Loc("All")" />
+                                            </MlxFilterOperationType>
+                                        </FilterRowCellTemplate>
+                                    </DxGridDataColumn>
+
+                                    <DxGridDataColumn FieldName="@nameof(ProcessDirectionRow.IsEnd)" Caption="@L.Loc("Is end")" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                                        <FilterRowCellTemplate Context="ctx">
+                                            <MlxFilterOperationType FilterContext="ctx">
+                                                <DxComboBox TData="ComboGeneric<bool?>" TValue="bool?"
+                                                            Data="@_boolFilterItems"
+                                                            Value="(bool?)ctx.FilterRowValue"
+                                                            ValueChanged="@((bool? v) => ctx.FilterRowValue = v)"
+                                                            ValueFieldName="Value"
+                                                            TextFieldName="Description"
+                                                            AllowUserInput="false"
+                                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                            NullText="@L.Loc("All")" />
+                                            </MlxFilterOperationType>
+                                        </FilterRowCellTemplate>
+                                    </DxGridDataColumn>
+                                </Columns>
+                            </DxGrid>
+                        </DetailRowTemplate>
+                    </DxGrid>
+                </div>
+
+                <!-- Paginador sticky (Processes) -->
+                <div class="mlx-pager-pager-layout wl-pager-static">
+                    <div class="mlx-pager-left-group">
+                        <DxPager PageCount="@PageCountProcesses"
+                                 ActivePageIndex="@ActivePageIndexProcesses"
+                                 SwitchToInputBoxButtonCount="4"
+                                 NavigationMode="PagerNavigationMode.InputBox"
+                                 ActivePageIndexChanged="@(EventCallback.Factory.Create<int>(this, OnActivePageIndexProcessesChanged))" />
+                        <DxComboBox TData="KeyValuePair<string,int>" TValue="int"
+                                    Data="@PageSizeMainOptions"
+                                    CssClass="mlx-form-select"
+                                    Value="@PageSizeMain"
+                                    ValueChanged="@(EventCallback.Factory.Create<int>(this, OnPageSizeChanged))"
+                                    ValueFieldName="Value"
+                                    TextFieldName="Key"
+                                    AllowUserInput="false" />
+                        <span class="mlx-pager-records">@PagerRecordsProcesses</span>
+                    </div>
+                    <div class="mlx-pager-right-group">
+                        @if (SelectedProcesses.Any())
+                        {
+                            <button class="btn-mlx-grid-select"
+                                    @onclick="@(EventCallback.Factory.Create(this, UnselectAllProcesses))">
+                                <span>@SelectedRecordsProcesses</span>
+                                <span class="mlx-separator"></span>
+                                <i class="mlx-ico-close"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="mlx-grid-pager-no-selected">@SelectedRecordsProcesses</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </DxTabPage>
+
+        <!-- ============================ -->
+        <!-- TAB: AREAS -->
+        <!-- ============================ -->
+        <DxTabPage CssClass="mlx-tab-height" Text="@L.Loc("Areas")">
+            <div class="wl-tab-scroll grid-host">
+                <DxGrid TData="AreaRow"
+                    @ref="AreaGridRef"
+                    CssClass="mlx-grid"
+                        Data="@AreasSorted"
+                    EditMode="GridEditMode.EditCell"
+                    ShowGroupPanel="true"
+                    ShowFilterRow="true"
+                    AllowSort="true"
+                    AllowGroup="true"
+                    PageSize="@PageSizeAreasEffective"
+                    PageIndex="@PageIndexAreas"
+                    PageIndexChanged="@(EventCallback.Factory.Create<int>(this, OnPageIndexAreasChanged))"
+                    PagerVisible="false"
+                    SelectionMode="GridSelectionMode.Multiple"
+                    AllowSelectRowByClick="true"
+                    SelectedDataItems="@(SelectedAreas.Cast<object>().ToList())"
+                    SelectedDataItemsChanged="@(EventCallback.Factory.Create<IReadOnlyList<object>>(this, OnSelectedAreasChanged))"
+                    EditModelSaving="OnAreaEditModelSaving"
+                    DataItemDeleting="OnAreaDataItemDeleting"
+                    CustomizeElement="OnCustomizeGridElement"
+                    CustomizeGroupValueDisplayText="OnAreasCustomizeGroupValueDisplayText"
+                    HighlightRowOnHover="true"
+                    LayoutAutoSaving="OnAreasLayoutAutoSaving"
+                    EditOnKeyPress="true">
+
+                    <Columns>
+                        <DxGridSelectionColumn Width="40px" ShowInColumnChooser="false" AllowSelectAll="false" />
+
+                        <DxGridDataColumn FieldName="@nameof(AreaRow.Name)" Caption="@L.Loc("Name")" FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+                            <FilterRowCellTemplate Context="ctx">
+                                <MlxFilterOperationType FilterContext="ctx">
+                                    <DxTextBox Text="@(ctx.FilterRowValue as string)"
+                                               TextChanged="@( (string v) => ctx.FilterRowValue = v )"
+                                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                               NullText="@L.Loc("All")" />
+                                </MlxFilterOperationType>
+                            </FilterRowCellTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn FieldName="@nameof(AreaRow.Type)"
+                                          Caption="@L.Loc("Type")"
+                                          FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                            <!-- DISPLAY -->
+                            <CellDisplayTemplate Context="ctx">
+                                @{
+                                    var typeValue = ctx.Value as string;
+                                }
+                                @GetAreaTypeDisplay(typeValue)
+                            </CellDisplayTemplate>
+
+                            <!-- EDIT -->
+                            <CellEditTemplate Context="ctx">
+                                @{
+                                    var row = ctx.EditModel as AreaRow;
+                                }
+                                @if (row is not null)
+                                {
+                                    if (row.RowState == RowState.New)
+                                    {
+                                        <DxComboBox TData="ComboGeneric<string>" TValue="string"
+                                                    Data="@AreaTypeItems"
+                                                    @bind-Value="row.Type"
+                                                    ValueFieldName="Value"
+                                                    TextFieldName="Description"
+                                                    AllowUserInput="false"
+                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                    NullText="@L.Loc("Select...")" />
+                                    }
+                                    else
+                                    {
+                                        <span class="wl-cell-readonly">
+                                            @GetAreaTypeDisplay(row.Type)
+                                        </span>
+                                    }
+                                }
+                            </CellEditTemplate>
+
+                            <!-- Fila de filtro: combo también -->
+                            <FilterRowCellTemplate Context="context">
+                                <MlxFilterOperationType FilterContext="context">
+                                    <DxComboBox TData="ComboGeneric<string>" TValue="string"
+                                                Data="@AreaTypeItems"
+                                                Value="@(context.FilterRowValue as string)"
+                                                ValueChanged="@( (string? v) => context.FilterRowValue = v )"
+                                                ValueFieldName="Value"
+                                                TextFieldName="Description"
+                                                AllowUserInput="false"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                NullText="@L.Loc("All")" />
+                                </MlxFilterOperationType>
+                            </FilterRowCellTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn FieldName="@nameof(AreaRow.ZonesCount)" Caption="@L.Loc("Total zones")" DataRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                            <FilterRowCellTemplate Context="ctx">
+                                <MlxFilterOperationType FilterContext="ctx">
+                                    <DxSpinEdit TValue="int?"
+                                                Value="@(ctx.FilterRowValue as int?)"
+                                                ValueChanged="@( (int? v) => ctx.FilterRowValue = v )"
+                                                MinValue="0"
+                                                ShowSpinButtons="true"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                NullText="@L.Loc("All")" />
+                                </MlxFilterOperationType>
+                            </FilterRowCellTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn FieldName="@nameof(AreaRow.RoutesCount)" Caption="@L.Loc("Total routes")" DataRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                            <FilterRowCellTemplate Context="ctx">
+                                <MlxFilterOperationType FilterContext="ctx">
+                                    <DxSpinEdit TValue="int?"
+                                                Value="@(ctx.FilterRowValue as int?)"
+                                                ValueChanged="@((int? v) => ctx.FilterRowValue = v)"
+                                                MinValue="0"
+                                                ShowSpinButtons="true"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                NullText="@L.Loc("All")" />
+                                </MlxFilterOperationType>
+                            </FilterRowCellTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn FieldName="@nameof(AreaRow.EquipmentsCount)" Caption="@L.Loc("Total equipments")" DataRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                            <FilterRowCellTemplate Context="ctx">
+                                <MlxFilterOperationType FilterContext="ctx">
+                                    <DxSpinEdit TValue="int?"
+                                                Value="@(ctx.FilterRowValue as int?)"
+                                                ValueChanged="@((int? v) => ctx.FilterRowValue = v)"
+                                                MinValue="0"
+                                                ShowSpinButtons="true"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                NullText="@L.Loc("All")" />
+                                </MlxFilterOperationType>
+                            </FilterRowCellTemplate>
+                        </DxGridDataColumn>
+                    </Columns>
+
+                    <DetailRowTemplate Context="detailCtx">
+                        @{
+                            var area = detailCtx?.DataItem as AreaRow;
+                        }
+
+                        <DxTabs CssClass="mlx-tabs">
+                            <!-- Zones -->
+                            <DxTabPage Text="@($"{L.Loc("Zones")} ({(area?.ZonesCount ?? 0)})")">
+                                @{
+                                    var totalZones = area?.Zones?.Count ?? 0;
+                                    var pageCountZones = GetPageCount(area?.Zones, PageSizeDetailEffective);
+                                }
+                                <div class="wl-subtab-scroll">
+                                    <div class="mlx-panel-header wl-sticky-sub">
+                                        <div class="mlx-panel-bar-action" style="margin-left:auto">
+                                            <button name="action-add" title="@L.Loc("Add")"
+                                                    @onclick="@(EventCallback.Factory.Create(this, () => { if (area != null) AddZone(area); }))">
+                                                <i class="mlx-ico-add"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <DxGrid TData="ZoneRow"
+                                            CssClass="mlx-grid dxbl-grid-detail"
+                                            Data="@GetZonesSorted(area)"                                            EditMode="GridEditMode.EditCell"
+                                            ShowGroupPanel="false"
+                                            ShowFilterRow="true"
+                                            PageSize="@PageSizeDetailEffective"
+                                            PageIndex="@(area?.PageIndex_Zones ?? 0)"
+                                            PageIndexChanged="@(EventCallback.Factory.Create<int>(this, (int i) => { if (area != null) OnPageIndexZonesChanged(area, i); }))"
+                                            PagerVisible="false"
+                                            SelectionMode="GridSelectionMode.Multiple"
+                                            AllowSelectRowByClick="true"
+                                            SelectedDataItems="@(area?.SelectedZones?.Cast<object>().ToList() ?? new List<object>())"
+                                            SelectedDataItemsChanged="@(EventCallback.Factory.Create<IReadOnlyList<object>>(this, (IReadOnlyList<object> newSel) => { if (area != null) OnSelectedZonesChanged(area, newSel); }))"
+                                            EditModelSaving="OnZoneEditModelSaving"
+                                            DataItemDeleting="OnZoneDataItemDeleting"
+                                            CustomizeElement="OnCustomizeGridElement"
+                                            EditOnKeyPress =" true">
+                                        <Columns>
+                                            <DxGridSelectionColumn Width="40px" ShowInColumnChooser="false" AllowSelectAll="false" />
+
+                                            <DxGridDataColumn FieldName="@nameof(ZoneRow.Name)" Caption="@L.Loc("Name")" FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+                                                <FilterRowCellTemplate Context="ctx">
+                                                    <MlxFilterOperationType FilterContext="ctx">
+                                                        <DxTextBox Text="@(ctx.FilterRowValue as string)"
+                                                                   TextChanged="@( (string v) => ctx.FilterRowValue = v )"
+                                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                   NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+
+                                            <DxGridDataColumn FieldName="@nameof(ZoneRow.Type)"
+                                                              Caption="@L.Loc("Type")"
+                                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                                <!-- DISPLAY -->
+                                                <CellDisplayTemplate Context="ctx">
+                                                    @{
+                                                        var typeValue = ctx.Value as string;
+                                                    }
+                                                    @GetZoneTypeDisplay(typeValue)
+                                                </CellDisplayTemplate>
+
+                                                <!-- EDIT -->
+                                                <CellEditTemplate Context="ctx">
+                                                    @{
+                                                        var row = ctx.EditModel as ZoneRow;
+                                                        var items = GetZoneTypeItemsForArea(area);
+                                                    }
+                                                    @if (row is not null)
+                                                    {
+                                                        if (row.RowState == RowState.New)
+                                                        {
+                                                            <DxComboBox TData="ComboGeneric<string>" TValue="string"
+                                                                        Data="@items"
+                                                                        @bind-Value="row.Type"
+                                                                        ValueFieldName="Value"
+                                                                        TextFieldName="Description"
+                                                                        AllowUserInput="false"
+                                                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                        NullText="@L.Loc("Select...")" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="wl-cell-readonly">
+                                                                @GetZoneTypeDisplay(row.Type)
+                                                            </span>
+                                                        }
+                                                    }
+                                                </CellEditTemplate>
+
+                                                <!-- Fila de filtro: combo también restringido por Area.Type -->
+                                                <FilterRowCellTemplate Context="context">
+                                                    <MlxFilterOperationType FilterContext="context">
+                                                        <DxComboBox TData="ComboGeneric<string>" TValue="string"
+                                                                    Data="@GetZoneTypeItemsForArea(area)"
+                                                                    Value="(string?)context.FilterRowValue"
+                                                                    ValueChanged="@( (string? v) => context.FilterRowValue = v )"
+                                                                    ValueFieldName="Value"
+                                                                    TextFieldName="Description"
+                                                                    AllowUserInput="false"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+
+                                            <DxGridDataColumn FieldName="@nameof(ZoneRow.MaxContainers)" Caption="@L.Loc("Max containers")" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                                                <FilterRowCellTemplate Context="ctx">
+                                                    <MlxFilterOperationType FilterContext="ctx">
+                                                        <DxSpinEdit TValue="int?"
+                                                                    Value="@(ctx.FilterRowValue as int?)"
+                                                                    ValueChanged="@((int? v) => ctx.FilterRowValue = v)"
+                                                                    MinValue="0"
+                                                                    ShowSpinButtons="true"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+                                            <DxGridDataColumn FieldName="@nameof(ZoneRow.MaxEquipments)" Caption="@L.Loc("Max equipments")" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                                                <FilterRowCellTemplate Context="ctx">
+                                                    <MlxFilterOperationType FilterContext="ctx">
+                                                        <DxSpinEdit TValue="int?"
+                                                                    Value="@(ctx.FilterRowValue as int?)"
+                                                                    ValueChanged="@((int? v) => ctx.FilterRowValue = v)"
+                                                                    MinValue="0"
+                                                                    ShowSpinButtons="true"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+                                        </Columns>
+                                    </DxGrid>
+                                </div>
+                            </DxTabPage>
+
+                            <!-- Equipments -->
+                            <DxTabPage Text="@($"{L.Loc("Equipments")} ({(area?.Equipments?.Count ?? 0)})")">
+                                @{
+                                    var totalEq = area?.Equipments?.Count ?? 0;
+                                    var pageCountEq = GetPageCount(area?.Equipments, PageSizeDetailEffective);
+                                }
+                                <div class="wl-subtab-scroll">
+                                    <div class="mlx-panel-header wl-sticky-sub">
+                                        <div class="mlx-panel-bar-action" style="margin-left:auto">
+                                            <button name="action-add" title="@L.Loc("Add")"
+                                                    @onclick="@(EventCallback.Factory.Create(this, () => { if (area != null) AddEquipment(area); }))">
+                                                <i class="mlx-ico-add"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <DxGrid TData="EquipmentGroupRow"
+                                            CssClass="mlx-grid dxbl-grid-detail"
+                                            Data="@GetEquipmentsSorted(area)"
+                                            EditMode="GridEditMode.EditCell"
+                                            ShowGroupPanel="false"
+                                            ShowFilterRow="true"
+                                            PageSize="@PageSizeDetailEffective"
+                                            PageIndex="@(area?.PageIndex_Equipments ?? 0)"
+                                            PageIndexChanged="@(EventCallback.Factory.Create<int>(this, (int i) => { if (area != null) OnPageIndexEquipmentsChanged(area, i); }))"
+                                            PagerVisible="false"
+                                            SelectionMode="GridSelectionMode.Multiple"
+                                            AllowSelectRowByClick="true"
+                                            SelectedDataItems="@(area?.SelectedEquipments?.Cast<object>().ToList() ?? new List<object>())"
+                                            SelectedDataItemsChanged="@(EventCallback.Factory.Create<IReadOnlyList<object>>(this, (IReadOnlyList<object> newSel) => { if (area != null) OnSelectedEquipmentsChanged(area, newSel); }))"
+                                            EditModelSaving="OnEquipmentEditModelSaving"
+                                            DataItemDeleting="OnEquipmentDataItemDeleting"
+                                            CustomizeElement="OnCustomizeGridElement"
+                                            EditOnKeyPress="true">
+                                        <Columns>
+                                            <DxGridSelectionColumn Width="40px" ShowInColumnChooser="false" AllowSelectAll="false" />
+
+                                            <DxGridDataColumn FieldName="@nameof(EquipmentGroupRow.Name)" Caption="@L.Loc("Name")" FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+                                                <FilterRowCellTemplate Context="ctx">
+                                                    <MlxFilterOperationType FilterContext="ctx">
+                                                        <DxTextBox Text="@(ctx.FilterRowValue as string)"
+                                                                   TextChanged="@( (string v) => ctx.FilterRowValue = v )"
+                                                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                   NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+
+                                            <DxGridDataColumn FieldName="@nameof(EquipmentGroupRow.TypeEquipmentId)"
+                                                              Caption="@L.Loc("Type")"
+                                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                                <!-- DISPLAY -->
+                                                <CellDisplayTemplate Context="ctx">
+                                                    @{
+                                                        Guid? typeId = null;
+                                                        if (ctx.Value is Guid g) typeId = g;
+
+                                                        var name = (typeId is null)
+                                                        ? null
+                                                        : TypeEquipments.FirstOrDefault(t => t.Id == typeId.Value)?.Name;
+                                                    }
+                                                    @if (name is null)
+                                                    {
+                                                        <div>@L.Loc("Select...")</div>
+                                                    }
+                                                    @name
+                                                </CellDisplayTemplate>
+
+                                                <!-- EDIT -->
+                                                <CellEditTemplate Context="ctx">
+                                                    @{
+                                                        var eg = ctx.EditModel as EquipmentGroupRow;
+                                                    }
+
+                                                    @if (eg is not null)
+                                                    {
+                                                        <DxComboBox TData="LookupItem" TValue="Guid?"
+                                                                    Data="@TypeEquipmentsSorted"
+                                                                    @bind-Value="eg.TypeEquipmentId"
+                                                                    ValueFieldName="Id"
+                                                                    TextFieldName="Name"
+                                                                    ValidationEnabled="false"
+                                                                    AllowUserInput="false"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("Select...")" />
+                                                    }
+                                                </CellEditTemplate>
+
+                                                <!-- Fila de filtro: combo con "All" + botón de limpiar -->
+                                                <FilterRowCellTemplate Context="context">
+                                                    <MlxFilterOperationType FilterContext="context">
+                                                        <DxComboBox TData="LookupItem" TValue="Guid?"
+                                                                    Data="@TypeEquipmentsSorted"
+                                                                    Value="@(context.FilterRowValue as Guid?)"
+                                                                    ValueChanged="@( (Guid? v) => context.FilterRowValue = v )"
+                                                                    ValueFieldName="Id"
+                                                                    TextFieldName="Name"
+                                                                    AllowUserInput="false"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+
+                                            <DxGridDataColumn FieldName="@nameof(EquipmentGroupRow.Quantity)" Caption="@L.Loc("Quantity")" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                                                <FilterRowCellTemplate Context="ctx">
+                                                    <MlxFilterOperationType FilterContext="ctx">
+                                                        <DxSpinEdit TValue="int?"
+                                                                    Value="@(ctx.FilterRowValue as int?)"
+                                                                    ValueChanged="@((int? v) => ctx.FilterRowValue = v)"
+                                                                    MinValue="0"
+                                                                    ShowSpinButtons="true"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+                                        </Columns>
+                                    </DxGrid>
+                                </div>
+                            </DxTabPage>
+
+                            <!-- Routes -->
+                            <DxTabPage Text="@($"{L.Loc("Routes")} ({(area?.Routes?.Count ?? 0)})")">
+                                @{
+                                    var totalRt = area?.Routes?.Count ?? 0;
+                                    var pageCountRt = GetPageCount(area?.Routes, PageSizeDetailEffective);
+                                }
+                                <div class="wl-subtab-scroll">
+                                    <div class="mlx-panel-header wl-sticky-sub">
+                                        <div class="mlx-panel-bar-action" style="margin-left:auto">
+                                            <button name="action-add" title="@L.Loc("Add")"
+                                                    @onclick="@(EventCallback.Factory.Create(this, () => { if (area != null) AddRoute(area); }))">
+                                                <i class="mlx-ico-add"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <DxGrid TData="RouteRow"
+                                            CssClass="mlx-grid dxbl-grid-detail"
+                                            Data="@(area?.Routes)"
+                                            EditMode="GridEditMode.EditCell"
+                                            ShowGroupPanel="false"
+                                            ShowFilterRow="true"
+                                            PageSize="@PageSizeDetailEffective"
+                                            PageIndex="@(area?.PageIndex_Routes ?? 0)"
+                                            PageIndexChanged="@(EventCallback.Factory.Create<int>(this, (int i) => { if (area != null) OnPageIndexRoutesChanged(area, i); }))"
+                                            PagerVisible="false"
+                                            SelectionMode="GridSelectionMode.Multiple"
+                                            AllowSelectRowByClick="true"
+                                            SelectedDataItems="@(area?.SelectedRoutes?.Cast<object>().ToList() ?? new List<object>())"
+                                            SelectedDataItemsChanged="@(EventCallback.Factory.Create<IReadOnlyList<object>>(this, (IReadOnlyList<object> newSel) => { if (area != null) OnSelectedRoutesChanged(area, newSel); }))"
+                                            EditModelSaving="OnRouteEditModelSaving"
+                                            DataItemDeleting="OnRouteDataItemDeleting"
+                                            CustomizeElement="OnCustomizeGridElement"
+                                            EditOnKeyPress="true">
+                                        <Columns>
+                                            <DxGridSelectionColumn Width="40px" ShowInColumnChooser="false" AllowSelectAll="false" />
+
+                                            <DxGridDataColumn FieldName="@nameof(RouteRow.ArrivalAreaId)"
+                                                              Caption="@L.Loc("Arrival area")"
+                                                              FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                                <!-- DISPLAY -->
+                                                <CellDisplayTemplate Context="ctx">
+                                                    @{
+                                                        Guid? areaId = null;
+                                                        if (ctx.Value is Guid g) areaId = g;
+
+                                                        var name = (areaId is null)
+                                                        ? null
+                                                        : AreasLookup.FirstOrDefault(a => a.Id == areaId.Value)?.Name;
+                                                    }
+                                                    @if (name is null)
+                                                    {
+                                                        <div>@L.Loc("Select...")</div>
+                                                    }
+                                                    @name
+                                                </CellDisplayTemplate>
+
+                                                <!-- EDIT -->
+                                                <CellEditTemplate Context="ctx">
+                                                    @{
+                                                        var r = ctx.EditModel as RouteRow;
+                                                    }
+                                                    @if (r is not null)
+                                                    {
+                                                        <DxComboBox TData="LookupItem" TValue="Guid?"
+                                                                    Data="@AreasLookupSorted"
+                                                                    @bind-Value="r.ArrivalAreaId"
+                                                                    ValueFieldName="Id"
+                                                                    TextFieldName="Name"
+                                                                    ValidationEnabled="false"
+                                                                    AllowUserInput="false"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("Select...")" />
+                                                    }
+                                                </CellEditTemplate>
+
+                                                <!-- FILTER TEMPLATE -->
+                                                <FilterRowCellTemplate Context="context">
+                                                    <MlxFilterOperationType FilterContext="context">
+                                                        <DxComboBox TData="LookupItem" TValue="Guid?"
+                                                                    Data="@AreasLookupSorted"
+                                                                    Value="@(context.FilterRowValue as Guid?)"
+                                                                    ValueChanged="@( (Guid? v) => context.FilterRowValue = v )"
+                                                                    ValueFieldName="Id"
+                                                                    TextFieldName="Name"
+                                                                    AllowUserInput="false"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+
+                                            </DxGridDataColumn>
+
+
+                                            <DxGridDataColumn FieldName="@nameof(RouteRow.TimeMin)" Caption="@L.Loc("Time duration")" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+
+                                                <!-- DISPLAY -->
+                                                <CellDisplayTemplate Context="ctx">
+                                                    @{
+                                                        int? value = ctx.Value as int?;
+                                                        if (value is null && ctx.Value is int v)
+                                                            value = v;
+                                                    }
+
+                                                    <span class="mlx-timeinput">
+                                                        <TimeInput TNumber="int?"
+                                                                   Value="@value"
+                                                                   Format="hhmmss"
+                                                                   DisplayOnly="true" />
+                                                    </span>
+                                                </CellDisplayTemplate>
+
+                                                <!-- EDIT -->
+                                                <CellEditTemplate Context="ctx">
+                                                    @{
+                                                        var r = ctx.EditModel as RouteRow;
+                                                    }
+                                                    @if (r is not null)
+                                                    {
+                                                        <span class="mlx-timeinput">
+                                                            <TimeInput TNumber="int?"
+                                                                       @bind-Value="r.TimeMin"
+                                                                       Format="hhmmss" />
+                                                        </span>
+                                                    }
+                                                </CellEditTemplate>
+
+                                                <!-- FILTER -->
+                                                <FilterRowCellTemplate Context="ctx">
+                                                    <MlxFilterOperationType FilterContext="ctx">
+                                                        <TimeInput TNumber="int?"
+                                                                   Value="@(ctx.FilterRowValue as int?)"
+                                                                   ValueChanged="@(v => ctx.FilterRowValue = v)"
+                                                                   IsFilter="true"
+                                                                   Format="hhmmss" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+
+                                            <DxGridDataColumn FieldName="@nameof(RouteRow.Bidirectional)" Caption="@L.Loc("Bidirectional")" FilterRowOperatorType="GridFilterRowOperatorType.Equal">
+                                                <FilterRowCellTemplate Context="ctx">
+                                                    <MlxFilterOperationType FilterContext="ctx">
+                                                        <DxComboBox TData="ComboGeneric<bool?>" TValue="bool?"
+                                                                    Data="@_boolFilterItems"
+                                                                    Value="(bool?)ctx.FilterRowValue"
+                                                                    ValueChanged="@((bool? v) => ctx.FilterRowValue = v)"
+                                                                    ValueFieldName="Value"
+                                                                    TextFieldName="Description"
+                                                                    AllowUserInput="false"
+                                                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                    NullText="@L.Loc("All")" />
+                                                    </MlxFilterOperationType>
+                                                </FilterRowCellTemplate>
+                                            </DxGridDataColumn>
+                                        </Columns>
+                                    </DxGrid>
+                                </div>
+                            </DxTabPage>
+                        </DxTabs>
+                    </DetailRowTemplate>
+                </DxGrid>
+
+                <!-- Paginador sticky (Areas) -->
+                <div class="mlx-pager-pager-layout wl-sticky-pager">
+                    <div class="mlx-pager-left-group">
+                        <DxPager PageCount="@PageCountAreas"
+                                 ActivePageIndex="@ActivePageIndexAreas"
+                                 SwitchToInputBoxButtonCount="4"
+                                 NavigationMode="PagerNavigationMode.InputBox"
+                                 ActivePageIndexChanged="@(EventCallback.Factory.Create<int>(this, OnActivePageIndexAreasChanged))" />
+                        <DxComboBox TData="KeyValuePair<string,int>" TValue="int"
+                                    Data="@PageSizeMainOptions"
+                                    CssClass="mlx-form-select"
+                                    Value="@PageSizeMain"
+                                    ValueChanged="@(EventCallback.Factory.Create<int>(this, OnPageSizeChanged))"
+                                    ValueFieldName="Value"
+                                    TextFieldName="Key"
+                                    AllowUserInput="false" />
+                        <span class="mlx-pager-records">@PagerRecordsAreas</span>
+                    </div>
+                    <div class="mlx-pager-right-group">
+                        @if (SelectedAreas.Any())
+                        {
+                            <button class="btn-mlx-grid-select"
+                                    @onclick="@(EventCallback.Factory.Create(this, UnselectAllAreas))">
+                                <span>@SelectedRecordsAreas</span>
+                                <span class="mlx-separator"></span>
+                                <i class="mlx-ico-close"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="mlx-grid-pager-no-selected">@SelectedRecordsAreas</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </DxTabPage>
+    </DxTabs>
+
+    <!-- Footer único -->
+    <div class="mlx-right-sideBar-footer wl-sticky-footer">
+        <button type="button" class="btn-mlx btn-mlx-white-primary"
+                disabled="@(!HasPendingChanges)"
+                @onclick="@(EventCallback.Factory.Create(this, CancelButtonClick))">
+            @L.Loc("Cancel")
+        </button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary"
+                disabled="@isGlobalSaveDisabled"
+                @onclick="@(EventCallback.Factory.Create(this, SaveEvent))">
+            @L.Loc("Save")
+        </button>
+    </div>
+</div>
+
+<!-- ===== Modal de confirmación de borrado usando DialogComponent ===== -->
+@if (showDeleteConfirmation)
+{
+    <DialogComponent Title="@DeleteTitle" CloseButtonClicked="@(HideDeleteConfirmation)">
+        <BodyContent>
+            <p class="margin-none">@DeleteMessage</p>
+
+            @if (IsGlobalDelete && DeleteGroups?.Any() == true)
+            {
+                <div class="wl-modal-groups">
+                    @foreach (var group in DeleteGroups)
+                    {
+                        if (group.Items == null || !group.Items.Any())
+                        {
+                            continue;
+                        }
+                        <div class="wl-modal-group">
+                            <div class="wl-modal-group-header">
+                                <span class="wl-modal-group-title">@group.Title</span>
+                                <span class="wl-modal-group-count">(@group.Items.Count)</span>
+                            </div>
+                            <ul class="wl-modal-list">
+                                @foreach (var s in group.Items.Take(8))
+                                {
+                                    <li>@s</li>
+                                }
+                                @if (group.Items.Count > 8)
+                                {
+                                    <li>… @L.Loc("{0} more…", group.Items.Count - 8)</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+            else if (DeletePreview?.Any() ?? false)
+            {
+                <ul class="wl-modal-list">
+                    @foreach (var s in DeletePreview!.Take(8))
+                    {
+                        <li>@s</li>
+                    }
+                    @if (DeletePreview!.Count > 8)
+                    {
+                        <li>… @L.Loc("{0} more…", DeletePreview.Count - 8)</li>
+                    }
+                </ul>
+            }
+
+            <p class="wl-modal-hint">
+                @L.Loc("Changes are pending. Confirm them using the Save button.")
+            </p>
+        </BodyContent>
+        <FooterContent>
+            <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="HideDeleteConfirmation">@L.Loc("No")</button>
+            <button type="button" class="btn-mlx btn-mlx-blue-primary" @onclick="ConfirmDelete">@L.Loc("Yes")</button>
+        </FooterContent>
+    </DialogComponent>
+}
+
+
+@code {
+    [Parameter] public Guid LayoutId { get; set; }
+    [Parameter] public bool IsSwitchOn { get; set; }
+    [Parameter] public EventCallback<bool> IsSwitchOnChanged { get; set; }
+
+    private int ActiveTabIndex { get; set; }
+
+    // ======== Paginación / paneles ========
+    // Main page size options (incluye All = -1)
+    private List<KeyValuePair<string, int>> PageSizeMainOptions =>
+    new() { new("25", 25), new("50", 50), new("100", 100), new("200", 200), new(L.Loc("All"), -1) };
+
+    private List<KeyValuePair<string, int>> PageSizeDetailOptions =>
+       new() { new("10", 10), new("20", 20), new("50", 50), new("100", 100), new(L.Loc("All"), -1) };
+
+    private int PageSizeMain { get; set; } = -1;     // -1 => All
+    private int PageSizeDetail { get; set; } = -1;   // -1 => All
+
+    private int PageSizeDetailEffective => PageSizeDetail == -1 ? int.MaxValue : PageSizeDetail;
+
+    // Pager Processes
+    private int PageIndexProcesses { get; set; }
+    private int ActivePageIndexProcesses { get; set; }
+    private int PageCountProcesses { get; set; } = 1;
+    private int TotalItemsProcesses { get; set; }
+    private string PagerRecordsProcesses { get; set; } = string.Empty;
+    // Pager Areas
+    private int PageIndexAreas { get; set; }
+    private int ActivePageIndexAreas { get; set; }
+    private int PageCountAreas { get; set; } = 1;
+    private int TotalItemsAreas { get; set; }
+    private string PagerRecordsAreas { get; set; } = string.Empty;
+
+    // Selección / refs
+    private List<ProcessRow> SelectedProcesses { get; } = new();
+    private List<AreaRow> SelectedAreas { get; } = new();
+    private string SelectedRecordsProcesses { get; set; } = string.Empty;
+    private string SelectedRecordsAreas { get; set; } = string.Empty;
+    private IGrid? ProcessGridRef { get; set; }
+    private IGrid? AreaGridRef { get; set; }
+
+    private bool HasAnySelection =>
+      SelectedProcesses.Any() ||
+      SelectedAreas.Any() ||
+      Processes.Any(p => p.SelectedDirections?.Any() ?? false) ||
+      Areas.Any(a =>
+          (a.SelectedZones?.Any() ?? false) ||
+          (a.SelectedEquipments?.Any() ?? false) ||
+          (a.SelectedRoutes?.Any() ?? false)
+      );
+
+    private Guid WarehouseId { get; set; }
+    private List<ProcessRow> Processes { get; set; } = new();
+    private List<AreaRow> Areas { get; set; } = new();
+    private List<LookupFlowItem> Flows { get; set; } = new();
+    private Dictionary<Guid, FlowType> flowTypeById = new();
+    private List<LookupItem> AreasLookup { get; set; } = new();
+    private List<LookupItem> TypeEquipments { get; set; } = new();
+
+    // ===== Modal Delete (DialogComponent) =====
+    private bool showDeleteConfirmation { get; set; }
+    private DeleteScopeKind DeleteScope { get; set; } = DeleteScopeKind.None;
+    private ProcessRow? OwnerProcess { get; set; }
+    private AreaRow? OwnerArea { get; set; }
+    private List<object> SnapshotToDelete { get; set; } = new();
+    private List<string>? DeletePreview { get; set; }
+    private string DeleteTitle { get; set; } = string.Empty;
+    private string DeleteMessage { get; set; } = string.Empty;
+
+    private bool IsGlobalDelete { get; set; }
+    private List<DeleteGroupInfo> DeleteGroups { get; set; } = new();
+
+    private enum DeleteScopeKind { None, Global, Processes, Areas, Directions, Zones, Equipments, Routes }
+
+    // ===== Buckets de eliminaciones =====
+    private readonly List<Guid> PendingDeleteProcessIds = new();
+    private readonly List<Guid> PendingDeleteAreaIds = new();
+    private readonly List<Guid> PendingDeleteDirectionIds = new();
+    private readonly List<Guid> PendingDeleteZoneIds = new();
+    private readonly List<Guid> PendingDeleteEquipmentIds = new();
+    private readonly List<Guid> PendingDeleteRouteIds = new();
+
+    // ===== Buckets para cmabio de type en processes =====
+    private readonly List<(Guid ProcessId, string OldType, string NewType)> PendingProcessTypeChanges = new();
+
+    private int TotalPendingDeletes =>
+        PendingDeleteProcessIds.Count +
+        PendingDeleteAreaIds.Count +
+        PendingDeleteDirectionIds.Count +
+        PendingDeleteZoneIds.Count +
+        PendingDeleteEquipmentIds.Count +
+        PendingDeleteRouteIds.Count;
+
+    private bool HasPendingDeletes => TotalPendingDeletes > 0;
+
+    private bool HasPendingChanges => GetAllRows().Any(r => r.RowState != RowState.Unchanged) || HasPendingDeletes;
+
+    private int TotalPendingChanges => GetAllRows().Count(r => r.RowState != RowState.Unchanged) + TotalPendingDeletes;
+
+    private bool isGlobalSaveDisabled => !HasPendingChanges;
+
+    // -------- Success Message -------- //
+    private bool ShowSaveSuccess { get; set; }
+    private string SuccessMessage { get; set; } = string.Empty;
+    private int _saveSuccessToken = 0; // To avoid race conditions if the user saves multiple times quickly
+    // --------------------------------- //
+
+    private CancellationTokenSource? _processSyncCts;
+    private bool _processSyncInProgress;
+    private int BasePageSizeProcesses => PageSizeMain == -1 ? int.MaxValue : Math.Max(1, PageSizeMain);
+    private int PageSizeProcessesEffective => BasePageSizeProcesses;
+
+    private CancellationTokenSource? _areasSyncCts;
+    private bool _areasSyncInProgress;
+    private int BasePageSizeAreas => PageSizeMain == -1 ? int.MaxValue : Math.Max(1, PageSizeMain);
+    private int PageSizeAreasEffective => BasePageSizeAreas;
+
+    private List<ComboGeneric<bool?>> _boolFilterItems = new();
+
+    private readonly HashSet<(Guid RowId, string Field)> _editedCells = new(); // Cells that were edited
+    private readonly Dictionary<Guid, Dictionary<string, object?>> _baseValues = new();
+    
+
+    // snapshots por “dataset”
+    private readonly Dictionary<Guid, Dictionary<string, object?>> _baseAreas = new();
+    private readonly Dictionary<Guid, Dictionary<string, object?>> _baseZones = new();
+    private readonly Dictionary<Guid, Dictionary<string, object?>> _baseRoutes = new();
+    private readonly Dictionary<Guid, Dictionary<string, object?>> _baseEquips = new();
+    private readonly Dictionary<Guid, Dictionary<string, object?>> _baseProcesses = new();
+    private readonly Dictionary<Guid, Dictionary<string, object?>> _baseDirections = new();
+
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<Type, System.Reflection.PropertyInfo?> _idPropCache = new(); // Optimize reflection when searching for the Id property of each Row
+
+    protected override void OnInitialized()
+    {
+        LoadAll();
+        ReloadProcessesPager();
+        ReloadAreasPager();
+        SelectedRecordsProcesses = $"{L.Loc("Selected")}: 0";
+        SelectedRecordsAreas = $"{L.Loc("Selected")}: 0";
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            RequestProcessPagerSync(); // 1 sola vez, no “a cada rato”
+    }
+
+    private void LoadAll()
+    {
+        var layout = Da.GetLayoutByLayout(LayoutId);
+        WarehouseId = layout.WarehouseId;
+
+        // Processes + Directions
+        var processes = Da.GetProcesses(LayoutId);
+        Processes = processes.Select(p => new ProcessRow
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Type = p.Type,
+            IsInitProcess = p.IsInitProcess,
+            MinTime = p.MinTime,
+            PreprocessTime = p.PreprocessTime ?? 0,
+            PostprocessTime = p.PostprocessTime ?? 0,
+            FlowId = p.FlowId,
+            AreaId = p.AreaId,
+            Directions = (p.ProcessDirectionPropertiesEntry ?? new List<ProcessDirectionProperty>())
+                .Select(d => new ProcessDirectionRow
+                {
+                    Id = d.Id,
+                    StartProcessId = p.Id,
+                    EndProcessId = d.EndProcessId,
+                    Percentage = (decimal)d.Percentage,
+                    IsEnd = d.IsEnd,
+                    RowState = RowState.Unchanged
+                }).ToList(),
+            SelectedDirections = new(),
+            PageIndex_Dir = 0,
+            ActivePageIndex_Dir = 0,
+            RowState = RowState.Unchanged
+        }).ToList();
+
+        // Areas + hijos
+        var areas = Da.GetAreas(LayoutId);
+        Areas = areas.Select(a => new AreaRow
+        {
+            Id = a.Id,
+            Name = a.Name,
+            Type = a.Type,
+            Zones = Da.GetZones(a.Id).Select(z => new ZoneRow
+            {
+                Id = z.Id,
+                AreaId = z.AreaId,
+                Name = z.Name,
+                Type = z.Type,
+                MaxContainers = z.MaxContainers,
+                MaxEquipments = z.MaxEquipments,
+                RowState = RowState.Unchanged
+            }).ToList(),
+            Routes = Da.GetRoutes(a.Id).Select(r => new RouteRow
+            {
+                Id = r.Id,
+                DepartureAreaId = r.DepartureAreaId,
+                ArrivalAreaId = r.ArrivalAreaId,
+                TimeMin = r.TimeMin ?? 0,
+                Bidirectional = r.Bidirectional,
+                RowState = RowState.Unchanged
+            }).ToList(),
+            Equipments = Da.GetEquipmentsLayout(a.Id).Select(e => new EquipmentGroupRow
+            {
+                Id = e.Id,
+                AreaId = e.AreaId,
+                Name = e.Name,
+                TypeEquipmentId = e.TypeEquipmentId,
+                Quantity = e.Equipments,
+                RowState = RowState.Unchanged
+            }).ToList(),
+            SelectedZones = new(),
+            SelectedEquipments = new(),
+            SelectedRoutes = new(),
+            PageIndex_Zones = 0,
+            PageIndex_Equipments = 0,
+            PageIndex_Routes = 0,
+            ActivePageIndex_Zones = 0,
+            ActivePageIndex_Equipments = 0,
+            ActivePageIndex_Routes = 0,
+            RowState = RowState.Unchanged
+        }).ToList();
+
+        // Lookups
+        Flows = Da.GetFlows(WarehouseId).Select(f => new LookupFlowItem { Id = f.Id, Name = f.Name, Type = GetFlowTypeEnum(f.Type) }).ToList();
+        flowTypeById = Flows.Where(f => f.Id != Guid.Empty).GroupBy(f => f.Id).ToDictionary(g => g.Key, g => g.First().Type);
+        AreasLookup = Areas.Select(a => new LookupItem { Id = a.Id, Name = a.Name }).ToList();
+        TypeEquipments = Da.GetTypeEquipments(WarehouseId).Select(t => new LookupItem { Id = t.Id, Name = t.Name }).ToList();
+
+        _boolFilterItems = new()
+        {
+            new ComboGeneric<bool?> { Value = true,  Description = L.Loc("True") },
+            new ComboGeneric<bool?> { Value = false, Description = L.Loc("False") }
+        };
+
+        // Limpieza de deletes pendientes al recargar
+        ClearAllPendingDeletes();
+        
+        InitBaseSnapshot(Areas, _baseAreas, AreaFields, clearEditedCells: true);
+        InitBaseSnapshot(Processes, _baseProcesses, ProcessFields);
+        InitBaseSnapshot(Areas.SelectMany(a => a.Zones ?? new List<ZoneRow>()), _baseZones, ZoneFields);
+        InitBaseSnapshot(Areas.SelectMany(a => a.Routes ?? new List<RouteRow>()), _baseRoutes, RouteFields);
+        InitBaseSnapshot(Areas.SelectMany(a => a.Equipments ?? new List<EquipmentGroupRow>()), _baseEquips, EquipFields);
+        InitBaseSnapshot(Processes.SelectMany(p => p.Directions ?? new List<ProcessDirectionRow>()), _baseDirections, DirectionFields);
+
+        ReloadProcessesPager();
+        ReloadAreasPager();
+    }
+
+    private Task OnSwitchView(bool state) => IsSwitchOnChanged.InvokeAsync(state);
+    private void OnTabChanged(int index)
+    {
+        ActiveTabIndex = index;
+        if (index == 0)
+            RequestProcessPagerSync();
+        else if (index == 1)
+            RequestAreasPagerSync();
+    }
+
+    // ======== Helpers ========
+    private static bool IsNew(ITrackableRow? r) => r is not null && r.RowState == RowState.New;
+
+    private int GetPageCount<T>(ICollection<T>? data, int pageSize)
+    {
+        var total = data?.Count ?? 0;
+        if (pageSize <= 0 || pageSize == int.MaxValue) return 1; // "All"
+        var size = Math.Max(1, pageSize);
+        return Math.Max(1, (int)Math.Ceiling((double)total / size));
+    }
+
+
+    private string GetNextName<T>(
+        IEnumerable<T> source,
+        Func<T, string?> nameSelector,
+        string baseName)
+    {
+        if (string.IsNullOrWhiteSpace(baseName))
+            baseName = "New";
+
+        var prefix = "." + baseName.Trim();
+
+        var existing = (source ?? Enumerable.Empty<T>())
+            .Select(nameSelector)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Select(n => n!.Trim())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // Si "New" no existe, regresamos directo
+        if (!existing.Contains(prefix))
+            return prefix;
+
+        // Buscar New1, New2, New3...
+        var index = 1;
+        while (existing.Contains(prefix + index))
+        {
+            index++;
+        }
+
+        return prefix + index;
+    }
+
+    // ======== Agrupación: mostrar nombres en vez de GUID ========
+    private void OnProcessesCustomizeGroupValueDisplayText(GridCustomizeGroupValueDisplayTextEventArgs e)
+    {
+        if (e.FieldName == nameof(ProcessRow.FlowId))
+        {
+            if (e.Value is Guid gid)
+            {
+                var name = Flows.FirstOrDefault(f => f.Id == gid)?.Name;
+                if (!string.IsNullOrWhiteSpace(name)) e.DisplayText = name;
+            }
+        }
+        else if (e.FieldName == nameof(ProcessRow.AreaId))
+        {
+            if (e.Value is Guid gid)
+            {
+                var name = AreasLookup.FirstOrDefault(a => a.Id == gid)?.Name;
+                if (!string.IsNullOrWhiteSpace(name)) e.DisplayText = name;
+            }
+        }
+
+        RequestProcessPagerSync();
+    }
+
+    private void OnAreasCustomizeGroupValueDisplayText(GridCustomizeGroupValueDisplayTextEventArgs e)
+    {
+        if (e.FieldName == nameof(AreaRow.Type)) // If you group by Type: display pretty/localized text
+        {
+            if (e.Value is string type && !string.IsNullOrWhiteSpace(type))
+                e.DisplayText = L.Loc(type);
+        }
+        else if (e.FieldName == nameof(AreaRow.Id)) // If you group by Id (Guid): display the Name of the area
+        {
+            if (e.Value is Guid guid)
+            {
+                var name = Areas?.FirstOrDefault(a => a.Id == guid)?.Name;
+                if (!string.IsNullOrWhiteSpace(name))
+                    e.DisplayText = name;
+            }
+        }
+        RequestAreasPagerSync();
+    }
+
+    // ======== Paginación / selección: PRINCIPALES ========
+    private void ReloadProcessesPager()
+    {
+        TotalItemsProcesses = Processes?.Count ?? 0;
+
+        var size = PageSizeMain == -1 ? Math.Max(1, TotalItemsProcesses) : Math.Max(1, PageSizeMain);
+        PageCountProcesses = Math.Max(1, (int)Math.Ceiling((double)TotalItemsProcesses / size));
+
+        ActivePageIndexProcesses = Math.Clamp(ActivePageIndexProcesses, 0, PageCountProcesses - 1);
+        PageIndexProcesses = ActivePageIndexProcesses;
+        PagerRecordsProcesses = L.Loc("Page {0} of {1}, {2} Items", ActivePageIndexProcesses + 1, PageCountProcesses, TotalItemsProcesses);
+        StateHasChanged();
+    }
+
+    private void ReloadAreasPagerFromGrid(bool callStateHasChanged = true)
+    {
+        if (AreaGridRef is null)
+            return;
+
+        TotalItemsAreas = CountVisibleAreaDataRows();
+
+        var size = PageSizeMain == -1 ? Math.Max(1, TotalItemsAreas) : Math.Max(1, PageSizeMain);
+        PageCountAreas = Math.Max(1, (int)Math.Ceiling((double)TotalItemsAreas / size));
+
+        ActivePageIndexAreas = Math.Clamp(ActivePageIndexAreas, 0, PageCountAreas - 1);
+        PageIndexAreas = ActivePageIndexAreas;
+
+        PagerRecordsAreas = L.Loc("Page {0} of {1}, {2} Items",
+            ActivePageIndexAreas + 1, PageCountAreas, TotalItemsAreas);
+
+        if (callStateHasChanged) StateHasChanged();
+    }
+
+    private int CountVisibleAreaDataRows()
+    {
+        if (AreaGridRef is null) return 0;
+
+        var visible = AreaGridRef.GetVisibleRowCount();
+        var count = 0;
+
+        for (var i = 0; i < visible; i++)
+            if (AreaGridRef.GetDataItem(i) is AreaRow)
+                count++;
+
+        return count;
+    }
+
+    private void SyncAreasPageSizeExtraToGrouping()
+    {
+        if (AreaGridRef is null || PageSizeMain == -1)
+            return;
+
+        var baseSize = Math.Max(1, PageSizeMain);
+
+        var start = PageIndexAreas * baseSize;
+        var remaining = Math.Max(0, TotalItemsAreas - start);
+        var expectedDataRows = Math.Min(baseSize, remaining);
+
+        var dataRows = CountVisibleAreaDataRows();
+        var delta = expectedDataRows - dataRows;
+
+        ReloadAreasPagerFromGrid(callStateHasChanged: false);
+        StateHasChanged();
+    }
+
+    private void ReloadAreasPager()
+    {
+        RequestAreasPagerSync();
+    }
+
+    private void OnActivePageIndexProcessesChanged(int page)
+    {
+        ActivePageIndexProcesses = page;
+        PageIndexProcesses = page;
+        PagerRecordsProcesses = L.Loc("Page {0} of {1}, {2} Items", ActivePageIndexProcesses + 1, PageCountProcesses, TotalItemsProcesses);
+        StateHasChanged();
+    }
+
+    private void OnActivePageIndexAreasChanged(int page)
+    {
+        ActivePageIndexAreas = page;
+        PageIndexAreas = page;
+        PagerRecordsAreas = L.Loc("Page {0} of {1}, {2} Items", ActivePageIndexAreas + 1, PageCountAreas, TotalItemsAreas);
+        StateHasChanged();
+    }
+
+    private void OnPageIndexProcessesChanged(int idx)
+    {
+        PageIndexProcesses = idx;
+        ActivePageIndexProcesses = idx;
+        RequestProcessPagerSync();
+    }
+
+    private void OnPageIndexAreasChanged(int idx)
+    {
+        PageIndexAreas = idx;
+        ActivePageIndexAreas = idx;
+        RequestAreasPagerSync();
+    }
+
+    private void OnSelectedProcessesChanged(IReadOnlyList<object> newSel)
+    {
+        SelectedProcesses.Clear();
+        if (newSel is not null)
+        {
+            foreach (var o in newSel)
+                if (o is ProcessRow pr) SelectedProcesses.Add(pr);
+        }
+        SelectedRecordsProcesses = $"{L.Loc("Selected")}: {SelectedProcesses.Count}";
+        StateHasChanged();
+    }
+
+    private void OnSelectedAreasChanged(IReadOnlyList<object> newSel)
+    {
+        SelectedAreas.Clear();
+        if (newSel is not null)
+        {
+            foreach (var o in newSel)
+                if (o is AreaRow ar) SelectedAreas.Add(ar);
+        }
+        SelectedRecordsAreas = $"{L.Loc("Selected")}: {SelectedAreas.Count}";
+        StateHasChanged();
+    }
+
+    private async Task UnselectAllProcesses()
+    {
+        SelectedProcesses.Clear();
+        if (ProcessGridRef is not null) await ProcessGridRef.DeselectAllAsync();
+        SelectedRecordsProcesses = $"{L.Loc("Selected")}: 0";
+    }
+
+    private async Task UnselectAllAreas()
+    {
+        SelectedAreas.Clear();
+        if (AreaGridRef is not null) await AreaGridRef.DeselectAllAsync();
+        SelectedRecordsAreas = $"{L.Loc("Selected")}: 0";
+    }
+
+    private void OnPageSizeChanged(int newSize)
+    {
+        PageSizeMain = newSize;
+        ActivePageIndexProcesses = 0;
+        ActivePageIndexAreas = 0;
+
+        RequestProcessPagerSync();
+        RequestAreasPagerSync();
+    }
+
+    // ======== Paginación / selección: DETALLES ========
+    // Directions (por Process)
+    private void OnPageIndexDirectionsChanged(ProcessRow owner, int idx)
+    {
+        owner.PageIndex_Dir = idx;
+        owner.ActivePageIndex_Dir = idx;
+        StateHasChanged();
+    }
+    private void OnActivePageIndexDirectionsChanged(ProcessRow owner, int page)
+    {
+        owner.ActivePageIndex_Dir = page;
+        owner.PageIndex_Dir = page;
+        StateHasChanged();
+    }
+    private void OnSelectedDirectionsChanged(ProcessRow owner, IReadOnlyList<object> newSel)
+    {
+        owner.SelectedDirections.Clear();
+        if (newSel is not null)
+        {
+            foreach (var o in newSel)
+                if (o is ProcessDirectionRow r) owner.SelectedDirections.Add(r);
+        }
+        StateHasChanged();
+    }
+    private void ClearSelectedDirections(ProcessRow owner)
+    {
+        owner.SelectedDirections.Clear();
+        StateHasChanged();
+    }
+
+    // Zones (por Area)
+    private void OnPageIndexZonesChanged(AreaRow owner, int idx)
+    {
+        owner.PageIndex_Zones = idx;
+        owner.ActivePageIndex_Zones = idx;
+        StateHasChanged();
+    }
+    private void OnActivePageIndexZonesChanged(AreaRow owner, int page)
+    {
+        owner.ActivePageIndex_Zones = page;
+        owner.PageIndex_Zones = page;
+        StateHasChanged();
+    }
+    private void OnSelectedZonesChanged(AreaRow owner, IReadOnlyList<object> newSel)
+    {
+        owner.SelectedZones.Clear();
+        if (newSel is not null)
+        {
+            foreach (var o in newSel)
+                if (o is ZoneRow z) owner.SelectedZones.Add(z);
+        }
+        StateHasChanged();
+    }
+    private void ClearSelectedZones(AreaRow owner)
+    {
+        owner.SelectedZones.Clear();
+        StateHasChanged();
+    }
+
+    // Equipments (por Area)
+    private void OnPageIndexEquipmentsChanged(AreaRow owner, int idx)
+    {
+        owner.PageIndex_Equipments = idx;
+        owner.ActivePageIndex_Equipments = idx;
+        StateHasChanged();
+    }
+    private void OnActivePageIndexEquipmentsChanged(AreaRow owner, int page)
+    {
+        owner.ActivePageIndex_Equipments = page;
+        owner.PageIndex_Equipments = page;
+        StateHasChanged();
+    }
+    private void OnSelectedEquipmentsChanged(AreaRow owner, IReadOnlyList<object> newSel)
+    {
+        owner.SelectedEquipments.Clear();
+        if (newSel is not null)
+        {
+            foreach (var o in newSel)
+                if (o is EquipmentGroupRow e) owner.SelectedEquipments.Add(e);
+        }
+        StateHasChanged();
+    }
+    private void ClearSelectedEquipments(AreaRow owner)
+    {
+        owner.SelectedEquipments.Clear();
+        StateHasChanged();
+    }
+
+    // Routes (por Area)
+    private void OnPageIndexRoutesChanged(AreaRow owner, int idx)
+    {
+        owner.PageIndex_Routes = idx;
+        owner.ActivePageIndex_Routes = idx;
+        StateHasChanged();
+    }
+    private void OnActivePageIndexRoutesChanged(AreaRow owner, int page)
+    {
+        owner.ActivePageIndex_Routes = page;
+        owner.PageIndex_Routes = page;
+        StateHasChanged();
+    }
+    private void OnSelectedRoutesChanged(AreaRow owner, IReadOnlyList<object> newSel)
+    {
+        owner.SelectedRoutes.Clear();
+        if (newSel is not null)
+        {
+            foreach (var o in newSel)
+                if (o is RouteRow r) owner.SelectedRoutes.Add(r);
+        }
+        StateHasChanged();
+    }
+    private void ClearSelectedRoutes(AreaRow owner)
+    {
+        owner.SelectedRoutes.Clear();
+        StateHasChanged();
+    }
+
+    private void OnPageSizeDetailChanged(int newSize)
+    {
+        PageSizeDetail = newSize;
+
+        foreach (var p in Processes)
+        {
+            p.PageIndex_Dir = 0;
+            p.ActivePageIndex_Dir = 0;
+        }
+        foreach (var a in Areas)
+        {
+            a.PageIndex_Zones = 0; a.ActivePageIndex_Zones = 0;
+            a.PageIndex_Equipments = 0; a.ActivePageIndex_Equipments = 0;
+            a.PageIndex_Routes = 0; a.ActivePageIndex_Routes = 0;
+        }
+        StateHasChanged();
+    }
+
+    private IEnumerable<ITrackableRow> GetAllRows()
+    {
+        foreach (var p in Processes)
+        {
+            if (p is null) continue;
+            yield return p;
+            if (p.Directions != null)
+                foreach (var d in p.Directions)
+                    if (d is not null) yield return d;
+        }
+
+        foreach (var a in Areas)
+        {
+            if (a is null) continue;
+            yield return a;
+
+            if (a.Zones != null)
+                foreach (var z in a.Zones)
+                    if (z is not null) yield return z;
+
+            if (a.Equipments != null)
+                foreach (var e in a.Equipments)
+                    if (e is not null) yield return e;
+
+            if (a.Routes != null)
+                foreach (var r in a.Routes)
+                    if (r is not null) yield return r;
+        }
+    }
+
+    private static (bool HasChanges, List<string> ChangedFields) DetectChanges(object? editModel, object? dataItem)
+    {
+        if (editModel == null || dataItem == null) return (false, new());
+
+        var type = dataItem.GetType();
+        if (editModel.GetType() != type) return (true, new());
+
+        var changed = new List<string>();
+
+        foreach (var prop in type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+        {
+            if (!prop.CanRead || !prop.CanWrite) continue;
+            if (prop.Name == "Id" || prop.Name == nameof(ITrackableRow.RowState) || prop.Name.EndsWith("Count", StringComparison.Ordinal)) continue;
+
+            if (prop.PropertyType != typeof(string) &&
+                typeof(System.Collections.IEnumerable).IsAssignableFrom(prop.PropertyType))
+                continue;
+
+            var oldValue = prop.GetValue(dataItem);
+            var newValue = prop.GetValue(editModel);
+            if (!Equals(oldValue, newValue)) changed.Add(prop.Name);
+        }
+        return (changed.Count > 0, changed);
+    }
+
+    // General method for the Add button
+    private void AddCurrent()
+    {
+        switch (CurrentTab)
+        {
+            case TabKind.Processes:
+                AddProcess();
+                break;
+
+            case TabKind.Areas:
+                AddArea();
+                break;
+        }
+    }
+
+    // ===== Crear / Eliminar (marcado) =====
+    private void AddProcess()
+    {
+        Processes ??= new();
+
+        var newName = GetNextName(
+            Processes,
+            p => p.Name,
+            L.Loc("New")
+        );
+
+        var newRow = new ProcessRow
+        {
+            Id = Guid.NewGuid(),
+            Name = newName,
+            Directions = new(),
+            SelectedDirections = new(),
+            RowState = RowState.New
+        };
+
+        Processes.Insert(0, newRow);
+
+        ActivePageIndexProcesses = 0;
+        PageIndexProcesses = 0;
+        RequestProcessPagerSync();
+    }
+
+
+    private void AddDirection(ProcessRow parent)
+    {
+        parent.Directions ??= new();
+        var newRow = new ProcessDirectionRow
+        {
+            Id = Guid.NewGuid(),
+            StartProcessId = parent.Id,
+            Percentage = 0m,
+            IsEnd = false,
+            RowState = RowState.New
+        };
+        parent.Directions.Insert(0, newRow);
+        parent.PageIndex_Dir = 0;
+        StateHasChanged();
+    }
+
+    private void AddArea()
+    {
+        Areas ??= new();
+
+        var nextName = GetNextName(
+            Areas,
+            a => a.Name,
+            L.Loc("New")
+        );
+
+        var newRow = new AreaRow
+        {
+            Id = Guid.NewGuid(),
+            Name = nextName,
+            Zones = new(),
+            Routes = new(),
+            Equipments = new(),
+            SelectedZones = new(),
+            SelectedEquipments = new(),
+            SelectedRoutes = new(),
+            RowState = RowState.New
+        };
+
+        AreasLookup = Areas
+            .Select(a => new LookupItem { Id = a.Id, Name = a.Name })
+            .ToList();
+
+        Areas.Insert(0, newRow);
+
+        ActivePageIndexAreas = 0;
+        PageIndexAreas = 0;
+        ReloadAreasPager();
+        RequestAreasPagerSync();
+
+        StateHasChanged();
+    }
+
+    private void AddZone(AreaRow area)
+    {
+        area.Zones ??= new();
+
+        var newName = GetNextName(
+            area.Zones,
+            z => z.Name,
+            L.Loc("New")
+        );
+
+        var newRow = new ZoneRow
+        {
+            Id = Guid.NewGuid(),
+            AreaId = area.Id,
+            Name = newName,
+            RowState = RowState.New,
+            MaxContainers = 0,  
+            MaxEquipments = 0,
+            Type = area.Type == "Storage" ? null : area.Type
+        };
+        area.Zones.Insert(0, newRow);
+        area.PageIndex_Zones = 0;
+
+        StateHasChanged();
+    }
+
+    private void AddEquipment(AreaRow area)
+    {
+        area.Equipments ??= new();
+
+        var newName = GetNextName(
+            area.Equipments,
+            e => e.Name,
+            L.Loc("New")
+        );
+
+        var newRow = new EquipmentGroupRow
+        {
+            Id = Guid.NewGuid(),
+            AreaId = area.Id,
+            Name = newName,
+            Quantity = 1,
+            RowState = RowState.New
+        };
+
+        area.Equipments.Insert(0, newRow);
+        area.PageIndex_Equipments = 0;
+
+        StateHasChanged();
+    }
+
+
+    private void AddRoute(AreaRow area)
+    {
+        area.Routes ??= new();
+        var newRow = new RouteRow
+        {
+            Id = Guid.NewGuid(),
+            DepartureAreaId = area.Id,
+            ArrivalAreaId = null,
+            Bidirectional = false,
+            RowState = RowState.New
+        };
+        area.Routes.Insert(0, newRow);
+        area.PageIndex_Routes = 0;
+
+        StateHasChanged();
+    }
+
+    // ===== EditModelSaving =====
+    private void OnProcessEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        if (e.DataItem is not ProcessRow row || e.EditModel is not ProcessRow edited)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        // Aplica cambios visibles al DataItem
+        CopyTrackedFields(edited, row, ProcessFields);
+
+        // Recalcula vs base
+        RecalcEditedCellsForRow(row, _baseProcesses, ProcessFields);
+
+        StateHasChanged();
+    }
+
+    private void OnProcessDirectionEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        if (e.DataItem is not ProcessDirectionRow row || e.EditModel is not ProcessDirectionRow edited)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        // Aplica cambios visibles al DataItem
+        CopyTrackedFields(edited, row, DirectionFields);
+
+        // Recalcula vs base
+        RecalcEditedCellsForRow(row, _baseDirections, DirectionFields);
+
+        StateHasChanged();
+    }
+
+    private void OnAreaEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        if (e.DataItem is not AreaRow row || e.EditModel is not AreaRow edited)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        // Aplica cambios visibles al DataItem
+        CopyTrackedFields(edited, row, AreaFields);
+
+        // Recalcula vs base
+        RecalcEditedCellsForRow(row, _baseAreas, AreaFields);
+
+        StateHasChanged();
+    }
+
+    private void OnZoneEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        if (e.DataItem is not ZoneRow row || e.EditModel is not ZoneRow edited)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        // Aplica cambios visibles al DataItem
+        CopyTrackedFields(edited, row, ZoneFields);
+
+        // Recalcula vs base
+        RecalcEditedCellsForRow(row, _baseZones, ZoneFields);
+
+        StateHasChanged();
+    }
+
+    private void OnEquipmentEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        if (e.DataItem is not EquipmentGroupRow row || e.EditModel is not EquipmentGroupRow edited)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        // Aplica cambios visibles al DataItem
+        CopyTrackedFields(edited, row, EquipFields);
+
+        // Recalcula vs base
+        RecalcEditedCellsForRow(row, _baseEquips, EquipFields);
+
+        StateHasChanged();
+    }
+
+    private void OnRouteEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        if (e.DataItem is not RouteRow row || e.EditModel is not RouteRow edited)
+        {
+            e.Cancel = true;
+            return;
+        }
+
+        // Aplica cambios visibles al DataItem
+        CopyTrackedFields(edited, row, RouteFields);
+
+        // Recalcula vs base
+        RecalcEditedCellsForRow(row, _baseRoutes, RouteFields);
+
+        StateHasChanged();
+    }
+
+    // Centralize ALL this repeated logic
+    private bool ApplyEditAndTrackCells<T>(GridEditModelSavingEventArgs e, T row, T edited) where T : class, ITrackableRow
+    {
+        var assignedId = Guid.Empty;
+        if (e.IsNew)
+        {
+            TryEnsureRowId(row);
+            assignedId = TryGetRowId(row);
+        }
+
+        var (hasChanges, changedFields) = DetectChanges(edited, row);
+        if (!hasChanges)
+        {
+            return false;
+        }
+
+        e.CopyChangesToDataItem();
+
+        if (e.IsNew && TryGetRowId(row) == Guid.Empty && assignedId != Guid.Empty)
+            SetRowId(row, assignedId);
+
+        var rowId = TryGetRowId(row);
+        if (rowId != Guid.Empty)
+        {
+            foreach (var field in changedFields)
+                _editedCells.Add((rowId, field));
+        }
+
+        if (e.IsNew)
+            row.RowState = RowState.New;
+        else if (row.RowState == RowState.Unchanged)
+            row.RowState = RowState.Modified;
+
+        return true;
+    }
+
+    private static bool TryEnsureRowId(object row)
+    {
+        var prop = GetIdProp(row.GetType());
+        if (prop is null) return false;
+
+        var id = (Guid)(prop.GetValue(row) ?? Guid.Empty);
+        if (id != Guid.Empty) return true;
+
+        prop.SetValue(row, Guid.NewGuid());
+        return true;
+    }
+
+    private static Guid TryGetRowId(object row)
+    {
+        var prop = GetIdProp(row.GetType());
+        if (prop is null) return Guid.Empty;
+
+        return (Guid)(prop.GetValue(row) ?? Guid.Empty);
+    }
+
+    private static System.Reflection.PropertyInfo? GetIdProp(Type t)
+    {
+        return _idPropCache.GetOrAdd(t, static type =>
+        {
+            var p = type.GetProperty("Id");
+            return (p?.PropertyType == typeof(Guid) && p.CanRead && p.CanWrite) ? p : null;
+        });
+    }
+
+    private static void SetRowId(object row, Guid id)
+    {
+        var prop = GetIdProp(row.GetType());
+        prop?.SetValue(row, id);
+    }
+
+    // ===== Borrado (eventos contextuales del grid) =====
+    private void OnProcessDataItemDeleting(GridDataItemDeletingEventArgs e) { if (e.DataItem is ProcessRow row) { row.RowState = RowState.Deleted; e.Cancel = true; } }
+    private void OnProcessDirectionDataItemDeleting(GridDataItemDeletingEventArgs e) { if (e.DataItem is ProcessDirectionRow row) { row.RowState = RowState.Deleted; e.Cancel = true; } }
+    private void OnAreaDataItemDeleting(GridDataItemDeletingEventArgs e) { if (e.DataItem is AreaRow row) { row.RowState = RowState.Deleted; e.Cancel = true; } }
+    private void OnZoneDataItemDeleting(GridDataItemDeletingEventArgs e) { if (e.DataItem is ZoneRow row) { row.RowState = RowState.Deleted; e.Cancel = true; } }
+    private void OnEquipmentDataItemDeleting(GridDataItemDeletingEventArgs e) { if (e.DataItem is EquipmentGroupRow row) { row.RowState = RowState.Deleted; e.Cancel = true; } }
+    private void OnRouteDataItemDeleting(GridDataItemDeletingEventArgs e) { if (e.DataItem is RouteRow row) { row.RowState = RowState.Deleted; e.Cancel = true; } }
+
+    // ===== Personalización visual =====
+    private static readonly HashSet<string> RightAlignFields =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            nameof(AreaRow.ZonesCount),
+            nameof(AreaRow.RoutesCount),
+            nameof(AreaRow.EquipmentsCount),
+            nameof(ProcessRow.ProcessDirectionsCount),
+            nameof(EquipmentGroupRow.Quantity),
+            nameof(ZoneRow.MaxContainers),
+            nameof(ZoneRow.MaxEquipments),
+            nameof(ProcessRow.MinTime),
+            nameof(ProcessRow.PreprocessTime),
+            nameof(ProcessRow.PostprocessTime),
+            nameof(RouteRow.TimeMin),
+            nameof(ProcessDirectionRow.Percentage)
+        };
+
+    private void OnCustomizeGridElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow)
+        {
+            var itemRow = e.Grid.GetDataItem(e.VisibleIndex) as ITrackableRow;
+            if (itemRow is null) return;
+
+            switch (itemRow.RowState)
+            {
+                case RowState.New: e.CssClass += " wl-row-new"; break;
+                case RowState.Modified: e.CssClass += " wl-row-modified"; break;
+                case RowState.Deleted: e.CssClass += " wl-row-deleted"; break;
+            }
+            return;
+        }
+
+        if (e.ElementType == GridElementType.DataCell && e.Column is DxGridDataColumn dataCol)
+        {
+            var item = e.Grid.GetDataItem(e.VisibleIndex) as ITrackableRow;
+
+            if (dataCol.FieldName == nameof(AreaRow.ZonesCount) ||
+                dataCol.FieldName == nameof(AreaRow.RoutesCount) ||
+                dataCol.FieldName == nameof(AreaRow.EquipmentsCount) ||
+                dataCol.FieldName == nameof(ProcessRow.ProcessDirectionsCount))
+            {
+                e.CssClass += " wl-cell-readonly";
+            }
+            else if (dataCol.FieldName == nameof(ProcessRow.Type) || 
+                dataCol.FieldName == nameof(AreaRow.Type) || 
+                dataCol.FieldName == nameof(ProcessRow.FlowId) || 
+                dataCol.FieldName == nameof(ProcessRow.AreaId) || 
+                dataCol.FieldName == nameof(ZoneRow.Type))
+            {
+                if (item?.RowState != RowState.New)
+                    e.CssClass += " wl-cell-readonly";
+            }
+
+            var fieldName = dataCol.FieldName;
+            if (!string.IsNullOrWhiteSpace(fieldName))
+            {
+                bool mustAlign = RightAlignFields.Contains(fieldName);
+
+                if (!mustAlign)
+                {
+                    var dataItem = e.Grid.GetDataItem(e.VisibleIndex);
+                    var prop = dataItem?.GetType().GetProperty(fieldName,
+                        System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                    var pType = prop is null ? null : Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+                    if (pType is not null)
+                    {
+                        mustAlign =
+                            pType == typeof(byte) || pType == typeof(sbyte) ||
+                            pType == typeof(short) || pType == typeof(ushort) ||
+                            pType == typeof(int) || pType == typeof(uint) ||
+                            pType == typeof(long) || pType == typeof(ulong) ||
+                            pType == typeof(float) || pType == typeof(double) ||
+                            pType == typeof(decimal);
+                    }
+                }
+
+                if (mustAlign)
+                    e.CssClass += " wl-num-cell";
+            }
+
+            var fieldName2 = dataCol.FieldName;
+            if (!string.IsNullOrWhiteSpace(fieldName2))
+            {
+                var dataItem = e.Grid.GetDataItem(e.VisibleIndex);
+                Guid rowId = Guid.Empty;
+            
+                if (dataItem is ProcessRow pr) rowId = pr.Id;
+                else if (dataItem is AreaRow ar) rowId = ar.Id;
+                else if (dataItem is ProcessDirectionRow dr) rowId = dr.Id;
+                else if (dataItem is ZoneRow zr) rowId = zr.Id;
+                else if (dataItem is RouteRow rr) rowId = rr.Id;
+                else if (dataItem is EquipmentGroupRow er) rowId = er.Id;
+            
+                if (rowId != Guid.Empty && _editedCells.Contains((rowId, fieldName2)))
+                {
+                    e.CssClass += " wl-cell-edited";
+                }
+            }
+        }
+    }
+
+    private async Task OnProcessTimeEnterAsync()
+    {
+        if (ProcessGridRef is not null)
+            await ProcessGridRef.SaveChangesAsync(); // IGrid.SaveChangesAsync()
+    }
+
+
+    // ===== Footer =====
+    private async Task SaveEvent() => await OnSaveAsync();
+
+    private void CancelButtonClick()
+    {
+        // Cerrar cualquier modal de borrado que esté abierto
+        showDeleteConfirmation = false;
+        SnapshotToDelete.Clear();
+        DeletePreview = null;
+        DeleteScope = DeleteScopeKind.None;
+        OwnerProcess = null;
+        OwnerArea = null;
+
+        // Limpiar selecciones globales de maestros
+        SelectedProcesses.Clear();
+        SelectedAreas.Clear();
+        ClearPendingUiChanges();
+
+        // Recargar TODO desde BBDD (Processes, Areas, detalles, lookups, paginadores, pending deletes)
+        LoadAll();
+
+        // Reiniciar los textos de “Selected”
+        SelectedRecordsProcesses = $"{L.Loc("Selected")}: 0";
+        SelectedRecordsAreas = $"{L.Loc("Selected")}: 0";
+
+        StateHasChanged();
+    }
+
+    private async Task OnSaveAsync()
+    {
+        var layout = Da.GetLayoutByLayout(LayoutId);
+        var warehouseId = layout.WarehouseId;
+
+        var typeEquipmentEntities = Da.GetTypeEquipments(warehouseId).ToList();
+
+        // ===================================================
+        // MANAGERS
+        // ===================================================
+        var deleteManager = new DeleteManager(GridService.GetOperationDB(), Da);
+        var saveManager = new SaveManager();
+
+        // ===================================================
+        // ========== ÁREAS ==================================
+        // ===================================================
+        var areaById = new Dictionary<Guid, Area>();
+
+        foreach (var ar in Areas.Where(a => a.RowState is RowState.New or RowState.Modified or RowState.Unchanged))
+        {
+            bool isNew = ar.Id == Guid.Empty;
+            ar.Id = isNew ? Guid.NewGuid() : ar.Id;
+
+            Area? areaGlob = null;
+
+            if (ar.RowState == RowState.Modified)
+            {
+                areaGlob = Da.GetAreaById(ar.Id);
+
+                areaGlob.ViewPort = new ViewportExtensions()
+                    .UpdateViewportName(areaGlob?.ViewPort, ar.Name);
+            }
+
+            var area = new Area
+            {
+                Id = areaGlob?.Id ?? ar.Id,
+                Name = ar.Name,
+                Type = areaGlob?.Type ?? ar.Type,
+                IsAutomatic = areaGlob?.IsAutomatic ?? false,
+                NarrowAisle = areaGlob?.NarrowAisle ?? false,
+                LayoutId = areaGlob?.LayoutId ?? layout.Id,
+                Layout = null,
+                DelayedTimePerUnit = areaGlob?.DelayedTimePerUnit ?? 0,
+                ViewPort = areaGlob?.ViewPort ?? null
+            };
+
+            areaById[area.Id] = area;
+
+            if (ar.RowState is RowState.New or RowState.Modified)
+                saveManager.AreasToSave.Add(area);
+        }
+
+        // ===================================================
+        // ========== PROCESSES ===============================
+        // ===================================================
+        var processById = new Dictionary<Guid, Process>();
+
+        foreach (var pr in Processes.Where(p => p.RowState != RowState.Deleted))
+        {
+            if (pr.Id == Guid.Empty)
+                pr.Id = Guid.NewGuid();
+
+            if (!pr.AreaId.HasValue || !areaById.TryGetValue(pr.AreaId.Value, out var areaRef))
+                continue;
+
+            var flowType = FlowType.Inbound;
+            if (pr.FlowId is Guid fid && fid != Guid.Empty)
+                flowTypeById.TryGetValue(fid, out flowType);
+
+            var (isIn, isOut) = GetFlowFlags(flowType);
+
+            var process = new Process
+            {
+                Id = pr.Id,
+                Name = pr.Name,
+                Type = pr.Type ?? string.Empty,
+                MinTime = pr.MinTime ?? 0,
+                PreprocessTime = pr.PreprocessTime,
+                PostprocessTime = pr.PostprocessTime,
+                IsWarehouseProcess = pr.IsWarehouseProcess,
+                // IsWarehouseProcess = (pr.Type.ToString() == ProcessType.Replenishment.ToString() || pr.Type.ToString() == ProcessType.CustomProcess.ToString()) ? true : false, // TODO Ruben 28/01/2026: Se comenta hasta tener la definición completa. Revisar la consulta en DesignerServices.
+                IsOut = isOut,
+                IsIn = isIn,
+                IsInitProcess = pr.IsInitProcess,
+                AreaId = areaRef.Id,
+                Area = null,
+                IsEffective = true,
+                FlowId = pr.FlowId ?? Guid.Empty
+            };
+
+            processById[process.Id] = process;
+
+            if (pr.RowState is RowState.New or RowState.Modified)
+                saveManager.ProcessesToSave.Add(process);
+        }
+
+        // Cambios de tipo de proceso
+        var processTypeChangesToApply =
+            PendingProcessTypeChanges
+            .Where(c => processById.ContainsKey(c.ProcessId))
+            .Select(c => (Process: processById[c.ProcessId], c.OldType, c.NewType))
+            .ToList();
+
+        if (processTypeChangesToApply.Any())
+            saveManager.ProcessTypeChanges.AddRange(processTypeChangesToApply);
+
+        // ===================================================
+        // ========== DIRECTIONS =============================
+        // ===================================================
+        foreach (var pr in Processes.Where(p => p.RowState != RowState.Deleted))
+        {
+            if (!processById.TryGetValue(pr.Id, out var initProcess))
+                continue;
+
+            if (pr.Directions == null || pr.Directions.Count == 0)
+                continue;
+
+            var changedDirections = pr.Directions
+                .Where(d => d.RowState is RowState.New or RowState.Modified)
+                .ToList();
+
+            foreach (var dr in changedDirections)
+            {
+                if (dr.Id == Guid.Empty)
+                    dr.Id = Guid.NewGuid();
+
+                var endProcess = initProcess;
+
+                if (dr.EndProcessId.HasValue &&
+                    processById.TryGetValue(dr.EndProcessId.Value, out var endFound))
+                {
+                    endProcess = endFound;
+                }
+
+                saveManager.DirectionsToSave.Add(new ProcessDirectionProperty
+                {
+                    Id = dr.Id,
+                    Name = $"{initProcess.Name}->{endProcess.Name}",
+                    InitProcessId = initProcess.Id,
+                    InitProcess = initProcess,
+                    EndProcessId = endProcess.Id,
+                    EndProcess = endProcess,
+                    Percentage = Convert.ToDouble(dr.Percentage),
+                    IsEnd = dr.IsEnd
+                });
+            }
+        }
+
+        // ===================================================
+        // ========== ZONES + SUBTIPOS ========================
+        // ===================================================
+        foreach (var ar in Areas.Where(a => a.RowState != RowState.Deleted))
+        {
+            if (!areaById.TryGetValue(ar.Id, out var areaEntity))
+                continue;
+
+            // ---------- ZONES ----------
+            if (ar.Zones != null && ar.Zones.Any(z => z.RowState != RowState.Unchanged))
+            {
+                foreach (var z in ar.Zones.Where(z => z.RowState is RowState.New or RowState.Modified))
+                {
+                    Zone? zoneGlob = null;
+
+                    if (z.RowState == RowState.Modified)
+                    {
+                        zoneGlob = Da.GetZoneByIdNoTracking(z.Id);                      
+
+                        if (zoneGlob != null)
+                        {
+                            zoneGlob.ViewPort = new ViewportExtensions()
+                                .UpdateViewportName(zoneGlob.ViewPort, z.Name);
+                        }
+                    }
+
+                    var zoneEntity = new Zone
+                    {
+                        Id = zoneGlob?.Id ?? z.Id,
+                        Name = z.Name,
+                        Type = zoneGlob?.Type ?? z.Type,
+                        MaxStockToBook = zoneGlob?.MaxStockToBook ?? 0,
+                        IsLimitStock = zoneGlob?.IsLimitStock ?? false,
+                        InitStockToBook = zoneGlob?.InitStockToBook ?? 0,
+                        AreaId = zoneGlob?.AreaId ?? areaEntity.Id,
+                        Area = null,
+                        MaxContainers = z.MaxContainers ?? 0,
+                        MaxEquipments = z.MaxEquipments ?? 0,
+                        ViewPort = zoneGlob?.ViewPort ?? null
+                    };
+
+                    saveManager.ZonesToSave.Add((areaEntity.Id, zoneEntity));
+
+                    // Subtipos
+                    if (z.RowState == RowState.New)
+                    {
+                        switch (ZoneTypeGetMethods.GetStringZoneType(z.Type))
+                        {
+                            case ZoneType.Dock:
+                                saveManager.DocksToSave.Add((areaEntity.Id, new Dock
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ZoneId = zoneEntity.Id,
+                                    Zone = null,
+                                    MaxEquipments = 0,
+                                    OperatesFromBuffer = false,
+                                    MaxStockCrossdocking = 0,
+                                    AllowInbound = false,
+                                    AllowOutbound = false
+                                }));
+                                break;
+
+                            case ZoneType.Buffer:
+                                saveManager.BuffersToSave.Add((areaEntity.Id, new Buffer
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ZoneId = zoneEntity.Id,
+                                    Zone = null,
+                                    EntryCapacity = 0,
+                                    ExitCapacity = 0,
+                                    CapacityByMaterial = false,
+                                    Excess = false,
+                                    MaxEquipments = 0
+                                }));
+                                break;
+
+                            case ZoneType.Stage:
+                                saveManager.StagesToSave.Add((areaEntity.Id, new Stage
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ZoneId = zoneEntity.Id,
+                                    Zone = null,
+                                    MaxEquipments = 0,
+                                    MixCarriers = false,
+                                    IsIn = true,
+                                    IsOut = true
+                                }));
+                                break;
+
+                                // Nuevos
+
+                            case ZoneType.Rack:
+                                saveManager.RacksToSave.Add((areaEntity.Id, new Rack
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ZoneId = zoneEntity.Id,
+                                    Zone = null,
+                                    Capacity = 0,
+                                    NumCrossAisles = 1,
+                                    NumShelves = 1,
+                                    IsVertical = false,
+                                    Bidirectional = false
+                                }));
+                                break;
+
+                            case ZoneType.DriveIn:
+                                saveManager.DriveInsToSave.Add((areaEntity.Id, new DriveIn
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ZoneId = zoneEntity.Id,
+                                    Zone = null,
+                                    Capacity = 0,
+                                    NumCrossAisles = 1,
+                                    NumShelves = 1,
+                                    IsVertical = false,
+                                    Bidirectional = false
+                                }));
+                                break;
+
+                            case ZoneType.ChaoticStorage:
+                                saveManager.ChaoticStoragesToSave.Add((areaEntity.Id, new ChaoticStorage
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ZoneId = zoneEntity.Id,
+                                    Zone = null,
+                                    Capacity = 0
+                                }));
+                                break;
+
+                            case ZoneType.AutomaticStorage:
+                                saveManager.AutomaticStoragesToSave.Add((areaEntity.Id, new AutomaticStorage
+                                {
+                                    Id = Guid.NewGuid(),
+                                    ZoneId = zoneEntity.Id,
+                                    Zone = null,
+                                    Capacity = 0,
+                                    NumCrossAisles =1,
+                                    NumShelves = 0
+                                }));
+                                break;
+                        }
+                    }
+                }
+            }
+
+            // ---------- EQUIPMENTS ----------
+            if (ar.Equipments != null)
+            {
+                var modifiedEquips = ar.Equipments
+                    .Where(e => e.RowState is RowState.New or RowState.Modified)
+                    .ToList();
+
+                foreach (var eg in modifiedEquips)
+                {
+                    if (eg.Id == Guid.Empty)
+                        eg.Id = Guid.NewGuid();
+
+                    if (!eg.TypeEquipmentId.HasValue || eg.TypeEquipmentId.Value == Guid.Empty)
+                        continue;
+
+                    var te = typeEquipmentEntities.FirstOrDefault(t => t.Id == eg.TypeEquipmentId.Value);
+                    if (te == null)
+                        continue;
+
+                    saveManager.EquipmentsToSave.Add((areaEntity.Id, new EquipmentGroup
+                    {
+                        Id = eg.Id,
+                        Name = eg.Name,
+                        Equipments = eg.Quantity,
+                        Area = null,
+                        AreaId = areaEntity.Id,
+                        TypeEquipmentId = eg.TypeEquipmentId.Value,
+                        TypeEquipment = te
+                    }));
+                }
+            }
+
+            // ---------- ROUTES ----------
+            if (ar.Routes != null)
+            {
+                var changedRoutes = ar.Routes
+                    .Where(r => r.RowState is RowState.New or RowState.Modified)
+                    .ToList();
+
+                foreach (var r in changedRoutes)
+                {
+                    if (r.Id == Guid.Empty)
+                        r.Id = Guid.NewGuid();
+
+                    var departureArea = areaEntity;
+
+                    var arrivalArea = departureArea;
+                    var arrivalAreaId = departureArea.Id;
+
+                    if (r.ArrivalAreaId.HasValue &&
+                        r.ArrivalAreaId.Value != Guid.Empty &&
+                        areaById.TryGetValue(r.ArrivalAreaId.Value, out var arr))
+                    {
+                        arrivalArea = arr;
+                        arrivalAreaId = arr.Id;
+                    }
+
+                    saveManager.RoutesToSave.Add((areaEntity.Id, new Route
+                    {
+                        Id = r.Id,
+                        Name = $"{departureArea.Name}->{arrivalArea.Name}",
+                        TimeMin = r.TimeMin ?? 0,
+                        Bidirectional = r.Bidirectional,
+                        DepartureAreaId = departureArea.Id,
+                        ArrivalAreaId = arrivalAreaId,
+                        DepartureArea = null,
+                        ArrivalArea = null
+                    }));
+                }
+            }
+        }
+
+        // ===================================================
+        // ========== APLICAR SAVE =============================
+        // ===================================================
+        saveManager.ApplyTo(GridService);
+
+        // ===================================================
+        // ========== APLICAR DELETE ===========================
+        // ===================================================            
+        ApplyDeletes(deleteManager);
+
+        // ===================================================
+        // ========== UN SOLO COMMIT ===========================
+        // ===================================================
+        await GridService.ExecuteAsync();
+
+        // ===================================================
+        // LIMPIEZA FINAL
+        // ===================================================
+        ClearAllPendingDeletes();
+        RemoveDeletedRowsAndResetStates();
+        ClearAllSelectionsAsync();
+        ClearPendingUiChanges();
+        RefreshAllBaseSnapshotsAfterSave();
+        await ShowSaveSuccessForAsync(3000);
+    }
+
+    private static (bool IsIn, bool IsOut) GetFlowFlags(FlowType flowType) => flowType switch
+    {
+        FlowType.Inbound  => (true,  false),
+        FlowType.Outbound => (false, true),
+        FlowType.Custom   => (false, false),
+        _ => (true, false)
+    };
+
+    // Clears the color style from edited cells
+    private void ClearPendingUiChanges()
+    {
+        _editedCells.Clear();
+        PendingProcessTypeChanges.Clear();
+    }
+
+    private async Task ShowSaveSuccessForAsync(int milliseconds)
+    {
+        var token = ++_saveSuccessToken;
+
+        ShowSaveSuccess = true;
+        SuccessMessage = L.Loc("Changes saved"); // Text message
+        StateHasChanged();
+
+        await Task.Delay(milliseconds);
+
+        if (token != _saveSuccessToken) return; // If there was another save, it is not hidden
+
+        ShowSaveSuccess = false;
+        StateHasChanged();
+    }
+
+    private void RemoveDeletedRowsAndResetStates()
+    {
+        foreach (var p in Processes.ToList())
+        {
+            if (p.RowState == RowState.Deleted) { Processes.Remove(p); continue; }
+            p.RowState = RowState.Unchanged;
+
+            if (p.Directions != null)
+            {
+                p.Directions.RemoveAll(d => d.RowState == RowState.Deleted);
+                foreach (var d in p.Directions) d.RowState = RowState.Unchanged;
+            }
+            p.SelectedDirections.Clear();
+            p.PageIndex_Dir = 0; p.ActivePageIndex_Dir = 0;
+        }
+
+        foreach (var a in Areas.ToList())
+        {
+            if (a.RowState == RowState.Deleted) { Areas.Remove(a); continue; }
+            a.RowState = RowState.Unchanged;
+
+            if (a.Zones != null)
+            {
+                a.Zones.RemoveAll(z => z.RowState == RowState.Deleted);
+                foreach (var z in a.Zones) z.RowState = RowState.Unchanged;
+            }
+
+            if (a.Equipments != null)
+            {
+                a.Equipments.RemoveAll(e => e.RowState == RowState.Deleted);
+                foreach (var e in a.Equipments) e.RowState = RowState.Unchanged;
+            }
+
+            if (a.Routes != null)
+            {
+                a.Routes.RemoveAll(r => r.RowState == RowState.Deleted);
+                foreach (var r in a.Routes) r.RowState = RowState.Unchanged;
+            }
+
+            a.SelectedZones.Clear(); a.SelectedEquipments.Clear(); a.SelectedRoutes.Clear();
+            a.PageIndex_Zones = 0; a.ActivePageIndex_Zones = 0;
+            a.PageIndex_Equipments = 0; a.ActivePageIndex_Equipments = 0;
+            a.PageIndex_Routes = 0; a.ActivePageIndex_Routes = 0;
+        }
+
+        AreasLookup = Areas.Select(a => new LookupItem { Id = a.Id, Name = a.Name }).ToList();
+
+        ReloadProcessesPager();
+        ReloadAreasPager();
+    }
+
+    private void ClearAllPendingDeletes()
+    {
+        PendingDeleteProcessIds.Clear();
+        PendingDeleteAreaIds.Clear();
+        PendingDeleteDirectionIds.Clear();
+        PendingDeleteZoneIds.Clear();
+        PendingDeleteEquipmentIds.Clear();
+        PendingDeleteRouteIds.Clear();
+    }
+
+    private void ClearAllSelectionsAsync()
+    {
+        // Clean Process Case
+        SelectedProcesses.Clear();
+        SelectedRecordsProcesses = $"{L.Loc("Selected")}: 0";
+
+        foreach (var p in Processes)
+            p.SelectedDirections?.Clear();
+
+        // Clean Area Case
+        SelectedAreas.Clear();
+        SelectedRecordsAreas = $"{L.Loc("Selected")}: 0";
+
+        foreach (var a in Areas)
+        {
+            a.SelectedZones?.Clear();
+            a.SelectedEquipments?.Clear();
+            a.SelectedRoutes?.Clear();
+        }
+    }
+
+    // ===== Delete global (agrupado por tipo) =====
+    private void OpenGlobalDeleteModal()
+    {
+        var selectedProcesses = SelectedProcesses.ToList();
+        var selectedAreas = SelectedAreas.ToList();
+
+        var selectedDirections = new List<(ProcessRow Owner, ProcessDirectionRow Item)>();
+        var selectedZones = new List<(AreaRow Owner, ZoneRow Item)>();
+        var selectedEquipments = new List<(AreaRow Owner, EquipmentGroupRow Item)>();
+        var selectedRoutes = new List<(AreaRow Owner, RouteRow Item)>();
+
+        foreach (var p in Processes)
+        {
+            if (p.SelectedDirections?.Any() ?? false)
+            {
+                foreach (var d in p.SelectedDirections)
+                {
+                    selectedDirections.Add((p, d));
+                }
+            }
+        }
+
+        foreach (var a in Areas)
+        {
+            if (a.SelectedZones?.Any() ?? false)
+            {
+                foreach (var z in a.SelectedZones)
+                {
+                    selectedZones.Add((a, z));
+                }
+            }
+
+            if (a.SelectedEquipments?.Any() ?? false)
+            {
+                foreach (var e in a.SelectedEquipments)
+                {
+                    selectedEquipments.Add((a, e));
+                }
+            }
+
+            if (a.SelectedRoutes?.Any() ?? false)
+            {
+                foreach (var r in a.SelectedRoutes)
+                {
+                    selectedRoutes.Add((a, r));
+                }
+            }
+        }
+
+        var totalCount =
+            selectedProcesses.Count +
+            selectedAreas.Count +
+            selectedDirections.Count +
+            selectedZones.Count +
+            selectedEquipments.Count +
+            selectedRoutes.Count;
+
+        if (totalCount == 0)
+        {
+            return;
+        }
+
+        IsGlobalDelete = true;
+        DeleteScope = DeleteScopeKind.Global;
+        OwnerProcess = null;
+        OwnerArea = null;
+        SnapshotToDelete.Clear();
+        DeletePreview = null;
+
+        DeleteGroups = new List<DeleteGroupInfo>();
+
+        if (selectedProcesses.Any())
+        {
+            DeleteGroups.Add(new DeleteGroupInfo
+            {
+                Title = L.Loc("Processes"),
+                Items = selectedProcesses.Select(p => p.Name).ToList()
+            });
+        }
+
+        if (selectedAreas.Any())
+        {
+            DeleteGroups.Add(new DeleteGroupInfo
+            {
+                Title = L.Loc("Areas"),
+                Items = selectedAreas.Select(a => a.Name).ToList()
+            });
+        }
+
+        if (selectedDirections.Any())
+        {
+            DeleteGroups.Add(new DeleteGroupInfo
+            {
+                Title = L.Loc("Directions"),
+                Items = selectedDirections.Select(x =>
+                {
+                    var owner = x.Owner;
+                    var d = x.Item;
+                    var destName = Processes.FirstOrDefault(p => p.Id == (d.EndProcessId ?? Guid.Empty))?.Name ?? "-";
+                    return $"{owner.Name} -> {destName}";
+                }).ToList()
+            });
+        }
+
+        if (selectedZones.Any())
+        {
+            DeleteGroups.Add(new DeleteGroupInfo
+            {
+                Title = L.Loc("Zones"),
+                Items = selectedZones.Select(x => x.Item.Name).ToList()
+            });
+        }
+
+        if (selectedEquipments.Any())
+        {
+            DeleteGroups.Add(new DeleteGroupInfo
+            {
+                Title = L.Loc("Equipments"),
+                Items = selectedEquipments.Select(x => x.Item.Name).ToList()
+            });
+        }
+
+        if (selectedRoutes.Any())
+        {
+            DeleteGroups.Add(new DeleteGroupInfo
+            {
+                Title = L.Loc("Routes"),
+                Items = selectedRoutes.Select(x =>
+                {
+                    var areaOwner = x.Owner;
+                    var r = x.Item;
+                    var arrivalName = areaOwner.Name;
+                    if (r.ArrivalAreaId.HasValue)
+                    {
+                        var arr = AreasLookup.FirstOrDefault(al => al.Id == r.ArrivalAreaId.Value);
+                        if (arr != null) arrivalName = arr.Name;
+                    }
+                    return $"{areaOwner.Name} -> {arrivalName}";
+                }).ToList()
+            });
+        }
+
+        DeleteTitle = L.Loc("Delete");
+        DeleteMessage = L.Loc("You are about to remove {0} selected items.", totalCount);
+
+        showDeleteConfirmation = true;
+    }
+
+    // ===== Delete modal: abrir por ámbito (DialogComponent) =====
+    private void OpenDeleteModalForProcesses()
+    {
+        SnapshotToDelete = SelectedProcesses.Cast<object>().ToList();
+        OwnerProcess = null; OwnerArea = null;
+        DeleteScope = DeleteScopeKind.Processes;
+        DeleteTitle = L.Loc("Delete");
+        DeleteMessage = L.Loc("You are about to remove {0} selected.", SnapshotToDelete.Count);
+        DeletePreview = SelectedProcesses.Select(p => p.Name).ToList();
+        showDeleteConfirmation = true;
+    }
+
+    private void OpenDeleteModalForAreas()
+    {
+        SnapshotToDelete = SelectedAreas.Cast<object>().ToList();
+        OwnerProcess = null; OwnerArea = null;
+        DeleteScope = DeleteScopeKind.Areas;
+        DeleteTitle = L.Loc("Delete areas");
+        DeleteMessage = L.Loc("You are about to remove {0} selected areas.", SnapshotToDelete.Count);
+        DeletePreview = SelectedAreas.Select(a => a.Name).ToList();
+        showDeleteConfirmation = true;
+    }
+
+    private void OpenDeleteModalForDirections(ProcessRow? owner)
+    {
+        if (owner is null) return;
+        SnapshotToDelete = (owner.SelectedDirections?.Cast<object>().ToList()) ?? new();
+        OwnerProcess = owner; OwnerArea = null;
+        DeleteScope = DeleteScopeKind.Directions;
+        DeleteTitle = L.Loc("Delete directions");
+        DeleteMessage = L.Loc("You are about to remove {0} selected directions.", SnapshotToDelete.Count);
+        DeletePreview = owner.SelectedDirections.Select(d => $"{owner.Name} -> {(Processes.FirstOrDefault(p => p.Id == (d.EndProcessId ?? Guid.Empty))?.Name ?? "-")}").ToList();
+        showDeleteConfirmation = true;
+    }
+
+    private void OpenDeleteModalForZones(AreaRow? owner)
+    {
+        if (owner is null) return;
+        SnapshotToDelete = (owner.SelectedZones?.Cast<object>().ToList()) ?? new();
+        OwnerProcess = null; OwnerArea = owner;
+        DeleteScope = DeleteScopeKind.Zones;
+        DeleteTitle = L.Loc("Delete zones");
+        DeleteMessage = L.Loc("You are about to remove {0} selected zones.", SnapshotToDelete.Count);
+        DeletePreview = owner.SelectedZones.Select(z => z.Name).ToList();
+        showDeleteConfirmation = true;
+    }
+
+    private void OpenDeleteModalForEquipments(AreaRow? owner)
+    {
+        if (owner is null) return;
+        SnapshotToDelete = (owner.SelectedEquipments?.Cast<object>().ToList()) ?? new();
+        OwnerProcess = null; OwnerArea = owner;
+        DeleteScope = DeleteScopeKind.Equipments;
+        DeleteTitle = L.Loc("Delete equipments");
+        DeleteMessage = L.Loc("You are about to remove {0} selected equipment groups.", SnapshotToDelete.Count);
+        DeletePreview = owner.SelectedEquipments.Select(e => e.Name).ToList();
+        showDeleteConfirmation = true;
+    }
+
+    private void OpenDeleteModalForRoutes(AreaRow? owner)
+    {
+        if (owner is null) return;
+        SnapshotToDelete = (owner.SelectedRoutes?.Cast<object>().ToList()) ?? new();
+        OwnerProcess = null; OwnerArea = owner;
+        DeleteScope = DeleteScopeKind.Routes;
+        DeleteTitle = L.Loc("Delete routes");
+        DeleteMessage = L.Loc("You are about to remove {0} selected routes.", SnapshotToDelete.Count);
+        DeletePreview = owner.SelectedRoutes.Select(r => r.Id.ToString()).ToList();
+        showDeleteConfirmation = true;
+    }
+
+    private async Task HideDeleteConfirmation()
+    {
+        showDeleteConfirmation = false;
+        SnapshotToDelete.Clear();
+        DeletePreview = null;
+        DeleteScope = DeleteScopeKind.None;
+        OwnerProcess = null;
+        OwnerArea = null;
+
+        // Devolver el foco al contenedor principal para que vuelva a capturar la tecla Supr
+        await JS.InvokeVoidAsync("mssDesigner.focusRootDesigner");
+    }
+
+    private void ExecuteGlobalDelete()
+    {
+        // Processes
+        if (SelectedProcesses.Any())
+        {
+            var toDelete = SelectedProcesses.ToList();
+            foreach (var pr in toDelete)
+            {
+                if (pr.RowState != RowState.New) PendingDeleteProcessIds.Add(pr.Id);
+                Processes.Remove(pr);
+                SelectedProcesses.Remove(pr);
+            }
+            ReloadProcessesPager();
+            SelectedRecordsProcesses = $"{L.Loc("Selected")}: {SelectedProcesses.Count}";
+        }
+
+        // Areas
+        if (SelectedAreas.Any())
+        {
+            var toDelete = SelectedAreas.ToList();
+            foreach (var ar in toDelete)
+            {
+                if (ar.RowState != RowState.New) PendingDeleteAreaIds.Add(ar.Id);
+                Areas.Remove(ar);
+                SelectedAreas.Remove(ar);
+            }
+            AreasLookup = Areas.Select(a => new LookupItem { Id = a.Id, Name = a.Name }).ToList();
+            ReloadAreasPager();
+            SelectedRecordsAreas = $"{L.Loc("Selected")}: {SelectedAreas.Count}";
+        }
+
+        // Directions
+        foreach (var p in Processes)
+        {
+            if (p.Directions is null || !(p.SelectedDirections?.Any() ?? false)) continue;
+
+            var toDeleteDir = p.SelectedDirections.ToList();
+            foreach (var d in toDeleteDir)
+            {
+                if (d.RowState != RowState.New) PendingDeleteDirectionIds.Add(d.Id);
+                p.Directions.Remove(d);
+                p.SelectedDirections.Remove(d);
+            }
+        }
+
+        // Zones / Equipments / Routes
+        foreach (var a in Areas)
+        {
+            if (a.Zones is not null && (a.SelectedZones?.Any() ?? false))
+            {
+                var toDeleteZones = a.SelectedZones.ToList();
+                foreach (var z in toDeleteZones)
+                {
+                    if (z.RowState != RowState.New) PendingDeleteZoneIds.Add(z.Id);
+                    a.Zones.Remove(z);
+                    a.SelectedZones.Remove(z);
+                }
+            }
+
+            if (a.Equipments is not null && (a.SelectedEquipments?.Any() ?? false))
+            {
+                var toDeleteEquip = a.SelectedEquipments.ToList();
+                foreach (var e in toDeleteEquip)
+                {
+                    if (e.RowState != RowState.New) PendingDeleteEquipmentIds.Add(e.Id);
+                    a.Equipments.Remove(e);
+                    a.SelectedEquipments.Remove(e);
+                }
+            }
+
+            if (a.Routes is not null && (a.SelectedRoutes?.Any() ?? false))
+            {
+                var toDeleteRoutes = a.SelectedRoutes.ToList();
+                foreach (var r in toDeleteRoutes)
+                {
+                    if (r.RowState != RowState.New) PendingDeleteRouteIds.Add(r.Id);
+                    a.Routes.Remove(r);
+                    a.SelectedRoutes.Remove(r);
+                }
+            }
+        }
+    }
+
+    private void ConfirmDelete()
+    {
+        // 1) Caso especial: borrado GLOBAL (desde botón o tecla Supr)
+        if (DeleteScope == DeleteScopeKind.Global)
+        {
+            // Reutilizamos la lógica ya existente que:
+            // - quita elementos de las colecciones (Processes, Areas, etc.)
+            // - rellena PendingDelete*Ids
+            ExecuteGlobalDelete();
+
+            // Cerrar modal y resetear estado del diálogo
+            _ = HideDeleteConfirmation();
+            StateHasChanged();
+            return;
+        }
+
+        // 2) Resto de casos: borrados por ámbito (Processes, Areas, etc.)
+        var items = SnapshotToDelete?.ToList() ?? new List<object>();
+
+        switch (DeleteScope)
+        {
+            case DeleteScopeKind.Processes:
+                foreach (var o in items)
+                {
+                    if (o is ProcessRow pr)
+                    {
+                        if (pr.RowState != RowState.New)
+                            PendingDeleteProcessIds.Add(pr.Id);
+
+                        Processes.Remove(pr);
+                        SelectedProcesses.Remove(pr);
+                    }
+                }
+                ReloadProcessesPager();
+                SelectedRecordsProcesses = $"{L.Loc("Selected")}: {SelectedProcesses.Count}";
+                break;
+
+            case DeleteScopeKind.Areas:
+                foreach (var o in items)
+                {
+                    if (o is AreaRow ar)
+                    {
+                        if (ar.RowState != RowState.New)
+                            PendingDeleteAreaIds.Add(ar.Id);
+
+                        Areas.Remove(ar);
+                        SelectedAreas.Remove(ar);
+                    }
+                }
+                AreasLookup = Areas.Select(a => new LookupItem { Id = a.Id, Name = a.Name }).ToList();
+                ReloadAreasPager();
+                SelectedRecordsAreas = $"{L.Loc("Selected")}: {SelectedAreas.Count}";
+                break;
+
+            case DeleteScopeKind.Directions:
+                if (OwnerProcess is not null && OwnerProcess.Directions is not null)
+                {
+                    foreach (var o in items)
+                    {
+                        if (o is ProcessDirectionRow dr)
+                        {
+                            if (dr.RowState != RowState.New)
+                                PendingDeleteDirectionIds.Add(dr.Id);
+
+                            OwnerProcess.Directions.Remove(dr);
+                            OwnerProcess.SelectedDirections.Remove(dr);
+                        }
+                    }
+                }
+                break;
+
+            case DeleteScopeKind.Zones:
+                if (OwnerArea is not null && OwnerArea.Zones is not null)
+                {
+                    foreach (var o in items)
+                    {
+                        if (o is ZoneRow z)
+                        {
+                            if (z.RowState != RowState.New)
+                                PendingDeleteZoneIds.Add(z.Id);
+
+                            OwnerArea.Zones.Remove(z);
+                            OwnerArea.SelectedZones.Remove(z);
+                        }
+                    }
+                }
+                break;
+
+            case DeleteScopeKind.Equipments:
+                if (OwnerArea is not null && OwnerArea.Equipments is not null)
+                {
+                    foreach (var o in items)
+                    {
+                        if (o is EquipmentGroupRow e)
+                        {
+                            if (e.RowState != RowState.New)
+                                PendingDeleteEquipmentIds.Add(e.Id);
+
+                            OwnerArea.Equipments.Remove(e);
+                            OwnerArea.SelectedEquipments.Remove(e);
+                        }
+                    }
+                }
+                break;
+
+            case DeleteScopeKind.Routes:
+                if (OwnerArea is not null && OwnerArea.Routes is not null)
+                {
+                    foreach (var o in items)
+                    {
+                        if (o is RouteRow r)
+                        {
+                            if (r.RowState != RowState.New)
+                                PendingDeleteRouteIds.Add(r.Id);
+
+                            OwnerArea.Routes.Remove(r);
+                            OwnerArea.SelectedRoutes.Remove(r);
+                        }
+                    }
+                }
+                break;
+        }
+
+        // 3) Cerrar modal y refrescar UI
+        _ = HideDeleteConfirmation();
+        StateHasChanged();
+    }
+
+    // ===== Delete tecla suprimir =====
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        // Solo queremos reaccionar a la tecla Delete / Supr
+        if (e.Key != "Delete")
+            return;
+
+        // Si ya hay un modal de confirmación abierto, no hacemos nada
+        if (showDeleteConfirmation)
+            return;
+
+        // Si no hay nada seleccionado en ningún grid, no hay nada que borrar
+        if (!HasAnySelection)
+            return;
+
+        // Preguntar a JS si es seguro manejar Delete
+        // (es decir, no estamos escribiendo en un input/textarea/contentEditable)
+        var canHandle = await JS.InvokeAsync<bool>("mssDesigner.canHandleDeleteKey");
+        if (!canHandle)
+            return;
+
+        // MISMO flujo que el botón global
+        OpenGlobalDeleteModal();
+    }
+
+    private void OnTimeInputEnter()
+    {
+        // Forzar que el DxGrid cierre la edición correctamente
+        // El grid detecta blur y cierra / guarda la celda
+        JS.InvokeVoidAsync("blurActiveElement");
+    }
+
+
+    // ===== Enums Helper =====
+    // ===== ProcessType (enum ya existente en ObjectsTypes) =====
+    private IReadOnlyList<ComboGeneric<string>> ProcessTypeItems =>
+     Enum.GetValues<ObjectsTypes.ProcessType>()
+         .Select(pt => new ComboGeneric<string>
+         {
+             Value = pt.ToString(),
+             Description = L.Loc(ObjectsTypes.GetProcessTypeString(pt))
+         })
+         .OrderBy(x => x.Description, StringComparer.CurrentCultureIgnoreCase)
+         .ToList();
+
+
+    private string GetProcessTypeDisplay(string? rawType)
+    {
+        if (string.IsNullOrWhiteSpace(rawType))
+            return L.Loc("Select..."); // 👈 aquí el cambio
+
+        if (Enum.TryParse<ObjectsTypes.ProcessType>(rawType, out var pt))
+            return L.Loc(ObjectsTypes.GetProcessTypeString(pt));
+
+        return rawType;
+    }
+
+    // ===== AreaType (enum de ObjectsTypes) para la grid de Areas =====
+
+    // Opciones para combos (celda y fila de filtro)
+
+    private IReadOnlyList<ComboGeneric<string>> AreaTypeItems =>
+        Enum.GetValues<ObjectsTypes.AreaType>()
+            .Select(at => new ComboGeneric<string>
+            {
+                // Lo que se guarda en AreaRow.Type (coincide con lo que espera GetAreaTypeEnum)
+                Value = at.ToString(),                // "Dock", "Storage", "Buffer", "Stage"
+                                                      // Lo que se muestra al usuario
+                Description = L.Loc(ObjectsTypes.GetAreaTypeString(at))
+            })
+            .OrderBy(x => x.Description, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
+    /// <summary>
+    /// Texto de display para la columna Type de Areas.
+    /// Intenta mapear el string almacenado al enum AreaType y luego a su descripción.
+    /// Si no encaja (valor legacy/inesperado), devuelve el string tal cual.
+    /// </summary>
+    private string GetAreaTypeDisplay(string? rawType)
+    {
+        if (string.IsNullOrWhiteSpace(rawType))
+            return L.Loc("Select..."); // 👈 placeholder uniforme
+
+        try
+        {
+            var enumVal = ObjectsTypes.GetAreaTypeEnum(rawType);
+            return L.Loc(ObjectsTypes.GetAreaTypeString(enumVal));
+        }
+        catch
+        {
+            // No romper UI si llega algo raro de BBDD
+            return rawType!;
+        }
+    }
+
+    // ===== ZoneType para grid de Zones, restringidos por AreaType =====
+
+    // Devuelve la etiqueta, o null si el ZoneType no está soportado por ZoneTypeGetMethods
+    private static string? TryGetZoneTypeLabel(ZoneType zt)
+    {
+        try
+        {
+            return ZoneTypeGetMethods.GetZoneTypeString(zt);
+        }
+        catch
+        {
+            // ZoneType.Unknown
+            return null;
+        }
+    }
+
+    // Diccionario base: Value (string que guardamos en ZoneRow.Type) -> item de combo
+    private static readonly IReadOnlyDictionary<string, ComboGeneric<string>> ZoneTypeItemByValue =
+        Enum.GetValues(typeof(ZoneType))
+            .Cast<ZoneType>()
+            .Select(zt => new { zt, Label = TryGetZoneTypeLabel(zt) })
+            .Where(x => x.Label != null) // ignoramos Unknown
+            .ToDictionary(
+                x => x.zt.ToString(),                      // key: "Dock", "Rack", "DriveIn", ...
+                x => new ComboGeneric<string>             // value: item de combo
+                {
+                    Value = x.zt.ToString(),
+                    Description = x.Label!
+                },
+                StringComparer.OrdinalIgnoreCase);
+
+    // Lista completa (por si AreaType no mapea o hay datos legacy)
+    private static readonly IReadOnlyList<ComboGeneric<string>> ZoneTypeItemsAll =
+      ZoneTypeItemByValue.Values
+          .OrderBy(x => x.Description, StringComparer.CurrentCultureIgnoreCase)
+          .ToList();
+
+    private IReadOnlyList<LookupItem> TypeEquipmentsSorted =>
+    (TypeEquipments ?? Enumerable.Empty<LookupItem>())
+         .OrderBy(t => t.Name, StringComparer.CurrentCultureIgnoreCase)
+         .ToList();
+    // Mapa de AreaType -> ZoneType permitidos
+    private static readonly IReadOnlyDictionary<ObjectsTypes.AreaType, string[]> AllowedZoneTypeValuesByAreaType =
+        new Dictionary<ObjectsTypes.AreaType, string[]>
+        {
+        { ObjectsTypes.AreaType.Dock,   new[] { ZoneType.Dock.ToString() } },
+        { ObjectsTypes.AreaType.Buffer, new[] { ZoneType.Buffer.ToString() } },
+        { ObjectsTypes.AreaType.Stage,  new[] { ZoneType.Stage.ToString() } },
+        { ObjectsTypes.AreaType.Storage, new[]
+            {
+                ZoneType.Rack.ToString(),
+                ZoneType.DriveIn.ToString(),
+                ZoneType.ChaoticStorage.ToString(),
+                ZoneType.AutomaticStorage.ToString()
+            }
+        },
+        };
+
+    // ===== FlowType (enum de ObjectsTypes) para la grid de Process =====
+
+    // Opciones para combos (celda y fila de filtro)
+    private IReadOnlyList<LookupFlowItem> FlowsSorted =>
+    (Flows ?? Enumerable.Empty<LookupFlowItem>())
+        .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase)
+        .ToList();
+
+    private IReadOnlyList<LookupItem> AreasLookupSorted =>
+    (AreasLookup ?? Enumerable.Empty<LookupItem>())
+        .OrderBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase)
+        .ToList();
+
+    private IReadOnlyList<ProcessRow> GetDestinationProcessOptions(ProcessRow? current)
+    {
+        var currentId = current?.Id;
+
+        return (Processes ?? Enumerable.Empty<ProcessRow>())
+            .Where(p => currentId == null || p.Id != currentId.Value)
+            .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+    // ===== Ordenamiento alfabético columnas(Name) =====
+    private IReadOnlyList<ProcessRow> ProcessesSorted =>
+    (Processes ?? Enumerable.Empty<ProcessRow>())
+         .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase)
+         .ToList();
+
+    private IReadOnlyList<AreaRow> AreasSorted =>
+    (Areas ?? Enumerable.Empty<AreaRow>())
+        .OrderBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase)
+        .ToList();
+
+    private IReadOnlyList<ZoneRow> GetZonesSorted(AreaRow? area)
+    {
+        return (area?.Zones ?? Enumerable.Empty<ZoneRow>())
+            .OrderBy(z => z.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    private IReadOnlyList<EquipmentGroupRow> GetEquipmentsSorted(AreaRow? area)
+    {
+        return (area?.Equipments ?? Enumerable.Empty<EquipmentGroupRow>())
+            .OrderBy(e => e.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+
+
+    /// <summary>
+    /// Devuelve la lista de ZoneType válidos para las zonas de un Area concreto,
+    /// aplicando la regla:
+    /// Dock   -> Dock
+    /// Buffer -> Buffer
+    /// Stage  -> Stage
+    /// Storage -> Rack, DriveIn, ChaoticStorage, AutomaticStorage
+    /// </summary>
+    private IReadOnlyList<ComboGeneric<string>> GetZoneTypeItemsForArea(AreaRow? area)
+    {
+        if (area is null || string.IsNullOrWhiteSpace(area.Type))
+            return ZoneTypeItemsAll
+                .Select(x => new ComboGeneric<string>
+                {
+                    Value = x.Value,
+                    Description = L.Loc(x.Description)
+                })
+                .OrderBy(x => x.Description, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+
+        ObjectsTypes.AreaType areaType;
+        try
+        {
+            areaType = ObjectsTypes.GetAreaTypeEnum(area.Type);
+        }
+        catch
+        {
+            return ZoneTypeItemsAll
+                .Select(x => new ComboGeneric<string>
+                {
+                    Value = x.Value,
+                    Description = L.Loc(x.Description)
+                })
+                .OrderBy(x => x.Description, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+        }
+
+        if (!AllowedZoneTypeValuesByAreaType.TryGetValue(areaType, out var allowedValues))
+            return ZoneTypeItemsAll
+                .Select(x => new ComboGeneric<string>
+                {
+                    Value = x.Value,
+                    Description = L.Loc(x.Description)
+                })
+                .OrderBy(x => x.Description, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+
+        var list = new List<ComboGeneric<string>>(allowedValues.Length);
+
+        foreach (var val in allowedValues)
+        {
+            if (ZoneTypeItemByValue.TryGetValue(val, out var item))
+            {
+                list.Add(new ComboGeneric<string>
+                {
+                    Value = item.Value,
+                    Description = L.Loc(item.Description) 
+                });
+            }
+        }
+
+        return list
+            .OrderBy(x => x.Description, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Texto para mostrar en la columna Type de Zones.
+    /// Intenta mapear el string almacenado a uno de los items conocidos y devolver su Description.
+    /// Si no encaja, devuelve el string tal cual.
+    /// </summary>
+    private string GetZoneTypeDisplay(string? rawType)
+    {
+        if (string.IsNullOrWhiteSpace(rawType))
+            return L.Loc("Select...");
+
+        if (ZoneTypeItemByValue.TryGetValue(rawType, out var item))
+            return L.Loc(item.Description);
+
+        return rawType!;
+    }
+
+
+
+    // ===== Modelos =====
+    public enum RowState { Unchanged = 0, New = 1, Modified = 2, Deleted = 3 }
+    public interface ITrackableRow { Guid Id { get; set; } RowState RowState { get; set; } }
+
+    public sealed class LookupItem { public Guid Id { get; set; } public string Name { get; set; } = string.Empty; }
+    public sealed class LookupFlowItem { public Guid Id { get; set; } public string Name { get; set; } = string.Empty; public FlowType Type { get; set; } }
+
+    public sealed class ProcessRow : ITrackableRow
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Type { get; set; }
+        public bool IsInitProcess { get; set; }
+         public bool IsWarehouseProcess { get; set; }
+        public int? MinTime { get; set; }
+        public int? PreprocessTime { get; set; }
+        public int? PostprocessTime { get; set; }
+        public Guid? FlowId { get; set; }
+        public Guid? AreaId { get; set; }
+        public List<ProcessDirectionRow> Directions { get; set; } = new();
+        public int ProcessDirectionsCount => Directions?.Count ?? 0;
+        // Selección / paginación detalle
+        public List<ProcessDirectionRow> SelectedDirections { get; set; } = new();
+        public int PageIndex_Dir { get; set; }
+        public int ActivePageIndex_Dir { get; set; }
+        public RowState RowState { get; set; }
+    }
+
+    public sealed class ProcessDirectionRow : ITrackableRow
+    {
+        public Guid Id { get; set; }
+        public Guid StartProcessId { get; set; }
+        public Guid? EndProcessId { get; set; }
+        public decimal Percentage { get; set; }
+        public bool IsEnd { get; set; }
+        public RowState RowState { get; set; }
+    }
+
+    public sealed class AreaRow : ITrackableRow
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Type { get; set; }
+        public List<ZoneRow>? Zones { get; set; }
+        public List<RouteRow>? Routes { get; set; }
+        public List<EquipmentGroupRow>? Equipments { get; set; }
+        public int ZonesCount => Zones?.Count ?? 0;
+        public int RoutesCount => Routes?.Count ?? 0;
+        public int EquipmentsCount => Equipments?.Count ?? 0;
+
+        // Selección / paginación detalle
+        public List<ZoneRow> SelectedZones { get; set; } = new();
+        public List<EquipmentGroupRow> SelectedEquipments { get; set; } = new();
+        public List<RouteRow> SelectedRoutes { get; set; } = new();
+
+        public int PageIndex_Zones { get; set; }
+        public int PageIndex_Equipments { get; set; }
+        public int PageIndex_Routes { get; set; }
+
+        public int ActivePageIndex_Zones { get; set; }
+        public int ActivePageIndex_Equipments { get; set; }
+        public int ActivePageIndex_Routes { get; set; }
+
+        public RowState RowState { get; set; }
+    }
+
+    public sealed class ZoneRow : ITrackableRow
+    {
+        public Guid Id { get; set; }
+        public Guid AreaId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Type { get; set; }
+        public int? MaxContainers { get; set; }
+        public int? MaxEquipments { get; set; }
+        public RowState RowState { get; set; }
+    }
+
+    public sealed class EquipmentGroupRow : ITrackableRow
+    {
+        public Guid Id { get; set; }
+        public Guid AreaId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public Guid? TypeEquipmentId { get; set; }
+        public int Quantity { get; set; }
+        public RowState RowState { get; set; }
+    }
+
+    public sealed class RouteRow : ITrackableRow
+    {
+        public Guid Id { get; set; }
+        public Guid DepartureAreaId { get; set; }
+        public Guid? ArrivalAreaId { get; set; }
+        public int? TimeMin { get; set; }
+        public bool Bidirectional { get; set; }
+        public RowState RowState { get; set; }
+    }
+
+    private sealed class DeleteGroupInfo
+    {
+        public string Title { get; set; } = string.Empty;
+        public List<string> Items { get; set; } = new();
+    }
+
+    public class ComboGeneric<T>
+    {
+        public T Value { get; set; }
+        public string Description { get; set; }
+    }
+    public class ViewportExtensions
+    {
+        public string? UpdateViewportName(string? viewportJson, string? newName)
+        {
+            // Si no hay JSON o el nombre nuevo está vacío, no hacemos nada
+            if (string.IsNullOrWhiteSpace(viewportJson) || string.IsNullOrWhiteSpace(newName))
+                return viewportJson;
+
+            try
+            {
+                // Parseamos el JSON a un JsonObject dinámico
+                var node = JsonNode.Parse(viewportJson) as JsonObject;
+                if (node is null)
+                    return viewportJson;
+
+                // Actualizamos SOLO el campo Name
+                node["Name"] = newName;
+
+                // Volvemos a serializar
+                return node.ToJsonString();
+            }
+            catch
+            {
+                // Si algo sale mal (JSON mal formado, etc.), regresamos el original
+                return viewportJson;
+            }
+        }
+    }
+
+    // Tab helper
+    private enum TabKind
+    {
+        Processes = 0,
+        Areas = 1
+    }
+
+    private TabKind CurrentTab => (TabKind)ActiveTabIndex; // Used for grid toolbar methods
+
+    private void ApplyDeletes(DeleteManager deleteManager)
+    {
+        if (PendingDeleteProcessIds.Any())
+            deleteManager.DeleteProcesses(PendingDeleteProcessIds);
+
+        if (PendingDeleteAreaIds.Any())
+            deleteManager.DeleteAreas(PendingDeleteAreaIds);
+
+        if (PendingDeleteDirectionIds.Any())
+            deleteManager.DeleteProcessDirections(PendingDeleteDirectionIds);
+
+        if (PendingDeleteZoneIds.Any())
+            deleteManager.DeleteZones(PendingDeleteZoneIds);
+
+        if (PendingDeleteEquipmentIds.Any())
+            deleteManager.DeleteEquipments(PendingDeleteEquipmentIds);
+
+        if (PendingDeleteRouteIds.Any())
+            deleteManager.DeleteRoutes(PendingDeleteRouteIds);
+    }
+
+    private void RequestProcessPagerSync()
+    {
+        _processSyncCts?.Cancel();
+        _processSyncCts = new CancellationTokenSource();
+        var token = _processSyncCts.Token;
+
+        _ = InvokeAsync(async () =>
+        {
+            try
+            {
+                await Task.Delay(80, token);
+                if (token.IsCancellationRequested) return;
+                SyncProcessPagerFromGrid();
+            }
+            catch (TaskCanceledException) { }
+        });
+    }
+
+    private Task OnProcessesLayoutAutoSaving(GridPersistentLayoutEventArgs e)
+    {
+        RequestProcessPagerSync();
+        return Task.CompletedTask;
+    }
+
+    private void SyncProcessPagerFromGrid()
+    {
+        if (_processSyncInProgress) return;
+        if (ProcessGridRef is null) return;
+
+        _processSyncInProgress = true;
+        try
+        {
+            var visible = ProcessGridRef.GetVisibleRowCount();
+            var grouped = ProcessGridRef.GetGroupCount() > 0;
+
+            int topGroups = 0;   // Only groups
+            int dataRows = 0;   // In case there is no grouping
+
+            for (int i = 0; i < visible; i++)
+            {
+                if (ProcessGridRef.IsGroupRow(i))
+                {
+                    // Main groups (does NOT change when expanded)
+                    if (ProcessGridRef.GetRowLevel(i) == 0)
+                        topGroups++;
+                }
+                else
+                {
+                    // Actual data rows (only for non-grouped mode)
+                    if (ProcessGridRef.GetDataItem(i) is ProcessRow)
+                        dataRows++;
+                }
+            }
+
+            TotalItemsProcesses = grouped ? topGroups : dataRows;
+
+            // PageCount based on what you decided to count
+            var baseSize = (PageSizeMain == -1) ? Math.Max(1, TotalItemsProcesses) : BasePageSizeProcesses;
+            PageCountProcesses = Math.Max(1, (int)Math.Ceiling((double)TotalItemsProcesses / baseSize));
+            ActivePageIndexProcesses = Math.Clamp(ActivePageIndexProcesses, 0, PageCountProcesses - 1);
+            PageIndexProcesses = ActivePageIndexProcesses;
+
+            PagerRecordsProcesses = L.Loc("Page {0} of {1}, {2} Items", ActivePageIndexProcesses + 1, PageCountProcesses, TotalItemsProcesses);
+
+            StateHasChanged();
+        }
+        finally
+        {
+            _processSyncInProgress = false;
+        }
+    }
+
+    private void RequestAreasPagerSync()
+    {
+        _areasSyncCts?.Cancel();
+        _areasSyncCts = new CancellationTokenSource();
+        var token = _areasSyncCts.Token;
+
+        _ = InvokeAsync(async () =>
+        {
+            try
+            {
+                await Task.Delay(80, token);
+                if (token.IsCancellationRequested) return;
+                SyncAreasPagerFromGrid();
+            }
+            catch (TaskCanceledException) { }
+        });
+    }
+
+    private void SyncAreasPagerFromGrid()
+    {
+        if (_areasSyncInProgress) return;
+        if (AreaGridRef is null) return;
+
+        _areasSyncInProgress = true;
+        try
+        {
+            var visible = AreaGridRef.GetVisibleRowCount();
+            var dataRows = 0;
+            var groupRowsLevel0 = 0;
+
+            for (var i = 0; i < visible; i++)
+            {
+                if (AreaGridRef.IsGroupRow(i))
+                {
+                    if (AreaGridRef.GetRowLevel(i) == 0)
+                        groupRowsLevel0++;
+
+                    continue;
+                }
+
+                if (AreaGridRef.GetDataItem(i) is AreaRow)
+                    dataRows++;
+            }
+
+            var total = groupRowsLevel0 > 0 ? groupRowsLevel0 : dataRows;
+            TotalItemsAreas = total;
+            var baseSize = (PageSizeMain == -1) ? Math.Max(1, TotalItemsAreas) : BasePageSizeAreas;
+            PageCountAreas = Math.Max(1, (int)Math.Ceiling((double)TotalItemsAreas / baseSize));
+
+            ActivePageIndexAreas = Math.Clamp(ActivePageIndexAreas, 0, PageCountAreas - 1);
+            PageIndexAreas = ActivePageIndexAreas;
+            PagerRecordsAreas = L.Loc("Page {0} of {1}, {2} Items",ActivePageIndexAreas + 1, PageCountAreas, TotalItemsAreas);
+
+            StateHasChanged();
+        }
+        finally
+        {
+            _areasSyncInProgress = false;
+        }
+    }
+
+    private Task OnAreasLayoutAutoSaving(GridPersistentLayoutEventArgs e)
+    {
+        RequestAreasPagerSync();
+        return Task.CompletedTask;
+    }
+    // =============================================================
+    // HELPERS: Detect Changes, Revert to Original & Update RowState
+    // =============================================================
+
+    private void InitBaseSnapshot<TRow>(
+        IEnumerable<TRow> rows,
+        Dictionary<Guid, Dictionary<string, object?>> baseStore,
+        IReadOnlyList<string> fields,
+        bool clearEditedCells = false)
+        where TRow : class, ITrackableRow
+    {
+        baseStore.Clear();
+        if (clearEditedCells) _editedCells.Clear();
+
+        foreach (var r in rows)
+        {
+            var dict = new Dictionary<string, object?>(StringComparer.Ordinal);
+            foreach (var f in fields)
+                dict[f] = GetPropValue(r, f);
+
+            baseStore[r.Id] = dict;
+        }
+    }
+
+    private void RecalcEditedCellsForRow<TRow>(
+    TRow row,
+    Dictionary<Guid, Dictionary<string, object?>> baseStore,
+    IReadOnlyList<string> fields)
+    where TRow : class, ITrackableRow
+    {
+        if (!baseStore.TryGetValue(row.Id, out var baseRow))
+            return;
+
+        _editedCells.RemoveWhere(x => x.RowId == row.Id);
+
+        foreach (var field in fields)
+        {
+            baseRow.TryGetValue(field, out var baseValue);
+            var currentValue = GetPropValue(row, field);
+
+            if (!EqualsNormalized(baseValue, currentValue))
+                _editedCells.Add((row.Id, field));
+        }
+
+        if (row.RowState != RowState.New)
+            row.RowState = _editedCells.Any(x => x.RowId == row.Id) ? RowState.Modified : RowState.Unchanged;
+    }
+
+
+    private void CopyTrackedFields<TRow>(TRow from, TRow to, IReadOnlyList<string> fields)
+    where TRow : class
+    {
+        foreach (var field in fields)
+        {
+            var prop = typeof(TRow).GetProperty(field);
+            if (prop is null || !prop.CanRead || !prop.CanWrite) continue;
+            prop.SetValue(to, prop.GetValue(from));
+        }
+    }
+
+    private void RefreshAllBaseSnapshotsAfterSave()
+    {
+        InitBaseSnapshot(Areas, _baseAreas, AreaFields, clearEditedCells: true);
+        InitBaseSnapshot(Processes, _baseProcesses, ProcessFields);
+
+        InitBaseSnapshot(Areas.SelectMany(a => a.Zones ?? new List<ZoneRow>()), _baseZones, ZoneFields);
+        InitBaseSnapshot(Areas.SelectMany(a => a.Routes ?? new List<RouteRow>()), _baseRoutes, RouteFields);
+        InitBaseSnapshot(Areas.SelectMany(a => a.Equipments ?? new List<EquipmentGroupRow>()), _baseEquips, EquipFields);
+        InitBaseSnapshot(Processes.SelectMany(p => p.Directions ?? new List<ProcessDirectionRow>()), _baseDirections, DirectionFields);
+    }
+
+    private static object? GetPropValue(object obj, string propName)
+    {
+        var p = obj.GetType().GetProperty(propName);
+        return p?.GetValue(obj);
+    }
+
+    private static bool EqualsNormalized(object? a, object? b)
+    {
+        if (a is string sa && b is string sb)
+            return string.Equals(sa, sb, StringComparison.Ordinal);
+
+        return Equals(a, b);
+    }
+
+    private static readonly string[] AreaFields =
+{
+    nameof(AreaRow.Name),
+    nameof(AreaRow.Type),
+};
+
+    private static readonly string[] ZoneFields =
+    {
+    nameof(ZoneRow.Name),
+    nameof(ZoneRow.Type),
+    nameof(ZoneRow.MaxContainers),
+    nameof(ZoneRow.MaxEquipments),
+};
+
+    private static readonly string[] RouteFields =
+    {
+    nameof(RouteRow.DepartureAreaId),
+    nameof(RouteRow.ArrivalAreaId),
+    nameof(RouteRow.TimeMin),
+    nameof(RouteRow.Bidirectional),
+};
+
+    private static readonly string[] EquipFields =
+    {
+    nameof(EquipmentGroupRow.Name),
+    nameof(EquipmentGroupRow.TypeEquipmentId),
+    nameof(EquipmentGroupRow.Quantity),
+};
+
+    private static readonly string[] ProcessFields =
+    {
+    nameof(ProcessRow.Name),
+    nameof(ProcessRow.Type),
+    nameof(ProcessRow.IsInitProcess),
+    nameof(ProcessRow.MinTime),
+    nameof(ProcessRow.PreprocessTime),
+    nameof(ProcessRow.PostprocessTime),
+    nameof(ProcessRow.FlowId),
+    nameof(ProcessRow.AreaId),
+};
+
+    private static readonly string[] DirectionFields =
+    {
+    nameof(ProcessDirectionRow.EndProcessId),
+    nameof(ProcessDirectionRow.Percentage),
+    nameof(ProcessDirectionRow.IsEnd),
+
+};
+}
+
+

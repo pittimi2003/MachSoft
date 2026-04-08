@@ -1,0 +1,78 @@
+﻿@inject IJSRuntime JS
+@inject IEventServices eventServices
+@inject ISimulateService simulateService
+@inject GanttJsService GanttService
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using DevExpress.Blazor
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.Models
+@inject ILocalizationService l
+
+<div class="toolbar-container me-1">
+    <div class="toolbar-wrapper">
+        <div id="switchBar" class="switch-bar">
+            <div class="custom-switch-buttons">
+                <button class="switch-option @(IsSwitchOn  ? "inactive" : "active")" title="@Caption_off"
+                @onclick="() => ToggleSwitch(false)">
+                    <div class="icon-label">
+                        <span class="@IconWhenOff"></span>
+                        @if (ShowSwitchLabel)
+                        {                            
+                            <span class="switch-label">@TitleWhenOff</span>
+                        }
+                    </div>
+                </button>
+
+                <button class="switch-option @(IsSwitchOn  ? "active" : "inactive")" title="@Caption_on"
+                @onclick="() => ToggleSwitch(true)">
+                    <div class="icon-label">
+                        <span class="@IconWhenOn"></span>
+                        @if (ShowSwitchLabel)
+                        {                            
+                            <span class="switch-label">@TitleWhenOn</span>
+                        }
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsSwitchOn { get; set; }
+    [Parameter] public string IconWhenOff { get; set; } 
+    [Parameter] public string TitleWhenOff { get; set; }
+
+    [Parameter] public string IconWhenOn { get; set; } 
+    [Parameter] public string TitleWhenOn { get; set; }
+    [Parameter] public EventCallback<bool> IsSwitchOnChanged { get; set; }
+    [Parameter] public bool ShowSwitchLabel { get; set; } = true;
+
+    private string? Caption_off { get; set; }
+    private string? Caption_on { get; set; }
+
+    private async Task ToggleSwitch(bool state)
+    {
+        if (IsSwitchOn != state)
+        {
+            IsSwitchOn = state;
+            await IsSwitchOnChanged.InvokeAsync(state);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        TitleWhenOff = l.Loc(TitleWhenOff);
+        TitleWhenOn = l.Loc(TitleWhenOn);
+        Caption_off = l.Loc("{0} view", TitleWhenOff);
+        Caption_on = l.Loc("{0} view", TitleWhenOn);
+    }
+
+}

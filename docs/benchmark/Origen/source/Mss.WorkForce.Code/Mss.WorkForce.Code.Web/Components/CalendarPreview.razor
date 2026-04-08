@@ -1,0 +1,81 @@
+﻿@page "/Calendar"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.DTO.Calendar
+@using Mss.WorkForce.Code.Models.DataAccess
+@using DevExpress.Blazor.Scheduler
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using Radzen
+@using Radzen.Blazor
+@inject DataAccess dataAccess
+@attribute [Authorize]
+<div class="mlx-preview-container">
+    <div class="mlx-preview-section-header">
+        <div class="row mt-1">
+            <div class="col-md-3">
+                <SiteCalendar Sites="Sites" SelectedSite="SelectedSite" ValueChanged="OnSiteSeleccionadaChanged" />
+            </div>
+        </div>
+    </div>
+    <RadzenScheduler Data="@calendarEvents"
+                        StartProperty="StartDate"
+                        EndProperty="EndDate"
+                        TextProperty="Caption"
+                        Date="@MesActual"
+                        AppointmentRender="@OnAppointmentRender"
+                        Style="height: 100%; min-height: 300px;" >
+
+        <RadzenMonthView />
+    </RadzenScheduler>
+</div>
+
+
+
+
+@code {
+    private IEnumerable<CalendarTaskDto> calendarEvents = [];
+    DateTime MesActual = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    //AppointmentTemplate="@((CalendarTaskDto item) => RenderTask(item))"
+
+    public List<SiteModel> Sites = new List<SiteModel>();
+    public SiteModel SelectedSite = new SiteModel();
+
+    protected override void OnInitialized()
+    {
+        Sites = dataAccess.GetWarehouse(dataAccess.GetOrganization().FirstOrDefault().Id)
+      .Select(x => new SiteModel
+          {
+              Id = x.Id,
+              Name = x.Name
+          }).ToList();
+
+        SelectedSite = Sites.FirstOrDefault();
+
+        calendarEvents = dataAccess.GetCalendarTaskDtos(SelectedSite.Id);
+        
+    }
+
+    private async Task OnSiteSeleccionadaChanged(SiteModel newSite)
+    {
+        SelectedSite = newSite;
+        calendarEvents = dataAccess.GetCalendarTaskDtos(SelectedSite.Id);
+        
+        StateHasChanged();
+    }
+
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<CalendarTaskDto> args)
+    {
+        if (args.Data.IsConflicting)
+        {
+            args.Attributes["style"] = "background-color: red; color: white;";
+        }
+        else if (!args.Data.IsActive)
+        {
+            args.Attributes["style"] = "opacity: 0.5;";
+        }
+        else
+        {
+            args.Attributes["style"] = "background-color: #4CAF50; color: white;";
+        }
+    }
+
+}

@@ -1,0 +1,47 @@
+﻿@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService l
+
+<div class="row mb-2">
+
+
+    <!-- TEXTO DE CONFIRMACIÓN -->
+    <div>
+        <span class="title-details-normal">
+            @l.Loc("Are you sure you want to remove the next orders from the planning?: ")
+        </span>
+        <br />
+
+        <div style="max-height: 150px; overflow-y: auto; margin-top: 6px;">
+            @if (MultiSelectTask.Any(x => x.id == selectTask.id))
+            {
+                @foreach (var task in MultiSelectTask)
+                {
+                    @("• ")
+                    <span class="title-details">@task.title</span>
+                    <br />
+                }
+            }
+            else
+            {
+                @("• ")
+                <span class="title-details">@selectTask.title</span>
+            }
+        </div>
+    </div>
+
+    <div class="custom-alert-error custom-alert-backgroud-warning"
+         style="margin-bottom: 16px; padding: 8px 12px;">
+        <div style="display: flex; align-items: center; font-family: 'Segoe UI' !important;">
+            <span class="mlx-ico-warning-bg-solid alert-icon" style="margin-right: 8px;"></span>
+            <span class="title-details-normal" style="font-weight: 500;">
+                @l.Loc("SIMULATION_TRIGGER_MESSAGE")
+            </span>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TaskData selectTask { get; set; } = new TaskData();
+    [Parameter] public List<TaskData> MultiSelectTask { get; set; } = new();
+}

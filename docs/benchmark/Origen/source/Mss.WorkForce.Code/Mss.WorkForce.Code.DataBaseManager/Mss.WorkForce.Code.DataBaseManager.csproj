@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql" Version="8.0.5" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Mss.WorkForce.Code.Alerts\Mss.WorkForce.Code.Alerts.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.ConfigurationCheckLogs\Mss.WorkForce.Code.ConfigurationCheckLogs.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.Labor\Mss.WorkForce.Code.Labor.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.Models\Mss.WorkForce.Code.Models.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.ServiceDefaults\Mss.WorkForce.Code.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Mss.WorkForce.Code.Yard\Mss.WorkForce.Code.Yard.csproj" />
+  </ItemGroup>
+
+</Project>

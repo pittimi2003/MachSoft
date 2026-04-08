@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Dashboard>
+	<Title Text="VIEW6 - Grado de intercalado de tareas" />
+	<DataSources>
+		<JsonDataSource Name="JSON Data Source (File)" RootElement="Test" ComponentName="jsonDataSource1">
+			<Source SourceType="DevExpress.DataAccess.Json.UriJsonSource" Uri="Data/widgetexample.json" />
+		</JsonDataSource>
+	</DataSources>
+	<Items>
+		<Grid ComponentName="gridDashboardItem1" Name="Processes interleaving time" DataSource="jsonDataSource1">
+			<DataItems>
+				<Dimension DataMember="When" DateTimeGroupInterval="DateHour" DefaultId="DataItem1" />
+				<Measure DataMember="InterleavingSec" DefaultId="DataItem3" />
+				<Measure DataMember="OutboundSec" DefaultId="DataItem4" />
+				<Measure DataMember="InboundSec" DefaultId="DataItem2" />
+			</DataItems>
+			<GridColumns>
+				<GridDimensionColumn>
+					<Dimension DefaultId="DataItem1" />
+				</GridDimensionColumn>
+				<GridMeasureColumn Name="Inbound time(seconds)">
+					<Measure DefaultId="DataItem2" />
+				</GridMeasureColumn>
+				<GridMeasureColumn Name="Outbound time(seconds)">
+					<Measure DefaultId="DataItem4" />
+				</GridMeasureColumn>
+				<GridMeasureColumn Name="Interleaving time(seconds)">
+					<Measure DefaultId="DataItem3" />
+				</GridMeasureColumn>
+			</GridColumns>
+		</Grid>
+		<DateFilter ComponentName="dateFilterDashboardItem1" Name="Date Filter" ShowCaption="false" DataSource="jsonDataSource1">
+			<DataItems>
+				<Dimension DataMember="When" DateTimeGroupInterval="DayMonthYear" DefaultId="DataItem0" />
+			</DataItems>
+			<Dimension DefaultId="DataItem0" />
+		</DateFilter>
+	</Items>
+	<LayoutTree>
+		<LayoutGroup Orientation="Vertical">
+			<LayoutItem DashboardItem="dateFilterDashboardItem1" />
+			<LayoutItem DashboardItem="gridDashboardItem1" />
+		</LayoutGroup>
+	</LayoutTree>
+</Dashboard>

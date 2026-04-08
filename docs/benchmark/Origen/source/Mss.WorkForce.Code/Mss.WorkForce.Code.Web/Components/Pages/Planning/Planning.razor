@@ -1,0 +1,187 @@
+﻿@page "/live-schedule"
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Models.ModelInsert
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Components.Pages.Preview
+@using Mss.WorkForce.Code.Web.Model
+@using System.Text.Json
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Models.DataAccess
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@inherits Mss.WorkForce.Code.Web.Common.GanttOperations
+@attribute [Authorize]
+
+<ConfirmDialog></ConfirmDialog>
+
+<div class="mlx-preview-container">
+    <div class="row flex-grow-0 align-items-center">
+        <div class="col-6 col-xxl-5 justify-content-start">
+            <div class="d-flex flex-column flex-xxl-row align-items-start align-items-xxl-center gap-1 mt-3 mt-xl-0" id="firstdiv">
+                <SitePreview ValueChanged="OnSiteSeleccionadaChanged" />
+                @if (!string.IsNullOrEmpty(FilterSummaryTextPlanning) && !OnSwitchView)
+                {
+                    <div class="filter-summary">
+                        <span class="mlx-ico-time-interval"></span>
+                        <span>@FilterSummaryTextPlanning</span>
+                        <button class="btn-clear" @onclick='() => ClearFilter(eFilterType.TimeIntervale)'>
+                            <span class="mlx-ico-close-sm"></span>
+                        </button>
+                    </div>
+                }
+                else if (YardResourceFilter != null && !OnSwitchView)
+                {
+                    <div class="filter-summary">
+                        <span class="mlx-ico-filters"></span>
+                        <span>@BuildResourceFilterLabel(YardResourceFilter)</span>
+                        <button class="btn-clear" @onclick='() => ClearFilter(eFilterType.YardResource)'>
+                            <span class="mlx-ico-close-sm"></span>
+                        </button>
+                    </div>
+                }
+            </div>
+            @* <div class="col-auto">
+				<ViewDropDown Views="Views" SelectedView="SelectedView" ValueChanged="OnViewSeleccionadaChanged" />
+			</div> *@
+        </div>
+        <div class="col-6 col-xxl-7">
+            <div class="d-flex flex-column flex-xxl-row justify-content-end" id="seconddiv">
+                <div class="alert-bar d-flex">
+                    @if (CurrentSite?.Id != Guid.Empty)
+                    {
+                        <MlxSLAConfigLabel WarehouseId="CurrentSite.Id" Code="Shipped Stock" CurrentPlanning="CurrentPlanning" UserFormat="userFormat" />
+                    }
+                    <MlxSwitchBar TitleWhenOn="Manual" IconWhenOn="mlx-ico-mode-manual" TitleWhenOff="Automatic" IconWhenOff="mlx-ico-mode-automatic" IsSwitchOn="@OnModeView" IsSwitchOnChanged="OnAutomaticManualChanged" ShowSwitchLabel="false" />
+                    <MlxAlertBar Alerts="@Alerts" @ref="MlxAlerBarRef" />
+                    <MlxSwitchBar TitleWhenOn="Grid" IconWhenOn="mlx-ico-grid" TitleWhenOff="Gantt" IconWhenOff="mlx-ico-gantt" IsSwitchOn="@OnSwitchView" IsSwitchOnChanged="OnSwitchChanged" ShowSwitchLabel="false" />
+                </div>
+                <div class="toolbar-wrapper">
+                    <TopBar OnToggleChart="ToggleChartVisibility"
+                    IsSwitchOn="@OnSwitchView"
+                    ShowPrioritySecction="true"
+                    AddIntervalTime="true"
+                    gantt="GanttSetup"
+                    LastUpdateGantt="@LastUpdateGantt"
+                    LastUpdateGrid="@LastUpdateGrid"
+                    ActiveButtos="@IsDisabledTopBarButtons"
+                    UserFormat="userFormat" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mlx-preview-section-gantt">
+        <div class="row">
+            <div class="col">
+                <div id="GanttContainer" class="mlx-container-gantt-80">
+                    @if (!OnSwitchView)
+                    {
+                        <GanttComponent TModel="TaskData" GanttSetup="GanttSetup" GanttTasksData="DataSimulation" LoadPanelVisible="LoadPanelVisible" BackgroundShading="BackGroudShading" UserFormat="userFormat" Properties="GanttProperties"></GanttComponent>
+                    }
+                    else
+                    {
+                        <LiveSchedulerGrid Site="CurrentSite.Id" Offset="CurrentSite.Offset" ShowPivotChar="@showPivotChart" LastUpdateGridChanged="@HandleLastUpdateGrid"></LiveSchedulerGrid>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (!OnSwitchView)
+    {
+        <Mss.WorkForce.Code.Web.Components.Widgets.WidgetComponent ViewWidgetComponent="!OnSwitchView" GroupWidgets="eGroupWidgets.Planning" ChangeGanttRepaint="ChangeGanttRepaint" ReloadDashboard="ReloadDashboard" CurrentPlanning="CurrentPlanning" UserFormat="userFormat" OffSet="GanttSetup.Offset"></Mss.WorkForce.Code.Web.Components.Widgets.WidgetComponent>
+    }
+</div>
+
+<DxPopup @bind-Visible="@IsLockTaskVisible"
+         CssClass="mlx-modal"
+         ShowFooter="true"
+         HeaderText="@l.Loc(txtLockOrder)"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         ShowCloseButton="true"
+         Width="50%">
+    <BodyContentTemplate>
+        <LockTask taskGantt="selectTask" MultiSelectTask="ListTasksSelectedForAction" OnLockButtonStateChanged="HandleLockButtonStateChanged" OnDateEndChange="HandleDateTimeChanged" UserFormat="userFormat"></LockTask>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelLockTask">@l.Loc("Cancel")</button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@isLockButtonDisabled" @onclick="SaveLockTask">@l.Loc("Lock")</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+
+<DxPopup @bind-Visible="@IsCancelTaskVisible"
+         CssClass="mlx-modal"
+         ShowFooter="true"
+         HeaderText="@l.Loc(txtCancelOrder)"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         ShowCloseButton="true"
+         Width="50%">
+
+    <BodyContentTemplate>
+        <CancelTask MultiSelectTask="ListTasksSelectedForAction" selectTask="selectTask"></CancelTask>
+    </BodyContentTemplate>
+
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelButtonTask">@l.Loc("No")</button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" @onclick="CancelTask">@l.Loc("Yes")</button>
+    </FooterContentTemplate>
+
+</DxPopup>
+
+
+<DxPopup @bind-Visible="@IsChangePriorityVisible"
+         CssClass="mlx-modal"
+         ShowFooter="true"
+         HeaderText="@l.Loc(txtChangePriorityOrder)"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         ShowCloseButton="true"
+         Width="40%">
+    <BodyContentTemplate>
+        <ChangePriorityTasks OnChangePriorityButton="HandleChangePriorityButtonState" OnChangePriorityTask="HandleChangePriorityTask"></ChangePriorityTasks>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelPriorityTask">@l.Loc("Cancel")</button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" disabled="@isChangepriorityBtnDisabled" @onclick="SaveChangePriorityTask">@l.Loc("Save")</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+
+<DxPopup @bind-Visible="@MakeChangeToListTask"
+         CssClass="mlx-modal"
+         ShowFooter="true"
+         HeaderText="@l.Loc(txtMultiSelect)"
+         CloseOnOutsideClick="false"
+         CloseOnEscape="false"
+         ShowCloseButton="true"
+         Width="40%">
+
+    <BodyContentTemplate>
+        <div class="container-lock">
+            <div class="row">
+                <div class="col-md-12 item-space">
+                    <div class="container-label">
+                        <div>
+                            <span class="title-details">@MesssageMultiSelect</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </BodyContentTemplate>
+
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelChanges">@l.Loc("No")</button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" @onclick='() => MakeToChanges(actionToTask)'>@l.Loc("Yes")</button>
+    </FooterContentTemplate>
+
+</DxPopup>
+
+@code {
+
+}

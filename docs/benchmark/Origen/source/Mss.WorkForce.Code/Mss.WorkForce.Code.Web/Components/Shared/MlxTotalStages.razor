@@ -1,0 +1,57 @@
+﻿@using System.Globalization
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+
+<div class="toolbar-container">
+	<div class="toolbar-wrapper">
+		<div id="toolBar" class="top-bar" style="display: flex;">
+			<span class="switch-label">@(ResourceType == YardResourceType.Stages ? L.Loc("TOTAL STAGES") : L.Loc("TOTAL DOCKS"))</span>
+			
+			<span class="separator"></span>
+			
+			<span class="pocentlabel">@L.Loc("TS")</span>
+			<div id="ts-box" class="status-box @GetClass(Data.TS)">
+				<span class="value" title=@L.Loc("Total saturation")>@Data.TotalSaturation</span>
+			</div>
+
+			<span class="pocentlabel">AU</span>
+			<div id="au-box" class="status-box @GetClass(Data.AU)">
+				<span class="value" title=@L.Loc("Actual utilization")>@Data.ActualUtilization</span>
+			</div>
+
+			<span class="pocentlabel">PU</span>
+			<div id="pu-box" class="status-box @GetClass(Data.PU)">
+				<span class="value" title=@L.Loc("Planned utilization")>@Data.PlannedUtilization</span>
+			</div>
+
+			<span class="pocentlabel">TC</span>
+			<div id="tc-box" class="status-box @GetClass(Data.TC)">
+				<span class="value" title=@L.Loc("Total capacity")>@Data.TotalCapacity</span>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+@code {
+
+    [Parameter] public DataTotalStages? Data { get; set; }
+
+    [Parameter] public YardResourceType ResourceType { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Data ??= new DataTotalStages(new UserFormatOptions());
+    }
+
+    string GetClass(double percentage)
+    {
+        if (percentage < 70) return "Low";
+        if (percentage < 90) return "Mid";
+        return "Hide";
+    }
+}

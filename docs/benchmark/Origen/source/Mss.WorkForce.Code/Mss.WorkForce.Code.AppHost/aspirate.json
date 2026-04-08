@@ -1,0 +1,11 @@
+{
+  "TemplatePath": "Templates",
+  "ContainerSettings": {
+    "Registry": "mssharborcore.mecalux.com",
+    "RepositoryPrefix": "wfm-projects",
+    "Tags": [
+      "latest"
+    ],
+    "Builder": "docker"
+  }
+}

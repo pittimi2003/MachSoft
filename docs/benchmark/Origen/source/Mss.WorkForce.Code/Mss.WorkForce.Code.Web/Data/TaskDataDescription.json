@@ -1,0 +1,17 @@
+{
+    "TaskData": {
+        "InputOrder.OrderCode": "V_WMSCode",
+        "InputOrder.IsOutbound": "V_Flow",
+        "Priority": "V_Priority",
+        "Status": "V_Status",
+        "InitDate": "V_InitDate",
+        "InputOrder.Carrier": "V_Carrier",
+        "EndDate": "V_EndDate",
+        "Progress": "V_Progress",
+        "IsOnTime": "V_OnDelay",
+        "InputOrder.VehicleCode": "V_Trailer",
+        "InputOrder.Supplier": "V_Supplier",
+        "InputOrder.AppointmentDate": "V_Committedtime",
+        "InputOrder.IsBlocked": "V_LockedStatus"
+    }
+}

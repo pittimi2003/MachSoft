@@ -1,0 +1,19 @@
+{
+  "projectPath": ".",
+  "outputPath": "aspirate-output",
+  "containerRegistry": "mssharborcore.mecalux.com",
+  "containerImageTags": [
+    "latest"
+  ],
+  "containerBuilder": "docker",
+  "templatePath": "Templates",
+  "containerRepositoryPrefix": "wfm-projects",
+  "outputFormat": "kustomize",
+  "privateRegistryEmail": "aspir8@aka.ms",
+  "includeDashboard": false,
+  "secrets": {
+    "salt": "wWJCS\u002Ba4UY8sYKU/",
+    "hash": "0EpozJ0ZrGqUy0PNcJpgz7RiEy02RNSnwNDvOFq3iPA=",
+    "secrets": {}
+  }
+}

@@ -1,0 +1,49 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Services
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@inject ILocalizationService L
+
+<DxPopup CssClass="mlx-modal"
+         HeaderText="@L.Loc("Column chooser")"
+         @bind-Visible="@Visible"
+         CloseOnEscape="true"
+         Closed="@HandlePopupClosed"
+         CloseOnOutsideClick="false"
+         Width="30%"
+         Height="80%"
+         ShowFooter="true"
+         Scrollable="true">
+    <BodyContentTemplate>
+        <div id="dragContainer">
+            @if (ColumnChooseProperties != null)
+            {
+                @foreach (var propertyColumn in ColumnChooseProperties)
+                {
+                    <div id="@propertyColumn.FieldName"
+                         class="cc-drag-item"
+                         draggable="true">
+                        <span class="mlx-ico-drag cc-drag-icon"></span>
+                        <span class="cc-label">@propertyColumn.Caption</span>
+                        <label class="cc-switch">
+                            <input type="checkbox" @bind="propertyColumn.IsVisible" />
+                            <span class="cc-switch-slider"></span>
+                        </label>
+                    </div>
+                }
+            }
+        </div>
+    </BodyContentTemplate>
+
+    <FooterContentTemplate>
+        <button type="button" class="btn-mlx btn-mlx-white-primary" @onclick="OnCancel">@L.Loc("Cancel")</button>
+        <button type="button" class="btn-mlx btn-mlx-blue-primary" @onclick="SaveAndNotify">@L.Loc("Save")</button>
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    
+
+    
+}
+

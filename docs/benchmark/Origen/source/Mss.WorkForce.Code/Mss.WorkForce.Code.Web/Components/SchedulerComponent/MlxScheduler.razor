@@ -1,0 +1,186 @@
+﻿@using System.Collections
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.Enums
+@using Mss.WorkForce.Code.Models.Common
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Services
+@using System;
+@using System.Collections.Generic;
+@using Mss.WorkForce.Code.Web.Model.Enums
+@inject IEventServices _eventServices
+@inject IInitialDataService initialDataService
+@inject ILocalizationService L
+
+<DxLoadingPanel Visible="LoadPanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text=@L.Loc("Loading data...")>
+<div @ref="_schedulerContainer" style="height:100%; width:100%;">
+    
+<DxScheduler @bind-StartDate="@StartDate"
+DataStorage="@DataStorage"
+VisibleResourcesDataSource="@VisibleResources"
+GroupType="SchedulerGroupType.Resource"
+ResourceNavigatorVisible="false"
+AllowCreateAppointment="false"
+AllowEditAppointment="false"
+ShowAppointmentTooltip="false"
+
+AllowResizeAppointment="false"
+                     Id="YardCalendarId"
+@key="ZoomLevel"
+CssClass="mlx-scheduler">
+    <Views>
+    <DxSchedulerTimelineView Duration="@TimeSpan.FromHours(24)" CellMinWidth="@CellMinWidth">
+        <Scales>
+            <DxSchedulerTimeScale Unit="SchedulerTimeScaleUnit.Day" UnitCount="2" />
+            <DxSchedulerTimeScale Unit="SchedulerTimeScaleUnit.Minute" UnitCount="@ZoomLevel" />
+        </Scales>
+
+        <DateHeaderCellTemplate Context="context">
+            @if (context.Scale.Unit == SchedulerTimeScaleUnit.Day)
+            {
+                <div>
+                    @context.Interval.Start.ToString("dddd, dd MMMM yyyy").ToUpper()
+                </div>
+            }
+            else if (context.Scale.Unit == SchedulerTimeScaleUnit.Minute)
+            {
+                <div>
+                     @context.Interval.Start.ToUserTime(userFormat.HourFormatWithoutSeconds)
+                </div>
+            }
+        </DateHeaderCellTemplate>
+
+        <ResourceHeaderCellTemplate>
+                @{
+                    var resource = context.Resource.SourceObject as YardResourceBase;
+                    bool isGroup = resource?.IsGroup == true;
+                    bool isBlock = resource?.IsBlock == true;
+                    bool existsAnyChild = resource?.HasAnyChild == true;
+                }
+
+            <div class="@(isBlock ? "dock-blocked" : "") resource-header-container" @onclick="() => ToggleGroup(resource.Id)">
+                <div class="resource-header-second-container">
+                    @if(resource.ResourceType != eRosourceType.None)
+                    {
+                        string resourceType = "";
+                        if (resource.ResourceType == eRosourceType.ResourceIn) resourceType = "mlx-ico-entrada";
+                        else if (resource.ResourceType == eRosourceType.ResourceOut) resourceType = "mlx-ico-salida";
+                        else resourceType = "mlx-ico-entrada-salida";
+
+                        <span class="@resourceType" style="margin-right: 4px;"></span>
+                    }
+
+                    <div class="resource-header-title">@context.Resource.Caption</div>
+
+                    @if (isGroup && existsAnyChild && !isBlock)
+                    {
+                        <span style="margin-left: 2px;" class="mlx-ico-chevron-down"></span>
+                    }
+                    @if (isBlock)
+                    {
+                        <span class="mlx-ico-lock-close lock-icon"></span>
+                    }
+                </div>
+            </div>
+        </ResourceHeaderCellTemplate>
+
+        <TimeCellTemplate Context="context">
+            @{
+                var resource = context.Resource.SourceObject as YardResourceBase;
+                if (resource != null && resource.IsBlock)
+                {
+                    <div class="my-cell-block"></div>
+                }
+            }
+
+        </TimeCellTemplate>
+        <HorizontalAppointmentTemplate>
+
+            @{
+                var app = context.Appointment.SourceObject as AppointmentMetrics;
+
+                var resource = context.Resource.SourceObject as YardResourceBase;
+
+                if (app != null)
+                {
+                    <div class="cell-container" style="background: @(GetColor((int)app.TotalSaturation));" @ondblclick="() => OnAppointmentDoubleClick(resource, app)">
+                        <div class="cell-general">
+                                <span>@app.TotalSaturation.ToUserNumber(userFormat)%</span>
+                        <span class="cell-st">@L.Loc("TS")</span>
+                        </div>
+                        <div class="cell-bottom">
+                            <div class="cell-part">
+                                    <div class="cell-percent">@app.ActualUtilization.ToUserNumber(userFormat)%</div>
+                            <div class="cell-label">@L.Loc("AU")</div>
+                            </div>
+                            <div class="cell-part">
+                                    <div class="cell-percent">@app.PlannedUtilization.ToUserNumber(userFormat)%</div>
+                            <div class="cell-label">@L.Loc("PU")</div>
+                            </div>
+                            <div class="cell-part">
+                                    <div class="cell-percent">@app.TotalCapacity.ToUserNumber(userFormat)%</div>
+                            <div class="cell-label">@L.Loc("TC")</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+
+        </HorizontalAppointmentTemplate>   
+    </DxSchedulerTimelineView>
+    </Views>
+
+    <AppointmentTooltipHeaderTemplate Context="tooltipContext">
+        @{
+            var app = tooltipContext.Appointment.SourceObject as AppointmentMetrics;
+            if (app != null)
+            {
+                <div class="tooltip-container-header" style=" border-left: 6px solid @(GetColor((int)app.TotalSaturation));">
+                    <div class="tooltip-header">
+                        <div class="tooltip-title">@L.Loc("TOTAL SATURATION")</div>
+                                <div class="tooltip-value">@app.TotalSaturation.ToUserNumber(userFormat)%</div>
+                    </div>
+                                <div class="tooltip-separator"></div>
+                </div>
+            }
+        }
+    </AppointmentTooltipHeaderTemplate>
+
+    <AppointmentTooltipTemplate Context="tooltipContext">
+        @{
+            var app = tooltipContext.Appointment.SourceObject as AppointmentMetrics;
+            if (app != null)
+            {
+                <div class="tooltip-container-body" style=" border-left: 6px solid @(GetColor((int)app.TotalSaturation));">
+                    <div class="tooltip-body">
+                        <div class="tooltip-row">
+                            <span class="tooltip-label">@L.Loc("Actual Utilization")</span>
+                            <span class="tooltip-value-body">@app.ActualUtilization.ToUserNumber(userFormat)%</span>
+                        </div>
+                        
+
+                        <div class="tooltip-row">
+                            <span class="tooltip-label">@L.Loc("Planned Utilization")</span>
+                            <span class="tooltip-value-body">@app.PlannedUtilization.ToUserNumber(userFormat)%</span>
+                        </div>
+                        
+
+                        <div class="tooltip-row">
+                            <span class="tooltip-label">@L.Loc("Total Capacity")</span>
+                            <span class="tooltip-value-body">@app.TotalCapacity.ToUserNumber(userFormat)%</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </AppointmentTooltipTemplate>    
+</DxScheduler>
+</div>
+</DxLoadingPanel>
+
+@code { 
+}

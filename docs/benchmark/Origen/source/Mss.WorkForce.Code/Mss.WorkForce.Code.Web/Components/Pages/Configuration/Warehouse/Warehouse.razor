@@ -1,0 +1,80 @@
+﻿@page "/warehouses"
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Components.GridComponent
+@using Mss.WorkForce.Code.Web.Components.ToolBar
+@using Mss.WorkForce.Code.Web.Components.BaseComponent
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Model
+@inherits Mss.WorkForce.Code.Web.Common.PageOperations
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@attribute [Authorize]
+
+
+<ConfirmDialog></ConfirmDialog>
+<MlxMainContainer IsLeftSideVisible="!IsNewMode" IsRightSideVisible="@IsDetailsVisible" IsRightSideVisibleChanged="@OnRightSideVisibilityChanged" OnClearSelection="@CloseRightPanel" ShowDetailsMobile="@IsDetailsVisible">
+    <LeftSideContent>
+        <ToolbarActions Actions="@Actions" EventListener="@EventListener" SelectMode="@SelectMode"></ToolbarActions>
+    </LeftSideContent>
+
+    <MiddleSideContent>
+        @if (IsNewMode)
+        {
+            <div class="dxbl-modal-body">
+                <div class="d-flex flex-column" style="background-color: white; height:88vh">
+                    <div class="container-title-panel container-for-image" style="justify-content: space-between;">
+                        <div class="item-title-data">
+                            <span class="data-title">@Data</span>
+                            <span style="border-bottom: 4px solid black; display: block; padding: 0.25rem;"></span>
+                        </div>
+                    </div>
+                    <div class="container-data">
+                        <div class="data">
+                            <BaseComponente @ref="baseComponentRef" Models="lstSelectedWarehouses" editMode="true" Container="@EmiterContainer" />
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer container-buttons">
+                        <button id="btnCancel" type="button" class="btn-mlx btn-mlx-white-primary" @onclick="CancelEvent">@Cancel</button>
+                        <button id="btnSave" type="button" disabled="@savebtn" class="btn-mlx btn-mlx-blue-primary" @onclick="SaveEvent">@Save</button>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <GridComponent GridParameters="GetParametersDto" isExpandGrid="@isExpandGrid"></GridComponent>
+        }
+    </MiddleSideContent>
+    <RightSideContent>
+        @if (SelectedWarehouse != null)
+        {
+            <DetailsComponent FillGridParameters="@GetParametersDto"
+                              SelectedIds="@SelectedWarehouseIds"
+                              IsEditable="@IsEditMode"
+                              T="WarehouseDto" />
+        }
+    </RightSideContent>
+</MlxMainContainer>
+
+<style>
+    .toggle-button {
+        margin: 10px;
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+        .toggle-button:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+@code {
+    
+
+}

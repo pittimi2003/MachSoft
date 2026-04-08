@@ -1,0 +1,62 @@
+﻿/* Contenedor general del control de tiempo */
+.time-input-container {
+    position: relative;
+    width: 100%; /* que use todo el ancho de su columna */
+}
+
+    /* Forzamos que el textbox ocupe todo el ancho como el ComboBox */
+    .time-input-container .mlx-form-input,
+    .time-input-container .dxbl-textbox,
+    .time-input-container .dxbl-textbox input {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        padding-right: 22px; /* 🟩 Dejar espacio para la X + hint */
+    }
+
+/* Hint de formato difuminado */
+.time-format {
+    position: absolute;
+    right: 28px; /* separación con borde derecho */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: rgba(0,0,0,0.4); /* gris claro */
+    pointer-events: none; /* que no bloquee clics */
+    user-select: none; /* que no sea seleccionable */
+}
+
+.time-clear-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #444;
+    font-size: 0.9rem;
+    padding: 0;
+    border-radius: 999px;
+}
+
+/* Hover button color */
+/*.time-clear-btn:hover{
+    background-color: var(--gl-color-smoke-200);
+}*/
+
+/* Styles to icon X content */
+.time-clear-btn i{
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Color and Size to content i */
+.time-clear-btn .mlx-ico-close-sm::before {
+    font-size: 20px;
+    color: var(--gl-color-smoke-500);
+    opacity: 0.7;
+}

@@ -1,0 +1,80 @@
+﻿@inject IJSRuntime JS
+@inject IEventServices eventServices
+@inject ISimulateService simulateService
+@inject GanttJsService GanttService
+@inject ILocalizationService l 
+@using Mss.WorkForce.Code.Models.ModelGantt
+@using Mss.WorkForce.Code.Web.Common
+@using Mss.WorkForce.Code.Web.Components.Gantt
+@using Mss.WorkForce.Code.Web.Components.Pages.Planning
+@using DevExpress.Blazor
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.Models
+
+
+<DxPopup CssClass="mlx-modal"
+         HeaderText="@l.Loc("Alert")"
+         @bind-Visible="Visible"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         CloseButtonClick="OnClose"
+         ShowFooter="true"
+         Width="60%"
+         Scrollable="true">
+    <BodyContentTemplate>
+        <div class="row mb-2">
+            <div class="custom-alert-error @GetBackgroudClass(Alert?.AlertSeverity)">
+                <span class="@GetIconClass(Alert?.AlertSeverity) alert-icon"></span>
+                <div style="padding-top: 5px; font-family: 'Segoe UI' !important;">
+                    <strong>@l.Loc((Alert?.AlertSeverity.ToString().ToUpper()))</strong>
+                    <span class="alert-message">
+                        @Alert?.Message
+                    </span>
+                </div>
+                @if (Alert?.IsRead == true)
+                {
+                    <span class="mlx-ico-check alert-check"></span>
+                }
+            </div>
+        </div>
+
+        @* <div class="row mb-2">
+           
+        </div> *@
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public AlertMessageDto Alert { get; set; }
+
+    private void OnClose()
+    {
+        Visible = false;
+        VisibleChanged.InvokeAsync(false);
+    }
+
+    private string GetIconClass(AlertSeverity? severity) => severity switch
+    {
+        AlertSeverity.Error => "mlx-ico-error-bg-solid",
+        AlertSeverity.Warning => "mlx-ico-warning-bg-solid",
+        AlertSeverity.Information => "mlx-ico-info-bg-solid",
+        _ => "mlx-ico-info-bg-solid"
+    };
+
+    private string GetBackgroudClass(AlertSeverity? severity) => severity switch
+    {
+        AlertSeverity.Error => "custom-alert-backgroud-error",
+        AlertSeverity.Warning => "custom-alert-backgroud-warning",
+        AlertSeverity.Information => "custom-alert-backgroud-info",
+        _ => "custom-alert-backgroud-error"
+    };
+}

@@ -1,0 +1,1642 @@
+@typeparam TModel
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Models.Attributtes
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.DTO.Designer
+@using Mss.WorkForce.Code.Models.DTO.Enums
+@using Mss.WorkForce.Code.Models.Common;
+@using Mss.WorkForce.Code.Models.DTO.ExtraConfiguration
+@using Mss.WorkForce.Code.Models.Enums
+@using Mss.WorkForce.Code.Web.Code
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Model
+@using System.ComponentModel
+@using System.Reflection
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Models.Models
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Text.Json
+@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Services
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@using TimeZone = Mss.WorkForce.Code.Models.Models.TimeZone;
+@inject IJSRuntime JS
+@inject IEventServices EventServices
+@inject IInitialDataService _InitialDataService
+@inject SendParamService _SendParamService
+@inject NavigationManager NavigationManager
+@inject ILocalizationService L
+
+<EditForm Model="Models.FirstOrDefault()">
+    <DataAnnotationsValidator />
+    @foreach (var group in GroupedProperties.Where(x => x.IsVisible).GroupBy(p => p.Group))
+    {
+        var IdTab = group.Key.Replace(" ","");
+        <div class="@(string.IsNullOrEmpty(group.Key) ? "" : "accordion")">
+            <div class="@GetAccordionItemClass(group.Key, group.Count())">
+                @if (!string.IsNullOrEmpty(group.Key))
+                {
+                    <h2 class="accordion-header" id="idHead-@IdTab">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idBody-@IdTab" aria-expanded="true" aria-controls="idBody-@IdTab">
+                            <span class="mlx-title-h3">@L.Loc(group.Key)</span>
+                        </button>
+                    </h2>
+                }
+                <div id="idBody-@IdTab" class="accordion-collapse collapse show" aria-labelledby="idHead-@IdTab">
+                    <div class="accordion-body" >
+
+                        <div class="row">
+
+                            @foreach (var property in group)
+                            {
+                                var alignmentClass = property.TextAlignment ? "text-Right-important" : "";
+                                @switch (property.FieldType)
+                                {
+                                    case ComponentType.TextBox:
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;">
+                                            <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                            @if (editMode && (property.IsMultiEditable || property.InitialValue.Count() == 1))
+                                            {
+
+                                                string value = property.InitialValue.FirstOrDefault()?.ToString() ?? string.Empty;
+                                                string mask = GetMaskForProperty(property);
+
+                                                <DxMaskedInput Value="@value"
+                                                ValueChanged="EventCallback.Factory.Create<string>(this, newValue => HandleMaskedInputChange(property, newValue))" 
+                                                ValueExpression="(() => value)"
+                                                CssClass="form-control input-control"
+                                                Mask="@mask"
+                                                MaskMode="MaskMode.RegEx"
+                                                BindValueMode="BindValueMode.OnInput"
+                                                autocomplete="off"></DxMaskedInput>
+                                                <small class="text-danger">@GetValidationError(property.FieldName)</small>
+
+                                            }
+                                            else
+                                            {
+                                                <div class="container-label @alignmentClass">
+                                                    <span class="title-details">@(property.InitialValue.Count() > 1 ? multiplePhrase : property.InitialValue.FirstOrDefault())</span>
+                                                </div>
+                                            }  
+                                        </div>
+                                        break;
+
+                                    case ComponentType.Image:
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;">
+                                            <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                            <div class="container-for-image">
+
+                                                @if (editMode && (property.IsMultiEditable || property.InitialValue.Count() == 1))
+                                                {
+                                                    <InputFile @ref="FileInputRef"
+                                                    OnChange="(e) => LoadFiles(e, property)"
+                                                    multiple
+                                                    ShowFileList="false"
+                                                    accept="image/x-png,image/jpeg"
+                                                    Width="100%"
+                                                    ReadOnly="true"
+                                                    style="display: none;" />
+
+                                                    <div class="form-control img-control input-control img-control-heigth">
+                                                        @if (!string.IsNullOrEmpty(imgSrc))
+                                                        {
+                                                            <img src="@imgSrc" class="img-thumbnail form-control img-control input-control" />
+                                                        }
+                                                    </div>
+                                                    <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                                    <div style="padding-left:10px;">
+                                                        <div class="ico-upload container-icon" @onclick="TriggerFileInput">
+                                                            <span class="mlx-ico-upload-light"></span>
+                                                        </div>
+                                                        <div class="ico-trash container-icon" @onclick="(e) => ClearFile(property)">
+                                                            <span class="mlx-ico-trash"></span>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    @if (property.InitialValue.Count() > 1)
+                                                    {
+                                                        <div class="form-control img-control input-control">
+                                                            <span class="text-muted">@multiplePhrase</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="form-control img-control input-control">
+                                                            @if (!string.IsNullOrEmpty(property.InitialValue.FirstOrDefault()?.ToString()))
+                                                            {
+                                                                <img src="@LoadImag(property.InitialValue.FirstOrDefault())" class="img-thumbnail form-control img-control input-control" />
+                                                            }
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                        break;
+
+                                    case ComponentType.NumericSpin:
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;">
+                                            <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                            @if (editMode && (property.IsMultiEditable || property.InitialValue.Count() == 1))
+                                            {
+                                                decimal value = !string.IsNullOrWhiteSpace(property.InitialValue.FirstOrDefault().ToString()) ? Convert.ToDecimal(property.InitialValue.FirstOrDefault()) : 0;
+                                                <DxSpinEdit Value="@value"
+                                                Increment="1"
+                                                MinValue="0"
+                                                ValueExpression="@(() => value)"
+                                                ValueChanged="@((Decimal newValue) => UpdateProperty(property, newValue))" Mask="n2"><DxNumericMaskProperties Culture="userFormat.BuildCultureFromSeparators()" /></DxSpinEdit>
+                                                <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                            }
+                                            else
+                                            {
+                                                <div class="container-label @alignmentClass">
+                                                    <span class="title-details">@(property.InitialValue.Count() > 1 ? multiplePhrase : FormatNumber(property.InitialValue.FirstOrDefault()))</span>
+                                                </div>                                                            
+                                            }
+                                        </div>
+                                        break;
+
+                                    case ComponentType.DropDown:
+                                    case ComponentType.DropDownLocalized:
+                                        var options = property.Options as IEnumerable<SelectItemComboBox> ?? null;
+                                        if (options != null)
+                                        {
+
+                                            var values = options.Select(o => o.Value).ToList();
+                                            var initialValue = property.InitialValue;
+                                            Guid selectedId = Guid.Empty;
+                                            string selectedValue = string.Empty;
+                                            if ((editMode) && property.InitialValue.Count() == 1)
+                                            {
+                                                if (!string.IsNullOrWhiteSpace(initialValue.FirstOrDefault().ToString()))
+                                                {
+                                                    selectedId = property.InitialValue.FirstOrDefault()?.GetType().GetProperty("Id")?.GetValue(property.InitialValue[0]) as Guid? ?? Guid.Parse(initialValue[0].ToString());
+                                                    selectedValue = property.InitialValue.FirstOrDefault()?.GetType().GetProperty("Name")?.GetValue(property.InitialValue[0]).ToString();
+                                                }
+                                            }
+                                            if (IsProjectDesigner())
+                                            {
+                                                 options = GetValueCatalog(property.FieldName, property.FieldName);
+                                                 property.Options = options;
+                                            }
+                                            if (values != null)
+                                            {
+                                                <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;  position: relative;">
+                                                    <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                                    @if ((editMode || newMode)  && (property.IsMultiEditable || property.InitialValue.Count() == 1))
+                                                    {
+                                                        <MlxComboBox Data="@options"
+                                                        SearchMode="@ListSearchMode.AutoSearch"
+                                                        AllowUserInput="true"
+                                                        TextFieldName="@nameof(SelectItemComboBox.Value)"
+                                                        ValueFieldName="@nameof(SelectItemComboBox.Key)"
+                                                        Value="@selectedId"
+                                                        ValueChanged="EventCallback.Factory.Create<Guid>(this, newValue => UpdateComboBoxValue(property, newValue))"
+                                                        ValueExpression="(() => selectedId)"
+                                                        CssClass="mlx-form-select"
+                                                        NullText="@SELECTED"
+                                                        TextChanged="EventCallback.Factory.Create<string>(this, inputValue => OnTextChanged(inputValue, property))"
+                                                        ShowClearButton="true">
+                                                        </MlxComboBox>
+                                                        @if(property.IsMultiEditable)
+                                                        {
+                                                            @SetErrorMultiselecDropdown(property.FieldName, property.InitialValue)
+                                                        }
+
+                                                        <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                                        
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="container-label">
+                                                            <span class="title-details">@GetDropDownDisplayText(property)</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        }
+                                        break;
+
+                                    case ComponentType.DropDownEnum:
+                                        var valueEnum = property.InitialValue[0];
+                                        @if (property.IsDropDownCascade)
+                                        {
+                                            ReloadComboBoxCascade(property.PropertyNameCascade, property.FieldName, property);
+                                        }
+
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;  position: relative;">
+                                            <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                            @if (editMode && (property.IsMultiEditable || property.InitialValue.Count() == 1))
+                                            {
+                                                <MlxComboBox  Data="@property.EnumItems"
+                                                SearchMode="@ListSearchMode.None"
+                                                AllowUserInput="false"
+                                                TextFieldName="Text"
+                                                ValueFieldName="Value"
+                                                Value="@valueEnum"
+                                                ValueChanged="EventCallback.Factory.Create<object>(this, newValue => UpdateComboBoxEnumValue(property, newValue))"
+                                                ValueExpression="(() => valueEnum)"
+                                                CssClass="mlx-form-select"
+                                                NullText="SELECTED">
+                                                </MlxComboBox>
+                                                <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                            }
+                                            else
+                                            {
+                                                <div class="container-label">
+                                                    <span class="title-details">@(property.InitialValue.Count() > 1 ? multiplePhrase : GetEnumDescription(property.InitialValue.FirstOrDefault()))</span>
+                                                </div>
+                                            }
+                                        </div>
+                                        break;
+
+                                    case ComponentType.Link:
+                                        if (property.InitialValue.FirstOrDefault() is List<WarehouseDto> listWarehouses)
+                                        {
+                                            @foreach (var itemWh in listWarehouses.OrderBy(x => x.Name))
+                                            {
+                                                <td class="url-container">
+                                                    <a @onclick="(e) => Goto(itemWh.Id)" class="url-list">@itemWh.Name</a>
+                                                </td>
+                                            }
+                                        }
+                                        break;
+
+                                    case ComponentType.CommetText:
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;">
+                                            <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                            @if (editMode && (property.IsMultiEditable || property.InitialValue.Count() == 1))
+                                            {
+                                                string value = property.InitialValue.FirstOrDefault() as string;
+                                                <DxMemo @bind-Text="value"
+                                                CssClass="form-control input-control"
+                                                ResizeMode="MemoResizeMode.Disabled"
+                                                Rows="4"
+                                                @onchange="(e) => UpdateProperty(property, e.Value.ToString())">
+                                                </DxMemo>
+                                                <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                            }
+                                            else
+                                            {
+                                                @if (property.InitialValue.Count() > 1)
+                                                {
+                                                    <div class="container-label">
+                                                        <span class="title-details text-muted">@multiplePhrase</span>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="container-label">
+                                                        <span class="title-details" style="white-space: pre-wrap;">@property.InitialValue.FirstOrDefault()</span>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        break;
+
+                                    case ComponentType.PassWord:
+                                        @* <div class="col-md-6"></div> *@
+                                        <div class="col-md-@(12 / (newMode ? 2 : 1))" style="padding-bottom:10px;">
+                                            @if (editMode)
+                                            {
+                                                @if (property.InitialValue.Count() == 1)
+                                                {
+                                                    string value = property.InitialValue.FirstOrDefault() as string;
+                                                    <div class="accordion">
+                                                        <div class="accordion-item">
+                                                            <h2 class="accordion-header" id="idHead-password">
+                                                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#idBody-password" aria-expanded="true" aria-controls="idBody-password">
+                                                                    <span class="mlx-title-h3">@L.Loc("Password")</span>
+                                                                </button>
+                                                            </h2>
+                                                            <div id="idBody-password" class="accordion-collapse collapse show" aria-labelledby="idHead-password">
+                                                                <div class="accordion-body">
+                                                                    <div class="row">
+                                                                        <MlxInputPassword Password="@value"
+                                                                        PasswordChanged="(newValue) => UpdateProperty(property, newValue)"
+                                                                        ValidationChanged="(error) => HandleValidationError(property.FieldName, error)"
+                                                                        InputId="user-password"
+                                                                        RequestConfirm="true" />
+                                                                        <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        break;
+
+                                    case ComponentType.CheckBox:
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;">
+                                            <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                            @if (editMode && (property.IsMultiEditable || property.InitialValue.Count() == 1))
+                                            {
+                                                string value = property.InitialValue.FirstOrDefault()?.ToString() ?? string.Empty;
+                                                string mask = GetMaskForProperty(property);
+                                                <DxCheckBox CssClass="mlx-check-box"
+                                                @bind-Checked="@value"
+                                                @onchange="(e) => UpdateProperty(property, (bool)e.Value)">
+                                                </DxCheckBox>
+                                                <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                            }
+                                            else
+                                            {
+                                                @if (property.InitialValue.Count() > 1)
+                                                {
+                                                    <div class="container-label">
+                                                        <span class="title-details">@multiplePhrase</span>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    var initialValue = property.InitialValue;
+                                                    <div class="container-label">
+                                                        <span class="@((bool)initialValue[0] ? "mlx-ico-check" : "mlx-ico-close")"></span>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        break;
+
+                                    case ComponentType.WarehouseGrid:
+                                        <div class="col-md-@(12 / (newMode ? 2 : 1))" style="padding-bottom:10px;">
+                                            @if (property.InitialValue.Count() == 1)
+                                            {
+                                                var valuelist = Models.FirstOrDefault() as UserDto;
+                                                Guid userid = Guid.Parse(valuelist.Id.ToString());
+                                                var warehouses = property.InitialValue.FirstOrDefault() as ICollection<Warehouse>;
+
+                                                if (warehouses == null)
+                                                {
+                                                    warehouses = new List<Warehouse>(); // Asegura que al menos haya una lista vacía
+                                                }
+
+                                                <div class="accordion" id="idPnlWarehouses">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header" id="idHeadWarehouses">
+                                                            <button class="accordion-button mlx-title-h4" type="button" data-bs-toggle="collapse" data-bs-target="#idBodyWarehouses" aria-expanded="true" aria-controls="idBodyWarehouses">
+                                                                <span class="mlx-title-h3">@L.Loc("Warehouses")</span>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="idBodyWarehouses" class="accordion-collapse collapse show" aria-labelledby="idHeadWarehouses" data-bs-parent="#idPnlWarehouses">
+                                                            <div class="accordion-body">
+                                                                <MlxEditableGrid Warehouses="@warehouses"
+                                                                editMode="@editMode"
+                                                                WarehouseDefaultId="_currentWarehouseDefaultId"
+                                                                AvailableWarehouses="@GetAvailableWarehouses(property)"
+                                                                WarehousesChanged="(warehouses) => UpdateWarehouses(property, warehouses)"
+                                                                DefaultWarehouseChanged="(defaultId) => UpdateDefaultWarehouse(property, defaultId)" />
+
+                                                                <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                        break;
+
+                                    case ComponentType.AlertFilter:
+                                        @if (property.InitialValue.Count > 1)
+                                        {
+                                            <div class="container-label">
+                                                <span class="title-details">@multiplePhrase</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            var alertFilters = property.InitialValue.FirstOrDefault() as ICollection<AlertFilterDto> ?? new List<AlertFilterDto>();
+                                            <div class="col-md-12" style="padding-bottom:10px;">
+                                                <MlxAlertFilter AlertFilters="@alertFilters"
+                                                Columns="Columns"
+                                                IsEditing="@editMode"
+                                                EntityName="@GetValueReference(property.PropertyNameCascade)"
+                                                AlertFilterChanged="(filters) => UpdateAlertFilters(property, alertFilters)"
+                                                userFormat="userFormat"/>
+                                            </div>
+                                        }
+                                        break;
+
+                                    case ComponentType.AlertCondition:
+                                        <div class="col-md-12" style="padding-bottom:10px;">
+                                            @if (property.InitialValue.Count() >= 1)
+                                            {
+                                                var AlertCondition = property.InitialValue.FirstOrDefault() as AlertFilterDto;
+                                                bool isMultiEdition = property.InitialValue.Count() > 1;
+                                                <MlxAlert ModelFilter="@AlertCondition"
+                                                EntityName="@GetValueReference(property.PropertyNameCascade)"
+                                                IsMultiEdition="@isMultiEdition"
+                                                Columns="Columns"
+                                                IsEditing="@editMode"
+                                                AlertFilterChanged="(AlertFilterDto) => UpdateAlertCondition(property, AlertCondition)" 
+                                                userFormat="userFormat"/>
+                                            }
+                                        </div>
+                                        break;
+
+                                    case ComponentType.AlertConfiguration:
+                                        @if (property.InitialValue.Count > 1)
+                                        {
+                                            <div class="container-label">
+                                                <span class="title-details">@multiplePhrase</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            var alertConfigurations = property.InitialValue.FirstOrDefault() as ICollection<AlertConfigurationDto> ?? new List<AlertConfigurationDto>();
+                                            <div class="col-md-12" style="padding-bottom:10px;">
+                                                <MlxAlertConfiguration AlertConfigurations="@alertConfigurations"
+                                                Columns="Columns"
+                                                IsEditing="@editMode"
+                                                EntityName="@GetValueReference(property.PropertyNameCascade)"
+                                                AlertConfigurationChanged="(configurations) => UpdateAlertConfigurations(property, alertConfigurations)" />
+                                                <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                            </div>
+                                        }
+                                        break;
+
+                                    case ComponentType.ItemIcon:
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;">
+                                            <div>
+                                                <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                                <div>
+                                                    @if (property.InitialValue.Count > 1 && !editMode)
+                                                    {
+
+                                                        <div class="container-label">
+                                                            <span class="title-details text-muted">@multiplePhrase</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        if (editMode)
+                                                        {
+                                                            if (Enum.TryParse<MessageStatus>(property.InitialValue.FirstOrDefault()?.ToString(), out var status))
+                                                            {
+                                                                <div class="col-md-6 d-flex gap-2">
+                                                                    @foreach (var tipo in Enum.GetValues(typeof(MessageStatus)).Cast<MessageStatus>())
+                                                                    {
+                                                                        <span class="@GetIconMessageStatus(tipo.ToString())"></span>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                Enum.TryParse<AlertSeverity>(property.InitialValue.FirstOrDefault()?.ToString(), out var resultado);
+                                                                activatedAlert = resultado;
+                                                                <div class="col-md-6 d-flex gap-2">
+                                                                    @foreach (var tipo in Enum.GetValues(typeof(AlertSeverity)).Cast<AlertSeverity>())
+                                                                    {
+                                                                        <button @onclick="() => ActivarSeverity(tipo, property)" class="@(activatedAlert == tipo ? "button-hide" : "") button-severity w-100">
+                                                                            <span class="@GetIconTextDisabled((tipo.ToString()))"></span>
+                                                                        </button>
+                                                                        <button class="@(activatedAlert == tipo ? "" : "button-hide") button-severity  w-100">
+                                                                            <span class="@GetIconText((tipo.ToString()))"></span>
+                                                                        </button>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        }
+                                                        else{
+                                                            
+                                                            if (Enum.TryParse<MessageStatus>(property.InitialValue.FirstOrDefault()?.ToString(), out var status))
+                                                            {
+                                                                <span class="@GetIconMessageStatus((property.InitialValue.FirstOrDefault().ToString()))"></span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="container-label">
+                                                                    <span class="@GetIconText((property.InitialValue.FirstOrDefault().ToString()))"></span>
+                                                                </div>
+                                                            }
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        break;
+
+                                    case ComponentType.IdWareHouse:
+                                        var warehouseDefaultId = property.InitialValue.FirstOrDefault() as Guid? ?? Guid.Empty;
+                                        _currentWarehouseDefaultId = warehouseDefaultId;
+                                        break;
+
+                                    case ComponentType.Time:
+                                        <div class="col-md-@(12 / Columns)" style="padding-bottom:10px;">
+                                            <div>
+                                                <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>
+                                                <div>    
+                                                    @if (!editMode)
+                                                    {                                           
+                                                        <div class="container-label">
+                                                            <span class="title-details">@(((TimeSpan)property.InitialValue.FirstOrDefault()).ToString(@"hh\:mm"))</span>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <MlxTimePicker Time="@GetPropertyValueTime(property.FieldName)"
+                                                        TimeChanged="EventCallback.Factory.Create<TimeSpan>(this, newValue => UpdateProperty(property, newValue))" userFormat="userFormat"></MlxTimePicker>
+                                                        <small class="text-danger">@GetValidationError(property.FieldName)</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        break;
+
+                                    case ComponentType.ReadOnlyText:
+                                        <div style="padding-bottom:10px;">
+                                            <label class="mlx-form-label @(!editMode ? "mlx-form-label-uppercase" : "")">@L.Loc(property.Caption)</label>  
+                                                <div class="container-label @alignmentClass">
+                                                    <span class="title-details" style="white-space: pre-wrap;">
+                                                         @(property.InitialValue != null && property.InitialValue.Any()
+                                                             ? (property.InitialValue.Count() > 1 
+                                                                 ? multiplePhrase 
+                                                                 : property.InitialValue.First())
+                                                             : string.Empty)
+                                                    </span>
+                                                </div>                                            
+                                        </div>
+                                    break;
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</EditForm>
+
+<script>
+    function triggerClick(element) {
+    element.click();
+    }
+</script>
+
+@code {
+    [Parameter] public List<TModel> Models { get; set; } = new();
+    [Parameter] public bool editMode { get; set; } = false;
+    [Parameter] public bool newMode { get; set; } = false;
+    [Parameter] public int ColumnsSize { get; set; } = 4;
+    [Parameter] public string Container { get; set; }
+    [Parameter] public UserFormatOptions UserFormat { get; set; } = new();
+
+    [Inject]
+    private IContextConfig _contextConfig { get; set; }
+    private List<BaseModel> _groupedProperties;
+    private Dictionary<string, object?> BoundFieldValues { get; set; } = new();
+    private Dictionary<string, (object CurrentModel, object NewValue)> OriginalValues = new Dictionary<string, (object, object)>();
+    private InputFile FileInputRef;
+    private List<IBrowserFile> loadedFiles = new();
+    public string imgSrc { get; set; } = string.Empty;
+    private UserFormatOptions userFormat { get; set; } = new();
+
+    private string ImagePreview;
+    private string code = "Organization";
+    private Dictionary<string, string> ValidationErrors { get; set; } = new();
+    private Guid _currentWarehouseDefaultId;
+    private Dictionary<string, object> SelectedFieldValues = new();
+
+    private string multiplePhrase => L.Loc("<Multiple values>");
+    private string MANDATORYFIELD =>  L.Loc("* Mandatory field");
+    private string DEFAULTWAREHOUSE => L.Loc("* You must select a default warehouse");
+    private string STARTWITHSPACE => L.Loc("Cannot start with a space");
+    private string INVALIDEMAIL => L.Loc("Invalid email format");
+    private string ISREQUIRED => L.Loc("is required.");
+    private string SELECTED => L.LocByKey("SELECT___","Select");
+
+
+    public int Columns;
+
+    // para elegir solo un tipo de alerta
+    private AlertSeverity? activatedAlert = null;
+
+    public async Task GetUserDataAsync()
+    {
+        await _InitialDataService.GetDataUserLocal();
+        userFormat = _InitialDataService.GetUserFormat();
+    }
+
+    protected override void OnInitialized()
+    {
+        Validate();
+        StateHasChanged();
+        Columns = ColumnsSize;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUserDataAsync();
+    }    
+
+    public List<BaseModel> GroupedProperties
+    {
+        get
+        {       var properties = typeof(TModel).GetProperties()
+                .Where(HasDisplayAttributes)
+                .SelectMany(ProcessProperty);
+            return properties.ToList();
+
+        }
+    }
+
+    private IEnumerable<Warehouse> GetAvailableWarehouses(BaseModel property)
+    {
+        var allWarehouses = _contextConfig.GetWarehouses();
+
+        var existingWarehouses = property.InitialValue.FirstOrDefault() as ICollection<Warehouse> ?? new List<Warehouse>();
+
+        var availableWarehouses = allWarehouses.Where(w => !existingWarehouses.Any(existing => existing.Id == w.Id));
+
+        return availableWarehouses;
+    }
+
+    private async Task UpdateDefaultWarehouse(BaseModel property, Guid? defaultWarehouseId)
+    {
+        foreach (var model in Models)
+        {
+            SetPropertyValue(model, "WarehouseDefaultId", defaultWarehouseId);
+        }
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private void HandleMaskedInputChange(BaseModel property, string newValue)
+    {
+        if (property.InitialValue.Any())
+            property.InitialValue[0] = newValue;
+        else
+            property.InitialValue.Add(newValue);
+
+        UpdateProperty(property, newValue);
+    }
+
+    private bool IsDuplicate(BaseModel property, object currentModel, Guid currentId)
+    {
+        var currentValue = property.InitialValue.FirstOrDefault()?.ToString() ?? string.Empty;
+
+        switch (currentModel)
+        {
+            case UserDto:
+                {
+                    var users = _contextConfig.GetUsers();
+                    return users.Any(u =>
+                        GetPropertyValue<Guid>(u, "Id") != currentId &&
+                        Normalize(GetPropertyValue<string>(u, property.FieldName)) == Normalize(currentValue)
+                    );
+                }
+
+            case WarehouseDto:
+                {
+                    var warehouses = _contextConfig.GetWarehouses();
+                    var field = property.FieldName;
+                    return warehouses.Any(w =>
+                        GetPropertyValue<Guid>(w, "Id") != currentId &&
+                        Normalize(GetPropertyValue<string>(w, field)) == Normalize(currentValue)
+                    );
+                }
+
+            default:
+                return false;
+        }
+    }
+
+
+    private string Normalize(string value)
+    {
+        return value?.Trim().ToLowerInvariant();
+    }
+
+    private T GetPropertyValue<T>(object obj, string propertyName)
+    {
+        if (obj == null || string.IsNullOrWhiteSpace(propertyName))
+            return default;
+
+        var propertyInfo = obj.GetType().GetProperty(propertyName);
+        if (propertyInfo == null)
+            return default;
+
+        var value = propertyInfo.GetValue(obj);
+        if (value == null)
+            return default;
+
+        return (T)value;
+    }
+
+    private async Task UpdateWarehouses(BaseModel property, ICollection<Warehouse> warehouses)
+    {
+        property.InitialValue = warehouses.Cast<object>().ToList();
+
+        foreach (var model in Models)
+        {
+            SetPropertyValue(model, property.FieldName, warehouses);
+        }
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private async Task UpdateAlertFilters(BaseModel property, ICollection<AlertFilterDto> AlertFilters)
+    {
+        foreach (var model in Models)
+        {
+            SetPropertyValue(model, property.FieldName, AlertFilters);
+        }
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private async Task UpdateAlertCondition(BaseModel property, AlertFilterDto AlertFilters)
+    {
+        foreach (var model in Models)
+        {
+            SetPropertyValue(model, property.FieldName, AlertFilters);
+        }
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private async Task UpdateAlertConfigurations(BaseModel property, ICollection<AlertConfigurationDto> alertConfiguration)
+    {
+        foreach (var model in Models)
+        {
+            SetPropertyValue(model, property.FieldName, alertConfiguration);
+        }
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private void HandleValidationError(string fieldName, string error)
+    {
+        if (!string.IsNullOrEmpty(error))
+        {
+            ValidationErrors[fieldName] = error;
+        }
+        else
+        {
+            ValidationErrors.Remove(fieldName);
+        }
+        EventServices.Publish(Container, new EventArguments(nameof(BaseComponent), EventActions.SaveValid, ValidationErrors.Any()));
+
+        StateHasChanged();
+    }
+
+    private void UpdateComboBoxValue(BaseModel property, Guid newValue)
+    {
+        var selectedItem = (property.Options as IEnumerable<SelectItemComboBox>)?.FirstOrDefault(o => o.Key == newValue);
+        SelectedFieldValues[property.FieldName] = newValue;
+        UpdateProperty(property, selectedItem != null?selectedItem.Key.ToString():string.Empty);
+    }
+
+    private void UpdateComboBoxEnumValue(BaseModel property, object newValue)
+    {
+        UpdateProperty(property, newValue);
+    }
+
+    private void ReloadComboBoxCascade(string propertyName, string entityName, BaseModel configProperty)
+    {
+        if (!string.IsNullOrWhiteSpace(propertyName) && !string.IsNullOrWhiteSpace(entityName))
+        {
+            foreach (var model in Models)
+            {
+                if (GroupedProperties.FirstOrDefault(x => x.FieldName == propertyName) is BaseModel childModel &&  !string.IsNullOrWhiteSpace(childModel.InitialValue[0].ToString()))
+                {
+                    var ItemsEnums = GetPropertiesValues(childModel.InitialValue[0].ToString()).ToList();
+                    if (childModel.EnumItems.Any())
+                        configProperty.EnumItems = ItemsEnums;
+                }
+            }
+        }
+    }
+
+    private string GetValueReference(string propertyName)
+    {
+        if (GroupedProperties.FirstOrDefault(x => x.FieldName == propertyName) is BaseModel objectReference)
+            return objectReference.InitialValue[0].ToString();
+        else
+            return string.Empty;
+    }
+
+
+    private bool HasDisplayAttributes(PropertyInfo prop)
+    {
+        return prop.GetCustomAttribute<DisplayAttributes>() != null;
+    }
+
+    private IEnumerable<BaseModel> ProcessProperty(PropertyInfo prop)
+    {
+        var attribute = prop.GetCustomAttribute<DisplayAttributes>();
+        var multiEditAttribute = prop.GetCustomAttribute<MultiEditAttributes>();
+
+        var baseModel = CreateBaseModel(prop, attribute, multiEditAttribute);
+
+
+        if (baseModel.InitialValue.FirstOrDefault() != null && IsComplexType(baseModel.InitialValue.FirstOrDefault()?.GetType()))
+        {
+            return new[] { baseModel }.Concat(ProcessComplexType(baseModel));
+        }
+
+        return new[] { baseModel };
+    }
+
+    private BaseModel CreateBaseModel(PropertyInfo prop, DisplayAttributes attribute, MultiEditAttributes? multiEditAttribute)
+    {
+        var initialValues = Models.Select(model => prop.GetValue(model) ?? "").ToList();
+        var validationEditAttribute = prop.GetCustomAttribute<ValidationAttributes>();
+        var cascadeAttribute = prop.GetCustomAttribute<DropDownCascadeAttribute>();
+
+        return new BaseModel(attribute)
+            {
+                FieldName = prop.Name,
+                InitialValue = initialValues,
+                IsMultiEditable = multiEditAttribute?.IsMultiEditable ?? false,
+                ValidationType = validationEditAttribute?.Validation ?? ValidationType.None,
+                Options = (attribute.FieldType == ComponentType.DropDown 
+                    || attribute.FieldType == ComponentType.DropDownLocalized)
+                    ? GetValueCatalog(prop.PropertyType.Name, prop.Name, attribute.FieldType == ComponentType.DropDownLocalized)
+                    : null,
+                EnumItems = attribute.FieldType == ComponentType.DropDownEnum ? GetEnumValues(prop) : null,
+                IsDropDownCascade = cascadeAttribute != null,
+                DataSourceTypeCascade = cascadeAttribute?.DataSourceType ?? DataSourceDropdownType.Unknown,
+                PropertyNameCascade = cascadeAttribute?.PropertyNameCascade ?? null,
+                IsUnique = prop.GetCustomAttribute<UniqueAttributes>()?.IsUnique ?? false,
+            };
+    }
+
+    private IEnumerable<BaseModel> ProcessComplexType(BaseModel baseModel)
+    {
+        var type = baseModel.InitialValue.FirstOrDefault()?.GetType();
+
+        return type.GetProperties()
+            .Where(HasDisplayAttributes)
+            .Select(newAddProp =>
+            {
+                var attribute = newAddProp.GetCustomAttribute<DisplayAttributes>();
+                var multiEditAttribute = newAddProp.GetCustomAttribute<MultiEditAttributes>();
+                var validationEditAttribute = newAddProp.GetCustomAttribute<ValidationAttributes>(); // Obtener ValidationAttributes
+                return CreateBaseModelForComplexType(baseModel, newAddProp, attribute, multiEditAttribute, validationEditAttribute);
+            });
+    }
+
+    private BaseModel CreateBaseModelForComplexType(BaseModel baseModel, PropertyInfo newAddProp, DisplayAttributes attribute, MultiEditAttributes? multiEditAttribute, ValidationAttributes? validationEditAttribute)
+    {
+        var initialValues = Models.Select(model =>
+        {
+            var parentProperty = model.GetType().GetProperty(baseModel.FieldName)?.GetValue(model);
+            return newAddProp.GetValue(parentProperty) ?? "";
+        }).ToList();
+
+        return new BaseModel(attribute)
+            {
+                FieldName = $"{baseModel.FieldName}.{newAddProp.Name}",
+                InitialValue = initialValues,
+                Options = (attribute.FieldType == ComponentType.DropDown || attribute.FieldType == ComponentType.DropDownLocalized) 
+                    ? GetValueCatalog(newAddProp.PropertyType.Name, newAddProp.Name, attribute.FieldType == ComponentType.DropDownLocalized) 
+                    : null,
+                IsMultiEditable = multiEditAttribute?.IsMultiEditable ?? false,
+                Group = baseModel.Group,
+                ValidationType = validationEditAttribute?.Validation ?? ValidationType.None // Asignar ValidationType o valor predeterminado
+            };
+    }
+
+    private static bool IsComplexType(Type type)
+    {
+        return !type.IsPrimitive && type != typeof(string) && type.IsClass;
+    }
+
+    private IEnumerable<SelectItemComboBox> GetValueCatalog(string PropertyName, string propName, bool localized = false)
+    {
+        switch (PropertyName)
+        {
+            case nameof(ThousandsSeparator):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetThousandsSeparator().Where(x => x.IsActive), localized: localized, localizationService: L);
+            case nameof(DecimalSeparator):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetDecimalSeparator().Where(x => x.IsActive), localized: localized, localizationService: L);
+            case nameof(SystemOfMeasurement):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetSystemOfMeasurements().Where(x => x.IsActive), localized: localized, localizationService: L);
+            case nameof(DateFormat):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetDateFormats().Where(x => x.IsActive));
+            case nameof(HourFormat):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetHourFormats().Where(x => x.IsActive));
+            case nameof(Language):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetLanguages().Where(x => x.IsActive), localized: localized, localizationService: L);
+            case nameof(Country):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetCountries());
+            case nameof(LayoutWarehouseDto):
+                if(_InitialDataService.GetDatauser() is Datauser datauser && datauser.Id != Guid.Empty )
+                {
+                    if (IsProjectDesigner())
+                        if (!newMode && editMode)
+                        {
+                            var currentModel = Models.FirstOrDefault();
+                            var currentId = GetPropertyValue<Guid>(currentModel, "Id");
+                            return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetWarehouseEditProjectsByUserId(datauser.Id , currentId));
+                        }
+                    else
+                        return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetWarehouseProjectsByUserId(datauser.Id ));
+                    else 
+                        return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetWarehousesByUserId(datauser.Id ));
+                }
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetWarehouses());
+            case nameof(TimeZone):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetTimeZones());
+            case nameof(SelectionLayoutDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetLayouts());
+            case nameof(SelectionWarehouseDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetWarehouses());
+            case nameof(SelectionAreaDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetArea());
+            case nameof(AreasCatalogueDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetAreas());
+            case nameof(StationCatalogueDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetZones());
+            case nameof(SelectionAvailableWorkerDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetAvailableWorkers());
+            case nameof(SelectionWorkerDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetWorkers());
+            case nameof(SelectionTeamDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetTeams());
+            case nameof(SelectionShiftDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetShifts());
+            case nameof(SelectionBreakProfileDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetBreakProfiles());
+            case nameof(SelectionRolDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetRoles());
+            case nameof(TypeEquipmentCatalogueDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetTypeEquipmentCatalogue(_InitialDataService.GetDatauser().WarehouseId == null ? Guid.Empty : _InitialDataService.GetDatauser().WarehouseId.Value), "Id", "TypeName");
+            case nameof(TypeEquipmentCatalogueNoFilteredDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetTypeEquipmentCatalogueNoFiltered());
+            case nameof(ProcessCatalogueDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetProcesses());
+            case nameof(LoadProfileCatalogueDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetLoadProfileCatalogue(_InitialDataService.GetDatauser().WarehouseId == null ? Guid.Empty : _InitialDataService.GetDatauser().WarehouseId.Value));
+            case nameof(LoadProfileCatalogueNoFilteredDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetLoadProfileCatalogueNoFiltered());
+            case nameof(VehicleProfileCatalogueDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetVehicleProfileCatalogue(_InitialDataService.GetDatauser().WarehouseId == null ? Guid.Empty : _InitialDataService.GetDatauser().WarehouseId.Value));
+            case nameof(VehicleProfileCatalogueNoFilteredDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetVehicleProfileCatalogueNoFiltered());
+            case nameof(SelectionVehicleDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetVehicleCatalogue());
+            case nameof(SelectionLoadDto):
+                return SelectItemComboBox.FillItemsComboBox(_contextConfig.GetLoadCatalogue());
+
+            default:
+                return null;
+        }
+        return null;
+
+    }
+
+    private List<SelectItemEnum> GetEnumValues(PropertyInfo propertyInfo)
+    {
+        if (propertyInfo.PropertyType.IsEnum)
+        {
+            if (propertyInfo.PropertyType == typeof(AlertType))
+                return EnumHelper.GetSelectItems<AlertType>();
+            else if (propertyInfo.PropertyType == typeof(AlertOperator))
+                return EnumHelper.GetSelectItems<AlertOperator>();
+            else if (propertyInfo.PropertyType == typeof(AlertSeverity))
+                return EnumHelper.GetSelectItems<AlertSeverity>();
+            else if (propertyInfo.PropertyType == typeof(EntityTypeEnum))
+                return EnumHelper.GetSelectItems<EntityTypeEnum>();
+        }
+
+        return null;
+    }
+
+    private IEnumerable<SelectItemEnum> GetPropertiesValues(string entityName)
+    {
+        switch (entityName)
+        {
+            case nameof(EntityTypeEnum.WorkOrderPlanning):
+                return EntityHelper.GetFields<OrderFields>();
+        }
+
+        return null;
+    }
+
+    private void ClearFile(BaseModel baseModel)
+    {
+        loadedFiles = new();
+        imgSrc = string.Empty;
+        UpdateProperty(baseModel, string.Empty);
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e, BaseModel property)
+    {
+        foreach (var file in e.GetMultipleFiles())
+        {
+            loadedFiles.Add(file);
+            await LoadImage(file, property);
+        }
+    }
+
+    private async Task LoadImage(IBrowserFile file, BaseModel property)
+    {
+        const long maxFileSize = 1024 * 1024 * 5; // Límite de 5 MB
+        using var stream = file.OpenReadStream(maxFileSize);
+        using var memoryStream = new MemoryStream();
+
+        await stream.CopyToAsync(memoryStream);
+        var buffer = memoryStream.ToArray();
+
+        imgSrc = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+
+        string nameLogo = property.FieldName + "_" + code;
+        UpdateProperty(property, Convert.ToBase64String(buffer));
+    }
+
+    private async Task TriggerFileInput()
+    {
+        await FileInputRef.Element.Value.FocusAsync();
+        await JS.InvokeVoidAsync("triggerClick", FileInputRef.Element.Value);
+    }
+
+    public bool Validate()
+    {
+        string pass = ValidationErrors.TryGetValue("Password", out var error) ? error : string.Empty;
+
+        ValidationErrors.Clear();
+
+        foreach (var property in GroupedProperties)
+        {
+            if (property.IsUnique)
+            {
+                var currentModel = Models.FirstOrDefault();
+                var currentId = GetPropertyValue<Guid>(currentModel, "Id");
+
+                if (IsDuplicate(property, currentModel, currentId))
+                {
+                    var caption = L.Loc(property.Caption);
+                    ValidationErrors[property.FieldName] = L.Loc("* The {0} must be unique.", caption);
+                    continue;
+                }
+            }
+
+            if (property.Required && (property == null || string.IsNullOrEmpty(property.InitialValue[0]?.ToString().Trim())))
+            {
+                if (property.FieldName.EndsWith(nameof(AlertFilterDto.FilterReference)))
+                {
+                    var isFixedProp = GroupedProperties.FirstOrDefault(p => p.FieldName.EndsWith(nameof(AlertFilterDto.IsFixed)));
+                    bool isFixed = isFixedProp?.InitialValue?.FirstOrDefault()?.ToString()?.ToLower() == "true";
+
+                    if (isFixed)
+                        continue; 
+                }
+                if (property.FieldName.EndsWith(nameof(AlertFilterDto.FilterFixedValue)))
+                {
+                    var isFixedProp = GroupedProperties.FirstOrDefault(p => p.FieldName.EndsWith(nameof(AlertFilterDto.IsFixed)));
+                    bool isFixed = isFixedProp?.InitialValue?.FirstOrDefault()?.ToString()?.ToLower() == "false";
+
+                    if (isFixed)
+                        continue; 
+                }
+
+                ValidationErrors[property.FieldName] = MANDATORYFIELD;
+                continue;
+            }
+
+            if (property.Required && property.FieldType == ComponentType.WarehouseGrid)
+            {
+                Guid? wareDefaultId = Guid.Empty;
+                var warehouses = property.InitialValue[0] as IEnumerable<Warehouse>;
+
+                if (Models[0] is UserDto user)
+                {
+                    wareDefaultId = user.WarehouseDefaultId;
+                }
+
+                if (!warehouses.Any())
+                {
+                    ValidationErrors[property.FieldName] = MANDATORYFIELD;
+                    continue;
+                }
+
+                if (wareDefaultId == null || wareDefaultId == Guid.Empty)
+                {
+                    ValidationErrors[property.FieldName] = DEFAULTWAREHOUSE;
+                    continue;
+                }
+            }
+
+            if (property.IsMultiEditable 
+                && property.InitialValue.Count > 1
+                && (property.FieldType == ComponentType.DropDown || property.FieldType == ComponentType.DropDownLocalized))
+            {
+                SelectedFieldValues.TryGetValue(property.FieldName, out var selected);
+                if (selected == null || selected.ToString() == Guid.Empty.ToString())
+                {
+                    ValidationErrors[property.FieldName] = MANDATORYFIELD;
+                    continue;
+                }
+            }
+
+            if (property.Required && property.FieldType == ComponentType.AlertConfiguration)
+            {
+                var alertconfig = property.InitialValue[0] as IEnumerable<AlertConfigurationDto>;
+
+                if (!alertconfig.Any())
+                {
+                    ValidationErrors[property.FieldName] = MANDATORYFIELD;
+                    continue;
+                }
+            }
+
+            if (property.Required && !string.IsNullOrEmpty(property.InitialValue[0]?.ToString()) &&
+                property.InitialValue[0].ToString().StartsWith(" "))
+            {
+                ValidationErrors[property.FieldName] = STARTWITHSPACE;
+                continue;
+            }
+
+            if (property.FieldType == ComponentType.NumericSpin && property.InitialValue[0] is double numericValue)
+            {
+                property.Caption = L.Loc(property.Caption);
+
+                if (numericValue < 0)
+                {
+                    ValidationErrors[property.FieldName] = L.Loc("{0} must be greater than 0.", property.Caption);
+                    continue;
+                }
+
+                if (property.MinValue.HasValue && numericValue < property.MinValue.Value)
+                {
+                    ValidationErrors[property.FieldName] = L.Loc("The {0} can't be less than {1}.", property.Caption.ToLower(), property.MinValue.Value);
+                    continue;
+                }
+
+                if (property.MaxValue.HasValue && numericValue > property.MaxValue.Value)
+                {
+                    ValidationErrors[property.FieldName] = L.Loc("The {0} can't be greater than {1}", property.Caption.ToLower(), property.MaxValue.Value);
+                    continue;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(property.InitialValue[0]?.ToString()) && property.ValidationType == ValidationType.EmailMask)
+            {
+                string email = property.InitialValue[0].ToString();
+                if (!IsValidEmail(email))
+                {
+                    ValidationErrors[property.FieldName] = INVALIDEMAIL;
+                    continue;
+                }
+            }
+        }
+
+        if (pass != string.Empty)
+        {
+            ValidationErrors["Password"] = pass;
+        }
+
+        CustomValidation();
+
+        EventServices.Publish(Container, new EventArguments(nameof(BaseComponent), EventActions.SaveValid, ValidationErrors.Any()));
+        var formattedErrors = string.Join(", ", ValidationErrors.Select(kv => $"Key:{kv.Key} - Value:{kv.Value}"));
+       #if DEBUG
+           JS.InvokeVoidAsync("console.log", formattedErrors);
+       #endif
+       
+        StateHasChanged();
+        return !ValidationErrors.Any();
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private string GetValidationError(string fieldName)
+    {
+        return ValidationErrors.TryGetValue(fieldName, out var error) ? error : string.Empty;
+    }
+
+    private TimeSpan GetPropertyValueTime(string propertyName)
+    {
+        try
+        {
+            foreach (var model in Models)
+            {
+                var propertyInfo = model.GetType().GetProperty(propertyName);
+                if (propertyInfo != null)
+                {
+                    var value = propertyInfo.GetValue(model);
+                    return (TimeSpan)value;
+                }
+            }
+            return new TimeSpan(0, 0, 0);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return new TimeSpan(0, 0, 0);
+        }
+    }
+
+    private void UpdateProperty(BaseModel baseModel, TimeSpan value)
+    {
+        baseModel.InitialValue = new List<object> { value };
+
+        foreach (var model in Models)
+            SetPropertyValue(model, baseModel.FieldName, value);
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private void UpdateProperty(BaseModel baseModel, object value)
+    {
+        baseModel.InitialValue = new List<object> { value };
+
+        foreach (var model in Models)
+            SetPropertyValue(model, baseModel.FieldName, value);
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private void UpdateProperty(BaseModel baseModel, bool value)
+    {
+        baseModel.InitialValue = new List<object> { value };
+
+        foreach (var model in Models)
+            SetPropertyValue(model, baseModel.FieldName, value);
+
+        Validate();
+        StateHasChanged();
+    }
+
+    private void UpdateProperty(BaseModel baseModel, string value)
+    {
+        baseModel.InitialValue = new List<object> { value };
+
+        foreach (var model in Models)
+        {
+            SetPropertyValue(model, baseModel.FieldName, value);
+        }
+
+        if (string.IsNullOrEmpty(value) && baseModel.Required)
+        {
+            ValidationErrors[baseModel.FieldName] = $"{L.Loc(baseModel.Caption)} {ISREQUIRED}";
+        }
+        else
+        {
+            ValidationErrors.Remove(baseModel.FieldName);
+        }
+        Validate();
+        StateHasChanged();
+    }
+
+    private void UpdateProperty(BaseModel baseModel, decimal value)
+    {
+        baseModel.InitialValue = new List<object> { value };
+
+        foreach (var model in Models)
+        {
+            SetPropertyValue(model, baseModel.FieldName, value);
+        }
+
+        if (value == 0 && baseModel.Required)
+        {
+            ValidationErrors[baseModel.FieldName] = $"{L.Loc(baseModel.Caption)} {ISREQUIRED}";
+        }
+        else
+        {
+            ValidationErrors.Remove(baseModel.FieldName);
+        }
+        Validate();
+        StateHasChanged();
+    }
+
+    private void SetDecimalValueProperty(string propertyName, object model, decimal newValue)
+    {
+        var propertyInfo = model.GetType().GetProperty(propertyName);
+        if (propertyInfo != null)
+        {
+            Type propertyType = propertyInfo.PropertyType;
+            if (propertyType == typeof(int))
+                propertyInfo.SetValue(model, (int)newValue);
+            else if (propertyType == typeof(decimal))
+                propertyInfo.SetValue(model, newValue);
+            else if (propertyType == typeof(float))
+                propertyInfo.SetValue(model, (float)newValue);
+            else if (propertyType == typeof(double))
+                propertyInfo.SetValue(model, (double)newValue);
+        }
+    }
+
+    public void SetPropertyValue(object model, string fieldName, object? value)
+    {
+        var propertyNames = fieldName.Split('.');
+        SetPropertyValueNextLevel(propertyNames, value, model);
+    }
+
+    private void SetPropertyValueNextLevel(string[] propertyNames, object? value, object currentModel)
+    {
+        if (propertyNames.Length == 0 || currentModel == null)
+            return;
+
+        var propertyName = propertyNames[0];
+        var propertyInfo = currentModel.GetType().GetProperty(propertyName);
+        var propertyConfig = GetDisplayAttributes(propertyInfo);
+        if (propertyInfo != null)
+        {
+            if (propertyNames.Length == 1)
+            {
+                SaveProperties(propertyName, currentModel);
+
+                if (propertyConfig.Any() && (propertyConfig.First().Value.FieldType == ComponentType.DropDown || propertyConfig.First().Value.FieldType == ComponentType.DropDownLocalized))
+                    SetCatalogValue(currentModel, propertyInfo.Name, value.ToString(), propertyInfo.PropertyType.Name);
+                else if (propertyConfig.First().Value.FieldType == ComponentType.WarehouseGrid)
+                {
+                    if (value is List<Warehouse> warehouseList)
+                    {
+                        propertyInfo.SetValue(currentModel, warehouseList);
+                    }
+                }
+                else if (propertyConfig.First().Value.FieldType == ComponentType.AlertFilter)
+                {
+                    if (value is List<AlertFilterDto> alertFilterDto)
+                    {
+                        propertyInfo.SetValue(currentModel, alertFilterDto);
+                    }
+                }
+                else if (propertyConfig.First().Value.FieldType == ComponentType.AlertConfiguration)
+                {
+                    if (value is List<AlertConfigurationDto> alertConfigurationDto)
+                    {
+                        propertyInfo.SetValue(currentModel, alertConfigurationDto);
+                    }
+                }
+                else if (propertyConfig.First().Value.FieldType == ComponentType.NumericSpin)
+                    SetDecimalValueProperty(propertyName, currentModel, Convert.ToDecimal(value));
+                else
+                {
+                    propertyInfo.SetValue(currentModel, value);
+                }
+            }
+            else
+            {
+                var nestedModel = propertyInfo.GetValue(currentModel);
+                if (nestedModel != null)
+                    SetPropertyValueNextLevel(propertyNames.Skip(1).ToArray(), value, nestedModel);
+            }
+        }
+    }
+
+    public void SetCatalogValue(object target, string propertyName, string value, string propertyNameForDropDown = "")
+    {
+        if (GetValueCatalog(propertyNameForDropDown, propertyNameForDropDown).Any())
+        {
+            var Catalogs = GetValueCatalog(propertyNameForDropDown, propertyNameForDropDown).ToList();
+            if (value != null)
+            {
+                SelectItemComboBox matchedItem = Catalogs.FirstOrDefault(x => x.Key.ToString() == value);
+                ChangeValueToCatalogue(target, propertyName, propertyNameForDropDown, matchedItem);
+            }
+        }
+    }
+
+    private void SaveProperties(string propertyName, object currentModel)
+    {
+        var propertyInfo = currentModel.GetType().GetProperty(propertyName);
+        if (!OriginalValues.ContainsKey(propertyName))
+        {
+            var originalValue = propertyInfo.GetValue(currentModel);
+            OriginalValues[propertyName] = (CurrentModel: currentModel, NewValue: originalValue);
+        }
+    }
+
+    private string LoadImag(object base64Data)
+    {
+        return imgSrc = $"data:image/png;base64,{base64Data}";
+    }
+
+    private void ChangeValueToCatalogue(object currentModel, string propertyName, string propertyNameForDropDown, SelectItemComboBox value)
+    {
+
+        var propertyInfo = currentModel.GetType().GetProperty(propertyName);
+        if (propertyInfo != null && value != null)
+        {
+            var emptyInstance = Activator.CreateInstance(propertyInfo.PropertyType);
+            var nameProperty = propertyInfo.PropertyType.GetProperty("Name");
+            var idProperty = propertyInfo.PropertyType.GetProperty("Id");
+
+            if (nameProperty != null && nameProperty.CanWrite && nameProperty.PropertyType == typeof(string))
+                nameProperty.SetValue(emptyInstance, value.Value);
+
+            if (idProperty != null && idProperty.CanWrite)
+                idProperty.SetValue(emptyInstance, value.Key);
+
+            propertyInfo.SetValue(currentModel, emptyInstance);
+
+        }
+        else
+        {
+            var emptyInstance = Activator.CreateInstance(propertyInfo.PropertyType);
+            propertyInfo.SetValue(currentModel, emptyInstance);
+            var nameProperty = propertyInfo.PropertyType.GetProperty("Name");
+            if (nameProperty != null && nameProperty.CanWrite && nameProperty.PropertyType == typeof(string))
+                nameProperty.SetValue(emptyInstance, string.Empty);
+
+        }
+    }
+
+    public Dictionary<string, DisplayAttributes> GetDisplayAttributes(PropertyInfo propertyInfo)
+    {
+        var displayAttributes = propertyInfo.GetCustomAttribute<DisplayAttributes>();
+        return displayAttributes?.FieldType != Web.Model.Enums.ComponentType.None
+            ? new Dictionary<string, DisplayAttributes> { { propertyInfo.Name, displayAttributes } }
+            : new Dictionary<string, DisplayAttributes>();
+    }
+
+    private string GetMaskForProperty(BaseModel property)
+    {
+        return MaskControllers.GetMaskForProperty(property.ValidationType);
+    }
+
+    private void CustomValidation()
+    {
+        var item = Models.FirstOrDefault();
+        var validationContext = new ValidationContext(item);
+        var validationResults = new List<ValidationResult>();
+        Validator.TryValidateObject(item, validationContext, validationResults, true);
+        foreach (var validResult in validationResults)
+        {
+            if (validResult.MemberNames != null)
+            {
+                foreach (var memberName in validResult.MemberNames)
+                {
+                    var property = GroupedProperties.FirstOrDefault(x => x.FieldName == memberName);
+                    ValidationErrors[memberName] = L.Loc(validResult.ErrorMessage);
+                }
+            }
+
+        }
+    }
+
+    private void Goto(Guid Id)
+    {
+        _SendParamService.WarehouseId = Id;
+        NavigationManager.NavigateTo("/warehouses");
+    }
+
+    public string GetAccordionItemClass(string key, int groupCount)
+    {
+        var classes = new List<string>();
+        Columns = ColumnsSize;
+
+        if (!string.IsNullOrEmpty(key))
+            classes.Add("accordion-item");
+        else
+            return "";
+
+        if (groupCount != 1 && groupCount < Columns){
+            classes.Add("accordion-item-middle");
+            Columns = groupCount;
+        }
+        else
+            Columns = ColumnsSize;
+
+        if (groupCount == 1 && key == "Alert")
+            Columns = 1;
+
+        return string.Join(" ", classes);
+    }
+
+
+    private void ActivarSeverity(AlertSeverity tipo, BaseModel property)
+    {
+        UpdateProperty(property, tipo);
+    }
+
+    string GetIconTextDisabled(string name) => name switch
+    {
+        "Error" => EnumHelper.GetItemDescription(EnumSeverityIconDisabled.Error),
+        "Warning" => EnumHelper.GetItemDescription(EnumSeverityIconDisabled.Warning),
+        "Information" => EnumHelper.GetItemDescription(EnumSeverityIconDisabled.Information),
+        _ => name
+    };
+
+    string GetIconText(string name) => name switch
+    {
+        "Error" => EnumHelper.GetItemDescription(EnumSeverityIcon.Error),
+        "Warning" => EnumHelper.GetItemDescription(EnumSeverityIcon.Warning),
+        "Information" => EnumHelper.GetItemDescription(EnumSeverityIcon.Information),
+        _ => name
+    };
+    
+
+    string GetIconMessageStatus(string name) => name switch
+    {
+        "Success" => EnumHelper.GetItemDescription(EnumMessageStatus.Success),
+        "Failure" => EnumHelper.GetItemDescription(EnumMessageStatus.Failure),
+        _ => name
+    };
+
+    private string GetEnumDescription(object value)
+    {
+        try
+        {
+            if (value != null && value.GetType().IsEnum)
+            {
+                var method = typeof(EnumHelper).GetMethod("GetItemDescription")
+                                          .MakeGenericMethod(value.GetType());
+                return (string)method.Invoke(null, new object[] { value });
+            }
+
+            return value.ToString();
+        }
+        catch (Exception)
+        {
+            return value.ToString();
+        }
+    }
+
+    private string GetDropDownDisplayText(BaseModel property)
+    {
+        if (property.InitialValue == null || !property.InitialValue.Any())
+            return string.Empty;
+
+        if (property.InitialValue.Count() > 1)
+            return multiplePhrase;
+
+        var value = property.InitialValue.FirstOrDefault()?.ToString();
+
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+
+        return property.FieldType == ComponentType.DropDownLocalized 
+             ? L.Loc(value) 
+             : value;
+    }
+
+    private string FormatNumber(object value)
+    {
+        var culture = new System.Globalization.CultureInfo(UserFormat.CultureCode ?? "es-ES");
+        culture.NumberFormat.NumberGroupSeparator = UserFormat.GroupSeparator.ToString();
+        culture.NumberFormat.NumberDecimalSeparator = UserFormat.DecimalSeparator.ToString();
+
+        double doubleValue = Convert.ToDouble(value);
+
+        if (doubleValue % 1 == 0)
+            return ((long)doubleValue).ToString("N0", culture);
+        else
+            return doubleValue.ToString("N", culture);
+    }
+
+    private bool IsProjectDesigner()
+    {
+        var genericType = this.GetType().GetGenericArguments().FirstOrDefault();
+        if (genericType != null && typeof(IProject).IsAssignableFrom(genericType))
+            return true;
+        else
+            return false;
+    }
+
+    void OnTextChanged(string value, BaseModel baseModel)
+    {
+        if (!string.IsNullOrEmpty(value) && baseModel.Required && ValidationErrors.TryGetValue(baseModel.FieldName, out var error))
+            ValidationErrors.Remove(baseModel.FieldName);
+    }
+
+    public string SetErrorMultiselecDropdown(string fieldName, List<object> valueList)
+    {
+        if (valueList == null || !valueList.Any())
+        {
+            ValidationErrors[fieldName] = MANDATORYFIELD;
+            return "";
+        }
+
+        dynamic firstItem = valueList[0];
+        Guid firstId = firstItem.Id;
+
+        for(int i =1;  i < valueList.Count(); i++)
+        {
+             dynamic currentItem = valueList[i];
+              if (currentItem.Id != firstId)
+                {
+                    ValidationErrors[fieldName] = MANDATORYFIELD;
+                    return ""; 
+                }
+        }
+       return "";
+    }
+}

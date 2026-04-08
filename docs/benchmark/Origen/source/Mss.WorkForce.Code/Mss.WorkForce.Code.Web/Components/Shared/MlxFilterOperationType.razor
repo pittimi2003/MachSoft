@@ -1,0 +1,960 @@
+﻿@using DevExpress.Blazor
+@using Mss.WorkForce.Code.Web.Services
+@inject ILocalizationService L
+
+
+<style>
+    @("." + IconCssClass) {
+        width: 16px;
+        height: 16px;
+        -webkit-mask-image: url( @CurrentOperatorType.IconPath );
+        mask-image: url( @CurrentOperatorType.IconPath );
+        background-color: currentColor;
+    }
+</style>
+
+<div class="filter-type-container" id="@PositionTargetID">
+    <DxButton CssClass="filter-type-button"
+              IconCssClass="@CurrentOperatorType.Icon"
+              RenderStyle="ButtonRenderStyle.Secondary"
+              Size="Size.Small"
+              Click="() => IsOpen = !IsOpen" />
+
+    <DxDropDown @bind-IsOpen="IsOpen"
+                HeaderVisible="false"
+                FooterVisible="false"
+                PositionMode="DropDownPositionMode.Bottom"
+                PositionTarget="@("#" + PositionTargetID)">
+        <BodyTemplate>
+            <DxListBox Data="OperatorTypes"
+                       @bind-Value="CurrentOperatorType"
+                       CssClass="mlx-filter-operator-list">
+
+                <ItemTemplate Context="op">
+                    <div class="mlx-filter-op-item">                        
+                        <span class="@op.Icon"></span>
+                        <span class="mlx-filter-op-text">
+                            @op.DisplayText
+                        </span>
+                    </div>
+                </ItemTemplate>
+
+            </DxListBox>
+
+        </BodyTemplate>
+    </DxDropDown>
+
+    <div class="filter-editor-container">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public GridDataColumnFilterRowCellTemplateContext FilterContext { get; set; } = default!;
+    [Parameter] public RenderFragment ChildContent { get; set; } = default!;
+
+    List<OperatorTypeWrapper> OperatorTypes = new();
+    private readonly string _instanceId = Guid.NewGuid().ToString("N");
+
+    bool IsOpen;
+
+    string PositionTargetID =>
+        $"dropdown-target-container-{FilterContext.DataColumn.FieldName}-{_instanceId[..8]}";
+
+    string IconCssClass =>
+        $"icon-class-{FilterContext.DataColumn.FieldName}";
+
+    OperatorTypeWrapper CurrentOperatorType
+    {
+        get => OperatorTypes.First(t =>
+            t.Value == FilterContext.DataColumn.FilterRowOperatorType);
+
+        set
+        {
+            FilterContext.Grid.BeginUpdate();
+            FilterContext.DataColumn.FilterRowOperatorType = value.Value;
+            FilterContext.Grid.EndUpdate();
+            IsOpen = false;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        OperatorTypes = Enum.GetValues(typeof(GridFilterRowOperatorType))
+       .OfType<GridFilterRowOperatorType>()
+       .Select(t => new OperatorTypeWrapper(t, L))
+       .OrderBy(x => x.DisplayText, StringComparer.CurrentCultureIgnoreCase)
+       .ToList();
+    }
+
+    class OperatorTypeWrapper
+    {
+        public OperatorTypeWrapper(GridFilterRowOperatorType value, ILocalizationService loc)
+        {
+            Value = value;
+
+            LocalizationKey = value switch
+            {
+                GridFilterRowOperatorType.Default => "Filter.All",
+                GridFilterRowOperatorType.Equal => "Filter.Equals",
+                GridFilterRowOperatorType.NotEqual => "Filter.NotEquals",
+                GridFilterRowOperatorType.Less => "Filter.LessThan",
+                GridFilterRowOperatorType.Greater => "Filter.GreaterThan",
+                GridFilterRowOperatorType.LessOrEqual => "Filter.LessOrEqual",
+                GridFilterRowOperatorType.GreaterOrEqual => "Filter.GreaterOrEqual",
+                GridFilterRowOperatorType.StartsWith => "Filter.StartsWith",
+                GridFilterRowOperatorType.EndsWith => "Filter_EndsWith ",
+                GridFilterRowOperatorType.Contains => "Filter.Contains",
+                _ => "Filter.Unknown"
+            };
+
+            DisplayText = loc.Loc(LocalizationKey);
+        }
+
+        public GridFilterRowOperatorType Value { get; }
+        public string LocalizationKey { get; }
+        public string DisplayText { get; }
+
+        public string IconPath => Value switch
+        {
+            GridFilterRowOperatorType.Default => "img/filterIcons/Default.svg",
+            GridFilterRowOperatorType.Equal => "img/filterIcons/Equal.svg",
+            GridFilterRowOperatorType.NotEqual => "img/filterIcons/NotEqual.svg",
+            GridFilterRowOperatorType.Less => "img/filterIcons/Less.svg",
+            GridFilterRowOperatorType.Greater => "img/filterIcons/Greater.svg",
+            GridFilterRowOperatorType.LessOrEqual => "img/filterIcons/LessOrEqual.svg",
+            GridFilterRowOperatorType.GreaterOrEqual => "img/filterIcons/GreaterOrEqual.svg",
+            GridFilterRowOperatorType.Contains => "img/filterIcons/Contains.svg",
+            GridFilterRowOperatorType.StartsWith => "img/filterIcons/StartsWith.svg",
+            GridFilterRowOperatorType.EndsWith => "img/filterIcons/EndsWith.svg",
+            _ => "img/filterIcons/all.svg"
+        };
+
+        public string Icon => Value switch
+        {
+            GridFilterRowOperatorType.Default => "mlx-ico-filters",
+            GridFilterRowOperatorType.Equal => "mlx-ico-equal",
+            GridFilterRowOperatorType.NotEqual => "mlx-ico-distinct",
+            GridFilterRowOperatorType.Less => "mlx-ico-less-than",
+            GridFilterRowOperatorType.Greater => "mlx-ico-greater-than",
+            GridFilterRowOperatorType.LessOrEqual => "mlx-ico-less-than-or-equal-to",
+            GridFilterRowOperatorType.GreaterOrEqual => "mlx-ico-greater-than-or-equal-to",
+            GridFilterRowOperatorType.Contains => "mlx-ico-contains",
+            GridFilterRowOperatorType.StartsWith => "mlx-ico-starts-with",
+            GridFilterRowOperatorType.EndsWith => "mlx-ico-ends-with",
+            _ => "mlx-ico-filters"
+        };
+    }
+}
+
+
+<style>
+    .filter-type-container {
+        display: flex;
+    }
+
+        .filter-type-container > div {
+            width: 100%;
+        }
+
+    .filter-type-button {
+        margin-right: 5px;
+        background-color: transparent;
+        border: 0;
+    }
+
+    .mlx-filter-operator-list .dxbl-listbox-item {
+        padding: 6px 10px;
+    }
+
+    .mlx-filter-op-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Segoe UI";
+        font-size: 13px;
+    }
+
+    .mlx-filter-op-icon {
+        width: 18px;
+        height: 18px;
+        background-color: #2758a2;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+
+    .mlx-ico-filters:before,
+    .mlx-ico-equal:before,
+    .mlx-ico-distinct:before,
+    .mlx-ico-less-than:before,
+    .mlx-ico-greater-than:before,
+    .mlx-ico-less-than-or-equal-to:before,
+    .mlx-ico-greater-than-or-equal-to:before,
+    .mlx-ico-contains:before,
+    .mlx-ico-starts-with:before,
+    .mlx-ico-ends-with:before {
+        font-size: 18px;
+    }
+
+    .mlx-filter-op-text {
+        color: #1f2937;
+    }
+
+    /* Padding items list */
+    .dxbl-list-box > .dxbl-scroll-viewer > .dxbl-scroll-viewer-content > ul > li:not([dxbl-bottom-virtual-spacer-element]):not([dxbl-top-virtual-spacer-element]) {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+        white-space: nowrap;
+    }
+
+    /* Select style color */
+    .dxbl-list-box > .dxbl-scroll-viewer > .dxbl-scroll-viewer-content > ul > li.dxbl-list-box-item-selected::before {
+        background-color: var(--gl-color-smoke-200) !important;
+    }
+
+	/* Hover style color */
+    .dxbl-list-box:not(.dxbl-disabled):not(:disabled):not(.dxbl-readonly) > .dxbl-scroll-viewer > .dxbl-scroll-viewer-content > :not(.dxbl-list-box-empty-data-container) > li:not([dxbl-top-virtual-spacer-element]):not([dxbl-bottom-virtual-spacer-element]):hover:not(.dxbl-list-box-item-focused):not(:focus)::before {
+        background-color: var(--gl-color-smoke-100) !important;
+        opacity: 1;
+    }
+
+    /* Transparent background of the filter button hover */
+    .filter-type-button:not(.dxbl-disabled):not(:disabled):hover {
+        background: transparent;
+    }
+
+    /* Filter icon color */
+    .filter-type-container .filter-type-button > span {
+        color: var(--gl-color-brand-100);
+    }
+
+    /* Remove the borders from the filter inputs */
+    .filter-editor-container .dxbl-text-edit:not(.mlx-form-spinedit) {
+        border: none;
+    }
+
+    /* Background color */
+    .filter-editor-container > .dxbl-text-edit > .dxbl-btn.dxbl-edit-btn-clear > .dxbl-image {
+        background-color: transparent;
+    }
+
+    /* Routes to clear filter button icon */
+    .filter-editor-container > .dxbl-text-edit > .dxbl-btn.dxbl-edit-btn-clear:not(.dxbl-disabled):not(:disabled):hover > .dxbl-image,
+    .filter-editor-container > .dxbl-text-edit > .dxbl-btn-group-vertical > .dxbl-btn:not(.dxbl-btn.dxbl-edit-btn-clear,.dxbl-btn.dxbl-btn-icon):not(.dxbl-disabled):not(:disabled):hover, .dxbl-text-edit > .dxbl-btn-group > .dxbl-btn:not(.dxbl-btn.dxbl-edit-btn-clear,.dxbl-btn.dxbl-btn-icon):not(.dxbl-disabled):not(:disabled):hover, .dxbl-text-edit > .dxbl-btn:not(.dxbl-btn.dxbl-edit-btn-clear,.dxbl-btn.dxbl-btn-icon):not(.dxbl-disabled):not(:disabled):hover {
+        background-color: var(--gl-color-smoke-200);
+    }
+
+
+
+
+    /*ESTILOS FILTROS DEL GRID*/
+    .dxbl-grid .dxbl-grid-table .dxbl-grid-detail-cell {
+        padding: 0;
+    }
+ 
+    .dxbl-grid-empty-cell {
+        display: none !important;
+    }
+
+    .mlx-grid .dxbl-grid-table > tbody > tr > .dxbl-grid-detail-cell {
+        border-top: 3px solid #8ebde5 !important;
+        border-bottom: 3px solid transparent !important;
+        padding: 16px 40px 32px 80px !important;
+    }
+
+    /* The margin of the mlx-grid style is removed from the detail grids */
+     .mlx-grid .dxbl-grid-table > tbody > tr > .dxbl-grid-detail-cell > .mlx-tabs{
+        margin: 0;
+    }
+
+    .wl-tab-scroll .dxbl-grid-group-panel-container > .dxbl-text {
+        font-family: "Segoe UI";
+        color: var(--sp-color-content-soft) !important;
+        font-style: normal;
+    }
+
+    .wl-tab-scroll .dxbl-grid-group-panel-container {
+        background-color: #f5f6f7 !important;
+        border-radius: 6px !important;
+        line-height: 0.2 !important;
+        min-height: unset !important;
+    }
+
+    /* ===== Layout general ===== */
+    .wl-component-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .wl-header-bar {
+        display: flex;
+        align-items: center;
+        padding: 18px 12px 6px 22px;
+        background: var(--gl-color-brand-400);
+        position: relative;
+    }
+
+        /* Sizes of the wl-header-bar container sections */
+    .wl-header-bar > div{
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    .wl-component-container > .wl-header-bar .toolbar-container > .toolbar-wrapper > .switch-bar {
+        margin: 0px;
+    }
+
+    /* Style of left position */
+    .wl-left {
+        justify-content: left;
+        width: 100%;
+    }
+
+    /* Style of position message */
+    .wl-center {
+        white-space: nowrap;
+    }
+
+    /* Style of right position */
+    .wl-right {
+        justify-content: right;
+        width: 100%;
+    }
+
+    .wl-tabs-root {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        margin: 0 21px 0 17px;
+    }
+
+    .wl-tab-scroll {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 8px 0;
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+    }
+
+    .wl-status {
+        font-size: 12px;
+    }
+
+    .wl-status-ok {
+        color: #3c8c3c;
+    }
+
+    .wl-status-pending {
+        color: var(--gl-color-smoke-900, #2E4052);
+        font-family: "Segoe UI";
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 20px;
+    }
+
+    /* Sticky */
+    .wl-sticky-top {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #fafafa;
+    }
+
+    .wl-sticky-sub {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: #fafafa;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .wl-sticky-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 4;
+    }
+
+    .wl-sticky-pager, .wl-pager-static {
+        position: sticky;
+        bottom: 0;
+        z-index: 3;
+        background: #fff;
+        border-top: 1px solid #e5e7eb;
+        padding: 6px 8px;
+    }
+
+    /* Densidad */
+    .mlx-grid.dxbl-grid .dxbl-datacell,
+    .mlx-grid.dxbl-grid .dxbl-headercell {
+        padding: 6px 8px;
+    }
+
+    .mlx-panel-header {
+        display: flex;
+        align-items: center;
+        padding: 0px 8px;
+        border-bottom: 0px solid;
+        background: var(--sp-color-bg-default);
+        margin: 0;
+    }
+
+    .mlx-tab-height{
+        height: 40px !important;
+    }
+
+    .mlx-panel-bar-action {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    /* Subgrid tooltip button style */
+     .mlx-panel-header.wl-sticky-sub > .mlx-panel-bar-action{
+        padding: 0;
+        border-radius: 999px;
+        width: 26px;
+        height: 26px;
+    }
+
+    /* Apply padding above the Add button within an internal tab of a detail */
+     .wl-subtab-scroll{
+        padding-top: 16px;
+    }
+
+        .mlx-panel-bar-action > button {
+            border: 0;
+            background: transparent;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+            .mlx-panel-bar-action > button:disabled {
+                opacity: .4;
+                cursor: not-allowed;
+            }
+
+    .wl-pagesize {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-right: 8px;
+    }
+
+        .wl-pagesize > label {
+            font-size: 12px;
+            color: #555;
+        }
+
+    .wl-pagesize-select {
+        min-width: 90px;
+    }
+
+    .mlx-right-sideBar-footer {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        border-top: 1px solid #ddd;
+        background: #f9f9f9;
+    }
+
+    .mlx-pager-pager-layout {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 4px 6px;
+    }
+
+    .mlx-pager-left-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .mlx-pager-right-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-right: 0;
+    }
+
+    .mlx-pager-records {
+        font-size: 12px;
+        color: #666;
+        width: 100%;
+    }
+
+    .btn-mlx-grid-select {
+        border: 1px solid var(--gl-color-blue-500);
+        background: var(--gl-color-blue-500);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+    }
+
+        .btn-mlx-grid-select:hover {
+            border-color: var(--gl-color-blue-400);
+            background: var(--gl-color-blue-400);
+        }
+
+    .mlx-separator {
+        display: inline-block;
+        width: 6px;
+    }
+
+   .mlx-grid .dxbl-grid-table > tbody > tr > td.wl-cell-readonly {
+    font-style: italic !important;
+    color: var(--sp-color-content-secondary) !important;
+    }
+
+        .wl-cell-readonly .dxbl-editor {
+            pointer-events: none;
+        }
+
+    .wl-row-new {
+        background-color: rgba(76,175,80,.10);
+    }
+
+    .wl-row-modified {
+        background: rgba(33,150,243,.08);
+    }
+
+    .wl-row-deleted {
+        background: rgba(244,67,54,.10);
+        text-decoration: line-through;
+        opacity: .8;
+    }
+
+    .mlx-timeinput {
+        display: inline-block;
+        min-width: 120px;
+    }
+
+    .btn-mlx {
+        font-family: Segoe UI, Helvetica Neue, Arial;
+        font-weight: 600;
+        padding: 0 32px;
+        height: 40px;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 999px;
+    }
+
+    .btn-mlx-white-primary {
+        background-color: var(--sp-color-bg-default);
+        border: 2px solid var(--gl-color-blue-500);
+        color: var(--gl-color-blue-500);
+    }
+
+        .btn-mlx-white-primary:hover {
+            border-color: var(--gl-color-blue-400);
+            color: var(--gl-color-blue-400);
+        }
+
+    .btn-mlx-blue-primary {
+        background-color: var(--gl-color-blue-500);
+        border: 2px solid var(--gl-color-blue-500);
+        color: #fff;
+    }
+
+        .btn-mlx-blue-primary:disabled, .btn-mlx-white-primary:disabled {
+            color: var(--sp-color-content-disabled);
+            background-color: var(--sp-color-bg-soft);
+            border-color: var(--sp-color-bg-soft);
+            cursor: default;
+        }
+
+        .btn-mlx-blue-primary:hover {
+            border-color: var(--gl-color-blue-400);
+            background-color: var(--gl-color-blue-400);
+        }
+
+    /* Soporte de lista dentro del cuerpo del modal reutilizable */
+    .wl-modal-list {
+        margin: 8px 0 0;
+        padding-left: 30px;
+        max-height: 180px;
+        overflow: auto;
+    }
+
+    .wl-modal-hint {
+        margin-top: 10px;
+        color: #d86470;
+        font-size: 12px;
+        font-weight: bolder;
+    }
+
+    .wl-modal-groups {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .wl-modal-group {
+    }
+
+    .wl-modal-group-header {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .wl-modal-group-title {
+        font-size: 16px;
+    }
+
+    .wl-modal-group-count {
+        color: #666;
+        font-size: 16px;
+    }
+
+    /* Calculated size of table content (The only way to push the pagination to the desired height of the footer) */
+    .grid-host .mlx-grid:not(.dxbl-grid-detail) > .dxbl-scroll-viewer {
+        height: calc(100vh - var(--wl-grid-offset, 284px));
+    }
+
+    /* Tamaño calculado del contenido de las tablas dentro de otra tabla(se le limita una altura) */
+    .mlx-grid.dxbl-grid-detail > .dxbl-scroll-viewer {
+        height: 100%;
+        max-height: 400px; /* opcional: cuánto máximo antes de scroll */
+        overflow-y: auto;
+    }
+
+    /* Se aplica a todas las columnas menos las que contengan el formato de tiempo */
+    .dxbl-align-right.wl-num-cell:not(:has(.mlx-timeinput)) {
+        align-items: center;
+        text-align: right;
+    }
+
+    /* Se aplica a todas las columnas numericas que tengan el formato de tiempo */
+    .dxbl-align-right.wl-num-cell:has(.mlx-timeinput) {
+        align-items: center;
+        text-align: left;
+    }
+
+    .wl-modal-groups > .wl-modal-group > ul.wl-modal-list > li {
+        font-size: 14px;
+    }
+
+    /* --------------- Styles section for the grouping panel --------------- */
+
+    /* Delete border bottom from toolbar */
+     .dxbl-grid > .dxbl-grid-toolbar-container, 
+     .dxbl-grid > .dxbl-grid-top-panel {
+        border-bottom: 0;
+    }
+
+    /* Selection filter container style */
+     .dxbl-grid-group-panel-container{
+        background-color: var(--gl-color-smoke-100);
+        display: flex;
+        height: 40px;
+        padding: 0px 16px;
+        align-items: center;
+        justify-content: start;
+        flex: 1 0 0;
+        gap: 8px;
+    }
+
+     .dxbl-grid-filter-row.dxbl-grid-editor-inplace-container{
+        height: 40px;
+    }
+
+    /* Remove the top filling from the cells */
+     .dxbl-grid .dxbl-grid-table > thead > tr.dxbl-grid-filter-row > td{
+        padding: 0 var(--dxbl-grid-editor-cell-padding-x);
+    }
+
+    /* Row size grid */
+    .dxbl-grid .dxbl-grid-table > tbody > tr,
+    .dxbl-grid .dxbl-grid-table > tfoot > tr,
+    .dxbl-grid .dxbl-grid-table > thead > tr {
+        height: 40px;
+    }
+
+    /* Apply style to the selection filter text when it is empty */
+     .dxbl-grid-group-panel-container > .dxbl-text{
+        font-family: Segoe UI;
+        font-size: 14px;
+        color: var(--content-soft, #889DB8);
+        font-weight: 600;
+        line-height: 17.5px;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Remove the margin from the rectangular elements to be filtered */
+     .dxbl-grid-group-panel-container > .dxbl-grid-header.dxbl-grid-action{
+        margin: 0;
+    }
+
+    /* ----------------------------------------------------------------------------- */
+
+    /* Delete margin to mlx-grid and aply 8px space between selector filter and Grid */
+     .mlx-grid:not(.dxbl-grid-detail){
+        margin: 0;
+        gap: 8px;
+    }
+
+     .wl-cell-readonly{
+        font-style: italic !important;
+    }
+
+    /* ------------------ Tab styles ------------------ */
+    .wl-component-container .dxbl-tabs-header {
+        display: flex;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: none;
+    }
+
+    /* Base tab */
+    .wl-component-container .dxbl-tabs-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center;
+        height: 38.14px;
+        padding: 0 16px !important;
+        cursor: pointer !important;
+        user-select: none;
+        font-family: Segoe UI !important;
+        font-size: 12px !important;
+        font-style: normal;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--gl-color-smoke-900) !important;
+        background: transparent !important;
+        border: 3px solid transparent !important;
+        border-right: 0px !important;
+        border-left: 0px !important;
+        @* transition: all 0.2s ease-in-out; *@
+        text-transform: uppercase;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    /* Hover */
+    .wl-component-container .dxbl-tabs-item:hover,
+    .wl-component-container .dxbl-tabs-item.dxbl-active:hover, /* Active hover */
+    .wl-component-container .dxbl-tabs-item:before
+    {
+        background: transparent !important;
+    }
+
+    /* Active tab */
+    .wl-component-container .dxbl-tabs-item.dxbl-active {
+        background: transparent !important;
+        border-bottom: 3px solid var(--gl-color-smoke-900) !important;
+    }
+
+    .wl-component-container .dxbl-tabs-header::after,
+    .wl-component-container .dxbl-tabs-item::after {
+        display: none;
+    }
+
+    /* ----------------------------------------------------------- */
+
+    /* Height header grid */
+     .mlx-grid .dxbl-grid-table > thead > .dxbl-grid-header-row{
+        height: 40px;
+    }
+
+    /* Height right line size*/
+     .mlx-grid .dxbl-grid-table > thead:nth-child(2) > tr:first-child > th:not(.dxbl-grid-selection-cell) ::after{
+        height: 24px !important;
+    }
+    
+    /* Hover over the grid row */
+     .mlx-grid .dxbl-grid-table > tbody > tr > td:before {
+        background-color: var(--gl-color-blue-400) !important;
+    }
+
+    /* Edit color */
+     .mlx-grid tbody > tr > td.wl-cell-edited,
+     .mlx-grid tbody > tr > td.wl-cell-edited:before {
+        background-color: var(--gl-color-orange-100) !important;
+    }
+
+    /* Style from grids pending color */
+     .mlx-grid .dxbl-grid-table > tbody > tr > td.wl-cell-pending{
+        background-color: var(--gl-color-orange-100) !important;
+    }
+
+    /* Footer buttons format */
+     .mlx-right-sideBar-footer.wl-sticky-footer{
+        background-color: var(--gl-color-brand-400);
+        border-top: 0px;
+    }
+    
+    /* Stile in filters with time-input-container */
+     .mlx-grid .dxbl-grid-filter-row td > .time-input-container {
+        position: relative;
+        width: 100%;
+        align-items: center;
+        display: flex;
+    }
+
+    /* Style transparent to not see border and content in TimeMinComponent filter */
+     .mlx-grid .dxbl-grid-filter-row td > .time-input-container > .mlx-form-text.dxbl-text-edit {
+        border: 0;
+        background: transparent;
+    }
+
+    /* Height in control TimeMin Filter grid */
+     .mlx-grid .dxbl-grid-filter-row td:has(.time-input-container) > .mlx-form-text.dxbl-text-edit > input{
+        height: 100%
+    }
+
+    /* Container format pendient changes */
+    .warning-container {
+        display: flex;
+        height: 100%;
+        padding: 0 16px;
+        flex-flow: row;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        background-color: var(--gl-color-orange-100);
+        border-radius: 8px;
+    }
+
+    /* Icon size pendient message */
+    .warning-container > i:before {
+        font-size: 24px;
+    }
+
+    /* Lowline style when a cell is selected in the grid */
+     .mlx-grid .dxbl-grid-table tbody tr:not(.dxbl-grid-filter-row) > td:not(.dxbl-grid-selection-cell):has(.dxbl-text-edit),
+     .mlx-grid .dxbl-grid-table tbody tr:not(.dxbl-grid-filter-row) > td:not(.dxbl-grid-selection-cell):has(input) {
+        background: transparent !important;
+        /* border-bottom: 2px solid var(--gl-color-blue-400); */
+        outline: none;
+    }
+
+    /* Lowline style when selecting a cell in the grid filters */
+     .mlx-grid .dxbl-grid-table > thead > tr.dxbl-grid-editor-inplace-container > td:not(.dxbl-grid-command-cell):not(.dxbl-grid-selection-cell):focus-within {
+        background: transparent !important;
+        border-bottom: 2px solid var(--gl-color-blue-400) !important;
+        outline: none !important;
+    }
+
+    /* Success Mesage */
+    .success-container {
+        display: flex;
+        align-items: center;
+        flex-flow: row;
+        height: 100%;
+        gap: 8px;
+        padding: 0 16px;
+        border-radius: 8px;
+        background: var(--gl-color-green-100);
+    }
+
+    .success-container > i {
+        display: flex;
+        font-size: 20px;
+        justify-content: center;
+    }
+
+    .wl-status-success {
+        font-family: "Segoe UI";
+        color: var(--gl-color-smoke-900, #2E4052);
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 16px;
+    }
+    /* -------------- */
+
+    /* ------------------ Column Flow Styles ------------------ */
+
+    /* Container Style */
+    .wl-flow-badge {
+        display: flex;
+        height: 30px;
+        padding: 0 16px;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        border-radius: 4px;
+        font-family: "Segoe UI";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 125%;
+        width: fit-content;
+    }
+
+    /* Icon Size*/
+    .wl-flow-badge i {
+        font-size: 16px;
+    }
+
+    /* Color Icon Inbound Case */
+    .wl-flow-badge.wl-inbound i:before {
+        color: var(--gl-color-green-900) !important;
+    }
+
+    /* Colors Inbound Case */
+    .wl-flow-badge.wl-inbound {
+        color: var(--gl-color-green-900);
+        background: var(--gl-color-green-100);
+    }
+
+    /* Color Icon Outbound Case */
+    .wl-flow-badge.wl-outbound i:before {
+        color: var(--gl-color-brand-100) !important;
+    }
+
+    /* Colors Outbound Case */
+    .wl-flow-badge.wl-outbound {
+        color: var(--gl-color-brand-100);
+        background: var(--gl-color-blue-000);
+    }
+
+    /* Colors Custom Case */
+    .wl-flow-badge.wl-custom { 
+        background: rgba(140, 140, 140, 0.14);
+    }
+    /* -------------------------------------------------------- */
+
+    /* Remove the left border of the grid in the drop-down select box with details display. */
+     .dxbl-grid .dxbl-grid-table > thead > tr.dxbl-grid-filter-row > td.dxbl-align-center {
+        border-left: none;
+    }
+
+    /* Remove SVG in view */
+     .dxbl-grid .dxbl-grid-table > thead .dxbl-edit-btn-clear > svg.dxbl-image,
+     .dxbl-grid .dxbl-grid-table > thead .filter-editor-container .time-input-container .time-clear-btn > i {
+        display: none !important;
+    }
+
+    /* Apply Trash icon in view */
+     .dxbl-grid .dxbl-grid-table > thead .dxbl-edit-btn-clear::before,
+     .dxbl-grid .dxbl-grid-table > thead .filter-editor-container .time-input-container .time-clear-btn::before {
+        content: var(--mlx-ico-trash);
+        font-family: 'mlx_icons';
+        font-size: 20px;
+        z-index: 100;
+        color: var(--gl-color-red-500);
+        padding-left: 2px;
+    }
+    /*FIN*/
+</style>

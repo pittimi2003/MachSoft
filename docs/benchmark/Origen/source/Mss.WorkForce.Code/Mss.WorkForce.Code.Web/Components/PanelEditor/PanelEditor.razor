@@ -1,0 +1,584 @@
+﻿@using DevExpress.Blazor
+@using DevExpress.Data
+@using Mss.WorkForce.Code.Models.DTO
+@using Mss.WorkForce.Code.Models.Models
+@using Mss.WorkForce.Code.Models
+@using Mss.WorkForce.Code.Web.Components.Shared
+@using Mss.WorkForce.Code.Web.Model
+@using Mss.WorkForce.Code.Web.Services
+@using Mss.WorkForce.Code.Web.Components.Dialog
+@using Mss.WorkForce.Code.Web.Model.Enums
+@using Mss.WorkForce.Code.Web.Common
+@typeparam TEntity
+@inject ILocalizationService l
+
+<ConfirmDialog></ConfirmDialog>
+
+<div class="mlx-panel" id="idPnlEditor">
+    <div class="mlx-panel-header">
+        <div class="@(IsChildren ? "mlx-panel-title-capitalize" : "mlx-panel-title")">
+            @l.Loc(@Title)
+            @if (@GetIsCatalogueFillData())
+            {
+                <div class="row MessageNodataBase">
+                    <span class="text-danger" style="font-size: 12px;">@ErrorMessage</span>
+            </div>
+            }
+        </div>
+        <div style="display: ruby;">
+
+            <div id="btnActions" class="@(IsBodyVisible ? "mlx-panel-bar-action" : "hiddenBarActions")">
+                @if (showActionEdit)
+                {
+                    <button name="action-edit" disabled="@(!HasData())" @onclick="() => SetStateAction(ActionState.Edit)">
+                        <i class="mlx-ico-edit"></i>
+                    </button>
+                }
+                @if (showActionReadOnly)
+                {
+                    <button name="action-readonly" @onclick="() => SetStateAction(ActionState.ReadOnly)">
+                        <i class="mlx-ico-show"></i>
+                    </button>
+                }
+                @if (showActionAdd)
+                {
+                    <button disabled="@(GetIsCatalogueFillData())" name="action-add" @onclick="() => SetStateAction(ActionState.Add)">
+                        <i class="mlx-ico-add"></i>
+                    </button>
+                }
+                @if (showActionSave)
+                {
+                    <button name="action-save" disabled="@(!IsDirty())" @onclick="() => SetStateAction(ActionState.Save)">
+                        <i class="mlx-ico-save"></i>
+                    </button>
+                }
+                @if (showActionDelete)
+                {
+                    <button name="action-trash" @onclick="() => SetStateAction(ActionState.Delete)">
+                        <i class="mlx-ico-trash"></i>
+                    </button>
+                }
+            </div>
+
+            <div class="container-btnExpand" @onclick="HideOrShowAccordion">
+                <span class="@(IsBodyVisible ? "mlx-ico-chevron-up" :"mlx-ico-chevron-down")"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mlx-panel-body @CurrentHeigthPnlEditor">
+        @{
+            if (showNewElementForm)
+            {
+                <div class="mlx-row-header mlx-row-header-background ">
+
+                    <div class="row">
+                        @{
+                            foreach (var property in Properties.OrderBy(x => x.Value.Index))
+                            {
+                                if (property.Value.IsVisible)
+                                {
+                                    <div class="col-md">
+                                        <label class="mlx-form-label">@property.Value.Caption</label>
+                                        @if (property.Value.FieldType == Model.Enums.ComponentType.TextBox)
+                                        {
+                                            string value = string.Empty;
+                                            string mask = GetMaskForProperty(property.Key);
+                                            <DxMaskedInput Value="@GetPropertyValueString(property.Key)"
+                                            ValueChanged="EventCallback.Factory.Create<string>(this, newValue => SetValueProperty(property.Key, newValue))"
+                                            ValueExpression="(() => value)"
+                                            CssClass="form-control input-control"
+                                            Mask="@mask"
+                                            MaskMode="MaskMode.RegEx"
+                                            BindValueMode="BindValueMode.OnInput"
+                                            @onchange="(e) => SetValueProperty(property.Key, e.Value.ToString())"
+                                            autocomplete="true"></DxMaskedInput>
+
+                                            <small class="text-danger">@GetValidationError(property.Key)</small>
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.NumericSpin)
+                                        {
+                                            <DxSpinEdit CssClass="mlx-form-spinedit"
+                                            Value="@GetPropertyValueDecimal(property.Key)"
+                                            Increment="1"
+                                            MinValue="0"
+                                            BindValueMode="BindValueMode.OnInput"
+                                            ValueChanged="@((Decimal newValue) => SetValueProperty(property.Key, newValue))" Mask="n2">
+                                                <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                            <small class="text-danger">@GetValidationError(property.Key)</small>
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.NumericSpinInt)
+                                        {
+                                            <DxSpinEdit CssClass="mlx-form-spinedit"
+                                            Value="@GetPropertyValueInt(property.Key)"
+                                            Increment="1"
+                                            MinValue="0"
+                                            BindValueMode="BindValueMode.OnInput"
+                                            ValueChanged="@((int newValue) => SetValueProperty(property.Key, newValue))" Mask="n0">
+                                                <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                            </DxSpinEdit>
+                                            <small class="text-danger">@GetValidationError(property.Key)</small>
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.DropDown)
+                                        {
+                                            if (property.Key == "BreakProfile")
+                                            {
+                                                <MlxComboBox CssClass="mlx-form-select"
+                                                Data="@GetDropDowpItems(property.Key)"
+                                                TextFieldName="Value"
+                                                ValueFieldName="Key"
+                                                Value="@GetDropDowpValue(property.Key)"
+                                                ValueChanged="EventCallback.Factory.Create<Guid>(this, newValue => SetPropertyValue(property.Key, newValue))"
+                                                NullText="@l.Loc("Select...")">
+                                                    <ItemTemplate Context="context">
+                                                        @{
+                                                            var item = context as SelectItemComboBox;
+                                                        }
+                                                        <div class="d-flex justify-content-between align-items-center w-100" style="gap: 8px;">
+                                                            <span>@item?.Value</span>
+                                                            <div class="d-flex gap-2">
+                                                                <span class="mlx-ico-edit"
+                                                                @onclick="() => OnEditBreakProfile.InvokeAsync(item?.Key ?? Guid.Empty)">
+                                                                </span>
+                                                                <span class="mlx-ico-trash"
+                                                                @onclick="() => OnDeleteBreakProfile.InvokeAsync(item?.Key ?? Guid.Empty)">
+                                                                </span>
+
+                                                            </div>
+                                                        </div>
+                                                    </ItemTemplate>
+                                                </MlxComboBox>
+                                                <small class="text-danger">@GetValidationError(property.Key)</small>
+                                            }
+                                            else
+                                            {
+                                                <MlxComboBox CssClass="mlx-form-select"
+                                                Data="@GetDropDowpItems(property.Key)"
+                                                TextFieldName="Value"
+                                                ValueFieldName="Key"
+                                                Value="@GetDropDowpValue(property.Key)"
+                                                ValueChanged="EventCallback.Factory.Create<Guid>(this, newValue => SetPropertyValue(property.Key, newValue))"
+                                                NullText="@l.Loc("Select...")"
+                                                ShowClearButton="true">
+                                                </MlxComboBox>
+                                                <small class="text-danger">@GetValidationError(property.Key)</small>
+                                            }
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.Time)
+                                        {
+                                            <MlxTimePicker Time="@GetPropertyValueTime(property.Key)"
+                                            TimeChanged="EventCallback.Factory.Create<TimeSpan>(this, newValue => SetPropertyValue(property.Key, newValue))" ScrollContainerSelector=".accordion-container"
+                                            userFormat="UserFormat">
+                                            </MlxTimePicker>
+                                            <small class="text-danger">@GetValidationError(property.Key)</small>
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.DateTime)
+                                        {
+                                            //TODO
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.CheckBox)
+                                        {
+                                            <DxCheckBox CssClass="mlx-check-box" T="bool"
+                                            Checked="@(GetPropertyValueBool(property.Key))"
+                                            CheckedChanged="@((bool newValue) => SetValueProperty(property.Key, newValue))">
+                                            </DxCheckBox>
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.Multiselec)
+                                        {
+                                            object dropDownValue = null;
+                                            if (cleanMultiSelec)
+                                            {
+                                                dropDownValue = new List<SelectItemComboBox>();
+                                                cleanMultiSelec = false;
+                                            }
+                                            <DxDropDownBox CssClass="mlx-form-select"
+                                            QueryDisplayText="QueryText"
+                                            DropDownWidthMode="DropDownWidthMode.EditorWidth"
+                                            NullText="@l.Loc("Select...")"
+                                            @bind-Value="dropDownValue"
+                                            ShowClearButton="true">
+                                                <DropDownBodyTemplate>
+                                                    <DxListBox Data="@GetDropDowpItems(property.Key)" TData="SelectItemComboBox" TValue="SelectItemComboBox"
+                                                    Values="@(GetListBoxValues(context.DropDownBox))"
+                                                    ValuesChanged="@(values => ListBoxValuesChanged(values, context.DropDownBox, property.Key))"
+                                                    TextFieldName="Value"
+                                                    ValueFieldName="Key"
+                                                    SelectionMode="ListBoxSelectionMode.Multiple"
+                                                    ShowCheckboxes="true"
+                                                    ShowSearchBox="true">
+                                                    </DxListBox>
+                                                </DropDownBodyTemplate>
+                                            </DxDropDownBox>
+                                            <small class="text-danger">@GetValidationError(property.Key)</small>
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.DropDownYesNo)
+                                        {
+                                            <MlxComboBox CssClass="mlx-form-select"
+                                            Data="@ListBoolOptions"
+                                            TextFieldName="Value"
+                                            ValueFieldName="Key"
+                                            Value="@GetPropertyValueBoolNullable(property.Key)"
+                                            ValueChanged="EventCallback.Factory.Create<bool?>(this, newValue => SetValueProperty(property.Key, newValue))"
+                                            NullText="@l.Loc("Select...")" />
+                                            <small class="text-danger">@GetValidationError(property.Key)</small>
+                                        }
+                                        else if (property.Value.FieldType == ComponentType.TypeBound)
+                                        {
+                                            <DxComboBox CssClass="mlx-form-select"
+                                            Data="@TypeBounds"
+                                            ValueFieldName="Key"
+                                            Value="@GetPropertyValueBoolNullable(property.Key)"
+                                            ValueChanged="EventCallback.Factory.Create<bool?>(this, newValue => SetValueProperty(property.Key, newValue))"
+                                            NullText="@l.Loc("Select...")"
+                                            ShowClearButton="true">
+                                                <ItemTemplate Context="item">
+                                                    @item.Value
+                                                </ItemTemplate>
+                                                <EditBoxDisplayTemplate Context="context">
+                                                    @((MarkupString)context.DataItem.Value)
+                                                </EditBoxDisplayTemplate>
+                                            </DxComboBox>
+
+                                        }
+                                    </div>
+
+                                    if (property.Key == "BreakProfile")
+                                    {
+                                        <div class="col-auto icon-add-align-center">
+                                            <button type="button" class="btn-mlx-blue-primary mlx-btn-action-enabled" @onclick="() => OnShowBreakPopup.InvokeAsync()">
+                                                <span class="mlx-ico-add"></span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+                        <div class="col-auto icon-add-align-center">
+                            <DxButton IconCssClass="mlx-btn-action mlx-ico-add" CssClass="@(EnableAddNewButton ? "mlx-btn-action-enabled" : "mlx-btn-action-disabled")" Enabled="@EnableAddNewButton" Click="AddNewElement" />
+                        </div>
+                    </div>
+
+                </div>
+            }
+        }
+        <div class="row">
+            <DxGrid CssClass="@CssClasses"
+            Data="@Items.Where(x => x.DataOperationType != OperationType.Delete)"
+            PageSize="@PageSizeBase"
+            PagerPosition="GridPagerPosition.Bottom"
+            SelectionMode="GridSelectionMode.Multiple"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorItems="@PageSizeOptions"
+            PageSizeSelectorAllRowsItemVisible="false"
+            PagerSwitchToInputBoxButtonCount="@PageSizeBase"
+            PagerVisibleNumericButtonCount="@PageSizeBase"
+            SelectedDataItems="@SelectedDataGridItems"
+            SelectedDataItemsChanged="OnSelectedDataItemsChanged"
+                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" CustomizeFilterMenu="OnCustomizeFilterMenu">
+                <Columns>
+                    @{
+                        if (isEditing)
+                        {
+                            <DxGridSelectionColumn VisibleIndex="0"
+                            Width="80px"
+                            Name="SelectCheck"
+                            ShowInColumnChooser="false"
+                            TextAlignment="GridTextAlignment.Center">
+                                <CellDisplayTemplate Context="SelContext">
+                                    <DxCheckBox CssClass="mlx-check-box" @bind-Checked="SelContext.Selected"></DxCheckBox>
+                                </CellDisplayTemplate>
+                            </DxGridSelectionColumn>
+                        }
+
+                        foreach (var property in Properties.OrderBy(x => x.Value.Index))
+                        {
+                            if (property.Value.IsVisible)
+                            {
+                                if (isEditing)
+                                {
+                                    if (property.Value.FieldType == Model.Enums.ComponentType.TextBox)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <DxTextBox 
+                                                    CssClass="mlx-form-textbox"
+                                                    Text="@GetPropertyString(property.Key, ModelContext.DataItem)"
+                                                           BindValueMode="BindValueMode.OnInput"
+                                                    TextChanged="@((value) => SetPropertyValue(property.Key, value, ModelContext.DataItem))" />
+                                               <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")">@GetValidationError(property.Key, ModelContext.DataItem)</small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.NumericSpin)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                Value="@GetPropertyValueDecimal(property.Key, ModelContext.DataItem)"
+                                                Increment="1"
+                                                MinValue="0"
+                                                BindValueMode="BindValueMode.OnInput"
+                                                ValueChanged="@((Decimal newValue) => SetValueProperty(property.Key, newValue, ModelContext.DataItem))" Mask="n2">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")">@GetValidationError(property.Key, ModelContext.DataItem)</small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.NumericSpinInt)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <DxSpinEdit CssClass="mlx-form-spinedit"
+                                                            Value="@GetPropertyValueInt(property.Key, ModelContext.DataItem)"
+                                                            Increment="1"
+                                                            MinValue="0"
+                                                               BindValueMode="BindValueMode.OnInput"
+                                                            ValueChanged="@((int newValue) => SetValueProperty(property.Key, newValue, ModelContext.DataItem))" Mask="n0">
+                                                    <DxNumericMaskProperties Culture="UserFormat.BuildCultureFromSeparators()" />
+                                                </DxSpinEdit>
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")">@GetValidationError(property.Key, ModelContext.DataItem)</small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.DropDown)
+                                    {
+                                        var FieldName = $"{property.Key}.Name";
+                                        <DxGridDataColumn FieldName="@FieldName" Caption="@property.Value.Caption"  >
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <DxComboBox CssClass="mlx-form-select"
+                                                Data="@GetDropDowpItems(property.Key)"
+                                                TextFieldName="Value"
+                                                ValueFieldName="Key"
+                                                NullText="@l.Loc("Select...")"
+                                                Value="@GetCatalogPropertyId(ModelContext.DataItem, property.Key)"
+                                                ValueChanged="EventCallback.Factory.Create<Guid>(this, newValue => SetCatalogPropertyValue(ModelContext.DataItem, property.Key, newValue))" />
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")"></small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.Time)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <MlxTimePicker Time="@GetPropertyValueTime(property.Key, ModelContext.DataItem)"
+                                                TimeChanged="EventCallback.Factory.Create<TimeSpan>(this, newValue => SetPropertyValue(property.Key, newValue, ModelContext.DataItem))" ScrollContainerSelector=".accordion-container" userFormat="UserFormat"></MlxTimePicker>
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")">@GetValidationError(property.Key, ModelContext.DataItem)</small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.CheckBox)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <DxCheckBox CssClass="mlx-check-box" T="bool"
+                                                Checked="@GetPropertyValueBool(property.Key, ModelContext.DataItem)"
+                                                CheckedChanged="@((bool newValue) => SetValueProperty(property.Key, newValue, ModelContext.DataItem))">
+                                                </DxCheckBox>
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")"></small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.Multiselec)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                @{
+                                                    object Value = GetMultiselec(property.Key, ModelContext.DataItem);
+                                                }
+                                                <DxDropDownBox CssClass="mlx-form-select"
+                                                @bind-Value="Value"
+                                                QueryDisplayText="QueryText"
+                                                DropDownWidthMode="DropDownWidthMode.EditorWidth"
+                                                ShowClearButton="true">
+                                                    <DropDownBodyTemplate>
+                                                        <DxListBox Data="@GetDropDowpItems(property.Key)" TData="SelectItemComboBox" TValue="SelectItemComboBox"
+                                                        Values="@(GetListBoxValues(context.DropDownBox))"
+                                                        ValuesChanged="@(values => ListBoxValuesChanged(values, context.DropDownBox, property.Key, ModelContext.DataItem))"
+                                                        TextFieldName="Value"
+                                                        ValueFieldName="Key"
+                                                        SelectionMode="ListBoxSelectionMode.Multiple"
+                                                        ShowCheckboxes="true"
+                                                        ShowSearchBox="true">
+                                                        </DxListBox>
+                                                    </DropDownBodyTemplate>
+                                                </DxDropDownBox>
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")">@GetValidationError(property.Key, ModelContext.DataItem)</small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.DropDownYesNo)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <MlxComboBox CssClass="mlx-form-select"
+                                                Data="@ListBoolOptions"
+                                                TextFieldName="Value"
+                                                ValueFieldName="Key"
+                                                Value="@GetPropertyValueBool(property.Key, ModelContext.DataItem)"
+                                                ValueChanged="EventCallback.Factory.Create<bool>(this, newValue => SetValueProperty(property.Key, newValue, ModelContext.DataItem))"
+                                                NullText="@l.Loc("Select...")"
+                                                ShowClearButton="true" />
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")"></small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == Model.Enums.ComponentType.TypeBound)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <DxComboBox CssClass="mlx-form-select"
+                                                Data="@TypeBounds"
+                                                ValueFieldName="Key"
+                                                Value="@GetPropertyValueBool(property.Key, ModelContext.DataItem)"
+                                                ValueChanged="EventCallback.Factory.Create<bool>(this, newValue => SetValueProperty(property.Key, newValue, ModelContext.DataItem))"
+                                                NullText="@l.Loc("Select...")"
+                                                ShowClearButton="true">
+                                                    <ItemTemplate Context="item">
+                                                        @item.Value
+                                                    </ItemTemplate>
+                                                    <EditBoxDisplayTemplate Context="context">
+                                                        @((MarkupString)context.DataItem.Value)
+                                                    </EditBoxDisplayTemplate>
+                                                </DxComboBox>
+                                                <small class="text-danger @(HasRowError(ModelContext.DataItem) ? "reserve-error-space" : "")"></small>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                }
+                                else
+                                {
+                                    if (property.Value.FieldType == ComponentType.Multiselec)
+                                    {
+                                        string FieldName = $"{property.Key}.Name";
+                                        <DxGridDataColumn FieldName="@FieldName" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <span>@GetPropertiesMultiSelecName(property.Key, ModelContext.DataItem)</span>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == ComponentType.Time)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                @{
+                                                    <span>@(((TimeSpan)ModelContext.Value).ToTransform(UserFormat.HourFormat))</span>
+                                                }
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == ComponentType.CheckBox || property.Value.FieldType == ComponentType.DropDownYesNo)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption" Visible="@property.Value.IsVisible" FilterRowOperatorType="GridFilterRowOperatorType.Contains">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                <span class="@((bool)ModelContext.Value ? "mlx-ico-check" : "mlx-ico-close")"></span>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == ComponentType.TypeBound)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption" Visible="@property.Value.IsVisible">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                @GetInboudType((bool)ModelContext.Value)
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+                                    else if (property.Value.FieldType == ComponentType.NumericSpinInt)
+                                    {
+                                        <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                            <CellDisplayTemplate Context="ModelContext">
+                                                @{
+                                                    var value = GetPropertyValueDouble(property.Key, ModelContext.DataItem);
+                                                    var formatted = FormatNumbers(value, UserFormat.GroupSeparator, UserFormat.DecimalSeparator);
+                                                }
+
+                                                <div class="text-Right-important">
+                                                    <span>@formatted</span>
+                                                </div>
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    }
+
+                                    else if (property.Value.FieldType == ComponentType.NumericSpin)
+                                    {
+                                        if (property.Key != "WorkerNumber"){
+                                            <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption">
+                                                <CellDisplayTemplate Context="ModelContext">
+                                                    @{
+                                                        var value = GetPropertyValueDouble(property.Key, ModelContext.DataItem);
+                                                        var formatted = FormatNumbers(value, UserFormat.GroupSeparator, UserFormat.DecimalSeparator);
+                                                    }
+                                                    <div class="text-Right-important">
+                                                        <span>@formatted</span>
+                                                    </div>
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
+                                        }
+                                        else
+                                        {
+                                            <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption" DisplayFormat="{0}">
+                                                <CellDisplayTemplate Context="ModelContext">
+                                                    @{
+                                                        var value = ModelContext.Value;
+                                                    }
+                                                    <div class="text-Right-important">
+                                                        @value
+                                                    </div>
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
+                                        }
+                                    }else if (property.Value.FieldType == ComponentType.DropDown)
+                                    {
+                                        var FieldName = $"{property.Key}.Name";
+                                        <DxGridDataColumn FieldName="@FieldName" Caption="@property.Value.Caption" DisplayFormat="{0}">
+                                        </DxGridDataColumn>
+                                    }
+                                    else 
+                                    {
+                                       <DxGridDataColumn FieldName="@property.Key" Caption="@property.Value.Caption" DisplayFormat="{0}"></DxGridDataColumn>
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                </Columns>
+            </DxGrid>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .container-btnExpand {
+        padding: 1px 1px 1px 50px;
+    }
+
+    .pnlEditor-auto {
+        height: 100%;
+        overflow: hidden;
+        opacity: 1;
+        transition: all 1s ease-in-out;
+    }
+
+    .pnlEditor-fixed {
+        height: 1px;
+        overflow: hidden;
+        opacity: 1;
+    }
+
+    .hiddenBarActions {
+        display: none;
+    }
+
+    .mlx-ico-trash::before {
+        font-size: 17px;
+    }
+    
+    .dxbl-grid .text-danger.reserve-error-space:empty::before {
+        content: "\00a0";
+    }
+</style>
