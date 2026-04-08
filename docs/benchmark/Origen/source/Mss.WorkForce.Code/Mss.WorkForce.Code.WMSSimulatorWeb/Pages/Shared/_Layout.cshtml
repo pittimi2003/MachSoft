@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - WMSSimulatorWeb</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/WMSSimulatorWeb.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container d-flex justify-content-between align-items-center gap-6">
+
+                <a class="navbar-brand" asp-area="" asp-page="/Index">WMSSimulatorWeb</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between gap-8">
+                    <ul class="navbar-nav gap-4">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Parameters of SGA</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/InputOrders">Input orders</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/WorkForceTasks">WF orders config</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/SimulationResultsPage">Simulation results</a>
+                        </li>
+                    </ul>
+                </div>
+                @{
+                    var selectedWarehouse = Context.Session.GetString("SelectedWarehouse");
+
+                    if (string.IsNullOrEmpty(selectedWarehouse))
+                    {
+                        
+                        selectedWarehouse = "default"; 
+                        Context.Session.SetString("SelectedWarehouse", selectedWarehouse);
+                    }
+                }
+
+                <div class="d-flex align-items-center gap-3 margin-left-4">
+                    @await Component.InvokeAsync("Warehouse", new { warehouseId = selectedWarehouse })
+                    <div class="service-controls gap-2">
+                        <span id="serviceStatus" class="status-text">⏳ Checking...</span>
+                        <button id="btnStart" class="btn btn-success">Start</button>
+                        <button id="btnStop" class="btn btn-danger">Stop</button>
+                    </div>
+                </div>
+
+                </div>
+                
+
+
+
+
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - WMSSimulatorWeb
+        </div>
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let selectElement = document.getElementById("warehouseSelect");
+            let sessionWarehouse = "@Context.Session.GetString("SelectedWarehouse")";
+            let storedWarehouse = localStorage.getItem("selectedWarehouse");
+
+            console.log("📦 Warehouse in Session:", sessionWarehouse);
+            console.log("💾 Warehouse in localStorage:", storedWarehouse);
+
+            if (!sessionWarehouse || sessionWarehouse === "default" || sessionWarehouse === "") {
+                console.log("🗑️ Deleting localStorage because Session is 'default'...");
+                localStorage.removeItem("selectedWarehouse");
+
+                if (selectElement.options.length > 0) {
+                    selectElement.selectedIndex = 0; 
+                    let firstWarehouseId = selectElement.options[0].value;
+                    localStorage.setItem("selectedWarehouse", firstWarehouseId); 
+                    console.log("📌 First Warehouse selected:", firstWarehouseId);
+                }
+            }
+            
+            else if (storedWarehouse !== sessionWarehouse) {
+                console.log("Synchronising localStorage with Session...");
+                localStorage.setItem("selectedWarehouse", sessionWarehouse);
+                selectElement.value = sessionWarehouse; 
+            }
+        });
+
+        document.getElementById("warehouseSelect").addEventListener("change", async function () {
+            let selectedValue = this.value;
+            console.log("📡 Saving WarehouseId:", selectedValue);
+            localStorage.setItem("selectedWarehouse", selectedValue);
+
+            try {
+                let response = await fetch(`/WorkForceTasks?handler=SetWarehouse&warehouseId=${selectedValue}`);
+
+                if (response.ok) {
+                    console.log("✅ Session updated successfully.");
+                    window.location.reload();
+                } else {
+                    console.error("❌ Error in server:", response.statusText);
+                }
+            } catch (error) {
+                console.error("❌ Error in fetch:", error);
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function updateServiceStatus() {
+                console.log("📡 Obtaining service status...");
+
+                fetch("/ServiceControl/GetServiceStatus")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            let statusText = data.isRunning ? "🟢 ON" : "🔴 OFF";
+                            document.getElementById("serviceStatus").textContent = `Status: ${statusText}`;
+                        } else {
+                            document.getElementById("serviceStatus").textContent = "⚠️ Error";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("❌ Error obtaining service status:", error);
+                        document.getElementById("serviceStatus").textContent = "⚠️ Error";
+                    });
+            }
+
+            function sendServiceAction(action) {
+                console.log(`📡 Sending action to server: ${action}`);
+
+                fetch("/ServiceControl/SendServiceAction", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: action })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload(); 
+                    } 
+                })
+                .catch(error => {
+                    console.error("❌ Error sending action:", error);
+                });
+            }
+
+            document.getElementById("btnStart").addEventListener("click", function () {
+                sendServiceAction("Start");
+            });
+
+            document.getElementById("btnStop").addEventListener("click", function () {
+                sendServiceAction("Stop");
+            });
+
+            updateServiceStatus();
+        });
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

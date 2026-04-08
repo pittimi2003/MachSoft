@@ -1,0 +1,155 @@
+﻿@page
+@model WMSSimulatorWeb.Pages.WorkForceTaskModel
+@{
+    ViewData["Title"] = "Config of WorkForce Orders";
+}
+
+<link rel="stylesheet" href="~/css/style.css" asp-append-version="true">
+
+<h1>WorkForce orders configuration</h1>
+
+<form method="post" asp-page-handler="UpdateTask" id="taskForm">
+    <input type="hidden" id="actionField" name="Action" />
+    <input type="hidden" id="taskIdField" name="Id" />
+    <input type="hidden" id="InitHourField" name="InitHour" />
+    <input type="hidden" id="EndHourField" name="EndHour" />
+    <input type="hidden" id="NumOrdersField" name="NumOrders" />
+    <input type="hidden" id="NumOrdersCompletedField" name="NumOrdersCompleted" />
+    <input type="hidden" id="LinesPerOrderField" name="LinesPerOrder" />
+    <input type="hidden" id="IsOutField" name="IsOut" />
+    <input type="hidden" id="WarehouseIdField" name="WarehouseId" />
+    <input type="hidden" id="DateField" name="Date" />
+
+
+
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Select</th>
+                <th>Init Hour</th>
+                <th>End Hour</th>
+                <th>Num Orders</th>
+                <th>Num Orders Completed</th>
+                <th>Lines Per Order</th>
+                <th>Is Out?</th>
+                <th>Warehouse Code</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+
+            @foreach (var task in Model.WorkForceTasks)
+            {
+                <tr data-task-id="@task.Id">
+                    <td><input type="checkbox" name="SelectedOrders" value="@task.Id"></td>
+                    <td><input type="text" name="InitHour_@task.Id" value="@task.InitHour" required class="time-field"></td>
+                    <td><input type="text" name="EndHour_@task.Id" value="@task.EndHour" required class="time-field"></td>
+                    <td><input type="number" name="NumOrders_@task.Id" value="@task.NumOrders" required class="number-field"></td>
+                    <td><input type="number" name="NumOrdersCompleted_@task.Id" value="@task.NumOrdersCompleted" readonly class="readonly-field"></td>
+                    <td><input type="number" name="LinesPerOrder_@task.Id" value="@task.LinesPerOrder" required class="number-field"></td>
+                    <td>
+                        <select name="IsOut_@task.Id" readonly class="select-field" disabled>
+                            <option value="true" selected="@(task.IsOut ? "selected" : null)">Yes</option>
+                            <option value="false" selected="@(task.IsOut ? null : "selected")">No</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="WarehouseId_@task.Id" readonly class="select-field" disabled>
+                            @foreach (var warehouse in Model.Warehouses)
+                            {
+                                <option value="@warehouse.Id" selected="@(task.WarehouseId == warehouse.Id ? "selected" : null)">
+                                    @warehouse.Code
+                                </option>
+                            }
+                        </select>
+                    </td>
+                    <td><input type="date" name="Date_@task.Id" value="@task.Date.ToString("yyyy-MM-dd")" readonly class="date-field"></td>
+                    <td>
+                        <button type="button" class="btn-update" onclick="submitUpdate('@task.Id', 'Update')">Update</button>
+                        <button type="button" class="btn-delete" onclick="submitUpdate('@task.Id', 'Delete')">Delete</button>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</form>
+
+
+
+<!-- Formulario para añadir nueva tarea -->
+<h2>Add WorkForce task</h2>
+<form method="post" asp-page-handler="AddTask" class="form-container">
+    <input type="hidden" name="Action" value="Add">
+
+    <label for="InitHour">Init Hour:</label>
+    <input type="text" name="InitHour" required placeholder="HH:MM:SS" class="time-field">
+
+    <label for="EndHour">End Hour:</label>
+    <input type="text" name="EndHour" required placeholder="HH:MM:SS" class="time-field">
+
+    <label for="NumOrders">Number of Orders:</label>
+    <input type="number" name="NumOrders" required class="number-field">
+
+    <label for="NumOrdersCompleted">Completed Orders:</label>
+    <input type="number" name="NumOrdersCompleted" required readonly class="readonly-field">
+
+    <label for="LinesPerOrder">Lines Per Order:</label>
+    <input type="number" name="LinesPerOrder" required class="number-field">
+
+    <label for="IsOut">Is Out?</label>
+    <input type="checkbox" name="IsOut">
+
+    <label for="WarehouseId">Warehouse:</label>
+    <select name="WarehouseId" required class="select-field">
+        <option value="">-- Select Warehouse --</option>
+        @foreach (var warehouse in Model.Warehouses)
+        {
+            <option value="@warehouse.Id">@warehouse.Code</option>
+        }
+    </select>
+
+    <label for="Date">Date:</label>
+    <input type="date" name="Date" required class="date-field">
+
+    <button type="submit" class="btn-submit">Save task</button>
+</form>
+
+<script>
+    function submitUpdate(taskId, action) {
+        document.getElementById("actionField").value = action;
+        document.getElementById("taskIdField").value = taskId;
+
+        const row = document.querySelector(`tr[data-task-id="${taskId}"]`);
+
+        if (!row) {
+            console.error(`❌ Row not found in task with ID: ${taskId}`);
+            return;
+        }
+
+        document.getElementById("InitHourField").value = row.querySelector(`[name="InitHour_${taskId}"]`).value;
+        document.getElementById("EndHourField").value = row.querySelector(`[name="EndHour_${taskId}"]`).value;
+        document.getElementById("NumOrdersField").value = row.querySelector(`[name="NumOrders_${taskId}"]`).value;
+        document.getElementById("NumOrdersCompletedField").value = row.querySelector(`[name="NumOrdersCompleted_${taskId}"]`).value;
+        document.getElementById("LinesPerOrderField").value = row.querySelector(`[name="LinesPerOrder_${taskId}"]`).value;
+        document.getElementById("IsOutField").value = row.querySelector(`[name="IsOut_${taskId}"]`).value;
+        document.getElementById("WarehouseIdField").value = row.querySelector(`[name="WarehouseId_${taskId}"]`).value;
+        document.getElementById("DateField").value = row.querySelector(`[name="Date_${taskId}"]`).value;
+
+        console.log("📤 Sending updated data:", {
+            Id: taskId,
+            InitHour: document.getElementById("InitHourField").value,
+            EndHour: document.getElementById("EndHourField").value,
+            NumOrders: document.getElementById("NumOrdersField").value,
+            NumOrdersCompleted: document.getElementById("NumOrdersCompletedField").value,
+            LinesPerOrder: document.getElementById("LinesPerOrderField").value,
+            IsOut: document.getElementById("IsOutField").value,
+            WarehouseId: document.getElementById("WarehouseIdField").value,
+            Date: document.getElementById("DateField").value
+        });
+
+        document.getElementById("taskForm").submit();
+    }
+
+    function setDeleteAction(action) {
+        document.getElementById("actionFieldDelete").value = action;
+    }
+</script>

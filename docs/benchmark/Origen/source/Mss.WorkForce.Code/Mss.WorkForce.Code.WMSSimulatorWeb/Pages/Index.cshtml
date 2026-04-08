@@ -1,0 +1,67 @@
+﻿@page
+@model WMSSimulatorWeb.Pages.IndexModel
+@{
+    ViewData["Title"] = "Parameters";
+}
+
+<link rel="stylesheet" href="~/css/style.css" asp-append-version="true">
+
+<h1>Parameters</h1>
+
+@if (Model.Parameters.Count > 0)
+{
+    <table>
+        <tr>
+            <th>Code</th>
+            <th>Value</th>
+        </tr>
+        @foreach (var param in Model.Parameters)
+        {
+            <tr>
+                <td data-description="@param.Description">@param.Code</td>
+                <td>@param.Value</td>
+            </tr>
+        }
+    </table>
+}
+else
+{
+    <div class="no-data">
+        <p>No parameters avalaible.</p>
+    </div>
+}
+
+<br/>
+
+<h2>Update a parameter</h2>
+<form method="post">
+    <label for="code">Code:</label>
+    <select asp-for="SelectedCode" id="codeSelect" onchange="handleCodeChange()">
+        <option value="">-- Select a parameter --</option>
+        @foreach (var code in Model.AvailableCodes)
+        {
+            <option value="@code">@code</option>
+        }
+    </select>
+
+    <label for="value">Value:</label>
+    <input type="number" step="0.01" asp-for="NewParameter.Value" id="valueInput" required />
+
+    <button type="submit" asp-page-handler="AddParameter">Update </button>
+</form>
+
+<script>
+    function handleCodeChange() {
+        var select = document.getElementById("codeSelect");
+        var selectedValue = select.value;
+        var valueInput = document.getElementById("valueInput");
+
+        var parameters = @Html.Raw(Json.Serialize(Model.Parameters));
+        var selectedParam = parameters.find(p => p.Code === selectedValue);
+        if (selectedParam) {
+            valueInput.value = selectedParam.Value;
+        } else {
+            valueInput.value = "";
+        }
+    }
+</script>

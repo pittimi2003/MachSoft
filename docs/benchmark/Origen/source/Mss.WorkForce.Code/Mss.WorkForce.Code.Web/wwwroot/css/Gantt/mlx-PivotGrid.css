@@ -1,0 +1,165 @@
+﻿
+/******PIVOT GRID FILTER***************/
+
+.dx-pivotgrid .dx-column-header {
+    background-color: white;
+}
+
+/****Scroll de pivot grid****/
+#pivotgrid .dx-scrollbar-horizontal.dx-scrollbar-hoverable.dx-state.hover,
+#pivotgrid .dx-scrollable-scroll.dx-state-invisible, #pivotgrid .dx-scrollable-scroll {
+    background: var(--gl-color-smoke-200) !important;
+}
+
+#pivotgrid .dx-scrollbar-horizontal.dx-scrollbar-hoverable .dx-scrollable-scroll.dx-state-invisible,
+#pivotgrid .dx-scrollbar-horizontal.dx-scrollbar-hoverable .dx-scrollable-scroll,
+#pivotgrid .dx-scrollbar-horizontal.dx-scrollbar-hoverable .dx-scrollable-scroll:not(.dx-state-invisible),
+#pivotgrid .dx-scrollbar-horizontal.dx-scrollbar-hoverable:hover,
+#pivotgrid .dx-scrollbar-horizontal.dx-scrollbar-hoverable {
+    transition: none !important;
+}
+
+/***Imagen de filtro*****/
+.dx-pivotgrid-fields-container .dx-header-filter::before {
+    font-family: 'mlx_icons';
+    content: '\e969' !important;
+    color: var(--sp-color-content-default) !important;
+}
+
+.dx-pivotgrid-fields-container .dx-sort-down::before {
+    font-size: 15px;
+    color: var(--sp-color-content-default) !important;
+    font-family: 'mlx_icons';
+    content: '\e9ad' !important;
+}
+
+.dx-pivotgrid-fields-container .dx-sort-up::before {
+    font-size: 15px;
+    color: var(--sp-color-content-default) !important;
+    font-family: 'mlx_icons';
+    content: '\e953' !important;
+}
+
+/*Estilos de texto target en filas y columnas*/
+.dx-pivotgrid-fields-area-head,
+.dx-area-field-content {
+    padding-right: 2px;
+    font-family: "Segoe UI" !important;
+    font-size: 12px !important;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 15px !important;
+    color: var(--sp-color-content-default);
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.dx-pivotgrid-fields-container .dx-column-indicators {
+    line-height: 15px !important;
+}
+
+/*Estilos de boton columnas y filas*/
+.dx-pivotgrid-fields-container .dx-area-field.dx-area-box {
+    border: none;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
+    background: var(--sp-color-bg-soft);
+}
+
+
+.dx-pivotgrid.dx-row-lines .dx-pivotgrid-area td {
+    color: var(--gl-color-smoke-800) !important;
+    border-color: var(--sp-color-border-default);
+    font-family: "Segoe UI" !important;
+}
+
+.dx-data-header,
+td.dx-data-header > div,
+.dx-pivotgrid .dx-area-description-cell.dx-pivotgrid-background {
+    background-color: white !important;
+}
+
+/*Estilos para target de data*/
+td.dx-data-header thead.dx-pivotgrid-fields-area-head td > .dx-area-field.dx-area-box {
+    /*height: 20px;*/
+    padding: 2px 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: 2px solid black;
+    background: var(--sp-color-bg-default);
+    color: var(--sp-color-content-default);
+    border-radius: 4px;
+}
+
+
+td.dx-column-header > div {
+    background-color: white;
+    padding-left: 10px;
+}
+.dx-pivotgrid .dx-column-header .dx-pivotgrid-toolbar .dx-button {
+    margin-bottom: 5px;
+}
+
+/*td.dx-filter-header .dx-area-field {
+    background: var(--sp-color-bg-soft) !important;
+    color: var(--sp-color-content-disabled) !important;
+}*/
+
+td.dx-filter-header .dx-area-field-content,
+td.dx-filter-header .dx-header-filter::before,
+td.dx-filter-header .dx-sort-down::before,
+td.dx-filter-header .dx-sort-up::before {
+    color: var(--sp-color-content-disabled) !important;
+}
+
+
+.dx-pivotgrid .dx-pivotgrid-vertical-headers .dx-row-total,
+.dx-pivotgrid .dx-pivotgrid-area-data .dx-row-total {
+    background: var(--sp-color-bg-soft);
+}
+
+.dx-pivotgrid .dx-grandtotal {
+    background-color: var(--sp-color-bg-soft) !important;
+}
+
+
+/*******Texto para titulos encabezados****/
+thead.dx-pivotgrid-horizontal-headers > tr:first-of-type > td > span,
+.dx-pivotgrid .dx-pivotgrid-vertical-headers td {
+    font-family: "Segoe UI" !important;
+    font-size: 12px !important;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 18px !important;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--sp-color-content-soft);
+    letter-spacing: 0.8px;
+    text-overflow: ellipsis;
+}
+
+/*****Texto en datos******/
+.mlx-preview-container .dx-pivotgrid td.dx-area-data-cell table tbody tr td span {
+    color: var(--span-color-content-default);
+    font-family: "Segoe UI";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 17.5px;
+}
+
+
+/*Bordes visibles en la Pivot Table*/
+.dx-pivotgrid .dx-area-column-cell td,
+.dx-pivotgrid .dx-pivotgrid-area-data td {
+    border-right: 1px solid var(--sp-color-border-default) !important;
+}
+
+.dx-pivotgrid .dx-area-column-cell tr,
+.dx-pivotgrid .dx-pivotgrid-area-data tr {
+    border-left: 1px solid var(--sp-color-border-default) !important;
+}

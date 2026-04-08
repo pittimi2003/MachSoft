@@ -1,0 +1,121 @@
+﻿@page
+@model WMSSimulatorWeb.Pages.SimulationResultsPage
+@{
+    ViewData["Title"] = "Simulation Results";
+}
+
+<link rel="stylesheet" href="~/css/style.css" asp-append-version="true">
+
+<h1>Simulation Results</h1>
+
+<div id="loading-spinner" class="text-center mt-4">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading results...</p>
+</div>
+
+<div id="results-container" style="display: none;">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Client</th>
+                <th>Provider</th>
+                <th>Type</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Status</th>
+                <th>Assigned Dock</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody id="results-table-body">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var loadingSpinner = document.getElementById("loading-spinner");
+        var resultsContainer = document.getElementById("results-container");
+        var resultsTableBody = document.getElementById("results-table-body");
+
+        fetch('?handler=LoadData')
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error("Error loading data:", data.message);
+                    loadingSpinner.innerHTML = "<p>Error loading results</p>";
+                    return;
+                }
+
+                let rows = "";
+                data.forEach(simulation => {
+                    let processesRows = "";
+
+                    if (simulation.processes && simulation.processes.length > 0) {
+                        simulation.processes.forEach(process => {
+                            processesRows += `
+                                <tr>
+                                    <td>${process.userCode}</td>
+                                    <td>${process.equipmentTypeCode}</td>
+                                    <td>${new Date(process.startDate).toLocaleString()}</td>
+                                    <td>${new Date(process.endDate).toLocaleString()}</td>
+                                    <td>${process.processType}</td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        processesRows = `<tr><td colspan="4" class="text-center">No processes available</td></tr>`;
+                    }
+
+                    rows += `
+                        <tr>
+                            <td>${simulation.code}</td>
+                            <td>${simulation.clientCode ?? ''}</td>
+                            <td>${simulation.providerCode ?? ''}</td>
+                            <td>${simulation.typeCode}</td>
+                            <td>${new Date(simulation.startDate).toLocaleString()}</td>
+                            <td>${new Date(simulation.endDate).toLocaleString()}</td>
+                            <td>${simulation.actionCode}</td>
+                            <td>${simulation.assignedDockCode}</td>
+                            <td>
+                                <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#processes-${simulation.id}">
+                                    View Processes
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="collapse" id="processes-${simulation.id}">
+                            <td colspan="9">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Equipment</th>
+                                            <th>Start</th>
+                                            <th>End</th>
+                                            <th>ProcessType</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${processesRows}
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                
+                resultsTableBody.innerHTML = rows;
+
+                loadingSpinner.style.display = "none";
+                resultsContainer.style.display = "block";
+            })
+            .catch(error => {
+                console.error("Request failed", error);
+                loadingSpinner.innerHTML = "<p>Failed to load data</p>";
+            });
+    });
+</script>

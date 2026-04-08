@@ -1,0 +1,2279 @@
+﻿
+@import url('../global-fonts.css');
+
+/* --------------------------------- TAGS --------------------------------------- */
+
+.dx-dashboard-date-filter-button .dx-buttongroup-item-content {
+    border-radius: 99999px !important;
+    background-color: var(--sp-color-bg-soft) !important;
+    color: var(--sp-color-content-default) !important;
+    border: unset;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+    .dx-dashboard-date-filter-button .dx-buttongroup-item-content.dx-item-selected {
+        background-color: var(--sp-color-bg-default) !important;
+        border: solid 2px var(--sp-color-border-inverse) !important;
+    }
+
+/* ------------------------------- DROPDOWN ------------------------------------- */
+
+.dx-selectbox.dx-state-hover .dx-dropdowneditor-icon {
+    background-color: var(--sp-color-bg-default) !important;
+    width: 24px;
+    height: 24px;
+}
+
+.dx-dashboard-item .dx-dropdowneditor.dx-dropdowneditor-field-clickable {
+    border-radius: 4px !important;
+    border-color: var(--sp-color-border-default);
+}
+
+.dx-dropdowneditor-button.dx-state-active .dx-dropdowneditor-icon,
+.dx-dropdowneditor.dx-dropdowneditor-active .dx-dropdowneditor-icon,
+.dx-dropdowneditor.dx-state-active .dx-dropdowneditor-icon,
+.dx-dropdowneditor.dx-state-hover:not(.dx-custom-button-hovered) .dx-dropdowneditor-icon {
+    background-color: var(--sp-color-bg-default) !important;
+    width: 24px;
+    height: 24px;
+}
+
+.dx-item.dx-list-item.dx-list-item-selected {
+    background-color: var(--sp-color-bg-default) !important;
+}
+
+    .dx-item.dx-list-item.dx-list-item-selected.dx-state-active {
+        background-color: var(--sp-color-bg-selected) !important;
+    }
+
+.dx-list-select-decorator-enabled .dx-scrollview-content .dx-item-content.dx-list-item-content {
+    color: var(--sp-color-content-default)
+}
+
+/*textarea*/
+.dx-dashboard-item.dx-dashboard-simple-border.dx-widget.dx-visibility-change-handler {
+    border-radius: 4px;
+    border-color: var(--sp-color-border-default);
+}
+
+/* ------------------------------ FONDO WIDGETS ---------------------------------- */
+.dx-dashboard-widget-container.dx-dashboard-control {
+    background-color: var(--sp-color-bg-default) !important;
+}
+
+/* --------------------------------- WIDGETS ------------------------------------- */
+
+/* bordes de widgets interiores*/
+.dx-dashboard-simple-border {
+    border: 0px solid transparent !important;
+}
+
+/*bordes widgets (Filters, Blocked locations)*/
+dx-dashboard-layout-group div.dx-layout-item-container.dx-dashboard-item-container,
+dx-layout-item .dx-layout-item-container.dx-dashboard-item-container {
+    border-radius: 8px;
+    box-shadow: 0px 0px 16px 0px rgba(46, 64, 82, 0.12);
+    border: 1px solid var(--sp-color-border-default);
+    background-color: var(--sp-color-bg-default);
+}
+/*borde hijos de los widgets (latest data 875)*/
+.dx-layout-item-container.dx-dashboard-item-container.dx-dashboard-group-item-child.dx-layout-item-container-transparent {
+    border: unset;
+}
+
+/* evita los recortes en las esquinas de los dropdown */
+.dx-layout-item-container.dx-dashboard-item-container:has(.dx-dropdowneditor) {
+    border-radius: 0;
+}
+
+/* evita los recortes en las esquinas del textarea */
+.dx-layout-item-container.dx-dashboard-item-container:has(.dx-dashboard-simple-border) {
+    border-radius: 0;
+}
+
+/* ------------- padding de los widgets -------------- */
+/*body*/
+.dx-layout-item-container.dx-dashboard-item-container .dx-dashboard-item.dx-dashboard-group-item {
+    padding: 8px
+}
+/*data*/
+.dx-layout-group .dx-layout-item .dx-dashboard-group-item-child .dx-dashboard-widget-viewer-item .widget-viewer-table .widget-viewer-row .widget-viewer-cell .dx-flex-card-layout {
+    padding: 0;
+}
+/* ---------------------------------------------------*/
+
+/*alineado de gráfica evolutiva*/
+.dx-widget-viewer-container .dx-flex-card-layout .dx-flex-card-layout-content .dx-flex-card-layout-row-center-only {
+    justify-content: flex-start !important;
+}
+
+/* gráficas evolutivas de los card */
+.dxc-borders[stroke] {
+    stroke: var(--sp-color-border-inverse);
+}
+
+.dxsl-series .dxc-series .dxc-elements[fill] {
+    fill: var(--sp-color-bg-inverse);
+}
+
+.dxc-series .dxc-markers circle[stroke] {
+    stroke: var(--sp-color-border-inverse);
+}
+
+/* ------------------------------- LAYOUT GROUP ----------------------------------- */
+
+/* bordes dentro de los widgets */
+.dx-layout-group .dx-flex-card-layout {
+    border: unset !important;
+}
+/* borde del widget cuándo esta expandido */
+.dx-dashboard-item.dx-dashboard-widget-viewer-item .widget-viewer-table .dx-flex-card-layout {
+    border: unset;
+}
+
+/* -------------------------------- TEXT STYLES ----------------------------------- */
+
+/* Títulos dashboard*/
+dx-dashboard-layout-group .dx-layout-item-container.dx-dashboard-item-container .dx-toolbar-before .dx-dashboard-ellipsis {
+    font-family: "Raleway";
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 150%; /* 18px */
+    letter-spacing: 0.5px;
+    color: var(--sp-color-content-default) !important;
+    white-space: pre-line;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.carruselmode .dx-widget-viewer-container .dx-flex-card-layout .dx-flex-card-layout-content .dx-flex-card-layout-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+}
+
+dx-dashboard-layout-group .dx-layout-item-container.dx-dashboard-item-container.showOnlyDeleteIcon .dx-toolbar-before .dx-dashboard-ellipsis {
+    text-transform: none !important;
+}
+
+/*title data (Lastest data)*/
+.dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right .dx-flex-card-layout-row-element.dx-flex-card-layout-row-element-DataItem0-0_0 {
+    color: var( --sp-color-content-soft) !important;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+/* --------------- result data ------------------- */
+/* result data (number) */
+.dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right div.dx-flex-card-layout-row-element {
+    font-weight: 600;
+    color: var(--sp-color-content-default) !important;
+    /* se fija un valor mínimo(html 12px) y se va agregando unidades de vw(1,5%) dependiendo del ancho de la pantalla (según aumenta la resolución) */
+    font-size: calc(1rem + 1.5vw);
+}
+
+.carruselmode .dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right div.dx-flex-card-layout-row-element {
+    font-weight: 600;
+    color: var(--sp-color-content-default) !important;
+}
+
+
+.carruselmode1 .dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right div.dx-flex-card-layout-row-element {
+    /* se fija un valor mínimo(html 12px) y se va agregando unidades de vw(1,5%) dependiendo del ancho de la pantalla (según aumenta la resolución) */
+    /*font-size: calc(1rem + 8vh);*/
+    font-size: 15vw;
+}
+
+.carruselmode2 .dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right div.dx-flex-card-layout-row-element {
+    /* se fija un valor mínimo(html 12px) y se va agregando unidades de vw(1,5%) dependiendo del ancho de la pantalla (según aumenta la resolución) */
+    /*font-size: calc(1rem + 8vh);*/
+    font-size: 13vw;
+}
+
+.carruselmode3 .dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right div.dx-flex-card-layout-row-element {
+    /* se fija un valor mínimo(html 12px) y se va agregando unidades de vw(1,5%) dependiendo del ancho de la pantalla (según aumenta la resolución) */
+    /*font-size: calc(1rem + 8vh);*/
+    font-size: 11vw;
+}
+
+.carruselmode4 .dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right div.dx-flex-card-layout-row-element {
+    /* se fija un valor mínimo(html 12px) y se va agregando unidades de vw(1,5%) dependiendo del ancho de la pantalla (según aumenta la resolución) */
+    /*font-size: calc(1rem + 8vh);*/
+    font-size: 9vw;
+}
+
+.carruselmode5 .dx-flex-card-layout .dx-flex-card-layout-row .dx-flex-card-layout-row-left-right div.dx-flex-card-layout-row-element {
+    /* se fija un valor mínimo(html 12px) y se va agregando unidades de vw(1,5%) dependiendo del ancho de la pantalla (según aumenta la resolución) */
+    /*font-size: calc(1rem + 8vh);*/
+    font-size: 7vw;
+}
+
+
+
+/* estilos para los números largos */
+.dx-flex-card-layout-content {
+    width: 100% !important;
+}
+
+.dx-flex-card-layout-row-element.dx-carditem-default-color.dx-flex-card-layout-row-element-DataItem0-2_0 {
+    text-overflow: unset;
+}
+/* --------------------------------------------- */
+
+/* dropdown */
+.dx-dropdowneditor-input-wrapper .dx-texteditor-input-container input,
+.dx-item.dx-list-item.dx-list-item-selected {
+    color: var(--sp-color-content-default) !important;
+}
+
+.dx-dropdowneditor-input-wrapper.dx-selectbox-container .dx-texteditor-container .dx-texteditor-input-container .dx-placeholder {
+    color: var(--sp-color-content-default);
+}
+
+/* text area */
+.dx-datagrid-content .dx-datagrid-table .dx-data-row {
+    color: var(--sp-color-content-default) !important;
+}
+
+/* ---------------------------- CHANGE ICONS FOR CSS ------------------------------- */
+/* icono filtros */
+.dx-dashboard-clear-master-filter {
+    position: relative;
+}
+
+    .dx-dashboard-clear-master-filter::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--sp-color-bg-default);
+        content: var(--mlx-ico-filters-delete);
+        color: var(--gl-color-red-500);
+        font-family: 'mlx_icons';
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        z-index: 1;
+    }
+
+/* icono maximizar */
+.dx-dashboard-maximize-item {
+    position: relative;
+}
+
+    .dx-dashboard-maximize-item::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--sp-color-bg-default);
+        content: '\e97d' !important;
+        font-family: 'mlx_icons';
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        z-index: 1;
+        color: var(--sp-color-icon-link);
+    }
+
+/*Icono revertir */
+
+.dx-toolbar-after .dx-dashboard-drill-up {
+    position: relative;
+}
+
+    .dx-toolbar-after .dx-dashboard-drill-up ::before {
+        position: absolute;
+        top: 0px;
+        background-color: var(--sp-color-bg-default);
+        content: var(--mlx-ico-revertir);
+        font-family: 'mlx_icons';
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        color: var(--gl-color-brand-100);
+    }
+
+.dx-dashboard-drill-up .dx-button-content > svg > use {
+    display: none;
+}
+
+.dx-popup-wrapper:not(.dx-datebox-wrapper-calendar)
+.dx-popup-normal.dx-popup-inherit-height {
+    height: 100px !important;
+}
+/**/
+/* icono exportar */
+.dx-dashboard-export {
+    position: relative;
+}
+
+    .dx-dashboard-export::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--sp-color-bg-default);
+        content: '\e976' !important;
+        font-family: 'mlx_icons';
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        z-index: 1;
+        color: var(--sp-color-icon-link);
+    }
+
+/*icono minimizar*/
+.dx-dashboard-restore-item {
+    position: relative;
+}
+
+    .dx-dashboard-restore-item::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--sp-color-bg-default);
+        content: '\e9b6' !important;
+        font-family: 'mlx_icons';
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        z-index: 1;
+        color: var(--sp-color-icon-link);
+    }
+
+/* dropdown flecha abajo */
+.dx-dropdowneditor-input-wrapper .dx-dropdowneditor-icon::before {
+    background-color: var(--sp-color-bg-default);
+    content: var(--mlx-ico-chevron-down);
+    font-family: 'mlx_icons';
+    width: 24px;
+    height: 24px;
+    font-size: 20px;
+    z-index: 1;
+    color: var(--sp-color-icon-soft);
+}
+
+.dx-dashboard-clear-master-filter::after,
+.dx-dashboard-maximize-item::after,
+.dx-dashboard-export::after,
+.dx-dashboard-restore-item::after {
+    transition: background-color 0.3s linear;
+    border-radius: var(--gl-border-radius-round);
+    width: 30px;
+    height: 30px;
+    padding-top: 2px;
+    left: -3px;
+    top: -2px;
+}
+
+.dx-popover-wrapper .dx-overlay-content {
+    /*display:none;*/
+    border-radius: 8px !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    padding: 10px !important;
+    /*max-width: 200px !important;*/
+}
+
+.dx-dashboard-clear-master-filter:hover::after,
+.dx-dashboard-maximize-item:hover::after,
+.dx-dashboard-export:hover::after,
+.dx-dashboard-restore-item:hover::after {
+    background-color: var(--sp-color-bg-soft);
+}
+
+
+/* Tooltip del info  tanto para estilos nuevos como para estilos viejos.*/
+.dx-tooltip-wrapper .dx-popup-content {
+    width: 200px;
+    overflow: auto;
+}
+
+.dx-tooltip-wrapper .dx-overlay-content .dx-popup-content {
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+.border-widget {
+    padding: 8px !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--sp-color-border-default) !important;
+    background: var(--sp-color-icon-inverse) !important;
+}
+
+
+/******* MENU DE LA DERECHA PARA CAMBIAR EL TITULO Y BORRAR ***********/
+.dx-dashboard-item-menu {
+    background-color: #ffffff00 !important;
+}
+
+    .dx-dashboard-item-menu .dx-dashboard-designer-menu-item {
+        margin: 0px !important;
+    }
+
+        .dx-dashboard-item-menu .dx-dashboard-designer-menu-item.dx-dashboard-item-options-panel-options-button {
+            border-radius: 0 9px 0px 0 !important;
+            background-color: var(--gl-color-blue-500) !important;
+        }
+
+            .dx-dashboard-item-menu.dx-position-left .dx-dashboard-designer-menu-item.dx-dashboard-item-options-panel-options-button:hover,
+            .dx-dashboard-item-menu .dx-dashboard-designer-menu-item.dx-dashboard-item-options-panel-options-button:hover {
+                background-color: var(--gl-color-blue-400) !important;
+            }
+
+    .dx-dashboard-item-menu.dx-position-left .dx-dashboard-designer-menu-item.dx-dashboard-item-options-panel-options-button {
+        border-radius: 9px 0px 0px 0 !important;
+        background-color: var(--gl-color-blue-500) !important;
+        cursor: pointer;
+    }
+
+    .dx-dashboard-item-menu .dx-dashboard-designer-menu-item.dx-dashboard-remove-item-button {
+        border-radius: 0 0px 9px 0 !important;
+        background-color: var(--gl-color-red-500) !important;
+        cursor: pointer;
+    }
+
+        .dx-dashboard-item-menu.dx-position-left .dx-dashboard-designer-menu-item.dx-dashboard-remove-item-button:hover,
+        .dx-dashboard-item-menu .dx-dashboard-designer-menu-item.dx-dashboard-remove-item-button:hover {
+            background-color: var(--gl-color-red-600) !important;
+        }
+
+    .dx-dashboard-item-menu.dx-position-left .dx-dashboard-designer-menu-item.dx-dashboard-remove-item-button {
+        border-radius: 0px 0px 0px 9px !important;
+        background-color: var(--gl-color-red-500) !important;
+    }
+
+/* Cambio de iconos */
+.dx-dashboard-item-options-panel-options-button {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+    .dx-dashboard-item-options-panel-options-button::after {
+        content: var(--mlx-ico-edit);
+        font-family: 'mlx_icons';
+        font-size: 20px;
+        z-index: 100;
+        color: var(--gl-color-brand-400);
+        padding-left: 2px;
+    }
+
+.dx-dashboard-remove-item-button {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+    .dx-dashboard-remove-item-button::after {
+        content: var(--mlx-ico-trash);
+        font-family: 'mlx_icons';
+        font-size: 20px;
+        z-index: 100;
+        color: var(--gl-color-brand-400);
+        padding-left: 2px;
+    }
+
+
+
+/* Icono de arrastrar*/
+.dx-dashboard-item-plate {
+    background-color: var(--gl-color-brand-100) !important;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    top: -14px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 8px !important;
+}
+
+    /*ocultamos el icono de arrastrar de dvexpress*/
+    .dx-dashboard-item-plate.dx-layout-item-plate.dx-state-selected svg {
+        display: none;
+    }
+
+    .dx-dashboard-item-plate.dx-layout-item-plate.dx-state-selected > div::after {
+        content: var(--mlx-ico-drag-block);
+        font-family: 'mlx_icons';
+        font-size: 22px;
+        color: var(--gl-color-brand-400);
+    }
+
+
+
+    .dx-dashboard-item-plate.dx-layout-item-plate.dx-state-selected > div {
+        position: relative;
+    }
+
+
+.dx-position-left .dx-dashboard-item-options-panel-options-button::after,
+.dx-position-left .dx-dashboard-remove-item-button::after {
+    left: 9px;
+}
+
+.dx-dashboard-item-controls .dx-dashboard-designer-menu-item > svg {
+    display: none;
+}
+/********************************
+    TABS 
+********************************/
+.dx-dashboard-layout-tabs.dx-tabs .dx-tab:not(.dx-tab-selected) .dx-dashboard-standalone-item:not(.dx-dashboard-hidden-element) {
+    border-bottom: 1px solid var(--sp-color-border-disabled) !important;
+    border-top: unset !important;
+    border-right: unset !important;
+    border-left: unset !important;
+    background-color: #fff !important;
+}
+
+.dx-dashboard-layout-tabs.dx-tabs .dx-tab.dx-tab-selected .dx-dashboard-item-container {
+    background-color: #fff !important;
+    border-top: unset !important;
+    border-right: unset !important;
+    border-left: unset !important;
+    border-bottom: 4px solid var(--sp-color-border-inverse) !important;
+}
+
+.dx-item.dx-tab.dx-tab-selected.dx-state-hover,
+.dx-item.dx-tab.dx-state-hover {
+    background-color: transparent !important;
+}
+
+.dx-dashboard-layout-tabs.dx-tabs .dx-dashboard-standalone-item:not(.dx-dashboard-hidden-element) {
+    border-right: 0px !important;
+}
+/* tabs (no seleccionadas) */
+dashboard-layout-tabs.dx-dashboard-tabs-container .dx-item.dx-tab .dx-dashboard-standalone-item.dx-dashboard-item-container .dx-dashboard-ellipsis {
+    font-family: "Segoe UI";
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 15px;
+    text-align: center;
+    color: var(--sp-color-content-soft) !important;
+    text-transform: uppercase !important;
+}
+
+/* Fuente seleccionada de las tabs*/
+dashboard-layout-tabs.dx-dashboard-tabs-container .dx-item.dx-tab.dx-tab-selected .dx-dashboard-standalone-item.dx-dashboard-item-container .dx-dashboard-ellipsis {
+    color: var(--sp-color-content-default) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+}
+
+dashboard-layout-tabs .dx-dashboard-layout-tabs-container {
+    background-color: var(--sp-color-bg-default);
+}
+
+dashboard-layout-tabs.dx-dashboard-tabs-container .dx-item.dx-tab .dx-dashboard-standalone-item.border-widget {
+    border-radius: unset !important;
+}
+
+.dx-dashboard-create-tab-page-button {
+    position: relative;
+    height: 49px !important;
+    display: flex;
+    align-items: center;
+}
+
+    .dx-dashboard-create-tab-page-button::after {
+        position: absolute;
+        background-color: var(--sp-color-bg-default);
+        content: var(--mlx-ico-add);
+        font-family: 'mlx_icons';
+        width: 20px;
+        height: 20px;
+        font-size: 16px;
+        z-index: 1;
+        color: var(--sp-color-icon-link);
+        cursor: pointer;
+        border-radius: var(--gl-border-radius-round);
+    }
+
+    .dx-dashboard-create-tab-page-button:hover::after {
+        background-color: var(--sp-color-bg-selected);
+        padding: 3px 0px 1px 4px;
+        left: 1px;
+        top: 11px;
+    }
+
+/* Los tiítulos de los widgets*/
+.dx-dashboard-ellipsis {
+    font-family: "Raleway";
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 150%;
+    letter-spacing: 0.5px;
+    color: var(--sp-color-content-default) !important;
+    white-space: pre-line !important;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.carruselmode1 .dx-dashboard-ellipsis {
+    font-size: 2.5vw;
+}
+
+.carruselmode2 .dx-dashboard-ellipsis {
+    font-size: 2vw;
+}
+
+.carruselmode3 .dx-dashboard-ellipsis {
+    font-size: 1.6vw;
+}
+
+.carruselmode4 .dx-dashboard-ellipsis {
+    font-size: 1.3vw;
+}
+
+.carruselmode5 .dx-dashboard-ellipsis {
+    font-size: 1vw;
+}
+
+
+
+.carruselmode .dx-layout-item-container.dx-dashboard-item-container:not(.showOnlyDeleteIcon) .dx-dashboard-ellipsis {
+    text-transform: unset !important;
+}
+
+.dx-dashboard-caption-toolbar .dx-toolbar-items-container {
+    height: 44px;
+}
+
+.dx-dashboard-caption-toolbar .dx-toolbar-items-container {
+    height: 40px !important;
+}
+
+
+/*Los titulos de los grupos dentro de los filtros*/
+.dx-layout-item-container.dx-dashboard-item-container.dx-dashboard-group-item-child.hideIcons .dx-dashboard-ellipsis {
+    text-transform: unset !important;
+}
+
+/*Poner en mayusculas los titulos de las agrupaciones*/
+.dx-layout-item-container.dx-dashboard-item-container:not(.showOnlyDeleteIcon) .dx-dashboard-ellipsis {
+    text-transform: uppercase !important;
+}
+
+
+.dx-dashboard-widget-container .dx-dashboard-surface .dx-layout-item-cover:hover,
+body:hover .dx-dashboard-widget-container .dx-dashboard-surface dashboard-viewer .dx-layout-root .dx-layout-selected {
+    border-color: #005098 !important;
+    border-radius: 8px;
+    box-shadow: 0px 0px 8px 0px rgba(46, 64, 82, 0.08);
+}
+
+/*FILTROS */
+
+
+
+.dx-layout-item-container.dx-dashboard-item-container.dx-dashboard-group-item-child {
+    padding: 0px 6px !important;
+}
+
+
+/*******Menu de edición de titulo**********/
+
+.dx-dashboard-collection-editor {
+    background-color: transparent !important;
+}
+
+.dx-dashboard-collection-editor {
+    border-radius: 8px !important;
+    box-shadow: 0px 0px 8px 0px rgba(46, 64, 82, 0.08) !important;
+}
+
+/* Cambio de iconos del popup */
+
+.dx-dashboard-ce-icon-edit,
+.dx-dashboard-ce-icon-arrow-down,
+.dx-dashboard-ce-icon-arrow-up,
+.dx-dashboard-ce-remove-icon,
+.dx-dashboard-ce-icon.dx-dashboard-ce-icon-add,
+.dx-dashboard-close-panel,
+.dx-dashboard-arrow-back {
+    position: relative;
+}
+
+    .dx-dashboard-ce-icon-edit::after {
+        position: absolute;
+        top: 5px;
+        left: 8px;
+        background-color: var(--sp-color-bg-soft);
+        content: var(--mlx-ico-edit);
+        font-family: 'mlx_icons';
+        width: 20px;
+        height: 20px;
+        font-size: 16px;
+        z-index: 100;
+        color: var(--sp-color-icon-link);
+        cursor: pointer;
+    }
+
+    .dx-dashboard-ce-icon-arrow-down::after {
+        position: absolute;
+        top: 2px;
+        left: 8px;
+        background-color: var(--sp-color-bg-soft);
+        content: var(--mlx-ico-arrow-down-narrow);
+        font-family: 'mlx_icons';
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        z-index: 100;
+        color: var(--sp-color-icon-link);
+        cursor: pointer;
+    }
+
+    .dx-dashboard-ce-icon-arrow-up::after {
+        position: absolute;
+        top: 2px;
+        left: 8px;
+        background-color: var(--sp-color-bg-soft);
+        content: var(--mlx-ico-arrow-up-narrow);
+        font-family: 'mlx_icons';
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        z-index: 100;
+        color: var(--sp-color-icon-link);
+        cursor: pointer;
+    }
+
+    .dx-dashboard-ce-remove-icon::after {
+        position: absolute;
+        top: 2px;
+        left: 8px;
+        background-color: var(--sp-color-bg-soft);
+        content: var(--mlx-ico-trash);
+        font-family: 'mlx_icons';
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        z-index: 100;
+        color: var(--gl-color-red-500);
+        cursor: pointer;
+    }
+
+    .dx-dashboard-ce-icon.dx-dashboard-ce-icon-add::after {
+        position: absolute;
+        top: 2px;
+        left: 8px;
+        background-color: var(--sp-color-bg-soft);
+        color: var(--sp-color-icon-link);
+        content: var(--mlx-ico-add);
+        font-family: 'mlx_icons';
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        z-index: 1;
+        cursor: pointer;
+    }
+
+    .dx-dashboard-close-panel::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--sp-color-bg-default);
+        content: var(--mlx-ico-close);
+        font-family: 'mlx_icons';
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        z-index: 1;
+        margin: 8px 8px;
+        cursor: pointer;
+        color: var(--sp-color-icon-soft);
+    }
+
+    .dx-dashboard-arrow-back::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--sp-color-bg-default);
+        content: var(--mlx-ico-arrow-left);
+        font-family: 'mlx_icons';
+        width: 25px;
+        height: 24px;
+        font-size: 20px;
+        z-index: 1;
+        margin: 8px 8px;
+        cursor: pointer;
+        color: var(--sp-color-icon-disabled);
+    }
+
+    .dx-dashboard-ce-icon-edit.dx-state-disabled::after,
+    .dx-dashboard-ce-icon-arrow-down.dx-state-disabled::after,
+    .dx-dashboard-ce-icon-arrow-up.dx-state-disabled::after {
+        color: var(--sp-color-icon-disabled);
+    }
+
+    .dx-dashboard-ce-icon-arrow-down:hover::after,
+    .dx-dashboard-ce-icon-arrow-up:hover::after,
+    .dx-dashboard-ce-remove-icon:hover::after,
+    .dx-dashboard-ce-icon.dx-dashboard-ce-icon-add:hover::after {
+        background-color: var(--sp-color-bg-selected);
+        border-radius: var(--gl-border-radius-round);
+        width: 30px;
+        height: 30px;
+        padding: 2px 2px 5px 5px;
+        top: 0;
+        left: 3px;
+    }
+
+    .dx-dashboard-ce-icon-edit:hover::after {
+        background-color: var(--sp-color-bg-selected);
+        border-radius: var(--gl-border-radius-round);
+        width: 30px;
+        height: 30px;
+        padding: 5px 2px 2px 6px;
+        top: 0;
+        left: 2px;
+    }
+
+    .dx-dashboard-close-panel:hover::after,
+    .dx-dashboard-arrow-back:hover::after {
+        background-color: var(--sp-color-bg-hover_content);
+        border-radius: var(--gl-border-radius-round);
+        width: 30px;
+        height: 30px;
+        padding: 2px 2px 4px 5px;
+        top: -2px;
+        left: -5px;
+    }
+
+.dx-dashboard-property-grid .dx-form .dx-field-item-label-text, .dx-dashboard-property-grid .propertygrid-editor-displayName {
+    text-transform: none;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--sp-color-content-default);
+    margin: 0;
+    margin-bottom: 3px;
+}
+
+.dx-button-content:has(.dx-icon.dx-icon-edit) {
+    background-color: var(--sp-color-bg-default);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dx-icon.dx-icon-edit::before {
+    content: var(--mlx-ico-edit);
+    font-family: 'mlx_icons';
+    color: var(--sp-color-icon-link);
+    font-size: 16px;
+}
+
+.dx-button-content:has(.dx-icon.dx-icon-edit):hover {
+    transition: background-color 0.3s linear;
+    border-radius: var(--gl-border-radius-round);
+    background-color: var(--sp-color-bg-hover_content);
+}
+
+
+/* selector de pages */
+.dx-list.dx-list-select-decorator-enabled .dx-list-item.dx-list-item-selected {
+    background-color: rgba(225, 231, 237,1);
+    color: var(--sp-color-content-default);
+}
+
+
+.dx-list:not(.dx-list-select-decorator-enabled) .dx-list-item {
+    color: var(--sp-color-content-default);
+}
+
+    .dx-list:not(.dx-list-select-decorator-enabled) .dx-list-item.dx-list-item-selected {
+        background-color: rgba(225, 231, 237,1);
+        color: var(--sp-color-content-default);
+    }
+
+    .dx-list:not(.dx-list-select-decorator-enabled) .dx-list-item.dx-state-hover {
+        background-color: rgba(245,246,247,1);
+        color: var(--sp-color-content-default);
+    }
+
+    .dx-list:not(.dx-list-select-decorator-enabled) .dx-list-item.dx-state-hover {
+        background-color: rgba(245,246,247,1);
+        color: var(--sp-color-content-default);
+    }
+
+    .dx-list:not(.dx-list-select-decorator-enabled) .dx-list-item.dx-list-item-selected.dx-state-focused {
+        background-color: rgba(245,246,247,1);
+        color: var(--sp-color-content-default);
+    }
+
+
+/* ----------------------------------- POPUP ------------------------------------------ */
+
+/*titulo*/
+.dx-dashboard-panel-header {
+    background-color: var(--sp-color-bg-default) !important;
+    margin-top: 8px;
+}
+
+.dx-dashboard-properties-single-tab {
+    border-top: unset !important;
+}
+
+    /*subtitulo y titulos de los inputs y switch */
+    .dx-dashboard-properties-single-tab .dx-dashboard-properties span.dx-field-item-label-content span.dx-field-item-label-text,
+    .dx-item.dx-accordion-item span.dx-field-item-label-text {
+        font-family: Raleway;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        text-transform: lowercase !important;
+        color: var(--sp-color-content-default);
+        display: block;
+    }
+
+        .dx-dashboard-properties-single-tab .dx-dashboard-properties span.dx-field-item-label-content span.dx-field-item-label-text::first-letter,
+        .dx-item.dx-accordion-item span.dx-field-item-label-text::first-letter {
+            text-transform: uppercase;
+        }
+
+.dx-field-item-label.dx-field-item-label-location-top {
+    margin-bottom: 8px !important;
+}
+
+/* contenedor de iconos y listas*/
+.dx-dashboard-collection-editor {
+    border: unset !important;
+    box-shadow: unset !important;
+}
+
+    /* contenedor de iconos */
+    .dx-dashboard-collection-editor .dx-dashboard-collection-editor-header {
+        border-radius: 999px;
+        background-color: var(--sp-color-bg-soft);
+        border-bottom: unset !important;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    /*bordes listado*/
+    .dx-dashboard-collection-editor .dx-dashboard-list .dx-scrollable-container .dx-scrollview-content .dx-item.dx-list-item {
+        border-bottom: unset !important;
+        color: var(--sp-color-content-default);
+        /* Body 2/Regular */
+        font-family: "Segoe UI";
+        font-size: 14px;
+        font-weight: 400;
+        hyphens: auto;
+    }
+
+        .dx-dashboard-collection-editor .dx-dashboard-list .dx-scrollable-container .dx-scrollview-content .dx-item.dx-list-item .dx-list-item-content {
+            display: block;
+        }
+
+            .dx-dashboard-collection-editor .dx-dashboard-list .dx-scrollable-container .dx-scrollview-content .dx-item.dx-list-item .dx-list-item-content::first-letter {
+                text-transform: uppercase;
+            }
+
+        .dx-dashboard-collection-editor .dx-dashboard-list .dx-scrollable-container .dx-scrollview-content .dx-item.dx-list-item:hover {
+            background-color: var(--sp-color-bg-soft);
+            border-radius: 4px;
+        }
+
+        .dx-dashboard-collection-editor .dx-dashboard-list .dx-scrollable-container .dx-scrollview-content .dx-item.dx-list-item.dx-list-item-selected {
+            background-color: var(--sp-color-bg-selected) !important;
+            color: var(--sp-color-content-default) !important;
+            border-radius: 4px;
+        }
+
+        /*quita la negrita del elemento seleccionado*/
+        .dx-dashboard-collection-editor .dx-dashboard-list .dx-scrollable-container .dx-scrollview-content .dx-item.dx-list-item .dx-item-content.dx-list-item-content div {
+            font-weight: 400 !important;
+        }
+
+/* Flechita que aparecia pisando los botones de edicion y borrado */
+.dx-popup-normal .dx-popover-arrow {
+    display: none;
+}
+
+/* ------------------------------------  segundo popup -------------------------------------------- */
+/*fondo del popup*/
+.dx-dashboard-context-menu-panel .dx-item.dx-accordion-item .dx-template-wrapper.dx-item-content.dx-accordion-item-body {
+    background-color: var(--sp-color-bg-default);
+}
+/*fondo del option*/
+.dx-template-wrapper.dx-item-content.dx-accordion-item-title {
+    background-color: var(--sp-color-bg-default) !important;
+}
+/*bordes*/
+.dx-accordion-item.dx-accordion-item-closed {
+    border-top-color: unset;
+    border: unset;
+}
+
+.dx-dashboard-context-menu-panel .dx-item.dx-accordion-item {
+    border: unset;
+}
+
+.dx-dashboard-context-menu-panel .dx-shadow.dx-shadow-top,
+.dx-dashboard-context-menu-panel .dx-shadow.dx-shadow-bottom {
+    box-shadow: unset !important;
+}
+
+/*titulo del popup*/
+.dx-dashboard-context-menu-panel .dx-dashboard-secondary-header-container {
+    justify-content: flex-start !important;
+}
+
+    .dx-dashboard-context-menu-panel .dx-dashboard-secondary-header-container h5 {
+        width: calc(100% - 72px);
+        color: var(--sp-color-content-default) !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
+
+/*subtitulo y título*/
+.dx-dashboard-context-menu-panel .dx-item.dx-accordion-item .dx-dashboard-accordion-title-content h5,
+.dx-dashboard-panel-header .dx-dashboard-panel-header-title {
+    color: var(--sp-color-content-default) !important;
+    /* Heading/H3 */
+    font-family: Raleway;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: 2.24px;
+    text-transform: uppercase;
+}
+/*subtitulo imagen desplegable*/
+.dx-dashboard-context-menu-panel .dx-item.dx-accordion-item .dx-dashboard-accordion-title-content::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--sp-color-bg-default);
+    content: var(--mlx-ico-chevron-down);
+    font-family: 'mlx_icons';
+    width: 25px;
+    height: 25px;
+    font-size: 22px;
+    z-index: 1;
+    margin: 8px 0 8px 8px;
+    cursor: pointer;
+    color: var(--sp-color-icon-soft);
+}
+
+/*borde input*/
+.dx-dashboard-context-menu-panel .dx-item.dx-accordion-item .dx-accordion-item-body .dx-item.dx-box-item .dx-textbox.dx-texteditor {
+    border-radius: 4px;
+}
+
+/*input*/
+.dx-dashboard-properties .dx-field-item .dx-texteditor-container .dx-texteditor-input-container input.dx-texteditor-input {
+    color: var(--sp-color-content-default);
+    font-size: 16px !important;
+    font-weight: 400;
+    font-family: 'Segoe UI' !important;
+}
+
+/* ------------------------- switch --------------------------*/
+/*contenedor switch*/
+.dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper.dx-widget.dx-collection {
+    background-color: var(--sp-color-bg-disabled);
+    padding: 3px;
+    border-radius: 100px;
+    box-shadow: 0px 0px 16px 0px rgba(46, 64, 82, 0.12);
+}
+/*on-off*/
+.dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-first-item,
+.dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-last-item {
+    border: unset;
+    background-color: var(--sp-color-bg-disabled);
+    font-weight: 600;
+    color: var(--sp-color-content-soft);
+}
+
+    .dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-first-item span.dx-button-text,
+    .dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-last-item span.dx-button-text {
+        text-transform: lowercase;
+        font-family: 'Segoe UI';
+        color: var(--sp-color-content-default);
+        /* Se define como elemento de bloque para que funcione el pseudolemento first-letter en los elementos span */
+        display: block;
+    }
+
+        .dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-first-item span.dx-button-text::first-letter,
+        .dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-last-item span.dx-button-text::first-letter {
+            text-transform: uppercase;
+        }
+
+    /*seleccionado*/
+    .dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-first-item.dx-item-selected,
+    .dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-last-item.dx-item-selected {
+        background-color: var(--sp-color-bg-default) !important;
+        border-radius: 100px;
+        color: var(--sp-color-content-default);
+    }
+
+/*alto popup*/
+.dx-overlay-content.dx-popup-normal.dx-resizable.dx-state-hover {
+    height: 50% !important;
+}
+
+/*.dx-popup-content {
+    height: 100% !important;
+    overflow: auto;
+}*/
+
+.dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-first-item .dx-button-content,
+.dx-dashboard-binding-panel-options .dx-dashboard-properties .dx-box-item-content .dx-buttongroup .dx-buttongroup-wrapper .dx-item.dx-buttongroup-item.dx-buttongroup-last-item .dx-button-content {
+    padding: 4px;
+}
+
+
+/*------------------------------------------------------------*/
+/*MENU WIDGETs*/
+
+
+/*Redondear las esquinas del botón de borrar cuando solo se muestra este en el menú de los widgets */
+.dx-layout-item-wrapper:has(> .showOnlyDeleteIcon) .dx-dashboard-remove-item-button,
+.dx-layout-item-wrapper > dx-dashboard-layout-group:has(> .showOnlyDeleteIcon) .dx-dashboard-remove-item-button {
+    border-radius: 0 9px 9px 0 !important;
+}
+
+
+
+.dx-layout-item-wrapper:has(> .showOnlyDeleteIcon) .dx-dashboard-item-menu.dx-position-left .dx-dashboard-designer-menu-item.dx-dashboard-remove-item-button,
+.dx-layout-item-wrapper dx-dashboard-layout-group:has(> .showOnlyDeleteIcon) .dx-dashboard-item-menu.dx-position-left .dx-dashboard-designer-menu-item.dx-dashboard-remove-item-button {
+    border-radius: 9px 0px 0px 9px !important;
+}
+
+/*Quitar barra de scroll*/
+.dx-scrollable-scroll-content {
+    height: auto !important;
+}
+
+/* TABLAS WIDGETS*/
+
+.dx-pivotgrid .dx-area-column-cell, .dx-pivotgrid .dx-area-description-cell, .dx-pivotgrid .dx-bottom-border {
+    border-bottom: 1px solid var(--sp-color-border-default) !important;
+}
+
+.dx-pivotgrid .dx-pivotgrid-area table tr td {
+    background-color: var(--sp-color-bg-default);
+}
+
+.dx-pivotgrid .dx-area-description-cell, .dx-pivotgrid .dx-area-row-cell {
+    background-color: var(--sp-color-bg-default);
+    border: 0;
+}
+
+/*Cabecera lateral tablas*/
+.dx-pivotgrid.dx-row-lines .dx-pivotgrid-area td {
+    border-left: 0 !important;
+    border-right: 0;
+    color: var(--sp-color-content-soft);
+    font-family: 'Raleway';
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 150%; /* 18px */
+    border-color: var(--sp-color-border-default);
+}
+
+/*Cabecera*/
+.dx-datagrid-headers .dx-datagrid-table .dx-row > td {
+    border-bottom: 1px solid var(--sp-color-border-default) !important;
+    color: var(--sp-color-content-soft);
+    font-family: "Segoe UI";
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 150%; /* 18px */
+    text-transform: uppercase !important;
+}
+
+.dx-dashboard-caption-toolbar.dx-dashboard-caption-toolbar-border {
+    border-bottom: 0px solid var(--sp-color-border-default) !important;
+}
+
+.dx-datagrid .dx-column-lines > td {
+    border-left: 0;
+    border-right: 0;
+    color: var(--sp-color-content-default);
+    font-family: "Segoe UI";
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 125%; /* 20px */
+    border-color: var(--sp-color-border-default);
+}
+
+
+/*Los valores de la cabecera lateral*/
+
+.dx-pivotgrid .dx-pivotgrid-area-data tbody td {
+    border-left: 1px solid var(--sp-color-border-default) !important;
+    color: var(--sp-color-content-default) !important;
+    font-family: "Segoe UI" !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    line-height: 125% !important; /* 20px */
+}
+
+.dx-dashboard-typography, .dx-dashboard-typography .dx-widget, .dx-dashboard-typography .dx-widget input, .dx-dashboard-typography .dx-widget textarea {
+    font-family: Raleway !important;
+    font-size: 12px !important;
+}
+
+
+.dx-datagrid-headers {
+    border-bottom: 0px !important;
+}
+
+    .dx-datagrid-borders .dx-datagrid-rowsview, .dx-datagrid-headers + .dx-datagrid-rowsview {
+        border-top: 0px;
+    }
+
+/*barra valor porcentaje*/
+.dx-datagrid-rowsview.dx-datagrid-nowrap table.dx-datagrid-table tr td.dx-dashboard-datagrid-column-visible-cell-content path.dxb-bar-value {
+    fill: var(--gl-color-cyan-600);
+}
+
+.dx-datagrid-rowsview.dx-datagrid-nowrap table.dx-datagrid-table tr td.dx-dashboard-datagrid-column-visible-cell-content svg.dxb.dxb-bullet {
+    background-color: var(--sp-color-bg-selected);
+}
+
+/*iconos tabla*/
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalreddownarrow,
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalredtriangledown,
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalgreenarrowup,
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalgreentriangleup,
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalyellowdowninclinearrow,
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalyellowupinclinearrow {
+    background: none;
+}
+
+.dx-icon-dashboard-cf-directionalyellowdash {
+    background: unset !important;
+}
+
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalreddownarrow::after,
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalredtriangledown::after {
+    content: var(--mlx-ico-trend-down);
+    color: var(--gl-color-red-500);
+    font-family: 'mlx_icons';
+    font-size: 22px;
+    font-weight: normal;
+}
+
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalgreenarrowup::after,
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalgreentriangleup::after {
+    content: var(--mlx-ico-trend-up);
+    color: var(--gl-color-green-500);
+    font-family: 'mlx_icons';
+    font-size: 22px;
+    font-weight: normal;
+}
+
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalyellowdowninclinearrow::after {
+    content: var(--mlx-ico-trend-neutral-down);
+    color: var(--gl-color-orange-400);
+    font-family: 'mlx_icons';
+    font-size: 22px;
+    font-weight: normal;
+}
+
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalyellowupinclinearrow::after {
+    content: var(--mlx-ico-trend-neutral-up);
+    color: var(--gl-color-orange-400);
+    font-family: 'mlx_icons';
+    font-size: 22px;
+    font-weight: normal;
+}
+
+.dx-icon-dashboard-cf.dx-icon-dashboard-cf-directionalyellowdash::after {
+    content: var(--mlx-ico-trend-neutral);
+    color: var(--gl-color-orange-400);
+    font-family: 'mlx_icons';
+    font-size: 22px;
+    font-weight: normal;
+}
+
+/* Align the table values with their arrows */
+.dx-pivotgrid-area table td {
+    vertical-align: middle;
+}
+
+    .dx-pivotgrid-area table td > div {
+        justify-content: flex-start;
+        vertical-align: baseline;
+    }
+
+        .dx-pivotgrid-area table td > div .dx-dashboard-truncated.dx-dashboard-stretched {
+            min-width: 30px !important;
+        }
+
+/*------------------------------------------------------------*/
+/*HORIZONTAL SCROLLBAR IN CARDS WIDGETS*/
+.dx-scrollbar-horizontal.dx-scrollbar-hoverable.dx-scrollable-scrollbar-active,
+.dx-scrollbar-horizontal.dx-scrollbar-hoverable.dx-scrollable-scrollbar-active dx-scrollable-scroll,
+.dx-scrollbar-horizontal.dx-scrollbar-hoverable.dx-state-hover,
+.dx-scrollbar-horizontal.dx-scrollbar-hoverable.dx-state-hover.dx-scrollable-scroll {
+    height: 0px !important;
+}
+
+/*scroll horizontal del las estadisticas*/
+.dxc-chart .dxc-scroll-bar rect {
+    fill: var(--gl-color-smoke-300);
+}
+
+/*Leyenda graficos*/
+g.dxc-item {
+    fill: var(--sp-color-content-default) !important;
+    font-family: "Segoe UI" !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 125% !important; /* 12.5px */
+}
+
+/*Texto Ejes*/
+g.dxc-arg-elements > text {
+    fill: var(--sp-color-content-soft) !important;
+    text-align: center !important;
+    font-family: "Segoe UI" !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 125% !important; /* 12.5px */
+}
+
+g.dxc-val-elements > text {
+    fill: var(--sp-color-content-soft) !important;
+    text-align: center !important;
+    font-family: "Segoe UI" !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 125% !important; /* 12.5px */
+}
+
+g.dxc-grids-group path,
+g.dxc-border > path,
+g.dxc-axes-group > g.dxc-arg-axis > g.dxc-arg-line > path,
+g.dxc-axes-group > g.dxc-val-axis > g.dxc-val-line > path {
+    stroke: var(--sp-color-border-default) !important;
+}
+
+g.dxc-axes-group {
+    display: none;
+}
+
+g.dxc-legend text {
+    fill: var(--sp-color-content-default) !important;
+    text-align: center !important;
+    font-family: "Segoe UI" !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 125% !important; /* 12.5px */
+}
+
+.dx-dashboard-item > svg g.dxc-scroll-bar > rect {
+    opacity: 0;
+    transition: opacity .3s linear;
+}
+
+.dx-dashboard-item > svg:hover g.dxc-scroll-bar > rect {
+    opacity: 1;
+}
+/*------------------------------------------------------------*/
+/* HIDE EDIT OPTIONS POP UP*/
+.dx-dashboard-properties.dx-form.dx-widget.dx-visibility-change-handler .dx-layout-manager.dx-widget .dx-box-flex.dx-box.dx-widget.dx-visibility-change-handler.dx-collection > .dx-item.dx-box-item:not(:first-child) {
+    display: none !important;
+}
+
+.carruselmode .dx-dashboard-caption-toolbar, .dx-dashboard-title-toolbar {
+    display: flex;
+    padding: 5px;
+    line-height: 1.2;
+    height: 12em;
+    white-space: break-spaces;
+    vertical-align: text-top;
+    align-content: flex-start;
+    z-index: 99;
+}
+
+.carruselmode .dx-pivotgrid.dx-overflow-hidden {
+    top: 4%;
+    padding: 1px;
+}
+
+/**************** Widgets caption toolbar buttons  ***********************/
+/* Center the buttons */
+.dx-dashboard-caption-toolbar .dx-toolbar-after {
+    display: flex;
+    align-items: center;
+}
+
+    .dx-dashboard-caption-toolbar .dx-toolbar-after .dx-button-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+/* Widget icon class */
+.mlx-widget-icon {
+    position: relative;
+    padding-bottom: 2px;
+}
+
+    .mlx-widget-icon::before {
+        font-size: 20px;
+    }
+
+/* Alert static icons position (no clickable icons) */
+.dx-item-content.dx-toolbar-item-content:has(.mlx-widget-icon.mlx-ico-info-bg-solid),
+.dx-item-content.dx-toolbar-item-content:has(.mlx-widget-icon.mlx-ico-warning-bg-solid),
+.dx-item-content.dx-toolbar-item-content:has(.mlx-widget-icon.mlx-ico-error-bg-solid) {
+    margin-top: 1px;
+}
+
+/* Alert static icon "open form icon, but its only visual" */
+.dx-item-content.dx-toolbar-item-content:has(.mlx-widget-icon.mlx-ico-alert-management.hideable-icon) {
+    margin-top: 6px;
+    opacity: 0.7;
+}
+
+/* Hide the "this widget have an alert created" icon, only when the caption has the focus/hover */
+.dx-dashboard-item-container:has(.action-widget-icon) .dx-toolbar-item.dx-toolbar-button:has(.hideable-icon.mlx-ico-alert-management) {
+    display: none !important;
+}
+
+.carruselmode .dx-dashboard-caption-toolbar,
+.carruselmode .dx-dashboard-title-toolbar {
+    height: 3.5em;
+}
+
+
+
+
+/*------------------------------------------------------------*/
+/* TITLE AND ICON FILTER POSITION*/
+.dx-dashboard-mobile-layout-widget .dx-dashboard-action-toolbar.dx-dashboard-title-toolbar {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    z-index: 100;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dsh-title {
+    margin-top: 15px;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-mobile-layout .dx-list-group-header {
+    background-color: var(--sp-color-bg-default);
+}
+
+.dx-dashboard-mobile-layout-widget .dx-scrollview-content .dx-list-group:first-child {
+    display: none;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dsh-title .dx-dashboard-title-toolbar .dx-toolbar-items-container {
+    width: 42px;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dsh-title .dx-dashboard-action-toolbar {
+    width: 42px;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dsh-title .filter-button {
+    height: 25px;
+    width: 25px;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dsh-title .dx-toolbar-button {
+    border-radius: var(--gl-border-radius-round);
+    background-color: var(--sp-color-bg-brand);
+    box-shadow: var(--gl-shadow-md-hex);
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-title-toolbar .dx-toolbar-after .dx-toolbar-button {
+    padding: 0 8.5px !important;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-caption-toolbar,
+.dx-dashboard-mobile-layout-widget .dx-dashboard-title-toolbar {
+    background-color: transparent;
+}
+
+
+/*Title of each group of widgets*/
+.dx-dashboard-mobile-layout-widget .dx-scrollable-content .dx-list-group-header {
+    font-family: 'Segoe UI';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 150%;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gl-color-neutral-700);
+    padding: 20px;
+    border-top: unset;
+}
+
+/*Title of each widget*/
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-caption-toolbar.dx-dashboard-content-toolbar .dx-toolbar-before .dx-dashboard-ellipsis {
+    font-family: 'Segoe UI';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 150%;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gl-color-smoke-600) !important;
+}
+
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-caption-toolbar .dx-toolbar-before .dx-dashboard-ellipsis {
+    font-family: 'Segoe UI';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 125%;
+    display: flex;
+    color: var(--gl-color-smoke-600) !important;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-mobile-layout .dx-list-group .dx-list-item .dx-list-item-content {
+    padding-top: 12px;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-title-toolbar {
+    padding: 0;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-list-group-body .dx-dashboard-standalone-item .dx-toolbar-after .dx-toolbar-item:not(:has(.alert-target-tooltip)) {
+    display: none;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-list-group-body .dx-dashboard-standalone-item .dx-toolbar-after {
+    position: fixed;
+    top: -40%;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-mobile-layout {
+    height: 100% !important;
+    top: 0 !important;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-standalone-item .dx-flex-card-layout-content .dx-flex-card-layout-row-left-right .dx-flex-card-layout-row-element,
+.dx-dashboard-mobile-layout-widget .dx-dashboard-standalone-item .dx-flex-card-layout-content .dx-flex-card-layout-row-left-right .dx-flex-card-layout-row-element {
+    font-family: 'Segoe UI';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 25px;
+    color: var(--gl-color-neutral-700) !important;
+}
+
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-standalone-item .dx-widget-viewer-container .dx-flex-card-layout {
+    border: unset;
+    padding: unset;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-widget-viewer-container .dx-flex-card-layout,
+.dx-dashboard-mobile-layout-widget .dx-dashboard-item-container {
+    box-shadow: var(--gl-shadow-xs-hex);
+    border: unset !important;
+    border-radius: var(--gl-border-radius-md) !important;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-item-container.dx-dashboard-standalone-item {
+    height: 100% !important;
+    justify-content: flex-start;
+}
+
+    .dx-dashboard-fullscreen-item-popup .dx-dashboard-item-container.dx-dashboard-standalone-item > .dx-dashboard-caption-toolbar {
+        flex: 0 0;
+    }
+
+    .dx-dashboard-fullscreen-item-popup .dx-dashboard-item-container.dx-dashboard-standalone-item > .dx-dashboard-widget-viewer-item {
+        flex: 1 1 auto;
+        height: 100% !important;
+    }
+
+        .dx-dashboard-fullscreen-item-popup .dx-dashboard-item-container.dx-dashboard-standalone-item > .dx-dashboard-widget-viewer-item * {
+            height: 100% !important;
+        }
+
+        .dx-dashboard-fullscreen-item-popup .dx-dashboard-item-container.dx-dashboard-standalone-item > .dx-dashboard-widget-viewer-item .dx-flex-card-layout-content * {
+            height: fit-content !important;
+        }
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-standalone-item .dx-dashboard-widget-viewer-item,
+.dx-dashboard-mobile-layout-widget .dx-dashboard-standalone-item .dx-dashboard-widget-viewer-item * {
+    height: fit-content !important;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-caption-toolbar {
+    margin-bottom: -5px;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-widget-viewer-container .dx-flex-card-layout {
+    background-color: transparent;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-widget-viewer-item {
+    padding-left: 5px;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-action-toolbar .dx-dashboard-back-button {
+    color: var(--gl-color-brand-100);
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-back-button.dx-dashboard-truncated::before {
+    font-size: 24px;
+    font-family: 'mlx_icons';
+    content: var(--mlx-ico-arrow-left);
+    font-weight: normal;
+    margin-right: 10px;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-back-button.dx-dashboard-truncated {
+    text-transform: unset;
+    display: flex;
+    color: var(--sp-color-content-link);
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-caption-toolbar .dx-toolbar-button .dx-dashboard-ellipsis > svg {
+    display: none;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-filters .dx-button-content::before {
+    font-size: 24px;
+    font-family: 'mlx_icons';
+    content: var(--mlx-ico-filters);
+    color: var(--gl-color-brand-100);
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-filters .dx-button-content > svg {
+    display: none;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-content-toolbar.dx-dashboard-caption-toolbar .dx-toolbar-items-container {
+    margin-top: -40px;
+    position: relative;
+    top: 50px;
+    z-index: 1;
+    left: 6px;
+}
+
+.dx-dashboard-fullscreen-item-popup:has(.dx-dashboard-item > svg) .dx-dashboard-content-toolbar.dx-dashboard-caption-toolbar .dx-toolbar-items-container,
+.dx-dashboard-fullscreen-item-popup:has(.dx-widgetItem) .dx-dashboard-content-toolbar.dx-dashboard-caption-toolbar .dx-toolbar-items-container {
+    margin-top: unset;
+    top: unset;
+}
+
+.dx-dashboard-fullscreen-item-popup:has(.dx-dashboard-item > svg) .dx-dashboard-item,
+.dx-dashboard-fullscreen-item-popup:has(.dx-widgetItem) .dx-dashboard-item {
+    flex: 1 1 auto;
+    overflow: auto;
+    height: 100% !important;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-caption-toolbar .dx-toolbar-after .dx-toolbar-button {
+    height: 28px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-content-toolbar.dx-dashboard-caption-toolbar:has(+ div > .dx-datagrid) .dx-toolbar-items-container,
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-content-toolbar.dx-dashboard-caption-toolbar:has(+ .dx-pivotgrid-fields-container) .dx-toolbar-items-container {
+    margin-top: unset;
+    top: unset;
+    z-index: unset;
+    left: unset;
+}
+
+.dx-dashboard-fullscreen-item-popup .info-ico.dx-button svg {
+    padding-top: 2px;
+}
+
+.dx-dashboard-fullscreen-item-popup .info-ico.dx-button .dx-button-content {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    height: 28px;
+    width: 28px;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-widget-viewer-item .dx-scrollview-bottom-pocket {
+    display: none;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-widget-viewer-item .dx-scrollview-content * {
+    width: 100% !important;
+}
+
+.dx-dashboard-fullscreen-item-popup .dx-dashboard-widget-viewer-item .widget-viewer-cell {
+    padding-bottom: 6px;
+    padding-right: 6px;
+}
+
+@media (orientation: landscape) {
+    .dx-dashboard-master-filters-popup:not(:has(.master-filters-list-container)) .dx-overlay-content {
+        transform: unset;
+        height: 100% !important;
+    }
+
+    .dx-dashboard-master-filters-popup:has(.master-filters-list-container) .dx-overlay-content {
+        height: 100% !important;
+        transform: unset;
+    }
+
+    .dx-dashboard-master-filters-popup .master-filters-list-container {
+        overflow: auto;
+    }
+
+    .dx-dashboard-master-filters-popup:not(:has(.master-filters-list-container)) .dx-dashboard-standalone-item-container {
+        height: 100% !important;
+        display: block;
+    }
+
+    .dx-dashboard-master-filters-popup:not(:has(.master-filters-list-container)) .dx-dashboard-item {
+        height: calc(100% - 60px) !important;
+    }
+}
+
+.dx-dashboard-master-filters-popup .dx-dashboard-caption-toolbar .dx-dashboard-clear-master-filter::after {
+    content: var(--mlx-ico-trash);
+    position: unset;
+    color: var(--gl-color-red-500);
+}
+
+.dx-dashboard-master-filters-popup .dx-dashboard-caption-toolbar .dx-dashboard-clear-master-filter .dx-button-content > svg {
+    display: none;
+}
+
+.dx-dashboard-master-filters-popup .dx-dashboard-action-toolbar.dx-dashboard-caption-toolbar {
+    margin-top: -34px;
+    top: 44px;
+    position: relative;
+    z-index: 1;
+    background-color: transparent;
+    height: 0;
+}
+
+@media (orientation: landscape) {
+    .dx-dashboard-master-filters-popup .dx-dashboard-action-toolbar.dx-dashboard-caption-toolbar {
+        margin-top: -50px;
+        top: 60px;
+    }
+}
+
+.dx-dashboard-master-filters-popup .dx-overlay-content .dx-dashboard-standalone-item > * {
+    padding: 0 10px;
+}
+
+.dx-dashboard-master-filters-popup .dx-dashboard-action-toolbar.dx-dashboard-caption-toolbar,
+.dx-dashboard-master-filters-popup .dx-dashboard-action-toolbar.dx-dashboard-caption-toolbar * {
+    width: fit-content;
+}
+
+.dx-dashboard-master-filters-popup .dx-overlay-content .master-filters-list.master-filter-popup .dx-dashboard-masters-preview-item .dx-dashboard-masters-preview-item-name {
+    color: var(--sp-color-content-link);
+    font-size: 20px;
+}
+
+.dx-dashboard-master-filters-popup .dx-dashboard-standalone-item .dx-dashboard-caption-toolbar .dx-toolbar-before .dx-dashboard-ellipsis {
+    font-family: 'Segoe UI';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 150%;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gl-color-neutral-700) !important;
+    border-top: unset;
+}
+
+.dx-dashboard-master-filters-popup .dx-overlay-content .master-filters-list.master-filter-popup .dx-dashboard-masters-preview-item .dx-dashboard-masters-preview-filtervalues {
+    visibility: collapse;
+    color: var(--sp-color-content-default);
+    font-family: 'Segoe UI';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 125%;
+    padding-bottom: 10px;
+}
+
+    .dx-dashboard-master-filters-popup .dx-overlay-content .master-filters-list.master-filter-popup .dx-dashboard-masters-preview-item .dx-dashboard-masters-preview-filtervalues > * {
+        position: absolute;
+        left: 20px;
+    }
+
+    .dx-dashboard-master-filters-popup .dx-overlay-content .master-filters-list.master-filter-popup .dx-dashboard-masters-preview-item .dx-dashboard-masters-preview-filtervalues > span {
+        visibility: visible;
+    }
+
+.dx-dashboard-master-filters-popup .apply-buttons > .dx-button {
+    background-color: var(--sp-color-bg-brand);
+    color: var(--sp-color-content-inverse);
+    border-radius: var(--gl-border-radius-round);
+    border-color: var(--sp-color-border-brand);
+    border: var(--gl-border-radius-xs) solid;
+}
+
+.filter-button {
+    border: unset;
+    box-shadow: unset;
+    padding: unset;
+    border-radius: unset;
+    color: unset;
+    background: unset;
+    font-size: unset;
+}
+
+.filter-button-ico::before {
+    font-size: 24px;
+    font-family: 'mlx_icons';
+    cursor: pointer;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-filters .dx-button-content > svg {
+    display: none;
+}
+
+.dx-dashboard-mobile-layout-widget .dx-dashboard-filters .dx-button-content::before {
+    font-size: 24px;
+    font-family: 'mlx_icons';
+    cursor: pointer;
+    content: var(--mlx-ico-filters);
+    color: var(--sp-color-icon-inverse);
+    display: block;
+}
+
+
+.dx-dashboard-widget-viewer-item .widget-viewer-table * {
+    width: 100% !important;
+    min-width: fit-content;
+}
+
+.carruselmode .dx-dashboard-widget-viewer-item .widget-viewer-table .dx-flex-card-layout-row,
+.carruselmode .dx-dashboard-widget-viewer-item .widget-viewer-table .dx-flex-card-layout-row * {
+    width: fit-content !important;
+}
+
+.carruselmode .dx-flex-card-layout-content > div:not(.dx-flex-card-layout-content-top-rows) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.dx-item.dx-toolbar-item.dx-toolbar-label:has(.dx-caption-panel-separator) {
+    display: none;
+}
+
+/* Fix toolbar */
+.dx-button-normal.dx-button-mode-contained.dx-widget.dx-dashboard-maximize-item {
+    border-radius: 100%;
+    transition: background-color 0.3s linear;
+}
+
+    .dx-button-normal.dx-button-mode-contained.dx-widget.dx-dashboard-maximize-item:hover {
+        background-color: var(--sp-color-bg-soft);
+    }
+
+    .dx-button-normal.dx-button-mode-contained.dx-widget.dx-dashboard-maximize-item .dx-button-content {
+        padding-bottom: 2px;
+    }
+
+/* Hover effects of toolbar buttons */
+.dx-button-normal.dx-button:has(span.mlx-widget-icon) {
+    border-radius: 100%;
+    transition: background-color 0.3s linear;
+    width: 30px;
+    height: 30px;
+    padding: 5px 4px 3px 4px;
+}
+
+.dx-button-normal.dx-button:has(span.mlx-widget-icon.action-widget-icon):hover {
+    background-color: var(--sp-color-bg-soft);
+}
+
+.dx-scrollbar-vertical.dx-scrollbar-hoverable .dx-scrollable-scroll,
+.dx-scrollbar-vertical.dx-scrollbar-hoverable .dx-scrollable-scroll.dx-state-invisible {
+    transition: width .2s linear .15s,background-color .2s linear .15s !important;
+}
+
+.dx-scrollable-scrollbar.dx-scrollbar-vertical.dx-scrollbar-hoverable:not(.dx-state-hover):not(.dx-scrollable-scrollbar-active) .dx-scrollable-scroll {
+    width: 4px;
+}
+
+.dx-scrollable-scrollbar.dx-scrollbar-vertical.dx-scrollbar-hoverable:not(.dx-state-hover):not(.dx-scrollable-scrollbar-active) {
+    padding: 0 2px;
+    width: 8px;
+}
+
+.dx-scrollable-scrollbar.dx-scrollbar-vertical.dx-scrollbar-hoverable.dx-state-hover,
+.dx-scrollable-scrollbar.dx-scrollbar-vertical.dx-scrollbar-hoverable.dx-scrollable-scrollbar-active {
+    padding: 2px;
+    width: 15px;
+}
+
+.dx-scrollbar-vertical.dx-scrollbar-hoverable.dx-state-hover > .dx-scrollable-scroll,
+.dx-scrollbar-vertical.dx-scrollbar-hoverable.dx-scrollable-scrollbar-active > .dx-scrollable-scroll {
+    width: 11px;
+}
+
+
+.dx-scrollable-content:hover ~ .dx-scrollbar-vertical > .dx-scrollable-scroll,
+.dx-scrollbar-vertical.dx-state-hover > .dx-scrollable-scroll,
+.dx-scrollbar-vertical.dx-scrollable-scrollbar-active > .dx-scrollable-scroll {
+    background-color: rgba(191, 191, 191, .5);
+}
+
+.dx-scrollbar-vertical.dx-state-hover,
+.dx-scrollbar-vertical.dx-scrollable-scrollbar-active {
+    background-color: rgba(220, 220, 255, .3);
+}
+
+.dx-dashboard-standalone-item.dx-dashboard-item-container {
+    border-radius: unset;
+}
+
+.dx-dashboard-item-controls .dx-dashboard-item-menu .dx-dashboard-designer-menu-separator {
+    display: none;
+}
+
+.dx-dashboard-item-controls .dx-dashboard-item-menu.dx-position-left {
+    left: -33px;
+}
+
+.dx-dashboard-item-controls .dx-dashboard-item-menu {
+    right: -33px;
+}
+
+/* Info icon */
+.dx-dashboard-help {
+    position: relative;
+}
+
+    .dx-dashboard-help::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--sp-color-bg-default);
+        content: '\e986' !important;
+        font-family: 'mlx_icons';
+        width: 24px;
+        height: 24px;
+        font-size: 20px;
+        z-index: 1;
+        color: var(--sp-color-icon-link);
+    }
+/***************************************************************************************************/
+
+/* Kiosko widget titles */
+.dx-dashboard-caption-toolbar, .dx-dashboard-title-toolbar {
+    height: 3.5em;
+}
+
+
+
+
+
+
+/********************************
+    Gráfica quesitos
+********************************/
+.dx-widget-viewer-container .widget-viewer-table .dxc-labels-group .dxc-labels rect {
+    rx: 4px;
+}
+
+.dx-widget-viewer-container .widget-viewer-table .dxc-labels-group .dxc-labels text {
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    fill: var(--gl-color-brand-400) !important;
+}
+
+.dx-widget-viewer-container .widget-viewer-table .dx-widgetItem .dxc-series-group .dxc-series .dxc-markers path {
+    stroke-width: 1;
+}
+
+/********************************
+    widgets tipo area - full stacked spline. 
+********************************/
+.dxc-chart .dxc-labels rect {
+    rx: 4px;
+}
+
+.dxc-chart .dxc-scale-breaks + .dxc-labels-group .dxc-labels text {
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    fill: var(--sp-color-content-default) !important;
+}
+/*Checkbox*/
+
+.dx-checkbox-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 2px solid var(--gl-color-smoke-500);
+    background-color: transparent;
+}
+
+
+
+.dx-checkbox-checked .dx-checkbox-icon::before {
+    background-color: var(--gl-color-blue-500);
+    color: white;
+    border-radius: 3px;
+    font-size: 12px;
+    content: "\e95c";
+    font-family: 'mlx_icons';
+    font-weight: 600;
+}
+
+.dx-checkbox-indeterminate .dx-checkbox-icon::before {
+    content: "\e95d";
+    font-family: 'mlx_icons';
+    font-size: 12px;
+    background-color: var(--gl-color-blue-500);
+    color: white;
+    border-radius: 3px;
+    border: 2px solid var(--gl-color-blue-500);
+    width: 16px;
+    height: 16px;
+    margin-top: -8px !important;
+    margin-left: -8px !important;
+}
+
+/* Tags seleccionados*/
+.dx-tag-content {
+    background-color: var(--sp-color-bg-default) !important;
+    border: solid 2px var(--sp-color-border-inverse) !important;
+    border-radius: 99999px !important;
+    color: var(--sp-color-content-default) !important;
+    border: unset;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 4px 24px 4px 12px;
+}
+
+
+
+.dx-tag-remove-button::before {
+    content: "\e954";
+    font-family: 'mlx_icons';
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sp-color-content-default);
+    right: 6px;
+    margin-top: -9px;
+}
+
+.dx-tag-remove-button::before, .dx-tag-remove-button::after {
+    -webkit-transform: unset;
+    transform: unset;
+    width: unset;
+    height: unset;
+    background: unset;
+}
+
+.dx-tag-remove-button:active::before {
+    background-color: var(--sp-color-bg-default) !important;
+}
+
+
+/* Set filter*/
+
+.dx-dashboard-date-filter-datepicker-button-empty.dx-dashboard-date-filter-button .dx-buttongroup-item-content {
+    background-color: var(--gl-color-brand-400) !important;
+}
+
+.dx-dashboard-item-container .dx-dashboard-date-filter-widget .dx-dashboard-date-filter-buttons .dx-dashboard-date-filter-datepicker-button-empty .dx-button-text {
+    color: var(--sp-color-content-link) !important;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+    .dx-dashboard-item-container .dx-dashboard-date-filter-widget .dx-dashboard-date-filter-buttons .dx-dashboard-date-filter-datepicker-button-empty .dx-button-text:hover {
+        color: var(--sp-color-content-hover) !important;
+    }
+
+/*Calendario Set Filter*/
+
+.dx-calendar-cell {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    color: var(--sp-color-content-default) !important;
+    width: 30px !important;
+    height: 30px !important;
+}
+
+.dx-calendar-view-year .dx-calendar-cell,
+.dx-calendar-view-decade .dx-calendar-cell,
+.dx-calendar-view-century .dx-calendar-cell {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    color: var(--sp-color-content-default) !important;
+    width: 64px !important;
+    height: 64px !important;
+}
+
+
+.dx-calendar-body .dx-widget {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dx-calendar-body table {
+    width: unset !important;
+    height: unset !important;
+}
+
+/*
+.dx-calendar {
+    width: 84%;
+    min-width: 230px;
+  
+}
+    */
+.dx-calendar-cell.dx-calendar-selected-date, .dx-calendar-cell.dx-calendar-selected-date.dx-calendar-today {
+    color: var(--sp-color-content-inverse) !important;
+    -webkit-box-shadow: inset 0 0 0 1000px var(--sp-color-content-focus);
+    box-shadow: inset 0 0 0 1000px var(--sp-color-content-focus);
+    border-radius: 100%;
+}
+
+.dx-calendar-cell.dx-state-hover,
+.dx-calendar-cell.dx-state-active {
+    color: var(--sp-color-content-hover) !important;
+    -webkit-box-shadow: inset 0 0 0 1000px var(--gl-color-blue-000) !important;
+    box-shadow: inset 0 0 0 1000px var(--gl-color-blue-000) !important;
+    border-radius: 100%;
+}
+
+
+.dx-calendar-navigator .dx-button-normal.dx-state-hover .dx-button-content,
+.dx-calendar-navigator .dx-button-normal.dx-state-active .dx-button-content {
+    background-color: var(--sp-color-content-inverse);
+}
+
+.dx-calendar-cell.dx-calendar-empty-cell:not(.dx-calendar-selected-date),
+.dx-calendar-cell.dx-calendar-empty-cell:not(.dx-calendar-selected-date).dx-state-active,
+.dx-calendar-cell.dx-calendar-empty-cell:not(.dx-calendar-selected-date).dx-state-hover,
+.dx-calendar-cell.dx-calendar-other-view:not(.dx-calendar-selected-date),
+.dx-calendar-cell.dx-calendar-other-view:not(.dx-calendar-selected-date).dx-state-active,
+.dx-calendar-cell.dx-calendar-other-view:not(.dx-calendar-selected-date).dx-state-hover {
+    color: var(--sp-color-content-soft) !important;
+}
+
+.dx-calendar-body thead tr th {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    -webkit-box-shadow: unset;
+    box-shadow: unset;
+    color: var(--sp-color-content-soft);
+}
+
+.dx-calendar-navigator .dx-calendar-caption-button.dx-button .dx-button-content {
+    color: var(--gl-color-blue-500);
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.dx-calendar-navigator .dx-button {
+    border: 0px;
+}
+
+.dx-icon-chevronright::before {
+    color: var(--gl-color-smoke-500);
+}
+
+.dx-icon-chevronleft::before {
+    color: var(--gl-color-smoke-500);
+}
+
+.dx-dashboard-item-container .dx-dashboard-date-filter-overlay .dx-dashboard-date-filter-overlay-text-box {
+    display: none;
+}
+
+
+.dx-dashboard-item-container .dx-dashboard-date-filter-overlay .dx-dashboard-date-filter-overlay-button {
+    border-radius: var(--gl-border-radius-round);
+    background-color: var(--gl-color-brand-100) !important;
+    border: 2px solid var(--gl-color-brand-100);
+    color: var(--gl-color-brand-400);
+    height: 40px;
+    font-size: 16px !important;
+    cursor: pointer;
+    transition: all .3s;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 600;
+}
+
+    .dx-dashboard-item-container .dx-dashboard-date-filter-overlay .dx-dashboard-date-filter-overlay-button:hover {
+        background-color: var(--sp-color-content-hover) !important;
+        border: 2px solid var(--sp-color-content-hover);
+    }
+
+/*Cambiar chevrons de desplegar de las tablas y gris*/
+.dx-pivotgrid .dx-pivotgrid-collapsed .dx-expand::before {
+    font-family: 'mlx_icons';
+    content: '\e93d';
+    color: var(--sp-color-icon-soft);
+}
+
+.dx-pivotgrid .dx-pivotgrid-expanded .dx-expand::before {
+    font-family: 'mlx_icons';
+    content: '\e93f'
+}
+
+.dx-pivotgrid .dx-area-tree-view td.dx-white-space-column {
+    background-color: unset;
+}
+
+/*Formato sin datos*/
+.dx-datagrid-nodata {
+    color: var(--sp-color-content-default) !important;
+    font-family: 'Raleway';
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.dx-dashboard-fullscreen-item-base {
+    background-color: transparent !important;
+}
+
+.dx-popup-title {
+    border-bottom: none !important;
+}
+
+.dx-toolbar .dx-button .dx-icon {
+    color: var(--sp-color-icon-soft) !important;
+}
+
+.carruselmode .dx-dashboard-caption-toolbar, .dx-dashboard-title-toolbar {
+    display: none;
+}
+
+.dx-icon-dashboard-cf {
+    height: unset;
+}

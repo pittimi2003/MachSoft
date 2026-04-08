@@ -1,0 +1,53 @@
+﻿@page
+@model WMSSimulatorWeb.Pages.InputOrdersModel
+@{
+    ViewData["Title"] = "Input Orders";
+}
+
+<link rel="stylesheet" href="~/css/style.css" asp-append-version="true">
+
+<h1>Input orders</h1>
+
+<form method="post" asp-page-handler="UpdateStatus">
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Select</th>
+                <th>Order Code</th>
+                <th>Is Out</th>
+                <th>Preferred Dock</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Num. Lines</th>
+                <th>Update Date</th>
+            </tr>
+            @foreach (var order in Model.InputOrders)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="SelectedOrders[]" value="@order.Id">
+                    </td>
+                    <td>@order.OrderCode</td>
+                    <td>@(order.IsOut ? "Yes" : "No")</td>
+                    <td>@(string.IsNullOrEmpty(order.PreferedDockCode) ? "N/A" : order.PreferedDockCode)</td>
+                    <td>@order.Status</td>
+                    <td>@order.Progress%</td>
+                    <td>@order.NumLines</td>
+                    <td>@order.UpdateDate</td>
+                </tr>
+            }
+        </table>
+    </div>
+
+    <input type="hidden" id="actionField" name="Action" />
+
+@*     <button type="submit" class="btn-cancel" onclick="setAction('Cancel')">Cancel</button>
+    <button type="submit" class="btn-open" onclick="setAction('Open')">Open</button>
+    <button type="submit" class="btn-paused" onclick="setAction('Paused')">Paused</button> *@
+</form>
+
+<script>
+    function setAction(action) {
+        document.getElementById("actionField").value = action;
+    }
+</script>

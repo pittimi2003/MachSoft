@@ -1,0 +1,537 @@
+﻿/*-------SideBar-------*/
+
+/*Color and size to internal container in SideBar*/
+.mlx-right-sideBar-background {
+    display: flex;
+    flex-flow: column;
+    width: 100%;
+    height: 100%;
+    background-color: var(--gl-color-brand-400);
+    padding: 16px 32px;
+    gap: 24px;
+    position: relative;
+    z-index: 11;
+}
+
+/*Flex and size to estructure containers in SideBar*/
+.mlx-right-sideBar-header,
+.mlx-right-sideBar-header-with-button,
+.mlx-right-sideBar-body,
+.mlx-right-sideBar-body-with-button,
+.mlx-right-sideBar-footer {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/*Header container*/
+.mlx-right-sideBar-header,
+.mlx-right-sideBar-header-with-button {
+    flex-flow: column;
+    justify-content: start;
+}
+
+/*Sidebar header height width tab*/
+.mlx-right-sideBar-header-width-tab {
+    height: fit-content;
+}
+
+/*Sidebar header height widthout tab*/
+.mlx-right-sideBar-header-widthout-tab {
+    height: 40px;
+}
+
+/*Split each header section in half for tab and title containers.*/
+.mlx-right-sideBar-header > div,
+.mlx-right-sideBar-header-with-button.mlx-right-sideBar-header-width-tab > div,
+.mlx-right-sideBar-header-with-button.mlx-right-sideBar-header-widthout-tab > div:first-child {
+    width: 100%;
+}
+
+/*Height 50%*/
+.mlx-height-50 {
+    height: 50%;
+}
+
+/*Height 100%*/
+.mlx-height-100 {
+    height: 100%;
+}
+
+/*Title container in SideBar*/
+.mlx-right-sideBar-header-title {
+    padding: 8px 0px;
+    gap: 40px;
+    font-family: Raleway;
+    line-height: 24px;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--gl-color-smoke-900);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/*Body container in SideBar*/
+.mlx-right-sideBar-body {
+    display: block;
+    overflow: hidden auto;
+}
+
+/* Style for the SideBar with Back button */
+.mlx-right-sideBar-body-with-button {
+    flex-flow: column;
+    align-items: start;
+    gap: 10px;
+}
+
+/* Apply overflow to internal containers so that they affect containers that are not buttons */
+.mlx-right-sideBar-body-with-button {
+    display: flex;
+    overflow: hidden auto;
+    flex-flow: column;
+}
+
+.mlx-right-sideBar-body-height-without-tab {
+    height: calc(100% - 158px);
+}
+
+.mlx-right-sideBar-body-height-without-tab > form{
+    width: 100%;
+}
+
+.mlx-right-sideBar-body-height-form {
+    height: calc(100% - 135px);
+}
+
+#idCheckConfigurationView.mlx-right-sideBar-body-height-form {
+    display: flex;
+    flex-flow: column;
+    height: calc(100% - 48px);
+    gap: 16px;
+}
+
+#idCheckConfigurationView.mlx-right-sideBar-body-height-form > .mlx-right-sideBar-footer{
+    padding: 0px 0px 16px;
+}
+
+.mlx-right-sideBar-body-height-with-tab {
+    height: calc(100% - 198px);
+}
+
+.mlx-right-sideBar-body-form-height{
+    height: 100%;
+}
+
+/*Footer container in SideBar*/
+.mlx-right-sideBar-footer {
+    height: 70px;
+    justify-content: center;
+    padding: 16px 0px;
+    gap: 8px;
+}
+
+/* Tab container styles */
+.mlx-right-sideBar-header-tab-container {
+    display: flex;
+    border-bottom: 1px solid var(--gl-color-smoke-300); /*Line option in header SideBar*/
+}
+
+/*Hidden container*/
+.mlx-display-none {
+    display:none;
+}
+
+/* Styles of each tab */
+.mlx-right-sideBar-header-tab {
+    display: flex;
+    background: none;
+    border: none;
+    padding: 16px 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: 'Segoe UI';
+    line-height: 15px;
+    align-items: center;
+    color: var(--gl-color-smoke-500);
+    transition: color 0.3s;
+    outline: none;
+    border-bottom: 4px solid transparent;
+    text-transform: uppercase;
+}
+
+/* Active tab in SideBar */
+.mlx-right-sideBar-header-tab.active {
+    color: var(--gl-color-smoke-900);
+    border-bottom-color: var(--gl-color-smoke-900);
+}
+
+/* Tab body container */
+.mlx-right-sideBar-body-content-width-tab, /*Is used in js*/
+.mlx-right-sideBar-body-content-widthout-tab /*Not used in js*/ {
+    display: flex;
+    flex-direction: column;
+    padding-right: 2px;
+    font-size: 14px;
+    width: 100%;
+    height: 100%;
+    gap: 16px;
+}
+
+.mlx-right-sideBar-background .row {
+    row-gap: 16px;
+}
+
+/*---------------*/
+/*---------------------------------*/
+
+/*Acordion style*/
+.accordion-body-subtitle {
+    font-family: Segoe UI;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 15px;
+    color: var(--gl-color-smoke-900);
+}
+/*--------------*/
+
+/*Check style*/
+.mlx-checkbox-container {
+    display: flex;
+    flex-flow: row;
+    height: 40px;
+    align-items: center;
+}
+
+/*-----*/
+
+/*--------------RadioGroup Styles-------------*/
+/*Colors RadioGroup*/
+.mlx-right-sideBar-body-height-form .dxbl-checkbox.valid.modified:not([type=checkbox]) {
+    --dxbl-checkbox-check-element-checked-bg: var(--gl-color-blue-400);
+    --dxbl-checkbox-check-element-unchecked-border-color: unset;
+    --dxbl-checkbox-check-element-unchecked-hover-border-color: unset;
+    --dxbl-checkbox-switch-checked-bg: var(--gl-color-blue-400);
+    --dxbl-checkbox-switch-unchecked-bg: unset;
+    --dxbl-checkbox-switch-unchecked-hover-bg: unset;
+    --dxbl-checkbox-radio-unchecked-hover-border-color: unset;
+    --dxbl-checkbox-radio-unchecked-border-color: unset;
+    --dxbl-checkbox-checked-focus-shadow-color: rgba(var(--gl-color-blue-400), 50%);
+    --dxbl-checkbox-checked-focus-shadow-spread: 0.125rem;
+    --dxbl-checkbox-checked-focus-shadow-blur: 0rem;
+    --dxbl-checkbox-unchecked-focus-shadow-color: rgba(var(--gl-color-blue-400), 50%);
+    --dxbl-checkbox-unchecked-focus-shadow-spread: 0.125rem;
+    --dxbl-checkbox-unchecked-focus-shadow-blur: 0rem;
+    --dxbl-checkbox-check-element-checked-hover-bg: var(--gl-color-blue-400);
+    --dxbl-checkbox-check-element-checked-hover-background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+    --dxbl-checkbox-switch-checked-hover-bg: var(--gl-color-blue-400);
+    --dxbl-checkbox-switch-checked-hover-background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+    --dxbl-checkbox-radio-checked-hover-bg: var(--gl-color-blue-400);
+    --dxbl-checkbox-radio-checked-hover-background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+}
+
+/*RadioGroup select border styles*/
+.mlx-right-sideBar-body-height-form .dxbl-checkbox.valid.modified:not([type=checkbox]).dxbl-checkbox-radio.dxbl-checkbox-checked .dxbl-checkbox-check-element::before {
+    border: var(--dxbl-checkbox-radio-border-width) solid var(--dxbl-checkbox-radio-unchecked-border-color, var(--gl-color-blue-400));
+    opacity: var(--dxbl-checkbox-radio-unchecked-border-color);
+}
+
+/*RadioGroup point select styles*/
+.mlx-right-sideBar-body-height-form .dxbl-checkbox.valid.modified:not([type=checkbox]).dxbl-checkbox-radio.dxbl-checkbox-checked .dxbl-checkbox-check-element::after {
+    background-color: var(--dxbl-checkbox-radio-unchecked-border-color, var(--gl-color-blue-400));
+    opacity: var(--dxbl-checkbox-radio-unchecked-border-color);
+}
+
+/*RadioGroup border hover*/
+.mlx-right-sideBar-body-height-form .dxbl-checkbox.valid.modified:not([type=checkbox]).dxbl-checkbox-radio.dxbl-checkbox-unchecked:not(.dxbl-readonly):not(.dxbl-disabled):not(:disabled):hover .dxbl-checkbox-check-element::before {
+    border: var(--dxbl-checkbox-radio-border-width) solid var(--dxbl-checkbox-radio-unchecked-hover-border-color, var(--gl-color-blue-400));
+    opacity: var(--dxbl-checkbox-radio-unchecked-hover-border-color, 100%);
+}
+
+/*RadioGroup unselect border styles*/
+.mlx-right-sideBar-body-height-form .dxbl-checkbox.valid.modified:not([type=checkbox]).dxbl-checkbox-radio.dxbl-checkbox-unchecked .dxbl-checkbox-check-element::before {
+    border: var(--dxbl-checkbox-radio-border-width) solid var(--dxbl-checkbox-radio-unchecked-border-color, currentcolor);
+    opacity: var(--dxbl-checkbox-radio-unchecked-border-color, 50%);
+    background-color: var(--dxbl-checkbox-radio-bg, currentcolor);
+}
+
+/*Apply cursor pointer effect to checkboxes in sidebars*/
+.mlx-right-sideBar-body-height-form dxbl-check.dxbl-checkbox .dxbl-checkbox-check-element input[type="checkbox"],
+.mlx-right-sideBar-body-height-without-tab dxbl-check.dxbl-checkbox .dxbl-checkbox-check-element input[type="checkbox"] {
+    cursor: pointer;
+}
+
+/*---------------------------------------------------*/
+
+/* Removes the margin in site.css as the tabs in the Designer Sidebar show dead space without having to overwrite the path for other important styles for the DxTabs. */
+#area-tab-id > .mlx-tabs {
+    margin: 0 !important;
+}
+
+/* Apply the appropriate container height for the SideBar with tabs. */
+#area-tab-id .dxbl-tabs-content-panel.dxbl-tabs-render-default.dxbl-loaded {
+    display: block;
+    overflow: hidden auto;
+    height: calc(100vh - 265px);
+}
+
+/* Removes the border from inactive Tabs to avoid seeing a jump when switching Tabs. */
+#area-tab-id .dxbl-tabs > .dxbl-tabs-tablist > .dxbl-scroll-viewer > .dxbl-scroll-viewer-content > ul > li > .dxbl-tabs-item:not(.dxbl-active):not(.dxbl-disabled):not(:disabled) {
+    border: none;
+    margin-bottom: 3px;
+}
+
+/* Removes the border of active Tabs */
+#area-tab-id .dxbl-tabs.dxbl-tabs-top > .dxbl-tabs-tablist > .dxbl-scroll-viewer > .dxbl-scroll-viewer-content > ul > li > .dxbl-tabs-item:not(.dxbl-tabs-tmpl):not(.dxbl-disabled):not(:disabled).dxbl-active {
+    border: none;
+}
+
+/* Applies text styling of inactive tabs */
+#area-tab-id .dxbl-tabs > .dxbl-tabs-tablist > .dxbl-scroll-viewer > .dxbl-scroll-viewer-content > ul > li > .dxbl-tabs-item > .dxbl-text .dxbl-tabs-text-overflow {
+    color: var(--gl-color-smoke-600);
+    text-align: center;
+    font-family: Segoe UI;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 125%;
+}
+
+/* Applies text styling of active tables */
+#area-tab-id .dxbl-tabs > .dxbl-tabs-tablist > .dxbl-scroll-viewer > .dxbl-scroll-viewer-content > ul > li > .dxbl-tabs-item.dxbl-active > .dxbl-text .dxbl-tabs-text-overflow {
+    font-family: Segoe UI !important;
+    font-size: 12px !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    color: var(--gl-color-smoke-900) !important;
+}
+
+/* Class applied when the content is to slide from right to left */
+.slide-left {
+    animation: slideLeft 0.2s ease-in-out;
+}
+
+/* Class applied when the content should slide from left to right */
+.slide-right {
+    animation: slideRight 0.2s ease-in-out;
+}
+
+/* Animation that makes the content enter from the right */
+@keyframes slideLeft {
+    from {
+        transform: translateX(100%); /* Starts outside the container, to the right */
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0%); /* Ends in its original position */
+        opacity: 1;
+    }
+}
+
+/* Animation that makes the content enter from the left */
+@keyframes slideRight {
+    from {
+        transform: translateX(-100%); /* Starts outside the container, to the left */
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0%); /* Ends in its original position */
+        opacity: 1;
+    }
+}
+
+.center-elements-in-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.gap-10 {
+    display: flex;
+    gap: 10px;
+}
+
+.flex-flow-column {
+    flex-flow: column;
+}
+
+.flex-flow-row {
+    flex-flow: row;
+}
+
+/* --------------------------- FlowComponent section --------------------------- */
+
+/* --------------------------- Checkbox section --------------------------- */
+#flow-component-id .mlx-checkbox-container {
+    gap: 16px;
+}
+
+#flow-component-id .mlx-checkbox-container .mlx-form-label {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 125%;
+    letter-spacing: 0;
+    vertical-align: middle;
+    color: #2E4052;
+}
+
+#flow-component-id .dxbl-checkbox.dxbl-checkbox-switch .dxbl-checkbox-check-element {
+    height: 24px;
+    min-height: 24px;
+    width: 40px;
+    min-width: 40px;
+}
+
+#flow-component-id .dxbl-checkbox.dxbl-checkbox-switch .dxbl-checkbox-check-element::before {
+    width: 16px;
+    height: 16px;
+    margin: 4px 3px;
+}
+
+#flow-component-id .dxbl-checkbox.dxbl-checkbox-switch.dxbl-checkbox-unchecked .dxbl-checkbox-check-element {
+    background-color: var(--dxbl-checkbox-switch-unchecked-bg, currentcolor);
+    margin: 0;
+}
+
+#flow-component-id .dxbl-checkbox.dxbl-checkbox-switch.dxbl-checkbox-unchecked .dxbl-checkbox-check-element > input {
+    cursor: pointer;
+}
+
+#flow-component-id .dxbl-checkbox.dxbl-checkbox-switch.dxbl-checkbox-checked .dxbl-checkbox-check-element {
+    background-color: var(--gl-color-brand-100);
+}
+
+#flow-component-id .dxbl-checkbox.dxbl-checkbox-switch.dxbl-checkbox-checked .dxbl-checkbox-check-element::before {
+    transform: translateX(calc(2.1rem - var(--dxbl-checkbox-switch-element-margin) * 2 - var(--dxbl-checkbox-switch-element-size)));
+}
+
+#flow-component-id .dxbl-checkbox.dxbl-checkbox-switch:not(.dxbl-disabled):not(:disabled):not(.dxbl-readonly).dxbl-checkbox-unchecked .dxbl-checkbox-check-element:not(.dxbl-disabled):not(:disabled):hover {
+    background-color: var(--dxbl-checkbox-switch-unchecked-hover-bg, currentcolor);
+}
+
+/* ------------------------------------------------------------------------ */
+
+/* ----------------------------------------------------------------------------- */
+
+/* Process SideBar */
+.addButton-circle-style {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    height: 25px;
+    width: 25px;
+}
+
+.right-side-content {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.left-side-content {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.height-33px {
+    height: 33px;
+}
+
+.padding-top-7 {
+    padding-top: 7%;
+}
+
+.width-100 {
+    width: 100%;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+/*------------------*/
+
+.container-height-to-validation-message {
+    min-height: 70px;
+}
+
+/* Close button in SideBar */
+.icon-close-size-designer-right-side {
+    display: flex;
+    height: 30px;
+    width: 30px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Hover over the close button in SideBar */
+.icon-close-size-designer-right-side:hover {
+    background-color: var(--gl-color-neutral-200);
+    border-radius: 50%;
+    transition: background-color .3s ease;
+}
+
+/* Flex-Flow style with flex display */
+.display-flex-flex-flow-row{
+    display: flex;
+    flex-flow: row;
+}
+
+/* Flex-Flow-Column style with flex display */
+.display-flex-flex-flow-column{
+    display: flex;
+    flex-flow: column;
+}
+
+/* Back button color and size */
+.icon-close-size-designer-right-side > div:before {
+    color: var(--gl-color-neutral-600);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Back button container in SideBar */
+.mlx-back-row-content {
+    width: fit-content;
+    height: 32px;
+    border: none;
+    background-color: var(--gl-color-brand-400);
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    color: var(--gl-color-brand-100);
+}
+
+/* Back arrow icon style */
+.mlx-back-row-content > span:before {
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Back text button styles in SideBar  */
+.mlx-back-row-text {
+    line-height: 24px;
+    font-weight: 600;
+    font-size: 16px;
+    font-family: 'Segoe UI';
+}
+
+.gap-8 {
+    gap: 8px;
+}
+
+.gap-11 {
+    gap: 11px;
+}

@@ -1,0 +1,155 @@
+﻿@import url('../global-fonts.css');
+
+
+.modal-temp {
+}
+
+tr.dxbl-calendar-days-of-week td:empty,
+tr.dxbl-calendar-week-row td.dxbl-calendar-week-number {
+    display: none;
+}
+
+
+/*-----------------------DIAS---------------------------*/
+.dxbl-calendar .dxbl-calendar-content .dxbl-calendar-weekend {
+    color: unset;
+}
+
+tr.dxbl-calendar-days-of-week,
+.dxbl-calendar-week-row {
+    color: var(--sp-color-icon-default);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.dxbl-calendar .dxbl-calendar-content .dxbl-calendar-not-current-view {
+    color: var(--sp-color-content-soft) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.dxbl-calendar:not(.dxbl-disabled):not(:disabled)
+.dxbl-calendar-content > table > tbody > tr td:not(.dxbl-calendar-disabled-item):not(.dxbl-calendar-week-number).dxbl-calendar-selected-range {
+    background-color: var(--sp-color-bg-brand);
+    color: var(--sp-color-content-inverse);
+    border-radius: 50%;
+}
+
+.dxbl-calendar:not(.dxbl-disabled):not(:disabled)
+.dxbl-calendar-content > table > tbody > tr td:not(.dxbl-calendar-disabled-item):not(.dxbl-calendar-week-number):not(.dxbl-calendar-selected-range):not(.dxbl-disabled):not(:disabled):hover {
+    background-color: var(--sp-color-bg-info);
+    color: var(--sp-color-content-link) !important;
+    border-radius: 50%;
+}
+
+.dxbl-calendar .dxbl-calendar-content .dxbl-calendar-day.dxbl-calendar-today, .dxbl-calendar-day dxbl-calendar-today
+.dxbl-calendar .dxbl-calendar-content .dxbl-calendar-day.dxbl-calendar-today:focus {
+    border-radius: 50%;
+}
+
+.dxbl-calendar .dxbl-calendar-content .dxbl-calendar-selected-item::before {
+    background-color: var(--sp-color-bg-focus);
+    opacity: 0.24;
+}
+
+
+.dxbl-calendar-selected-range:first-child {
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+}
+
+.dxbl-calendar-selected-range:last-child {
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+}
+
+
+.dxbl-calendar-today {
+    background-color: var(--sp-color-bg-focus);
+    color: var(--sp-color-content-inverse);
+}
+
+/*--------------------------Encabezado---------------------------------*/
+.dxbl-calendar-header-previous-year-btn svg, .dxbl-calendar-header-next-year-btn svg, 
+.dxbl-calendar-header-previous-month-btn svg, .dxbl-calendar-header-next-month-btn svg {
+    display: none;
+}
+
+
+.dxbl-calendar-header-previous-month-btn::before {
+    content: "\e93e";
+    display: inline-block;
+    font-family: 'mlx_icons';
+    font-size: 20px;
+    color: var(--sp-color-icon-soft);
+}
+
+.dxbl-calendar-header-next-month-btn::before {
+    content: "\e93f";
+    display: inline-block;
+    font-family: 'mlx_icons';
+    font-size: 20px;
+    color: var(--sp-color-icon-soft);
+}
+
+.dxbl-calendar-header-previous-year-btn::before {
+    content: "\e940";
+    display: inline-block;
+    font-family: 'mlx_icons';
+    font-size: 20px;
+    color: var(--sp-color-icon-soft);
+}
+
+.dxbl-calendar-header-next-year-btn::before {
+    content: "\e941";
+    display: inline-block;
+    font-family: 'mlx_icons';
+    font-size: 20px;
+    color: var(--sp-color-icon-soft);
+}
+
+.dxbl-calendar .dxbl-calendar-header {
+    background-color: white;
+    border-bottom: none;
+}
+
+    .dxbl-calendar .dxbl-calendar-header .dxbl-btn.dxbl-calendar-header-title-btn {
+        color: var(--sp-color-content-link);
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 24px;
+        text-transform: uppercase;
+    }
+
+    .dxbl-calendar .dxbl-calendar-header .dxbl-btn.dxbl-calendar-header-title-btn:hover {
+       text-decoration: none !important;
+       color: var(--sp-color-content-focus);
+    }
+
+/*----------------------------------TABLA-------------------------------------*/
+.dxbl-calendar .dxbl-calendar-content > table {
+    border-spacing: 7px;
+}
+
+
+tr.dxbl-calendar-week-row, tr.dxbl-calendar-days-of-week {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+    border-radius: 5px;
+    margin: 2px;
+    width: 100%;
+    text-transform: capitalize;
+}
+
+tr.dxbl-calendar-days-of-week {
+    color: var(--sp-color-content-soft) !important;
+}

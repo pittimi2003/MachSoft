@@ -1,0 +1,62 @@
+﻿.header {
+    background: var(--gl-color-red-400);
+    color: #fff;
+    padding: 0 10px;
+    height: 50px;
+    width: 100%;
+    position: fixed;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    height: 50px;
+}
+
+.header-menu {
+    padding-right: 2 !important;
+}
+
+.header-logo {
+    float: left;
+}
+
+.menu-button {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    border: 0;
+    background: none;
+    transition: all .15s ease-out;
+    cursor: pointer
+}
+
+.img-header {
+    min-height: 20px;
+    min-width: 20px;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border-radius: 16px;
+    transition: background-color .3s ease;
+}
+
+.content {
+    padding-top: 50px;
+    align-items: center;
+    position: relative;
+    background-image: url('img/mecalux.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    justify-content: center;
+    overflow: hidden;
+}
+
+    .content::before {
+        z-index: 1;
+    }

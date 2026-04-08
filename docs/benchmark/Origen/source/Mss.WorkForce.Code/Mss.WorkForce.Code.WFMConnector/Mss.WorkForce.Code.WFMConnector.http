@@ -1,0 +1,6 @@
+@Mss.WorkForce.Code.WFMConnector_HostAddress = http://localhost:5223
+
+GET {{Mss.WorkForce.Code.WFMConnector_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

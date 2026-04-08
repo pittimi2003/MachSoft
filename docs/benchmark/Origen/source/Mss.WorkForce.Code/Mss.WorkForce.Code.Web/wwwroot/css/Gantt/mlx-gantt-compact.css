@@ -1,0 +1,110 @@
+﻿/************** Modo compacto Gantt (reducción 1/5) **************/
+
+/* Altura de filas del árbol y tareas */
+.dx-treelist .dx-row,
+.dx-gantt .dx-gantt-altRow,
+.dx-gantt .dx-gantt-collapsable-row {
+    height: 32px !important;
+}
+
+/* Altura de barras de tarea */
+.dx-gantt-task-title,
+.dx-gantt-taskWrapper,
+.dx-gantt-taskContent {
+    height: 19px !important;
+    line-height: 19px !important;
+}
+
+/* Wrapper de edición ajustado */
+:root {
+    --wrapper-height: 19px !important;
+}
+
+/* Fuente reducida para celdas */
+.dx-treelist .dx-treelist-table .dx-row > td,
+.dx-treelist .dx-treelist-rowsview .dx-row {
+    font-size: 12px !important;
+    line-height: 16px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+
+/* Texto de tareas padre e hijo */
+.tr[aria-level="1"],
+.tr[aria-level="2"] {
+    font-size: 13px !important;
+    line-height: 16px !important;
+}
+
+/* Altura de barra de progreso */
+.task-progress-Gantt {
+    height: 16px !important;
+    border-radius: 999px;
+}
+
+    .task-progress-Gantt.LevelAct {
+        height: 13px !important;
+    }
+
+    .task-progress-Gantt.LevelHigth {
+        height: 19px !important;
+    }
+
+/* Íconos en barras de tarea */
+.task-bar-icon {
+    width: 16px !important;
+    height: 16px !important;
+    margin-left: 4px !important;
+    font-size: 12px !important;
+}
+
+    .task-bar-icon.Out {
+        margin-right: 4px !important;
+    }
+
+/* Badge porcentaje */
+.task-NumProgress {
+    font-size: 11px !important;
+    height: 20px !important;
+    width: 50px !important;
+    border-radius: 4px !important;
+}
+
+/* Círculo tarea */
+.task-icon {
+    width: 20px !important;
+    height: 20px !important;
+    font-size: 12px !important;
+    margin-right: 6px !important;
+}
+
+/* Tooltip compacto */
+.task-tooltip {
+    font-size: 11px !important;
+    padding: 6px 8px !important;
+}
+
+    .task-tooltip .task-label,
+    .task-tooltip .task-value {
+        font-size: 10px !important;
+    }
+
+.task-title-font,
+.task-title-activities {
+    font-size: 12px !important;
+}
+
+/* Texto de recursos */
+.resources-text {
+    font-size: 10px !important;
+}
+
+/* Altura del bloque de recursos */
+.task-resource {
+    height: 40px !important;
+}
+
+/* Flechas de dependencia */
+.dx-gantt-arrow {
+    border-width: 4px !important;
+}

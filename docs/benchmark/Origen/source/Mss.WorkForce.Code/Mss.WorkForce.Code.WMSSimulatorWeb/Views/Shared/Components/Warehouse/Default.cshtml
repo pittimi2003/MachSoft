@@ -1,0 +1,65 @@
+﻿<div class="warehouse-select-container">
+    <label for="warehouseSelect" class="me-2">Warehouse:</label>
+
+    <select id="warehouseSelect" class="form-select">
+        @if (Model != null && Model.Count > 0)
+        {
+            @foreach (var warehouse in Model)
+            {
+                <option value="@warehouse.Id"
+                        selected="@(warehouse.Id.ToString() == Context.Session.GetString("SelectedWarehouse") ? "selected" : null)">
+                    @warehouse.Code
+                </option>
+            }
+        }
+        else
+        {
+            <option value="" selected>No warehouses available</option>
+        }
+    </select>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        let select = document.getElementById("warehouseSelect");
+        let storedWarehouse = localStorage.getItem("selectedWarehouse");
+
+        if (storedWarehouse) {
+            select.value = storedWarehouse;
+        }
+
+        select.addEventListener("change", async function () {
+            let selectedValue = this.value;
+            console.log("📡 Guardando WarehouseId:", selectedValue);
+            localStorage.setItem("selectedWarehouse", selectedValue);
+
+            // 🔹 Hacer una petición al backend para actualizar la `Session`
+            try {
+                let response = await fetch(`/WorkForceTasks?handler=SetWarehouse&warehouseId=${selectedValue}`);
+
+                if (response.ok) {
+                    console.log("✅ Session actualizada correctamente.");
+                    window.location.reload();
+                } else {
+                    console.error("❌ Error en el servidor:", response.statusText);
+                }
+            } catch (error) {
+                console.error("❌ Error en el fetch:", error);
+            }
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let selectedWarehouse = "@Context.Session.GetString("SelectedWarehouse")";
+        let selectElement = document.getElementById("warehouseSelect");
+
+        console.log("📦 Warehouse en Session:", selectedWarehouse);
+
+        if (!selectedWarehouse || selectedWarehouse === "default" || selectedWarehouse === "") {
+            console.log("🛠️ Forzando selección del primer Warehouse...");
+            selectElement.selectedIndex = 0; // 🔹 Selecciona el primer valor del `ComboBox`
+        }
+    });
+</script>

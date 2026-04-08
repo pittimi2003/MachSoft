@@ -1,0 +1,27 @@
+﻿:root {
+	--scroll-bar-color: #055594 !important;
+	--scroll-bar-right-width: 20px;
+	--scroll-bar-bottom-width: 20px;
+}
+
+
+.right-scroll-bar::-webkit-slider-thumb {
+	width: var(--scroll-bar-right-width);
+	background: var(--scroll-bar-color);
+}
+
+.bottom-scroll-bar::-webkit-slider-thumb {
+	width: var(--scroll-bar-bottom-width);
+	background: var(--scroll-bar-color);
+}
+
+.right-scroll-bar::-moz-range-thumb {
+	width: var(--scroll-bar-right-width);
+	background: var(--scroll-bar-color);
+}
+
+.bottom-scroll-bar::-moz-range-thumb {
+	width: var(--scroll-bar-bottom-width);
+	background: var(--scroll-bar-color);
+}
+

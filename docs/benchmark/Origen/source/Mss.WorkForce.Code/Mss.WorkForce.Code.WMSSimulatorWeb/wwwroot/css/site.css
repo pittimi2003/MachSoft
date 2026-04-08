@@ -1,0 +1,80 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.warehouse-select-container {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+    .warehouse-select-container label {
+        font-weight: bold;
+        margin-right: 8px;
+    }
+
+#warehouseSelect {
+    min-width: 270px;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+
+.navbar-nav {
+    margin: auto;
+    display: flex;
+    gap: 25px; 
+}
+
+.navbar .container-fluid {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.navbar-nav .nav-item.ms-auto {
+    margin-left: auto;
+}
+
+
+.service-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+    .service-controls button {
+        min-width: 80px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+        .service-controls button:hover {
+            transform: scale(1.1);
+        }
+
+.status-text {
+    font-size: 14px;
+    font-weight: bold;
+    width: 150px; 
+    text-align: center;
+}
