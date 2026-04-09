@@ -6,80 +6,35 @@
 <section class="mx-app-work-shell" aria-label="Superficie de trabajo">
     <header class="mx-app-work-head-block">
         <div class="mx-app-work-head-main">
-            <h1 class="mx-app-work-title">Operaciones</h1>
-            <p class="mx-app-work-toolbar-caption">@CurrentModeLabel · @SelectionCountLabel</p>
+            <p class="mx-app-work-overline">Workspace operativo</p>
+            <MxEntityHeader Title="Operaciones" Subtitle="@($"{CurrentModeLabel} · {SelectionCountLabel}")">
+                <Meta>
+                    <MxTag Text="En curso" Tone="MxTone.Primary" Class="mx-app-work-context-tag" />
+                </Meta>
+            </MxEntityHeader>
         </div>
         <div class="mx-app-work-head-context">
-            <span class="mx-app-work-context-badge">En curso</span>
+            <MxTag Text="Contexto" Tone="MxTone.Neutral" />
             <p>@SelectionSummary</p>
         </div>
     </header>
 
-    <div class="mx-app-work-toolbar" role="toolbar" aria-label="Barra de acciones">
-        <div class="mx-app-work-toolbar-actions">
-            <MxButton Label="Actualizar"
-                      Variant="MxVariant.Outlined"
-                      Tone="MxTone.Neutral"
-                      Size="MxSize.Small"
-                      OnClick="_ => RefreshList()" />
-            <MxButton Label="Listado"
-                      Variant="@(CurrentMode == BrowseMode ? MxVariant.Filled : MxVariant.Outlined)"
-                      Tone="MxTone.Neutral"
-                      Size="MxSize.Small"
-                      OnClick="_ => SetMode(BrowseMode)" />
-            <MxButton Label="Abrir"
-                      Variant="@(CurrentMode == DetailMode ? MxVariant.Filled : MxVariant.Outlined)"
-                      Tone="MxTone.Primary"
-                      Size="MxSize.Small"
-                      Disabled="@(!ShellState.WorkSelectionActive)"
-                      OnClick="_ => SetMode(DetailMode)" />
-            <MxButton Label="Editar"
-                      Variant="@(CurrentMode == EditMode ? MxVariant.Filled : MxVariant.Outlined)"
-                      Tone="MxTone.Primary"
-                      Size="MxSize.Small"
-                      Disabled="@(!ShellState.WorkSelectionActive)"
-                      OnClick="_ => SetMode(EditMode)" />
-            <MxButton Label="Crear"
-                      Variant="@(CurrentMode == NewMode ? MxVariant.Filled : MxVariant.Outlined)"
-                      Tone="MxTone.Secondary"
-                      Size="MxSize.Small"
-                      OnClick="_ => SetMode(NewMode)" />
-        </div>
-        <div class="mx-app-work-toolbar-meta">
-            <span>@FilteredItems.Count registros</span>
-            <span aria-hidden="true">•</span>
-            <span>@SelectionCountLabel</span>
-            <span aria-hidden="true">•</span>
-            <span>Página @Page</span>
-        </div>
-    </div>
-
     @if (CurrentMode == NewMode)
     {
-        <section class="mx-app-work-state-panel" aria-label="Bloque de alta">
-            <header>
-                <h2>Alta rápida</h2>
-                <p>Completa los datos base y confirma para continuar en el listado.</p>
-            </header>
-            <div class="mx-app-work-state-grid">
-                <label>
-                    Código
-                    <input type="text" placeholder="WK-10XX" />
-                </label>
-                <label>
-                    Nombre
-                    <input type="text" placeholder="Descripción de tarea" />
-                </label>
-                <label>
-                    Responsable
-                    <input type="text" placeholder="Nombre de responsable" />
-                </label>
-            </div>
+        <MxSectionCard Title="Alta rápida">
+            <p class="mx-app-work-new-copy">Completa los datos base y confirma para continuar en el listado.</p>
+            <MxFormSection Title="Datos principales">
+                <div class="mx-app-work-form-grid">
+                    <MxTextField Label="Código" Placeholder="WK-10XX" Value="@DraftCode" ValueChanged="OnDraftCodeChanged" />
+                    <MxTextField Label="Nombre" Placeholder="Descripción de tarea" Value="@DraftName" ValueChanged="OnDraftNameChanged" />
+                    <MxTextField Label="Responsable" Placeholder="Nombre de responsable" Value="@DraftOwner" ValueChanged="OnDraftOwnerChanged" />
+                </div>
+            </MxFormSection>
             <div class="mx-app-work-state-actions">
                 <MxButton Label="Cancelar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
-                <MxButton Label="Guardar" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
+                <MxButton Label="Guardar" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="_ => SaveDraft()" />
             </div>
-        </section>
+        </MxSectionCard>
     }
 
     <div class="mx-app-work-surface">
@@ -87,14 +42,28 @@
             <MxDataGrid TItem="WorkItem"
                         Items="@FilteredItems"
                         Columns="@Columns"
-                        SearchEnabled="false"
+                        Title="Listado operativo"
+                        Subtitle="@($"{FilteredItems.Count} registros · Página {Page}")"
+                        SearchEnabled="true"
+                        SearchPlaceholder="Buscar por código, nombre, estado o responsable"
+                        QuickFilters="@QuickFilters"
+                        QuickFilterPredicate="@MatchQuickFilter"
                         UsePagination="true"
                         CurrentPage="@Page"
                         CurrentPageChanged="@OnPageChanged"
                         PageSize="10"
                         Selectable="true"
                         SelectedItems="@SelectedItems"
-                        SelectedItemsChanged="@OnSelectedItemsChanged" />
+                        SelectedItemsChanged="@OnSelectedItemsChanged">
+                <ToolbarContent>
+                    <div class="mx-app-work-toolbar-actions" role="toolbar" aria-label="Acciones de grid">
+                        <MxButton Label="Actualizar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Size="MxSize.Small" OnClick="_ => RefreshList()" />
+                        <MxButton Label="Abrir" Variant="@(CurrentMode == DetailMode ? MxVariant.Filled : MxVariant.Outlined)" Tone="MxTone.Primary" Size="MxSize.Small" Disabled="@(!ShellState.WorkSelectionActive)" OnClick="_ => SetMode(DetailMode)" />
+                        <MxButton Label="Editar" Variant="@(CurrentMode == EditMode ? MxVariant.Filled : MxVariant.Outlined)" Tone="MxTone.Primary" Size="MxSize.Small" Disabled="@(!ShellState.WorkSelectionActive)" OnClick="_ => SetMode(EditMode)" />
+                        <MxButton Label="Crear" Variant="@(CurrentMode == NewMode ? MxVariant.Filled : MxVariant.Outlined)" Tone="MxTone.Secondary" Size="MxSize.Small" OnClick="_ => SetMode(NewMode)" />
+                    </div>
+                </ToolbarContent>
+            </MxDataGrid>
         </div>
     </div>
 </section>
@@ -105,8 +74,14 @@
     private const string EditMode = "edit";
     private const string NewMode = "new";
 
+    private static readonly IReadOnlyList<string> QuickFilters = ["Todos", "Activos", "Pausados", "Completados"];
+
     private int Page = 1;
     private string CurrentMode { get; set; } = BrowseMode;
+    private string DraftCode { get; set; } = string.Empty;
+    private string DraftName { get; set; } = string.Empty;
+    private string DraftOwner { get; set; } = string.Empty;
+
     private string CurrentModeLabel => CurrentMode switch
     {
         NewMode => "Nuevo",
@@ -157,6 +132,35 @@
         return Task.CompletedTask;
     }
 
+    private Task OnDraftCodeChanged(string? value)
+    {
+        DraftCode = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task OnDraftNameChanged(string? value)
+    {
+        DraftName = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task OnDraftOwnerChanged(string? value)
+    {
+        DraftOwner = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private bool MatchQuickFilter(WorkItem item, string filter)
+    {
+        return filter switch
+        {
+            "Activos" => item.Status.Contains("curso", StringComparison.OrdinalIgnoreCase),
+            "Pausados" => item.Status.Contains("pausa", StringComparison.OrdinalIgnoreCase),
+            "Completados" => item.Status.Contains("cerrad", StringComparison.OrdinalIgnoreCase),
+            _ => true
+        };
+    }
+
     private Task OnSelectedItemsChanged(IReadOnlyCollection<WorkItem> selected)
     {
         SelectedItems = selected;
@@ -188,6 +192,15 @@
     private Task RefreshList()
     {
         Page = 1;
+        return Task.CompletedTask;
+    }
+
+    private Task SaveDraft()
+    {
+        DraftCode = string.Empty;
+        DraftName = string.Empty;
+        DraftOwner = string.Empty;
+        SetMode(BrowseMode);
         return Task.CompletedTask;
     }
 
