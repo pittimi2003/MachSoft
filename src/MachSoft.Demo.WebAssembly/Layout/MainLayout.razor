@@ -53,25 +53,20 @@
         @if (IsWorkRoute)
         {
             <section class="mx-app-left-rail" aria-label="Rail operativo izquierdo">
-                <div class="mx-app-left-rail-group mx-app-left-rail-group-header">
-                    <span class="mx-app-left-rail-group-label">Acciones de vista</span>
-                    <span class="mx-app-left-rail-group-helper">Modo activo: @CurrentModeLabel</span>
-                </div>
-
-                <div class="mx-app-left-rail-group" role="group" aria-label="Modos">
-                    <button type="button" class="@GetRailButtonClass("browse")" @onclick='() => SetWorkMode("browse")'>Browse</button>
-                    <button type="button" class="@GetRailButtonClass("new")" @onclick='() => SetWorkMode("new")'>New</button>
-                    <button type="button" class="@GetRailButtonClass("detail", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("detail")'>Detail</button>
-                    <button type="button" class="@GetRailButtonClass("edit", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("edit")'>Edit</button>
+                <div class="mx-app-left-rail-group" role="group" aria-label="Modo de trabajo">
+                    <button type="button" class="@GetRailButtonClass("browse")" @onclick='() => SetWorkMode("browse")'>Listado</button>
+                    <button type="button" class="@GetRailButtonClass("new")" @onclick='() => SetWorkMode("new")'>Nuevo</button>
+                    <button type="button" class="@GetRailButtonClass("detail", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("detail")'>Detalle</button>
+                    <button type="button" class="@GetRailButtonClass("edit", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("edit")'>Editar</button>
                 </div>
 
                 <div class="mx-app-left-rail-separator" role="presentation"></div>
 
-                <div class="mx-app-left-rail-group" role="group" aria-label="Acciones contextuales">
+                <div class="mx-app-left-rail-group" role="group" aria-label="Acciones rápidas">
                     <button type="button" class="mx-app-left-rail-item" @onclick="ClearContextSelection" disabled="@(!ShellState.WorkSelectionActive)">
-                        Limpiar foco
+                        Limpiar selección
                     </button>
-                    <button type="button" class="mx-app-left-rail-item" @onclick='() => SetWorkMode("browse")'>Volver al browse</button>
+                    <button type="button" class="mx-app-left-rail-item" @onclick='() => SetWorkMode("browse")'>Volver al listado</button>
                 </div>
             </section>
         }
@@ -87,8 +82,7 @@
             <section class="mx-workspace-panel" aria-label="Panel contextual derecho">
                 <header class="mx-workspace-panel-header">
                     <div>
-                        <p class="mx-workspace-panel-kicker">Detalle contextual</p>
-                        <h4>Inspector de selección</h4>
+                        <h4>Registro activo</h4>
                         <p class="mx-workspace-panel-caption">@CurrentModeLabel · @SelectionCaption</p>
                     </div>
                 </header>
@@ -114,7 +108,7 @@
                 }
                 else
                 {
-                    <p>Selecciona un registro del grid para habilitar el panel contextual.</p>
+                    <p>Selecciona un registro para ver su información y acciones disponibles.</p>
                 }
             </section>
         }

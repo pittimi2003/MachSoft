@@ -6,29 +6,28 @@
 <section class="mx-app-work-shell" aria-label="Superficie de trabajo">
     <header class="mx-app-work-head-block">
         <div class="mx-app-work-head-main">
-            <p class="mx-app-work-overline">Operación de listado</p>
-            <h1 class="mx-app-work-title">Mesa de trabajo</h1>
-            <p class="mx-app-work-toolbar-caption">Modo activo: <strong>@CurrentModeLabel</strong></p>
+            <h1 class="mx-app-work-title">Operaciones</h1>
+            <p class="mx-app-work-toolbar-caption">@CurrentModeLabel · @SelectionCountLabel</p>
         </div>
         <div class="mx-app-work-head-context">
-            <span class="mx-app-work-context-badge">Contexto activo</span>
+            <span class="mx-app-work-context-badge">En curso</span>
             <p>@SelectionSummary</p>
         </div>
     </header>
 
-    <div class="mx-app-work-toolbar" role="toolbar" aria-label="Barra de acciones del listado">
+    <div class="mx-app-work-toolbar" role="toolbar" aria-label="Barra de acciones">
         <div class="mx-app-work-toolbar-actions">
-            <MxButton Label="Refrescar"
+            <MxButton Label="Actualizar"
                       Variant="MxVariant.Outlined"
                       Tone="MxTone.Neutral"
                       Size="MxSize.Small"
                       OnClick="_ => RefreshList()" />
-            <MxButton Label="Browse"
+            <MxButton Label="Listado"
                       Variant="@(CurrentMode == BrowseMode ? MxVariant.Filled : MxVariant.Outlined)"
                       Tone="MxTone.Neutral"
                       Size="MxSize.Small"
                       OnClick="_ => SetMode(BrowseMode)" />
-            <MxButton Label="Detalle"
+            <MxButton Label="Abrir"
                       Variant="@(CurrentMode == DetailMode ? MxVariant.Filled : MxVariant.Outlined)"
                       Tone="MxTone.Primary"
                       Size="MxSize.Small"
@@ -40,7 +39,7 @@
                       Size="MxSize.Small"
                       Disabled="@(!ShellState.WorkSelectionActive)"
                       OnClick="_ => SetMode(EditMode)" />
-            <MxButton Label="Nuevo"
+            <MxButton Label="Crear"
                       Variant="@(CurrentMode == NewMode ? MxVariant.Filled : MxVariant.Outlined)"
                       Tone="MxTone.Secondary"
                       Size="MxSize.Small"
@@ -50,6 +49,8 @@
             <span>@FilteredItems.Count registros</span>
             <span aria-hidden="true">•</span>
             <span>@SelectionCountLabel</span>
+            <span aria-hidden="true">•</span>
+            <span>Página @Page</span>
         </div>
     </div>
 
@@ -58,7 +59,7 @@
         <section class="mx-app-work-state-panel" aria-label="Bloque de alta">
             <header>
                 <h2>Alta rápida</h2>
-                <p>Completa los datos base y confirma para volver al browse operativo.</p>
+                <p>Completa los datos base y confirma para continuar en el listado.</p>
             </header>
             <div class="mx-app-work-state-grid">
                 <label>
@@ -76,7 +77,7 @@
             </div>
             <div class="mx-app-work-state-actions">
                 <MxButton Label="Cancelar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
-                <MxButton Label="Guardar borrador" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
+                <MxButton Label="Guardar" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
             </div>
         </section>
     }
@@ -111,12 +112,12 @@
         NewMode => "Nuevo",
         DetailMode => "Detalle",
         EditMode => "Edición",
-        _ => "Browse"
+        _ => "Listado"
     };
 
     private string SelectionSummary => ShellState.WorkSelectionActive
         ? $"{ShellState.WorkSelectionCount} elemento(s) en foco"
-        : "Sin selección contextual";
+        : "Sin selección";
 
     private string SelectionCountLabel => ShellState.WorkSelectionActive
         ? $"{ShellState.WorkSelectionCount} seleccionados"
