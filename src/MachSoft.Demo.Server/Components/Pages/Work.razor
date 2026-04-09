@@ -1,69 +1,237 @@
 @page "/work"
 @using MachSoft.Demo.Server.Services
+@using MachSoft.UI.Models
 @implements IDisposable
 @inject ShellState ShellState
 
-<section class="mx-app-work-shell" aria-label="Superficie de trabajo">
-    <MxEntityHeader Title="Operaciones" Subtitle="@($"{CurrentModeLabel} · {SelectionCountLabel}")">
-        <Meta>
-            <MxTag Text="Work" Tone="MxTone.Primary" />
-        </Meta>
-    </MxEntityHeader>
+<MxWorkspaceLayout AppTitle="MachSoft App Base"
+                   LeftSidebarWidth="68px"
+                   RightSidebarWidth="35%"
+                   LeftSidebarMode="MxSidebarMode.Inline"
+                   RightSidebarMode="@ResolvedRightSidebarMode"
+                   LeftSidebarOpen="@ShowLeftSidebar"
+                   RightSidebarOpen="@ShowRightSidebar"
+                   EnableMobileContextualDetailMode="true"
+                   RightSidebarCloseLabel="Volver al listado">
 
-    <div class="mx-app-work-toolbar" role="toolbar" aria-label="Acciones de listado">
-        <div class="mx-app-work-toolbar-actions">
-            <MxButton Label="Actualizar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Size="MxSize.Small" OnClick="_ => RefreshList()" />
-            <MxButton Label="Detalle" Variant="@(CurrentMode == DetailMode ? MxVariant.Filled : MxVariant.Outlined)" Tone="MxTone.Primary" Size="MxSize.Small" Disabled="@(!HasSelection)" OnClick="_ => SetMode(DetailMode)" />
-            <MxButton Label="Editar" Variant="@(CurrentMode == EditMode ? MxVariant.Filled : MxVariant.Outlined)" Tone="MxTone.Primary" Size="MxSize.Small" Disabled="@(!HasSelection)" OnClick="_ => SetMode(EditMode)" />
-            <MxButton Label="Nuevo" Variant="@(CurrentMode == NewMode ? MxVariant.Filled : MxVariant.Outlined)" Tone="MxTone.Secondary" Size="MxSize.Small" OnClick="_ => SetMode(NewMode)" />
-        </div>
-        <div class="mx-app-work-toolbar-meta">
-            <span>@CurrentModeLabel</span>
-            <span>·</span>
-            <span>@SelectionCountLabel</span>
-        </div>
-    </div>
+    <NavigationMenu>
+        @* Mantén aquí la navegación global que ya use tu shell.
+           No metas acciones de la vista en esta región. *@
+    </NavigationMenu>
 
-    @if (CurrentMode == NewMode)
-    {
-        <MxSectionCard Title="Nuevo registro de trabajo">
-            <MxFormSection Title="Datos principales">
-                <div class="mx-app-work-form-grid">
-                    <MxTextField Label="Código" Placeholder="WK-10XX" Value="@DraftCode" ValueChanged="OnDraftCodeChanged" />
-                    <MxTextField Label="Nombre" Placeholder="Descripción de tarea" Value="@DraftName" ValueChanged="OnDraftNameChanged" />
-                    <MxTextField Label="Responsable" Placeholder="Nombre de responsable" Value="@DraftOwner" ValueChanged="OnDraftOwnerChanged" />
-                </div>
-            </MxFormSection>
-            <div class="mx-app-work-state-actions">
-                <MxButton Label="Cancelar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
-                <MxButton Label="Guardar" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" Disabled="@IsDraftIncomplete" OnClick="_ => SaveDraft()" />
-            </div>
-        </MxSectionCard>
-    }
-    else
-    {
-        <div class="mx-app-work-surface">
-            <div class="mx-app-work-grid-shell">
-                <MxDataGrid TItem="WorkItem"
-                            Items="@FilteredItems"
-                            Columns="@Columns"
-                            Title="Listado operativo"
-                            Subtitle="@($"{FilteredItems.Count} registros · Página {Page}")"
-                            SearchEnabled="true"
-                            SearchPlaceholder="Buscar por código, nombre, estado o responsable"
-                            QuickFilters="@QuickFilters"
-                            QuickFilterPredicate="@MatchQuickFilter"
-                            UsePagination="true"
-                            CurrentPage="@Page"
-                            CurrentPageChanged="@OnPageChanged"
-                            PageSize="10"
-                            Selectable="true"
-                            SelectedItems="@SelectedItems"
-                            SelectedItemsChanged="@OnSelectedItemsChanged" />
-            </div>
+    <HeaderContent>
+        <div class="mx-work-shell-header-meta">
+            <MxTag Text="@CurrentModeHeaderText" Tone="MxTone.Primary" />
         </div>
+    </HeaderContent>
+
+    <LeftSidebar>
+        @if (ShowLeftSidebar)
+        {
+            <div class="mx-work-actions">
+                @foreach (var action in GetLeftActions())
+                {
+                    <MxButton Label="@action.Label"
+                              Variant="@(action.Active ? MxVariant.Filled : MxVariant.Outlined)"
+                              Tone="@(action.Active ? MxTone.Primary : MxTone.Neutral)"
+                              Size="MxSize.Small"
+                              Disabled="@action.Disabled"
+                              Class="mx-work-actions__button"
+                              OnClick="@(_ => ExecuteLeftAction(action.Key))" />
+                }
+            </div>
+        }
+    </LeftSidebar>
+
+    <MainContent>
+        @if (IsNewMode)
+        {
+            <section class="mx-work-main">
+                <MxSectionCard Title="DATA">
+                    <MxFormSection Title="Nuevo registro">
+                        <div class="mx-work-form-grid">
+                            <MxTextField Label="Código"
+                                         Placeholder="WK-10XX"
+                                         Value="@DraftCode"
+                                         ValueChanged="OnDraftCodeChanged" />
+
+                            <MxTextField Label="Nombre"
+                                         Placeholder="Descripción de tarea"
+                                         Value="@DraftName"
+                                         ValueChanged="OnDraftNameChanged" />
+
+                            <MxTextField Label="Responsable"
+                                         Placeholder="Nombre de responsable"
+                                         Value="@DraftOwner"
+                                         ValueChanged="OnDraftOwnerChanged" />
+                        </div>
+                    </MxFormSection>
+
+                    <div class="mx-work-form-footer">
+                        <MxButton Label="Cancelar"
+                                  Variant="MxVariant.Outlined"
+                                  Tone="MxTone.Neutral"
+                                  Size="MxSize.Small"
+                                  OnClick="_ => CancelNew()" />
+
+                        <MxButton Label="Guardar"
+                                  Variant="MxVariant.Filled"
+                                  Tone="MxTone.Primary"
+                                  Size="MxSize.Small"
+                                  Disabled="@IsDraftIncomplete"
+                                  OnClick="_ => SaveDraft()" />
+                    </div>
+                </MxSectionCard>
+            </section>
+        }
+        else
+        {
+            <section class="mx-work-main">
+                <MxSectionCard Title="">
+                    <MxDataGrid TItem="WorkItem"
+                                Items="@FilteredItems"
+                                Columns="@Columns"
+                                Title="Listado operativo"
+                                Subtitle="@($"{FilteredItems.Count} registros · Página {Page}")"
+                                SearchEnabled="true"
+                                SearchPlaceholder="Buscar por código, nombre, estado o responsable"
+                                QuickFilters="@QuickFilters"
+                                QuickFilterPredicate="@MatchQuickFilter"
+                                UsePagination="true"
+                                CurrentPage="@Page"
+                                CurrentPageChanged="@OnPageChanged"
+                                PageSize="10"
+                                Selectable="true"
+                                SelectedItems="@SelectedItems"
+                                SelectedItemsChanged="@OnSelectedItemsChanged">
+                        <ToolbarContent>
+                            <MxButton Label="Actualizar"
+                                      Variant="MxVariant.Outlined"
+                                      Tone="MxTone.Neutral"
+                                      Size="MxSize.Small"
+                                      OnClick="_ => RefreshList()" />
+
+                            <MxButton Label="Abrir"
+                                      Variant="@(IsDetailMode ? MxVariant.Filled : MxVariant.Outlined)"
+                                      Tone="MxTone.Primary"
+                                      Size="MxSize.Small"
+                                      Disabled="@(!HasSelection)"
+                                      OnClick="_ => SetMode(DetailMode)" />
+
+                            <MxButton Label="Editar"
+                                      Variant="@(IsEditMode ? MxVariant.Filled : MxVariant.Outlined)"
+                                      Tone="MxTone.Primary"
+                                      Size="MxSize.Small"
+                                      Disabled="@(SelectedItems.Count != 1)"
+                                      OnClick="_ => SetMode(EditMode)" />
+
+                            <MxButton Label="Crear"
+                                      Variant="@(IsNewMode ? MxVariant.Filled : MxVariant.Outlined)"
+                                      Tone="MxTone.Secondary"
+                                      Size="MxSize.Small"
+                                      OnClick="_ => SetMode(NewMode)" />
+                        </ToolbarContent>
+                    </MxDataGrid>
+                </MxSectionCard>
+            </section>
+        }
+    </MainContent>
+
+    <RightSidebar>
+        @if (ShowRightSidebar && ActiveItem is not null)
+        {
+            <section class="mx-work-detail">
+                <MxSectionCard Title="">
+                    <div class="mx-work-detail__header">
+                        <h3>@ActiveItem.Name</h3>
+                        <MxTag Text="@CurrentModeDetailText" Tone="MxTone.Neutral" />
+                    </div>
+
+                    <div class="mx-work-detail__meta">
+                        <p><strong>Estado:</strong> @ActiveItem.Status</p>
+                        <p><strong>Responsable:</strong> @ActiveItem.Owner</p>
+                        <p><strong>Actualizado:</strong> @ActiveItem.UpdatedAtUtc.ToLocalTime():dd/MM/yyyy HH:mm:ss</p>
+                        <p><strong>Seleccionados:</strong> @SelectedItems.Count</p>
+                    </div>
+
+                    <div class="mx-work-detail__actions">
+                        <MxButton Label="Abrir detalle"
+                                  Variant="MxVariant.Filled"
+                                  Tone="MxTone.Primary"
+                                  Size="MxSize.Small"
+                                  OnClick="_ => SetMode(DetailMode)" />
+
+                        <MxButton Label="Editar"
+                                  Variant="MxVariant.Outlined"
+                                  Tone="MxTone.Neutral"
+                                  Size="MxSize.Small"
+                                  Disabled="@(SelectedItems.Count != 1)"
+                                  OnClick="_ => SetMode(EditMode)" />
+                    </div>
+                </MxSectionCard>
+            </section>
+        }
+    </RightSidebar>
+</MxWorkspaceLayout>
+
+<style>
+    .mx-work-shell-header-meta {
+        display: flex;
+        align-items: center;
+        gap: var(--mx-space-2, 0.5rem);
     }
-</section>
+
+    .mx-work-actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--mx-space-2, 0.5rem);
+        padding: var(--mx-space-2, 0.5rem);
+        height: 100%;
+    }
+
+    .mx-work-actions__button {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .mx-work-main {
+        height: 100%;
+        padding: var(--mx-space-3, 0.75rem);
+    }
+
+    .mx-work-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--mx-space-3, 0.75rem);
+    }
+
+    .mx-work-form-footer,
+    .mx-work-detail__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--mx-space-2, 0.5rem);
+        margin-top: var(--mx-space-3, 0.75rem);
+    }
+
+    .mx-work-detail {
+        height: 100%;
+        padding: var(--mx-space-3, 0.75rem);
+    }
+
+    .mx-work-detail__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--mx-space-2, 0.5rem);
+        margin-bottom: var(--mx-space-3, 0.75rem);
+    }
+
+    .mx-work-detail__meta {
+        display: flex;
+        flex-direction: column;
+        gap: var(--mx-space-2, 0.5rem);
+    }
+</style>
 
 @code {
     private const string BrowseMode = "browse";
@@ -86,6 +254,7 @@
     private bool suppressShellEvent;
 
     private string CurrentMode { get; set; } = BrowseMode;
+
     private string DraftCode { get; set; } = string.Empty;
     private string DraftName { get; set; } = string.Empty;
     private string DraftOwner { get; set; } = string.Empty;
@@ -94,28 +263,39 @@
 
     private IReadOnlyList<WorkItem> FilteredItems => WorkSeed.Items;
 
+    private WorkItem? ActiveItem => SelectedItems.FirstOrDefault();
+
     private bool HasSelection => SelectedItems.Count > 0;
+    private bool IsNewMode => CurrentMode == NewMode;
+    private bool IsDetailMode => CurrentMode == DetailMode;
+    private bool IsEditMode => CurrentMode == EditMode;
+
+    private bool ShowLeftSidebar => !IsNewMode;
+    private bool ShowRightSidebar => !IsNewMode && HasSelection;
+    private MxSidebarMode ResolvedRightSidebarMode => MxSidebarMode.Inline;
 
     private bool IsDraftIncomplete =>
-        string.IsNullOrWhiteSpace(DraftCode)
-        || string.IsNullOrWhiteSpace(DraftName)
-        || string.IsNullOrWhiteSpace(DraftOwner);
+        string.IsNullOrWhiteSpace(DraftCode) ||
+        string.IsNullOrWhiteSpace(DraftName) ||
+        string.IsNullOrWhiteSpace(DraftOwner);
 
-    private string CurrentModeLabel => CurrentMode switch
+    private string CurrentModeHeaderText => CurrentMode switch
     {
         NewMode => "Nuevo",
-        DetailMode => "Detalle",
         EditMode => "Edición",
-        _ => "Listado"
+        DetailMode => $"Detalle · {SelectedItems.Count} seleccionado(s)",
+        _ => $"Listado · {SelectedItems.Count} seleccionado(s)"
     };
 
-    private string SelectionCountLabel => HasSelection
-        ? $"{SelectedItems.Count} seleccionado(s)"
-        : "Sin selección";
+    private string CurrentModeDetailText => CurrentMode switch
+    {
+        EditMode => "Edición",
+        DetailMode => "Contexto",
+        _ => "Detalle"
+    };
 
     protected override void OnInitialized()
     {
-        SelectedItems = Array.Empty<WorkItem>();
         ShellState.Changed += OnShellStateChanged;
         SyncSelectionWithShell();
         SetMode(BrowseMode, syncShell: true);
@@ -124,10 +304,9 @@
     public void Dispose()
     {
         ShellState.Changed -= OnShellStateChanged;
+
         if (ShellState.WorkSelectionActive)
-        {
             ShellState.ClearWorkSelection();
-        }
 
         ShellState.SetWorkMode(BrowseMode);
     }
@@ -156,23 +335,20 @@
         return Task.CompletedTask;
     }
 
-    private bool MatchQuickFilter(WorkItem item, string filter)
+    private bool MatchQuickFilter(WorkItem item, string filter) => filter switch
     {
-        return filter switch
-        {
-            "Activos" => item.Status.Contains("curso", StringComparison.OrdinalIgnoreCase),
-            "Pausados" => item.Status.Contains("pausa", StringComparison.OrdinalIgnoreCase),
-            "Completados" => item.Status.Contains("cerrad", StringComparison.OrdinalIgnoreCase),
-            _ => true
-        };
-    }
+        "Activos" => item.Status.Contains("curso", StringComparison.OrdinalIgnoreCase),
+        "Pausados" => item.Status.Contains("pausa", StringComparison.OrdinalIgnoreCase),
+        "Completados" => item.Status.Contains("aprob", StringComparison.OrdinalIgnoreCase),
+        _ => true
+    };
 
     private Task OnSelectedItemsChanged(IReadOnlyCollection<WorkItem> selected)
     {
         SelectedItems = selected;
         SyncSelectionWithShell();
 
-        if (!HasSelection && (CurrentMode == DetailMode || CurrentMode == EditMode))
+        if (!HasSelection && (IsDetailMode || IsEditMode))
         {
             SetMode(BrowseMode);
         }
@@ -190,41 +366,26 @@
         return Task.CompletedTask;
     }
 
-    private Task SaveDraft()
-    {
-        DraftCode = string.Empty;
-        DraftName = string.Empty;
-        DraftOwner = string.Empty;
-        SetMode(BrowseMode);
-        return Task.CompletedTask;
-    }
-
     private void SetMode(string? mode, bool syncShell = true)
     {
         var normalized = NormalizeMode(mode);
 
         if ((normalized == DetailMode || normalized == EditMode) && !HasSelection)
-        {
             normalized = BrowseMode;
-        }
 
-        if (syncShell && normalized == NewMode && HasSelection)
+        if (normalized == NewMode && HasSelection)
         {
             SelectedItems = Array.Empty<WorkItem>();
             SyncSelectionWithShell();
         }
 
         if (string.Equals(CurrentMode, normalized, StringComparison.Ordinal))
-        {
             return;
-        }
 
         CurrentMode = normalized;
 
         if (!syncShell)
-        {
             return;
-        }
 
         suppressShellEvent = true;
         ShellState.SetWorkMode(normalized);
@@ -234,62 +395,52 @@
     private void OnShellStateChanged()
     {
         if (suppressShellEvent)
-        {
             return;
-        }
 
         var shellMode = NormalizeMode(ShellState.WorkMode);
         if (!string.Equals(CurrentMode, shellMode, StringComparison.Ordinal))
-        {
             SetMode(shellMode, syncShell: false);
-        }
 
         InvokeAsync(StateHasChanged);
     }
 
     private void SyncSelectionWithShell()
     {
-        var first = SelectedItems.FirstOrDefault();
+        var first = ActiveItem;
+
         var details = first is null
             ? Array.Empty<string>()
-            :
-            [
+            : new[]
+            {
                 $"Estado: {first.Status}",
                 $"Responsable: {first.Owner}",
                 $"Actualizado: {first.UpdatedAtUtc.ToLocalTime():dd/MM/yyyy HH:mm:ss}"
-            ];
+            };
 
         var selectionCount = SelectedItems.Count;
         var hasSelection = selectionCount > 0;
         var title = hasSelection ? first?.Name : null;
 
-        var hasSameSelection = ShellState.WorkSelectionCount == selectionCount
-            && ShellState.WorkSelectionActive == hasSelection
-            && string.Equals(ShellState.WorkSelectionTitle, title, StringComparison.Ordinal)
-            && ShellState.WorkSelectionDetails.SequenceEqual(details);
+        var hasSameSelection =
+            ShellState.WorkSelectionCount == selectionCount &&
+            ShellState.WorkSelectionActive == hasSelection &&
+            string.Equals(ShellState.WorkSelectionTitle, title, StringComparison.Ordinal) &&
+            ShellState.WorkSelectionDetails.SequenceEqual(details);
 
         if (hasSameSelection)
-        {
             return;
-        }
 
         if (hasSelection)
-        {
             ShellState.SetWorkSelection(selectionCount, title, details);
-        }
         else
-        {
             ShellState.ClearWorkSelection();
-        }
     }
 
     private static string NormalizeMode(string? mode)
     {
         var candidate = mode?.Trim();
         if (string.IsNullOrWhiteSpace(candidate))
-        {
             return BrowseMode;
-        }
 
         return candidate.ToLowerInvariant() switch
         {
@@ -298,5 +449,78 @@
             EditMode => EditMode,
             _ => BrowseMode
         };
+    }
+
+    private IReadOnlyList<WorkLeftAction> GetLeftActions()
+    {
+        if (!HasSelection)
+        {
+            return
+            [
+                new("browse", "Browse", false, CurrentMode == BrowseMode),
+                new("new", "New", false, CurrentMode == NewMode),
+                new("detail", "Detail", true, false),
+                new("edit", "Edit", true, false)
+            ];
+        }
+
+        if (SelectedItems.Count == 1)
+        {
+            return
+            [
+                new("browse", "Browse", false, CurrentMode == BrowseMode),
+                new("new", "New", false, CurrentMode == NewMode),
+                new("detail", "Detail", false, CurrentMode == DetailMode),
+                new("edit", "Edit", false, CurrentMode == EditMode)
+            ];
+        }
+
+        return
+        [
+            new("browse", "Browse", false, CurrentMode == BrowseMode),
+            new("new", "New", false, CurrentMode == NewMode),
+            new("detail", "Detail", false, CurrentMode == DetailMode),
+            new("edit", "Edit", true, false)
+        ];
+    }
+
+    private Task ExecuteLeftAction(string key)
+    {
+        SetMode(key);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task CancelNew()
+    {
+        DraftCode = string.Empty;
+        DraftName = string.Empty;
+        DraftOwner = string.Empty;
+        SetMode(BrowseMode);
+        return Task.CompletedTask;
+    }
+
+    private Task SaveDraft()
+    {
+        DraftCode = string.Empty;
+        DraftName = string.Empty;
+        DraftOwner = string.Empty;
+        SetMode(BrowseMode);
+        return Task.CompletedTask;
+    }
+
+    private sealed record WorkLeftAction(string Key, string Label, bool Disabled, bool Active);
+
+    private sealed record WorkItem(string Code, string Name, string Status, string Owner, DateTime UpdatedAtUtc);
+
+    private static class WorkSeed
+    {
+        public static readonly IReadOnlyList<WorkItem> Items =
+        [
+            new("WK-1001", "Solicitud de alta de proveedor", "Pendiente", "M. Rivera", DateTime.UtcNow.AddMinutes(-40)),
+            new("WK-1002", "Validación de lote contable", "En proceso", "L. Prado", DateTime.UtcNow.AddMinutes(-20)),
+            new("WK-1003", "Conciliación bancaria", "Observado", "A. Torres", DateTime.UtcNow.AddMinutes(-10)),
+            new("WK-1004", "Aprobación de orden", "Aprobado", "S. Medina", DateTime.UtcNow.AddMinutes(-5))
+        ];
     }
 }
