@@ -318,3 +318,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Tras estabilizar estado, `/work` se rehace como clon estructural 1:1 del benchmark `Users`: barra funcional izquierda, región central con bifurcación `new` (formulario) vs listado dominante (grid + toolbar), y panel derecho contextual por selección.
 - El mapeo se respeta sin reinterpretación: `LeftSideContent -> LeftSidebar`, `MiddleSideContent -> MainContent`, `RightSideContent -> RightSidebar` sobre `MxWorkspaceLayout` y sin parámetros no existentes.
 - Se elimina el uso inválido de `AppTitle` en `MxWorkspaceLayout`; toda la implementación de negocio en `/work` usa únicamente contratos `Mx*` confirmados.
+
+## 32) Actualización 2026-04-09 (UTC) — Reemplazo estructural exacto de `/work` según benchmark `Users`
+- Se reemplaza `Work.razor` en los cuatro hosts activos (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`) usando composición estructural equivalente a `Users` del benchmark origen.
+- Se fija la arquitectura de tres regiones en `MxWorkspaceLayout` sin reinterpretación: `LeftSidebar` (acciones), `MainContent` (nuevo vs grid), `RightSidebar` (detalle).
+- Se elimina sincronización recursiva de estado contra `ShellState` (sin suscripción a `Changed` ni rebote de eventos), manteniendo actualización unidireccional desde la vista.
+- Se conserva API pública `Mx*` y theming MachSoft para controles equivalentes.
+- Resultado operativo: `/work` queda nuevamente alineada al benchmark de composición y orden visual/operativo solicitado.
