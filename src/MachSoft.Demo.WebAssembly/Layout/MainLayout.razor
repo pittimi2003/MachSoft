@@ -30,13 +30,13 @@
                 </span>
             </div>
             <div class="mx-app-shell-actions">
-                <button type="button"
-                        class="mx-app-shell-action mx-app-shell-action-header"
-                        @onclick="ToggleTheme"
-                        aria-label="Cambiar tema global"
-                        title="Tema">
-                    <MudIcon Icon="@(ShellState.DarkMode ? Icons.Material.Outlined.DarkMode : Icons.Material.Outlined.LightMode)" />
-                </button>
+                <MxIconButton Icon="@(ShellState.DarkMode ? Icons.Material.Outlined.DarkMode : Icons.Material.Outlined.LightMode)"
+                              Tone="MxTone.Neutral"
+                              Size="MxSize.Small"
+                              Class="mx-app-shell-action-header"
+                              AriaLabel="Cambiar tema global"
+                              Title="Tema"
+                              OnClick="_ => ToggleTheme()" />
             </div>
         </div>
     </HeaderContent>
@@ -53,21 +53,38 @@
         @if (IsWorkRoute)
         {
             <section class="mx-app-left-rail" aria-label="Rail operativo izquierdo">
-                <div class="mx-app-left-rail-group" role="group" aria-label="Modo de trabajo">
-                    <button type="button" class="@GetRailButtonClass("browse")" @onclick='() => SetWorkMode("browse")'>Listado</button>
-                    <button type="button" class="@GetRailButtonClass("new")" @onclick='() => SetWorkMode("new")'>Nuevo</button>
-                    <button type="button" class="@GetRailButtonClass("detail", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("detail")'>Detalle</button>
-                    <button type="button" class="@GetRailButtonClass("edit", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("edit")'>Editar</button>
-                </div>
+                <MxSectionCard Title="Navegación" >
+                    <div class="mx-app-left-rail-group" role="group" aria-label="Modo de trabajo">
+                        @foreach (var action in RailModes)
+                        {
+                            <MxButton Label="@action.Label"
+                                      Variant="@(action.Mode == ShellState.WorkMode ? MxVariant.Filled : MxVariant.Outlined)"
+                                      Tone="@(action.Mode == ShellState.WorkMode ? MxTone.Primary : MxTone.Neutral)"
+                                      Size="MxSize.Small"
+                                      Class="mx-app-left-rail-action"
+                                      Disabled="@action.Disabled"
+                                      OnClick="_ => SetWorkMode(action.Mode)" />
+                        }
+                    </div>
+                </MxSectionCard>
 
-                <div class="mx-app-left-rail-separator" role="presentation"></div>
-
-                <div class="mx-app-left-rail-group" role="group" aria-label="Acciones rápidas">
-                    <button type="button" class="mx-app-left-rail-item" @onclick="ClearContextSelection" disabled="@(!ShellState.WorkSelectionActive)">
-                        Limpiar selección
-                    </button>
-                    <button type="button" class="mx-app-left-rail-item" @onclick='() => SetWorkMode("browse")'>Volver al listado</button>
-                </div>
+                <MxSectionCard Title="Acciones rápidas">
+                    <div class="mx-app-left-rail-group" role="group" aria-label="Acciones rápidas">
+                        <MxButton Label="Limpiar selección"
+                                  Variant="MxVariant.Outlined"
+                                  Tone="MxTone.Neutral"
+                                  Size="MxSize.Small"
+                                  Class="mx-app-left-rail-action"
+                                  Disabled="@(!ShellState.WorkSelectionActive)"
+                                  OnClick="_ => ClearContextSelection()" />
+                        <MxButton Label="Volver al listado"
+                                  Variant="MxVariant.Text"
+                                  Tone="MxTone.Neutral"
+                                  Size="MxSize.Small"
+                                  Class="mx-app-left-rail-action"
+                                  OnClick='@(_ => SetWorkMode("browse"))' />
+                    </div>
+                </MxSectionCard>
             </section>
         }
     </LeftSidebar>
@@ -80,36 +97,39 @@
         @if (IsWorkRoute)
         {
             <section class="mx-workspace-panel" aria-label="Panel contextual derecho">
-                <header class="mx-workspace-panel-header">
-                    <div>
-                        <h4>Registro activo</h4>
-                        <p class="mx-workspace-panel-caption">@CurrentModeLabel · @SelectionCaption</p>
-                    </div>
-                </header>
+                <MxSectionCard Title="Registro activo">
+                    <header class="mx-workspace-panel-header">
+                        <div>
+                            <h4>@CurrentModeLabel</h4>
+                            <p class="mx-workspace-panel-caption">@SelectionCaption</p>
+                        </div>
+                        <MxTag Text="Contexto" Tone="MxTone.Neutral" />
+                    </header>
 
-                @if (ShellState.WorkSelectionActive)
-                {
-                    @if (!string.IsNullOrWhiteSpace(ShellState.WorkSelectionTitle))
+                    @if (ShellState.WorkSelectionActive)
                     {
-                        <h5>@ShellState.WorkSelectionTitle</h5>
-                    }
-
-                    <ul>
-                        @foreach (var detail in ShellState.WorkSelectionDetails)
+                        @if (!string.IsNullOrWhiteSpace(ShellState.WorkSelectionTitle))
                         {
-                            <li>@detail</li>
+                            <h5>@ShellState.WorkSelectionTitle</h5>
                         }
-                    </ul>
 
-                    <div class="mx-workspace-panel-actions">
-                        <MxButton Label="Abrir detalle" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="@(_ => SetWorkMode("detail"))" />
-                        <MxButton Label="Editar" Variant="MxVariant.Outlined" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="@(_ => SetWorkMode("edit"))" />
-                    </div>
-                }
-                else
-                {
-                    <p>Selecciona un registro para ver su información y acciones disponibles.</p>
-                }
+                        <div class="mx-workspace-panel-details">
+                            @foreach (var detail in ShellState.WorkSelectionDetails)
+                            {
+                                <p>@detail</p>
+                            }
+                        </div>
+
+                        <div class="mx-workspace-panel-actions">
+                            <MxButton Label="Abrir detalle" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick='@(_ => SetWorkMode("detail"))' />
+                            <MxButton Label="Editar" Variant="MxVariant.Outlined" Tone="MxTone.Primary" Size="MxSize.Small" OnClick='@(_ => SetWorkMode("edit"))' />
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="mx-workspace-panel-empty">Selecciona un registro para ver su información y acciones disponibles.</p>
+                    }
+                </MxSectionCard>
             </section>
         }
     </RightSidebar>
@@ -125,12 +145,20 @@
     private string RightSidebarWidth { get; set; } = "360px";
     private bool IsWorkRoute { get; set; }
 
+    private IReadOnlyList<(string Mode, string Label, bool Disabled)> RailModes =>
+    [
+        ("browse", "Listado", false),
+        ("new", "Nuevo", false),
+        ("detail", "Detalle", !ShellState.WorkSelectionActive),
+        ("edit", "Editar", !ShellState.WorkSelectionActive)
+    ];
+
     private string CurrentModeLabel => ShellState.WorkMode switch
     {
         "new" => "Nuevo",
         "detail" => "Detalle",
         "edit" => "Edición",
-        _ => "Browse"
+        _ => "Listado"
     };
 
     private string SelectionCaption => ShellState.WorkSelectionActive
@@ -268,21 +296,5 @@
     {
         ShellState.ClearWorkSelection();
         ShellState.SetWorkMode("browse");
-    }
-
-    private string GetRailButtonClass(string mode, bool disabled = false)
-    {
-        var css = "mx-app-left-rail-item";
-        if (string.Equals(ShellState.WorkMode, mode, StringComparison.OrdinalIgnoreCase))
-        {
-            css += " is-active";
-        }
-
-        if (disabled)
-        {
-            css += " is-disabled";
-        }
-
-        return css;
     }
 }

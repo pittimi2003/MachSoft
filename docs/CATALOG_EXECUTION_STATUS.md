@@ -276,3 +276,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - `LeftSidebar` se simplifica como rail operativo contextual (modos + acciones rápidas) sin encabezados narrativos de arquitectura.
 - `RightSidebar` conserva peso contextual y acciones de continuidad, removiendo etiquetado explícito tipo “inspector” y priorizando información del registro activo.
 - Se ajusta `machsoft-ui.css` para acompañar la iteración (densidad, jerarquía y acabado visual) manteniendo autoridad del Design System MachSoft.
+
+## 38) Actualización 2026-04-09 (UTC) — Traducción fiel de `/work` al patrón benchmark usando contratos MachSoft
+- Se refactoriza `/work` en los cuatro hosts activos (`Template.Server`, `Template.Wasm`, `Demo.Server`, `Demo.WebAssembly`) para acercar la composición al benchmark origen (rail izquierdo operativo, grid dominante central y panel contextual derecho) sin duplicar layout tripartito dentro de `MainContent`.
+- Se mantiene `MxWorkspaceLayout` como única fuente de verdad estructural del shell; no se introduce clon de `MlxMainContainer` ni layouts paralelos.
+- Se sustituyen controles manuales en la experiencia de `/work` por contratos `Mx*` (acciones con `MxButton`/`MxIconButton`, encabezado con `MxEntityHeader`, estados/contexto con `MxTag`, superficies con `MxSectionCard`, formulario de alta con `MxTextField` y listado con `MxDataGrid`).
+- Se refuerza comportamiento de estados `browse/detail/edit/new` sincronizados entre página y shell, preservando apertura contextual del panel derecho basada en selección real del grid.
+- Se ajusta la capa visual de `machsoft-ui.css` para evitar hardcodes de color en el área operativa y consolidar estilos gobernados por tokens `--mx-*`/superficies del Design System.
+- Resultado operativo: `/work` queda más cercana al flujo del benchmark (Users/Warehouse/Designer) pero implementada con apariencia y contratos MachSoft, compatible con theming y gobernada por `MxWorkspaceLayout`.
