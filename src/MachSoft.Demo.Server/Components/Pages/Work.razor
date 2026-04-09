@@ -4,25 +4,15 @@
 @inject ShellState ShellState
 
 <section class="mx-app-work-shell" aria-label="Superficie de trabajo">
-    <header class="mx-app-work-head-block">
-        <div class="mx-app-work-head-main">
-            <p class="mx-app-work-overline">Workspace operativo</p>
-            <MxEntityHeader Title="Operaciones" Subtitle="@($"{CurrentModeLabel} · {SelectionCountLabel}")">
-                <Meta>
-                    <MxTag Text="En curso" Tone="MxTone.Primary" Class="mx-app-work-context-tag" />
-                </Meta>
-            </MxEntityHeader>
-        </div>
-        <div class="mx-app-work-head-context">
-            <MxTag Text="Contexto" Tone="MxTone.Neutral" />
-            <p>@SelectionSummary</p>
-        </div>
-    </header>
+    <MxEntityHeader Title="Operaciones" Subtitle="@($"{CurrentModeLabel} · {SelectionCountLabel}")">
+        <Meta>
+            <MxTag Text="En curso" Tone="MxTone.Primary" />
+        </Meta>
+    </MxEntityHeader>
 
     @if (CurrentMode == NewMode)
     {
-        <MxSectionCard Title="Alta rápida">
-            <p class="mx-app-work-new-copy">Completa los datos base y confirma para continuar en el listado.</p>
+        <MxSectionCard Title="Nuevo">
             <MxFormSection Title="Datos principales">
                 <div class="mx-app-work-form-grid">
                     <MxTextField Label="Código" Placeholder="WK-10XX" Value="@DraftCode" ValueChanged="OnDraftCodeChanged" />
@@ -89,10 +79,6 @@
         EditMode => "Edición",
         _ => "Listado"
     };
-
-    private string SelectionSummary => ShellState.WorkSelectionActive
-        ? $"{ShellState.WorkSelectionCount} elemento(s) en foco"
-        : "Sin selección";
 
     private string SelectionCountLabel => ShellState.WorkSelectionActive
         ? $"{ShellState.WorkSelectionCount} seleccionados"
@@ -204,7 +190,7 @@
         return Task.CompletedTask;
     }
 
-    private void SetMode(string mode, bool syncShell = true)
+    private void SetMode(string? mode, bool syncShell = true)
     {
         var normalized = NormalizeMode(mode);
 
@@ -213,10 +199,20 @@
             normalized = BrowseMode;
         }
 
-        if (normalized == NewMode)
+        if (syncShell && normalized == NewMode && ShellState.WorkSelectionActive)
         {
             SelectedItems = Array.Empty<WorkItem>();
             ShellState.ClearWorkSelection();
+        }
+
+        if (string.Equals(CurrentMode, normalized, StringComparison.Ordinal))
+        {
+            if (syncShell && !string.Equals(ShellState.WorkMode, normalized, StringComparison.OrdinalIgnoreCase))
+            {
+                ShellState.SetWorkMode(normalized);
+            }
+
+            return;
         }
 
         CurrentMode = normalized;
@@ -229,17 +225,23 @@
 
     private void OnShellStateChanged()
     {
-        if (!string.Equals(CurrentMode, ShellState.WorkMode, StringComparison.OrdinalIgnoreCase))
+        var shellMode = NormalizeMode(ShellState.WorkMode);
+        if (!string.Equals(CurrentMode, shellMode, StringComparison.Ordinal))
         {
-            SetMode(ShellState.WorkMode, syncShell: false);
+            SetMode(shellMode, syncShell: false);
         }
 
         InvokeAsync(StateHasChanged);
     }
 
-    private static string NormalizeMode(string mode)
+    private static string NormalizeMode(string? mode)
     {
-        return mode.ToLowerInvariant() switch
+        if (string.IsNullOrWhiteSpace(mode))
+        {
+            return BrowseMode;
+        }
+
+        return mode.Trim().ToLowerInvariant() switch
         {
             NewMode => NewMode,
             DetailMode => DetailMode,

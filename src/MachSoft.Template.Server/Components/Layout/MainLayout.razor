@@ -26,7 +26,7 @@
                 <span class="mx-app-shell-brand-mark" aria-hidden="true">MS</span>
                 <span class="mx-app-shell-brand-copy">
                     <span class="mx-app-shell-brand-title">MachSoft App Base</span>
-                    <span class="mx-app-shell-brand-subtitle">Template Server</span>
+                    <span class="mx-app-shell-brand-subtitle">Demo WebAssembly</span>
                 </span>
             </div>
             <div class="mx-app-shell-actions">
@@ -53,38 +53,42 @@
         @if (IsWorkRoute)
         {
             <section class="mx-app-left-rail" aria-label="Rail operativo izquierdo">
-                <MxSectionCard Title="Navegación" >
-                    <div class="mx-app-left-rail-group" role="group" aria-label="Modo de trabajo">
-                        @foreach (var action in RailModes)
-                        {
-                            <MxButton Label="@action.Label"
-                                      Variant="@(action.Mode == ShellState.WorkMode ? MxVariant.Filled : MxVariant.Outlined)"
+                <div class="mx-app-left-rail-group" role="group" aria-label="Modo de trabajo">
+                    @foreach (var action in RailModes)
+                    {
+                        <MxIconButton Icon="@action.Icon"
                                       Tone="@(action.Mode == ShellState.WorkMode ? MxTone.Primary : MxTone.Neutral)"
                                       Size="MxSize.Small"
-                                      Class="mx-app-left-rail-action"
+                                      Variant="@(action.Mode == ShellState.WorkMode ? MxVariant.Filled : MxVariant.Outlined)"
+                                      Class="mx-app-left-rail-icon"
                                       Disabled="@action.Disabled"
+                                      AriaLabel="@action.Label"
+                                      Title="@action.Label"
                                       OnClick="_ => SetWorkMode(action.Mode)" />
-                        }
-                    </div>
-                </MxSectionCard>
+                    }
+                </div>
 
-                <MxSectionCard Title="Acciones rápidas">
-                    <div class="mx-app-left-rail-group" role="group" aria-label="Acciones rápidas">
-                        <MxButton Label="Limpiar selección"
+                <div class="mx-app-left-rail-separator" aria-hidden="true"></div>
+
+                <div class="mx-app-left-rail-group" role="group" aria-label="Acciones rápidas">
+                    <MxIconButton Icon="@Icons.Material.Outlined.ClearAll"
+                                  Tone="MxTone.Neutral"
+                                  Size="MxSize.Small"
                                   Variant="MxVariant.Outlined"
-                                  Tone="MxTone.Neutral"
-                                  Size="MxSize.Small"
-                                  Class="mx-app-left-rail-action"
+                                  Class="mx-app-left-rail-icon"
                                   Disabled="@(!ShellState.WorkSelectionActive)"
+                                  AriaLabel="Limpiar selección"
+                                  Title="Limpiar selección"
                                   OnClick="_ => ClearContextSelection()" />
-                        <MxButton Label="Volver al listado"
-                                  Variant="MxVariant.Text"
+                    <MxIconButton Icon="@Icons.Material.Outlined.List"
                                   Tone="MxTone.Neutral"
                                   Size="MxSize.Small"
-                                  Class="mx-app-left-rail-action"
+                                  Variant="MxVariant.Outlined"
+                                  Class="mx-app-left-rail-icon"
+                                  AriaLabel="Volver al listado"
+                                  Title="Volver al listado"
                                   OnClick='@(_ => SetWorkMode("browse"))' />
-                    </div>
-                </MxSectionCard>
+                </div>
             </section>
         }
     </LeftSidebar>
@@ -145,12 +149,12 @@
     private string RightSidebarWidth { get; set; } = "360px";
     private bool IsWorkRoute { get; set; }
 
-    private IReadOnlyList<(string Mode, string Label, bool Disabled)> RailModes =>
+    private IReadOnlyList<(string Mode, string Label, string Icon, bool Disabled)> RailModes =>
     [
-        ("browse", "Listado", false),
-        ("new", "Nuevo", false),
-        ("detail", "Detalle", !ShellState.WorkSelectionActive),
-        ("edit", "Editar", !ShellState.WorkSelectionActive)
+        ("browse", "Listado", Icons.Material.Outlined.List, false),
+        ("new", "Nuevo", Icons.Material.Outlined.Add, false),
+        ("detail", "Detalle", Icons.Material.Outlined.Visibility, !ShellState.WorkSelectionActive),
+        ("edit", "Editar", Icons.Material.Outlined.Edit, !ShellState.WorkSelectionActive)
     ];
 
     private string CurrentModeLabel => ShellState.WorkMode switch
@@ -201,9 +205,9 @@
         {
             LeftSidebarMode = MxSidebarMode.Inline;
             RightSidebarMode = MxSidebarMode.Overlay;
-            LeftSidebarWidth = "220px";
+            LeftSidebarWidth = "56px";
             RightSidebarWidth = "360px";
-            LeftSidebarOpen = false;
+            LeftSidebarOpen = true;
             RightSidebarOpen = false;
         }
         else
