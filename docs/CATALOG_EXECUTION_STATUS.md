@@ -291,3 +291,15 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se mantiene `MxWorkspaceLayout` como arquitectura base y se refuerza la estructura operativa solicitada del benchmark en `/work`: rail izquierdo estrecho operativo, región central dominante con `MxDataGrid` + toolbar real, y panel contextual derecho ligado a selección.
 - Se elimina composición narrada/no funcional en `/work` y `LeftSidebar`; el rail opera con acciones compactas usando únicamente contratos `Mx*` y clases `mx-*`.
 - Se ajusta `machsoft-ui.css` para soportar densidad del rail compacto con tokens del Design System (sin hardcodes fuera del sistema).
+
+## 41) Actualización 2026-04-09 (UTC) — `/work` reanclado a benchmark operativo `Users` + corrección de regresión de modo
+- Se corrige la regresión funcional en `Work.razor` de los cuatro hosts activos (`Template.Server`, `Template.Wasm`, `Demo.Server`, `Demo.WebAssembly`): `NormalizeMode(string?)` tolera `null`/vacío sin riesgo de `ToLowerInvariant()` sobre valor nulo.
+- `SetMode` deja de reemitir sincronización al shell cuando el modo solicitado ya coincide con el estado actual, evitando ruido de eventos y recursión indirecta.
+- Se desacopla el ciclo entre modo y selección (`SetMode` ↔ `OnShellStateChanged` ↔ `SetWorkSelection`/`ClearWorkSelection`) con guardas de sincronización y comparación previa de estado para no publicar cambios idénticos.
+- Se rehace la composición central de `/work` para respetar el benchmark `Users`: toolbar operativa explícita, grid dominante en browse/detail/edit y transición a formulario en `new`, manteniendo el detalle contextual en `RightSidebar` y acciones en `LeftSidebar` sobre `MxWorkspaceLayout`.
+- Toda la implementación usa contratos MachSoft (`Mx*`) y estilos `mx-*`, preservando theming/tokens del Design System sin introducir layout alternativo al shell oficial.
+
+## 42) Actualización 2026-04-09 (UTC) — Consolidación final de `/work` contra benchmark `Users`
+- Se valida en esta ejecución la paridad operativa de `/work` (cuatro hosts) con patrón `Users`: rail izquierdo contextual, toolbar de listado, grid central dominante, selección que habilita `detail/edit` y modo `new` con formulario dedicado.
+- Se confirma endurecimiento funcional de modo/selección para eliminar regresiones por reemisión redundante y sincronización circular con estado de shell.
+- Se mantiene cumplimiento arquitectónico: `MxWorkspaceLayout` como único contenedor estructural y consumo exclusivo de contratos `Mx*` en la superficie de negocio.
