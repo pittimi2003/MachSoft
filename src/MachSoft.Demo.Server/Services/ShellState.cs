@@ -8,6 +8,8 @@ public sealed class ShellState
 
     public int WorkSelectionCount { get; private set; }
 
+    public string WorkMode { get; private set; } = "browse";
+
     public string? WorkSelectionTitle { get; private set; }
 
     public IReadOnlyList<string> WorkSelectionDetails { get; private set; } = Array.Empty<string>();
@@ -22,6 +24,18 @@ public sealed class ShellState
         }
 
         DarkMode = darkMode;
+        Changed?.Invoke();
+    }
+
+    public void SetWorkMode(string mode)
+    {
+        var normalizedMode = NormalizeMode(mode);
+        if (string.Equals(WorkMode, normalizedMode, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        WorkMode = normalizedMode;
         Changed?.Invoke();
     }
 
@@ -42,5 +56,21 @@ public sealed class ShellState
     public void ClearWorkSelection()
     {
         SetWorkSelection(0, null, Array.Empty<string>());
+    }
+
+    private static string NormalizeMode(string mode)
+    {
+        if (string.IsNullOrWhiteSpace(mode))
+        {
+            return "browse";
+        }
+
+        return mode.ToLowerInvariant() switch
+        {
+            "new" => "new",
+            "detail" => "detail",
+            "edit" => "edit",
+            _ => "browse"
+        };
     }
 }

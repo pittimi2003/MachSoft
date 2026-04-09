@@ -6,38 +6,45 @@
 <section class="mx-app-work-shell" aria-label="Superficie de trabajo">
     <header class="mx-app-work-head-block">
         <div class="mx-app-work-head-main">
-            <p class="mx-app-work-overline">Operación</p>
+            <p class="mx-app-work-overline">Operación de listado</p>
             <h1 class="mx-app-work-title">Mesa de trabajo</h1>
             <p class="mx-app-work-toolbar-caption">Modo activo: <strong>@CurrentModeLabel</strong></p>
         </div>
         <div class="mx-app-work-head-context">
-            <span class="mx-app-work-context-badge">Browse rail</span>
+            <span class="mx-app-work-context-badge">Contexto activo</span>
             <p>@SelectionSummary</p>
         </div>
     </header>
 
-    <div class="mx-app-work-toolbar" role="toolbar" aria-label="Acciones de operación">
+    <div class="mx-app-work-toolbar" role="toolbar" aria-label="Barra de acciones del listado">
         <div class="mx-app-work-toolbar-actions">
-            <button type="button"
-                    class='@GetModeButtonClass("browse")'
-                    @onclick='() => SetMode("browse")'>
-                Browse
-            </button>
-            <button type="button"
-                    class='@GetModeButtonClass("new")'
-                    @onclick='() => SetMode("new")'>
-                New
-            </button>
-            <button type="button"
-                    class='@GetModeButtonClass("detail")'
-                    @onclick='() => SetMode("detail")'>
-                Detail
-            </button>
-            <button type="button"
-                    class='@GetModeButtonClass("edit")'
-                    @onclick='() => SetMode("edit")'>
-                Edit
-            </button>
+            <MxButton Label="Refrescar"
+                      Variant="MxVariant.Outlined"
+                      Tone="MxTone.Neutral"
+                      Size="MxSize.Small"
+                      OnClick="_ => RefreshList()" />
+            <MxButton Label="Browse"
+                      Variant="@(CurrentMode == BrowseMode ? MxVariant.Filled : MxVariant.Outlined)"
+                      Tone="MxTone.Neutral"
+                      Size="MxSize.Small"
+                      OnClick="_ => SetMode(BrowseMode)" />
+            <MxButton Label="Detalle"
+                      Variant="@(CurrentMode == DetailMode ? MxVariant.Filled : MxVariant.Outlined)"
+                      Tone="MxTone.Primary"
+                      Size="MxSize.Small"
+                      Disabled="@(!ShellState.WorkSelectionActive)"
+                      OnClick="_ => SetMode(DetailMode)" />
+            <MxButton Label="Editar"
+                      Variant="@(CurrentMode == EditMode ? MxVariant.Filled : MxVariant.Outlined)"
+                      Tone="MxTone.Primary"
+                      Size="MxSize.Small"
+                      Disabled="@(!ShellState.WorkSelectionActive)"
+                      OnClick="_ => SetMode(EditMode)" />
+            <MxButton Label="Nuevo"
+                      Variant="@(CurrentMode == NewMode ? MxVariant.Filled : MxVariant.Outlined)"
+                      Tone="MxTone.Secondary"
+                      Size="MxSize.Small"
+                      OnClick="_ => SetMode(NewMode)" />
         </div>
         <div class="mx-app-work-toolbar-meta">
             <span>@FilteredItems.Count registros</span>
@@ -45,6 +52,34 @@
             <span>@SelectionCountLabel</span>
         </div>
     </div>
+
+    @if (CurrentMode == NewMode)
+    {
+        <section class="mx-app-work-state-panel" aria-label="Bloque de alta">
+            <header>
+                <h2>Alta rápida</h2>
+                <p>Completa los datos base y confirma para volver al browse operativo.</p>
+            </header>
+            <div class="mx-app-work-state-grid">
+                <label>
+                    Código
+                    <input type="text" placeholder="WK-10XX" />
+                </label>
+                <label>
+                    Nombre
+                    <input type="text" placeholder="Descripción de tarea" />
+                </label>
+                <label>
+                    Responsable
+                    <input type="text" placeholder="Nombre de responsable" />
+                </label>
+            </div>
+            <div class="mx-app-work-state-actions">
+                <MxButton Label="Cancelar" Variant="MxVariant.Outlined" Tone="MxTone.Neutral" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
+                <MxButton Label="Guardar borrador" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="_ => SetMode(BrowseMode)" />
+            </div>
+        </section>
+    }
 
     <div class="mx-app-work-surface">
         <div class="mx-app-work-grid-shell">
@@ -64,18 +99,25 @@
 </section>
 
 @code {
+    private const string BrowseMode = "browse";
+    private const string DetailMode = "detail";
+    private const string EditMode = "edit";
+    private const string NewMode = "new";
+
     private int Page = 1;
-    private string CurrentMode { get; set; } = "browse";
+    private string CurrentMode { get; set; } = BrowseMode;
     private string CurrentModeLabel => CurrentMode switch
     {
-        "new" => "new",
-        "detail" => "detail",
-        "edit" => "edit",
-        _ => "browse"
+        NewMode => "Nuevo",
+        DetailMode => "Detalle",
+        EditMode => "Edición",
+        _ => "Browse"
     };
+
     private string SelectionSummary => ShellState.WorkSelectionActive
         ? $"{ShellState.WorkSelectionCount} elemento(s) en foco"
         : "Sin selección contextual";
+
     private string SelectionCountLabel => ShellState.WorkSelectionActive
         ? $"{ShellState.WorkSelectionCount} seleccionados"
         : "0 seleccionados";
@@ -96,12 +138,16 @@
     protected override void OnInitialized()
     {
         SelectedItems = Array.Empty<WorkItem>();
+        ShellState.Changed += OnShellStateChanged;
         ShellState.ClearWorkSelection();
+        SetMode(BrowseMode, syncShell: true);
     }
 
     public void Dispose()
     {
+        ShellState.Changed -= OnShellStateChanged;
         ShellState.ClearWorkSelection();
+        ShellState.SetWorkMode(BrowseMode);
     }
 
     private Task OnPageChanged(int page)
@@ -125,17 +171,66 @@
             ];
 
         ShellState.SetWorkSelection(selected.Count, first?.Name, details);
+
+        if (selected.Count == 0 && (CurrentMode == DetailMode || CurrentMode == EditMode))
+        {
+            SetMode(BrowseMode);
+        }
+        else if (selected.Count > 0 && CurrentMode == BrowseMode)
+        {
+            SetMode(DetailMode);
+        }
+
         return Task.CompletedTask;
     }
 
-    private void SetMode(string mode)
+    private Task RefreshList()
     {
-        CurrentMode = mode;
+        Page = 1;
+        return Task.CompletedTask;
     }
 
-    private string GetModeButtonClass(string mode)
+    private void SetMode(string mode, bool syncShell = true)
     {
-        var isActive = string.Equals(CurrentMode, mode, StringComparison.OrdinalIgnoreCase);
-        return isActive ? "mx-app-shell-action is-active" : "mx-app-shell-action";
+        var normalized = NormalizeMode(mode);
+
+        if ((normalized == DetailMode || normalized == EditMode) && !ShellState.WorkSelectionActive)
+        {
+            normalized = BrowseMode;
+        }
+
+        if (normalized == NewMode)
+        {
+            SelectedItems = Array.Empty<WorkItem>();
+            ShellState.ClearWorkSelection();
+        }
+
+        CurrentMode = normalized;
+
+        if (syncShell)
+        {
+            ShellState.SetWorkMode(normalized);
+        }
+    }
+
+    private void OnShellStateChanged()
+    {
+        if (!string.Equals(CurrentMode, ShellState.WorkMode, StringComparison.OrdinalIgnoreCase))
+        {
+            SetMode(ShellState.WorkMode, syncShell: false);
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private static string NormalizeMode(string mode)
+    {
+        return mode.ToLowerInvariant() switch
+        {
+            NewMode => NewMode,
+            DetailMode => DetailMode,
+            EditMode => EditMode,
+            _ => BrowseMode
+        };
     }
 }

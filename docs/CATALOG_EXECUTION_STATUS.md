@@ -261,3 +261,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se refuerza `LeftSidebar` como rail operativo estable mediante agrupación explícita de acciones (modo vs acciones), separación visual y ritmo vertical consistente.
 - Se robustece `RightSidebar` contextual con cabecera propia, estado contextual visible y acciones de detalle para mantener balance con el peso visual del área principal.
 - Se actualiza la hoja base `machsoft-ui.css` para reflejar esta densidad operativa (espaciados, jerarquía y barras intermedias) sin importar estilos/tokens del benchmark origen.
+
+## 38) Actualización 2026-04-08 (UTC) — `/work` como referencia operativa fiel al patrón origen (sin alterar arquitectura)
+- Se refuerza `/work` en los cuatro hosts activos (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`) para materializar explícitamente el flujo operativo `browse/detail/edit/new` con estado compartido y trazable.
+- Se mantiene `MxWorkspaceLayout` como única fuente estructural: `NavigationMenu` global, `LeftSidebar` funcional, `MainContent` dominante y `RightSidebar` contextual; no se incorpora layout tripartito adicional dentro de la página.
+- `LeftSidebar` evoluciona a rail operativo real (no residual): agrupación de acciones por contexto, jerarquía visual por estado activo/deshabilitado y ritmo vertical consistente.
+- `MainContent` se ordena con cabecera de trabajo + barra de acciones de listado + superficie dominante de grid, añadiendo transición visible para modo `new` sin romper la centralidad del listado.
+- `RightSidebar` se consolida como inspector contextual con cabecera, estado de modo/selección y acciones de continuidad (`detalle`/`edición`) vinculadas a la selección del grid.
+- Se extiende `ShellState` con `WorkMode` para sincronizar modo operativo entre página y sidebars, preservando apertura contextual responsive del panel derecho en `Overlay` cuando aplica contexto real.
