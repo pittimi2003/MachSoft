@@ -269,3 +269,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - `MainContent` se ordena con cabecera de trabajo + barra de acciones de listado + superficie dominante de grid, añadiendo transición visible para modo `new` sin romper la centralidad del listado.
 - `RightSidebar` se consolida como inspector contextual con cabecera, estado de modo/selección y acciones de continuidad (`detalle`/`edición`) vinculadas a la selección del grid.
 - Se extiende `ShellState` con `WorkMode` para sincronizar modo operativo entre página y sidebars, preservando apertura contextual responsive del panel derecho en `Overlay` cuando aplica contexto real.
+
+## 39) Actualización 2026-04-09 (UTC) — Normalización visual de `/work` para lectura operativa natural
+- Se mantiene intacta la arquitectura vigente (`MxWorkspaceLayout` + regiones `LeftSidebar`, `MainContent`, `RightSidebar`) en los cuatro hosts activos (`Demo.Server`, `Demo.WebAssembly`, `Template.Server`, `Template.Wasm`) sin crear layouts alternativos.
+- Se depuran rótulos didácticos/excesivos en `/work` para evitar lectura de maqueta y reforzar lenguaje de producto real: cabecera sobria, toolbar integrada y panel contextual con copy funcional.
+- `LeftSidebar` se simplifica como rail operativo contextual (modos + acciones rápidas) sin encabezados narrativos de arquitectura.
+- `RightSidebar` conserva peso contextual y acciones de continuidad, removiendo etiquetado explícito tipo “inspector” y priorizando información del registro activo.
+- Se ajusta `machsoft-ui.css` para acompañar la iteración (densidad, jerarquía y acabado visual) manteniendo autoridad del Design System MachSoft.
