@@ -284,3 +284,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se refuerza comportamiento de estados `browse/detail/edit/new` sincronizados entre página y shell, preservando apertura contextual del panel derecho basada en selección real del grid.
 - Se ajusta la capa visual de `machsoft-ui.css` para evitar hardcodes de color en el área operativa y consolidar estilos gobernados por tokens `--mx-*`/superficies del Design System.
 - Resultado operativo: `/work` queda más cercana al flujo del benchmark (Users/Warehouse/Designer) pero implementada con apariencia y contratos MachSoft, compatible con theming y gobernada por `MxWorkspaceLayout`.
+
+## 40) Actualización 2026-04-09 (UTC) — Corrección de regresión de modo/selección y realineación estricta de `/work`
+- Se corrige la regresión funcional en `Work.razor` (Demo/Template, Server + WebAssembly): `NormalizeMode` ahora acepta `null`/vacío de forma segura y evita `ToLowerInvariant()` sobre valores nulos.
+- Se blinda la transición de modo para cortar recursión entre `SetMode`, `OnShellStateChanged`, `ShellState.SetWorkMode`, `SetWorkSelection` y `ClearWorkSelection`: no se reemite modo cuando ya está aplicado y no se limpia selección al sincronizar eventos del shell.
+- Se mantiene `MxWorkspaceLayout` como arquitectura base y se refuerza la estructura operativa solicitada del benchmark en `/work`: rail izquierdo estrecho operativo, región central dominante con `MxDataGrid` + toolbar real, y panel contextual derecho ligado a selección.
+- Se elimina composición narrada/no funcional en `/work` y `LeftSidebar`; el rail opera con acciones compactas usando únicamente contratos `Mx*` y clases `mx-*`.
+- Se ajusta `machsoft-ui.css` para soportar densidad del rail compacto con tokens del Design System (sin hardcodes fuera del sistema).
