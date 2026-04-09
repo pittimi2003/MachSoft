@@ -53,17 +53,25 @@
         @if (IsWorkRoute)
         {
             <section class="mx-app-left-rail" aria-label="Rail operativo izquierdo">
-                <div class="mx-app-left-rail-group">
-                    <span class="mx-app-left-rail-group-title">Modo</span>
-                    <button type="button" class="mx-app-rail-action is-active" title="Browse"><MudIcon Icon="@Icons.Material.Outlined.SpaceDashboard" /></button>
-                    <button type="button" class="mx-app-rail-action" title="Editor"><MudIcon Icon="@Icons.Material.Outlined.Edit" /></button>
+                <div class="mx-app-left-rail-group mx-app-left-rail-group-header">
+                    <span class="mx-app-left-rail-group-label">Acciones de vista</span>
+                    <span class="mx-app-left-rail-group-helper">Modo activo: @CurrentModeLabel</span>
                 </div>
+
+                <div class="mx-app-left-rail-group" role="group" aria-label="Modos">
+                    <button type="button" class="@GetRailButtonClass("browse")" @onclick='() => SetWorkMode("browse")'>Browse</button>
+                    <button type="button" class="@GetRailButtonClass("new")" @onclick='() => SetWorkMode("new")'>New</button>
+                    <button type="button" class="@GetRailButtonClass("detail", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("detail")'>Detail</button>
+                    <button type="button" class="@GetRailButtonClass("edit", !ShellState.WorkSelectionActive)" disabled="@(!ShellState.WorkSelectionActive)" @onclick='() => SetWorkMode("edit")'>Edit</button>
+                </div>
+
                 <div class="mx-app-left-rail-separator" role="presentation"></div>
-                <div class="mx-app-left-rail-group">
-                    <span class="mx-app-left-rail-group-title">Acciones</span>
-                    <button type="button" class="mx-app-rail-action" title="Sincronizar"><MudIcon Icon="@Icons.Material.Outlined.Sync" /></button>
-                    <button type="button" class="mx-app-rail-action" title="Filtrar"><MudIcon Icon="@Icons.Material.Outlined.FilterAlt" /></button>
-                    <button type="button" class="mx-app-rail-action" title="Exportar"><MudIcon Icon="@Icons.Material.Outlined.FileDownload" /></button>
+
+                <div class="mx-app-left-rail-group" role="group" aria-label="Acciones contextuales">
+                    <button type="button" class="mx-app-left-rail-item" @onclick="ClearContextSelection" disabled="@(!ShellState.WorkSelectionActive)">
+                        Limpiar foco
+                    </button>
+                    <button type="button" class="mx-app-left-rail-item" @onclick='() => SetWorkMode("browse")'>Volver al browse</button>
                 </div>
             </section>
         }
@@ -76,17 +84,17 @@
     <RightSidebar>
         @if (IsWorkRoute)
         {
-            <section class="mx-workspace-panel" aria-label="Panel de selección">
+            <section class="mx-workspace-panel" aria-label="Panel contextual derecho">
                 <header class="mx-workspace-panel-header">
                     <div>
-                        <p class="mx-workspace-panel-kicker">Contexto</p>
-                        <h4>Selección</h4>
+                        <p class="mx-workspace-panel-kicker">Detalle contextual</p>
+                        <h4>Inspector de selección</h4>
+                        <p class="mx-workspace-panel-caption">@CurrentModeLabel · @SelectionCaption</p>
                     </div>
-                    <button type="button" class="mx-app-shell-action">Inspeccionar</button>
                 </header>
+
                 @if (ShellState.WorkSelectionActive)
                 {
-                    <p class="mx-workspace-panel-caption">@ShellState.WorkSelectionCount elemento(s) seleccionado(s)</p>
                     @if (!string.IsNullOrWhiteSpace(ShellState.WorkSelectionTitle))
                     {
                         <h5>@ShellState.WorkSelectionTitle</h5>
@@ -98,14 +106,15 @@
                             <li>@detail</li>
                         }
                     </ul>
+
                     <div class="mx-workspace-panel-actions">
-                        <button type="button" class="mx-app-shell-action">Abrir detalle</button>
-                        <button type="button" class="mx-app-shell-action">Comparar</button>
+                        <MxButton Label="Abrir detalle" Variant="MxVariant.Filled" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="@(_ => SetWorkMode("detail"))" />
+                        <MxButton Label="Editar" Variant="MxVariant.Outlined" Tone="MxTone.Primary" Size="MxSize.Small" OnClick="@(_ => SetWorkMode("edit"))" />
                     </div>
                 }
                 else
                 {
-                    <p>Selecciona un registro del grid para abrir este panel contextual.</p>
+                    <p>Selecciona un registro del grid para habilitar el panel contextual.</p>
                 }
             </section>
         }
@@ -121,6 +130,18 @@
     private string LeftSidebarWidth { get; set; } = "272px";
     private string RightSidebarWidth { get; set; } = "360px";
     private bool IsWorkRoute { get; set; }
+
+    private string CurrentModeLabel => ShellState.WorkMode switch
+    {
+        "new" => "Nuevo",
+        "detail" => "Detalle",
+        "edit" => "Edición",
+        _ => "Browse"
+    };
+
+    private string SelectionCaption => ShellState.WorkSelectionActive
+        ? $"{ShellState.WorkSelectionCount} seleccionado(s)"
+        : "Sin selección";
 
     protected override void OnInitialized()
     {
@@ -158,7 +179,7 @@
         {
             LeftSidebarMode = MxSidebarMode.Inline;
             RightSidebarMode = MxSidebarMode.Overlay;
-            LeftSidebarWidth = "48px";
+            LeftSidebarWidth = "220px";
             RightSidebarWidth = "360px";
             LeftSidebarOpen = false;
             RightSidebarOpen = false;
@@ -185,7 +206,8 @@
 
     private void SyncWorkSelectionState()
     {
-        RightSidebarOpen = IsWorkRoute && ShellState.WorkSelectionActive;
+        var hasContext = ShellState.WorkSelectionActive || string.Equals(ShellState.WorkMode, "edit", StringComparison.OrdinalIgnoreCase);
+        RightSidebarOpen = IsWorkRoute && hasContext;
     }
 
     private Task OnDarkModeChanged(bool enabled)
@@ -235,5 +257,38 @@
     private void ToggleTheme()
     {
         ShellState.SetDarkMode(!ShellState.DarkMode);
+    }
+
+    private void SetWorkMode(string mode)
+    {
+        if ((string.Equals(mode, "detail", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "edit", StringComparison.OrdinalIgnoreCase))
+            && !ShellState.WorkSelectionActive)
+        {
+            return;
+        }
+
+        ShellState.SetWorkMode(mode);
+    }
+
+    private void ClearContextSelection()
+    {
+        ShellState.ClearWorkSelection();
+        ShellState.SetWorkMode("browse");
+    }
+
+    private string GetRailButtonClass(string mode, bool disabled = false)
+    {
+        var css = "mx-app-left-rail-item";
+        if (string.Equals(ShellState.WorkMode, mode, StringComparison.OrdinalIgnoreCase))
+        {
+            css += " is-active";
+        }
+
+        if (disabled)
+        {
+            css += " is-disabled";
+        }
+
+        return css;
     }
 }
