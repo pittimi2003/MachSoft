@@ -310,3 +310,11 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se mantiene el patrón solicitado de componentes MachSoft en superficie pública (`MxButton`, `MxDataGrid`, `MxSectionCard`, `MxTag`, `MxTextField`) sin volver a rail iconográfico ni exponer contratos `Mud*`.
 - Se conserva la lógica anti-recursión de sincronización modo/selección (`SetMode` + `OnShellStateChanged` + guardas de supresión) para evitar loops de eventos con `ShellState`.
 - Resultado operativo: los cuatro hosts quedan alineados sobre el mismo flujo funcional de `/work` con panel derecho contextual activo y paridad estructural verificable.
+
+## 44) Actualización 2026-04-09 (UTC) — Estabilización estricta de estado + clonado estructural 1:1 de `Users` en `/work`
+- Se corrige primero la estabilidad de estado en `Work.razor` (4 hosts): `NormalizeMode(string?)` tolera `null`/vacío, `SetMode` es idempotente y no reemite modo al shell si no existe cambio real.
+- Se blinda `OnShellStateChanged` contra recursión: cuando el cambio proviene de sincronización local (`suppressShellEvent`) no se vuelve a publicar estado; sólo se aplica delta real de modo.
+- Se evita rebote infinito de selección entre página y shell: la sincronización de selección compara estado previo (`count`, `active`, `title`, `details`) y sólo invoca `SetWorkSelection`/`ClearWorkSelection` cuando hay diferencia efectiva.
+- Tras estabilizar estado, `/work` se rehace como clon estructural 1:1 del benchmark `Users`: barra funcional izquierda, región central con bifurcación `new` (formulario) vs listado dominante (grid + toolbar), y panel derecho contextual por selección.
+- El mapeo se respeta sin reinterpretación: `LeftSideContent -> LeftSidebar`, `MiddleSideContent -> MainContent`, `RightSideContent -> RightSidebar` sobre `MxWorkspaceLayout` y sin parámetros no existentes.
+- Se elimina el uso inválido de `AppTitle` en `MxWorkspaceLayout`; toda la implementación de negocio en `/work` usa únicamente contratos `Mx*` confirmados.
