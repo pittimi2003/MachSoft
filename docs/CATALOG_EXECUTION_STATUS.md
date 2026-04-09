@@ -303,3 +303,10 @@ Toda ejecución relevante que cambie estado real del catálogo **debe** incluir 
 - Se valida en esta ejecución la paridad operativa de `/work` (cuatro hosts) con patrón `Users`: rail izquierdo contextual, toolbar de listado, grid central dominante, selección que habilita `detail/edit` y modo `new` con formulario dedicado.
 - Se confirma endurecimiento funcional de modo/selección para eliminar regresiones por reemisión redundante y sincronización circular con estado de shell.
 - Se mantiene cumplimiento arquitectónico: `MxWorkspaceLayout` como único contenedor estructural y consumo exclusivo de contratos `Mx*` en la superficie de negocio.
+
+## 43) Actualización 2026-04-09 (UTC) — Aplicación exacta de `Work.razor` base en los 4 hosts
+- Se aplica de forma homogénea la misma implementación de `Work.razor` (estructura + estilos inline asociados) en `Demo.Server`, `Demo.WebAssembly`, `Template.Server` y `Template.Wasm`, ajustando únicamente el `@using` de `ShellState` por host para compilar con servicios reales.
+- Se conserva `MxWorkspaceLayout` como layout único y se preservan explícitamente las tres regiones operativas: `LeftSidebar` funcional, `MainContent` con `MxDataGrid` dominante y `RightSidebar` contextual por selección.
+- Se mantiene el patrón solicitado de componentes MachSoft en superficie pública (`MxButton`, `MxDataGrid`, `MxSectionCard`, `MxTag`, `MxTextField`) sin volver a rail iconográfico ni exponer contratos `Mud*`.
+- Se conserva la lógica anti-recursión de sincronización modo/selección (`SetMode` + `OnShellStateChanged` + guardas de supresión) para evitar loops de eventos con `ShellState`.
+- Resultado operativo: los cuatro hosts quedan alineados sobre el mismo flujo funcional de `/work` con panel derecho contextual activo y paridad estructural verificable.
